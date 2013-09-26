@@ -22,9 +22,9 @@ $output = $PAGE->get_renderer('local_obf');
 echo $OUTPUT->header();
 
 try {
-    $badges = obf_get_badge_tree($reload);
+    $tree = obf_badge_tree::get_instance($reload);
     echo $OUTPUT->single_button(new moodle_url('badgelist.php', array('reload' => 1)), get_string('updatebadges', 'local_obf'));
-    echo $output->render($badges);
+    echo $output->render($tree);
 } catch (Exception $e) {
     echo $OUTPUT->notification($e->getMessage(), 'notifyproblem');
 }

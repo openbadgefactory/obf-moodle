@@ -74,15 +74,15 @@ class obf_badge implements cacheable_object {
      * @return obf_badge
      */
     public function populate_from_json($json) {
-        return $this->set_criteria($json->criteria)
-                        ->set_description($json->description)
-                        ->set_expires($json->expires)
-                        ->set_id($json->id)
-                        ->set_isdraft((bool) $json->draft)
-                        ->set_tags($json->tags)
-                        ->set_image($json->image)
-                        ->set_created($json->ctime)
-                        ->set_name($json->name);
+        return $this->set_criteria($json['criteria'])
+                        ->set_description($json['description'])
+                        ->set_expires($json['expires'])
+                        ->set_id($json['id'])
+                        ->set_isdraft((bool) $json['draft'])
+                        ->set_tags($json['tags'])
+                        ->set_image($json['image'])
+                        ->set_created($json['ctime'])
+                        ->set_name($json['name']);
     }
 
     public function get_issuer() {

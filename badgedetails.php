@@ -15,6 +15,10 @@ $PAGE->set_title(get_string('obf', 'local_obf') . ' - ' . $badge->get_name());
 $PAGE->set_heading($badge->get_name());
 $PAGE->set_pagelayout('admin');
 
+$navigationurl = new moodle_url('/local/obf/badgelist.php');
+navigation_node::override_active_url($navigationurl);
+$PAGE->navbar->add($badge->get_name());
+
 echo $OUTPUT->header();
 $output = $PAGE->get_renderer('local_obf');
 echo $output->print_badge_details($badge);

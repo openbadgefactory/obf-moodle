@@ -17,11 +17,11 @@ class obf_issuer {
     }
 
     public function populate_from_json($json) {
-        return $this->set_id($json->id)
-                        ->set_description($json->description)
-                        ->set_email($json->email)
-                        ->set_url($json->url)
-                        ->set_name($json->name);
+        return $this->set_id($json['id'])
+                        ->set_description($json['description'])
+                        ->set_email($json['email'])
+                        ->set_url($json['url'])
+                        ->set_name($json['name']);
     }
 
     public function get_id() {
