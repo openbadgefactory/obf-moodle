@@ -26,13 +26,13 @@ class local_obf_renderer extends plugin_renderer_base {
         if (count($tree->get_folders())) {
             $table = new html_table();
             $table->head = array(
-                get_string('obfbadgeimage', 'local_obf'),
-                get_string('obfbadgename', 'local_obf'),
-                get_string('obfbadgecreated', 'local_obf')
+                get_string('badgeimage', 'local_obf'),
+                get_string('badgename', 'local_obf'),
+                get_string('badgecreated', 'local_obf')
             );
 
             foreach ($tree->get_folders() as $folder) {
-                $foldername = $folder->has_name() ? $folder->get_name() : get_string('obfnofolder', 'local_obf');
+                $foldername = $folder->has_name() ? $folder->get_name() : get_string('nofolder', 'local_obf');
                 $header = new html_table_cell($foldername);
                 $header->header = true;
                 $header->colspan = count($table->head);
@@ -42,19 +42,59 @@ class local_obf_renderer extends plugin_renderer_base {
                 foreach ($folder->get_badges() as $badge) {
                     $attributes = array('src' => $badge->get_image(), 'alt' => s($badge->get_name()), 'width' => 22);
                     $img = html_writer::empty_tag('img', $attributes);
-                    $created_at = $badge->get_created();
-                    $date = empty($created_at) ? '' : userdate($created_at);
-                    $row = array($img, $badge->get_name(), $date);
+                    $createdon = $badge->get_created();
+                    $date = empty($createdon) ? '' : userdate($createdon);
+                    $name = html_writer::link(new moodle_url('/local/obf/badgedetails.php', array('id' => $badge->get_id())), $badge->get_name());
+
+                    $row = array($img, $name, $date);
                     $table->data[] = $row;
                 }
             }
 
             $htmltable = html_writer::table($table);
             $html .= $htmltable;
-        }
-        else {
+        } else {
             $html .= $this->output->notification(get_string('nobadges', 'local_obf'), 'notifynotice');
         }
+
+        return $html;
+    }
+
+    /**
+     * 
+     * @param obf_badge $badge
+     * @return string
+     */
+    public function print_badge_details(obf_badge $badge) {
+        $html = '';
+        $badgeimage = html_writer::empty_tag("img", array("src" => $badge->get_image(), "width" => 140));
+        
+        // badge details table
+        $badgetable = new html_table();
+        $createdon = $badge->get_created();
+        $badgecreated = empty($createdon) ? '&amp;' : userdate($createdon);
+
+        $badgetable->data[] = array(new obf_table_header('badgename'), $badge->get_name());
+        $badgetable->data[] = array(new obf_table_header('badgedescription'), $badge->get_description());
+        $badgetable->data[] = array(new obf_table_header('badgecreated'), $badgecreated);
+        $badgetable->data[] = array(new obf_table_header('badgecriteria'), html_writer::link($badge->get_criteria(), $badge->get_criteria()));
+
+        $boxes = html_writer::div($badgeimage, 'obf-badgeimage');
+        $badgedetails = $this->output->heading(get_string('badgedetails', 'local_obf'));
+        $badgedetails .= html_writer::table($badgetable);
+
+        // issuer details table
+        $badgedetails .= $this->output->heading(get_string('issuerdetails', 'local_obf'));
+        $issuertable = new html_table();
+        $issuer = $badge->get_issuer();
+        $issuertable->data[] = array(new obf_table_header('issuername'), $issuer->get_name());
+        $issuertable->data[] = array(new obf_table_header('issuerurl'), $issuer->get_url());
+        $issuertable->data[] = array(new obf_table_header('issuerdescription'), $issuer->get_description());
+        $issuertable->data[] = array(new obf_table_header('issueremail'), $issuer->get_email());
+
+        $badgedetails .= html_writer::table($issuertable);
+        $boxes .= html_writer::div($badgedetails, 'obf-badgedetails');
+        $html .= html_writer::div($boxes, 'obf-badgewrapper');
 
         return $html;
     }
@@ -98,7 +138,7 @@ class obf_badge_tree implements renderable, cacheable_object {
 
         if (!is_array($badges))
             return;
-        
+
         $emptyfoldercreated = false;
 
         // Are there any folders?
@@ -184,6 +224,16 @@ class obf_badge_tree implements renderable, cacheable_object {
             $tree->add_folder($folder);
 
         return $tree;
+    }
+
+}
+
+class obf_table_header extends html_table_cell {
+
+    public function __construct($stringid = null) {
+        $this->header = true;
+        $text = is_null($stringid) ? null : get_string($stringid, 'local_obf');
+        parent::__construct($text);
     }
 
 }
