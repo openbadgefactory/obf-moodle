@@ -54,9 +54,23 @@ function obf_get_curl_options() {
         'FOLLOWLOCATION' => false,
         'SSL_VERIFYHOST' => false, // for testing
         'SSL_VERIFYPEER' => false, // for testing
-        'SSLCERT' => '/tmp/test.pem',
-        'SSLKEY' => '/tmp/test.key'
+        'SSLCERT' => '/home/olli/Projects/OBF-Moodle/test.pem',
+        'SSLKEY' => '/home/olli/Projects/OBF-Moodle/test.key'
     );
 }
+
+//function local_obf_extends_settings_navigation(settings_navigation $nav) {
+//    global $PAGE;
+//    
+//    if (($branch = $nav->get('courseadmin', navigation_node::TYPE_COURSE)) !== false) {
+//        $url = new moodle_url('/local/obf/issue.php', array('id' => $PAGE->course->id));
+//        $node = navigation_node::create(get_string('issuecoursebadge', 'local_obf'), $url);
+//        $branch->add_node($node);
+//        
+//        if ($PAGE->url->compare($url, URL_MATCH_BASE)) {
+//            $node->make_active();
+//        }
+//    }
+//}
 
 ?>

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Class for a single Open Badge Factory -badge
  */
@@ -32,7 +33,7 @@ class obf_badge implements cacheable_object {
      */
     private $description = '';
     private $criteria = '';
-    private $expires = null;
+    private $expiresby = null;
     private $tags = array();
 
     /**
@@ -89,7 +90,7 @@ class obf_badge implements cacheable_object {
         if (is_null($this->issuer)) {
             $this->issuer = obf_issuer::get_instance_from_json(obf_get_issuer_json());
         }
-        
+
         return $this->issuer;
     }
 
@@ -101,6 +102,14 @@ class obf_badge implements cacheable_object {
      */
     public function populate() {
         return $this->populate_from_json(obf_get_badge_json($this->id));
+    }
+
+    public function has_expiration_date() {
+        return !empty($this->expiresby);
+    }
+    
+    public function get_expiration_date() {
+        return (strtotime('+ ' . $this->expiresby . ' months'));
     }
 
     public function get_id() {
@@ -172,11 +181,11 @@ class obf_badge implements cacheable_object {
     }
 
     public function get_expires() {
-        return $this->expires;
+        return $this->expiresby;
     }
 
     public function set_expires($expires) {
-        $this->expires = $expires;
+        $this->expiresby = $expires;
         return $this;
     }
 
@@ -226,4 +235,5 @@ class obf_badge implements cacheable_object {
     }
 
 }
+
 ?>
