@@ -28,42 +28,5 @@ $PAGE->requires->yui_module('moodle-local_obf-issuerwizard', 'M.local_obf.init')
 $PAGE->requires->strings_for_js(array(
         'emailsubject'
     ), 'local_obf');
-
-/*
-echo <<<JS
-<script type="text/javascript">
-// Create a new YUI instance and populate it with the required modules.
-YUI({ fetchCSS: false }).use('tabview', function (Y) {
-    var tabview = new Y.TabView({ srcNode: '#obf-issuerwizard' });
-    tabview.render();
-
-    // We need to apply Moodle CSS-class to selected tab
-    // to make the tabs look like they should in Moodle.
-
-    var changeClass = function () {
-        var node = tabview.get('srcNode');
-        node.all('.yui3-tab').removeClass('active');
-        node.all('.yui3-tab-selected').addClass('active');
-    };
-
-    changeClass(tabview);
-    tabview.after('selectionChange', function (e) {
-        // selectionChange fires too early, so we need a tiny hack
-        Y.later(0, null, function () {
-            changeClass();
-
-            // HACK: Isn't there a way to find out, which tab has been selected?
-            // Like tabview.get('activeDescendant').get('id') == 'idofmytab'
-            var lasttabselected = tabview.get('activeDescendant').get('index') == tabview._items.length - 1;
-            
-            if (lasttabselected) {
-                console.log('Confirm!');
-            }
-        }, e);
-    });
-});
-</script>
-JS;
-*/
 echo $OUTPUT->footer();
 ?>

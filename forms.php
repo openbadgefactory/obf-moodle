@@ -6,89 +6,142 @@ require_once($CFG->libdir . '/formslib.php');
 require_once($CFG->dirroot . '/user/selector/lib.php');
 require_once 'HTML/QuickForm/element.php';
 
-/**
- * Form handling the badge details.
- */
-class badge_details_form extends moodleform {
+class badge_issuer_form extends moodleform {
+
+    private $badge = null;
+    private $renderer = null;
 
     protected function definition() {
-        global $CFG;
+        $this->badge = $this->_customdata['badge'];
+        $this->renderer = $this->_customdata['renderer'];
+        $tabs = $this->_customdata['tabs'];
+        $navitems = array();
+        
+        // HACK: Moodle (or HTML_QuickForm really) secretly sometimes creates empty
+        // fieldsets to ensure XHTML-validity. Moodle uses different HTML-templates
+        // and those templates are broken (missing closing div). HTML_QuickForm
+        // ->defaultRenderer() returns an instance of HTML_QuickForm_Renderer_Default,
+        // but here we're using methods of its subclass MoodleQuickForm_Renderer that
+        // Moodle is using. If the renderer somehow changes, this won't work.
+        $renderer = $this->_form->defaultRenderer();
+        if (method_exists($renderer, 'setOpenHiddenFieldsetTemplate')) {
+            $renderer->setOpenHiddenFieldsetTemplate("\n\t<fieldset class=\"hidden\">");
+            $renderer->setCloseFieldsetTemplate("\n\t\t</fieldset>");
+        }
+            
+        foreach ($tabs as $key => $item) {
+            $navitems[] = html_writer::tag('li', html_writer::link('#' . $key, $item), array('id' => 'tab-' . $key));
+        }
 
-        $badge = $this->_customdata['badge'];
+        $this->startdiv('obf-issuerwizard');
+        $navigation = html_writer::tag('ul', implode('', $navitems), array('class' => 'nav nav-tabs'));
+        $this->_form->addElement('html', $navigation);
+        $this->startdiv();
+
+        foreach ($tabs as $key => $item) {
+            $method = 'add_' . $key . '_elements';
+            if (method_exists($this, $method)) {
+                call_user_func(array($this, $method), $key);
+            }
+        }
+
+        $this->enddiv();
+        $this->enddiv();
+    }
+
+    public function add_preview_elements($name) {
+        $this->startdiv($name);
+        $this->_form->addElement('html', $this->renderer->print_badge_details($this->badge));
+        $this->enddiv();
+    }
+
+    public function add_details_elements($name) {
         $mform = $this->_form;
 
+        $this->startdiv($name);
         $mform->addElement('date_selector', 'issuedon', get_string('issuedon', 'local_obf'), array('stopyear' => date('Y') + 1));
         $mform->addElement('date_selector', 'expiresby', get_string('expiresby', 'local_obf'), array('optional' => true, 'startyear' => date('Y'), 'stopyear' => date('Y') + 20));
 
-        if ($badge->has_expiration_date()) {
-            $mform->setDefault('expiresby', $badge->get_expiration_date());
+        if ($this->badge->has_expiration_date()) {
+            $mform->setDefault('expiresby', $this->badge->get_expiration_date());
         }
 
-        $mform->disabledIf('expiresby', !$badge->has_expiration_date());
+//        $mform->disabledIf('expiresby', !$this->badge->has_expiration_date());
+        $this->enddiv();
     }
 
-}
-
-/**
- * Form handling the selection of the badge recipients.
- */
-class badge_recipients_form extends moodleform {
-
-    protected function definition() {
-        global $CFG;
-
+    public function add_recipients_elements($name) {
         $mform = $this->_form;
+        $this->startdiv($name);
         $mform->registerElementType('obf_user_selector', __FILE__, 'MoodleQuickForm_userselector');
         $mform->addElement('obf_user_selector', 'recipientlist', get_string('selectrecipients', 'local_obf'));
+        $this->enddiv();
     }
 
-}
-
-class badge_email_form extends moodleform {
-
-    protected function definition() {
+    public function add_message_elements($name) {
         $mform = $this->_form;
+        $this->startdiv($name);
         $mform->addElement('text', 'emailsubject', get_string('emailsubject', 'local_obf'));
+        $mform->setType('emailsubject', PARAM_TEXT);
         $mform->addElement('textarea', 'emailbody', get_string('emailbody', 'local_obf'), array('rows' => 10));
         $mform->addElement('textarea', 'emailfooter', get_string('emailfooter', 'local_obf'), array('rows' => 5));
+        $this->enddiv();
     }
 
-}
-
-class badge_confirmation_form extends moodleform {
-    protected function definition() {
-        $badge = $this->_customdata['badge'];       
+    public function add_confirm_elements($name) {
         $mform = $this->_form;
-        
+
+        $this->startdiv($name);
         $mform->addElement('static', 'confirm-issuedon', get_string('issuedon', 'local_obf'), html_writer::div('', 'confirm-issuedon'));
         $mform->addElement('static', 'confirm-expiresby', get_string('expiresby', 'local_obf'), html_writer::div('', 'confirm-expiresby'));
-        $mform->addElement('static', 'confirm-criteria', get_string('badgecriteria', 'local_obf'),
-                html_writer::link($badge->get_criteria(), get_string('previewcriteria', 'local_obf')));
-        $mform->addElement('static', 'confirm-email', get_string('emailmessage', 'local_obf'),
-                html_writer::div(html_writer::link('#', get_string('previewemail', 'local_obf')), 'confirm-email'));
+        $mform->addElement('static', 'confirm-criteria', get_string('badgecriteria', 'local_obf'), html_writer::link($this->badge->get_criteria(), get_string('previewcriteria', 'local_obf')));
+        $mform->addElement('static', 'confirm-email', get_string('emailmessage', 'local_obf'), html_writer::div(html_writer::link('#', get_string('previewemail', 'local_obf')), 'confirm-email'));
         $mform->addElement('static', 'confirm-recipients', get_string('recipients', 'local_obf'), html_writer::div('', 'confirm-recipients'));
-        
+
         $this->add_action_buttons(false, get_string('issue', 'local_obf'));
-    }    
+        $this->enddiv();
+    }
+
+    private function startdiv($name = '') {
+        if (!empty($name))
+            $this->_form->addElement('html', html_writer::start_div('', array('id' => $name)));
+        else
+            $this->_form->addElement('html', html_writer::start_div());
+    }
+
+    private function enddiv() {
+        $this->_form->addElement('html', html_writer::end_div());
+    }
+
 }
 
 class MoodleQuickForm_userselector extends HTML_QuickForm_element {
 
     protected $userselector;
     protected $strHtml;
+    protected $name = '';
 
-    function MoodleQuickForm_userselector($elementName = null, $elementLabel = null, $options = null, $attributes = null) {
+    public function MoodleQuickForm_userselector($elementName = null, $elementLabel = null, $options = null, $attributes = null) {
         parent::HTML_QuickForm_element($elementName, $elementLabel, $attributes);
+        $this->setName($elementName);
         $this->userselector = new badge_recipient_selector($elementName, $options);
         $this->userselector->set_multiselect(true);
     }
 
-    function toHtml() {
+    public function getName() {
+        return $this->name;
+    }
+
+    public function setName($name) {
+        $this->name = $name;
+    }
+
+    public function toHtml() {
         $this->strHtml = $this->userselector->display(true);
         return $this->strHtml;
     }
 
-    function getValue() {
+    public function getValue() {
         return $this->userselector->get_selected_users();
     }
 
