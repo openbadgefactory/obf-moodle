@@ -1,8 +1,8 @@
-.obf-badgewrapper   {overflow:hidden}
-.obf-badgeimage     {float:left;width:120px;margin-left:20px}
-.obf-badgedetails   {width:100%;margin-left:180px}
-table.obf-table th  { width: 120px; }
-
-/* YUI Tabview */
-.yui3-tab-panel { display: none; }
-.yui3-tab-panel-selected { display: block; }
+.obf-badgewrapper{overflow:hidden}
+.obf-badgeimage{float:left;width:120px;margin-left:20px}
+.obf-badgedetails{width:100%;margin-left:180px}
+table.obf-table th{width:120px}
+.yui3-tab-panel{display:none}
+.yui3-tab-panel-selected{display:block}
+.ftext input,
+.felement textarea { width: 90%;}

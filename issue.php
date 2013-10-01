@@ -23,6 +23,13 @@ $output = $PAGE->get_renderer('local_obf');
 
 echo $OUTPUT->header();
 echo $output->print_issuer_wizard($badge);
+
+$PAGE->requires->yui_module('moodle-local_obf-issuerwizard', 'M.local_obf.init');
+$PAGE->requires->strings_for_js(array(
+        'emailsubject'
+    ), 'local_obf');
+
+/*
 echo <<<JS
 <script type="text/javascript">
 // Create a new YUI instance and populate it with the required modules.
@@ -42,10 +49,21 @@ YUI({ fetchCSS: false }).use('tabview', function (Y) {
     changeClass(tabview);
     tabview.after('selectionChange', function (e) {
         // selectionChange fires too early, so we need a tiny hack
-        Y.later(0, null, changeClass, e);
+        Y.later(0, null, function () {
+            changeClass();
+
+            // HACK: Isn't there a way to find out, which tab has been selected?
+            // Like tabview.get('activeDescendant').get('id') == 'idofmytab'
+            var lasttabselected = tabview.get('activeDescendant').get('index') == tabview._items.length - 1;
+            
+            if (lasttabselected) {
+                console.log('Confirm!');
+            }
+        }, e);
     });
 });
 </script>
 JS;
+*/
 echo $OUTPUT->footer();
 ?>

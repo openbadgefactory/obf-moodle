@@ -6,6 +6,9 @@ require_once($CFG->libdir . '/formslib.php');
 require_once($CFG->dirroot . '/user/selector/lib.php');
 require_once 'HTML/QuickForm/element.php';
 
+/**
+ * Form handling the badge details.
+ */
 class badge_details_form extends moodleform {
 
     protected function definition() {
@@ -14,8 +17,8 @@ class badge_details_form extends moodleform {
         $badge = $this->_customdata['badge'];
         $mform = $this->_form;
 
-        $mform->addElement('date_selector', 'issuedon', get_string('issuedon', 'local_obf'));
-        $mform->addElement('date_selector', 'expiresby', get_string('expiresby', 'local_obf'), array('optional' => true));
+        $mform->addElement('date_selector', 'issuedon', get_string('issuedon', 'local_obf'), array('stopyear' => date('Y') + 1));
+        $mform->addElement('date_selector', 'expiresby', get_string('expiresby', 'local_obf'), array('optional' => true, 'startyear' => date('Y'), 'stopyear' => date('Y') + 20));
 
         if ($badge->has_expiration_date()) {
             $mform->setDefault('expiresby', $badge->get_expiration_date());
@@ -26,16 +29,47 @@ class badge_details_form extends moodleform {
 
 }
 
+/**
+ * Form handling the selection of the badge recipients.
+ */
 class badge_recipients_form extends moodleform {
 
     protected function definition() {
         global $CFG;
-        
+
         $mform = $this->_form;
         $mform->registerElementType('obf_user_selector', __FILE__, 'MoodleQuickForm_userselector');
         $mform->addElement('obf_user_selector', 'recipientlist', get_string('selectrecipients', 'local_obf'));
     }
 
+}
+
+class badge_email_form extends moodleform {
+
+    protected function definition() {
+        $mform = $this->_form;
+        $mform->addElement('text', 'emailsubject', get_string('emailsubject', 'local_obf'));
+        $mform->addElement('textarea', 'emailbody', get_string('emailbody', 'local_obf'), array('rows' => 10));
+        $mform->addElement('textarea', 'emailfooter', get_string('emailfooter', 'local_obf'), array('rows' => 5));
+    }
+
+}
+
+class badge_confirmation_form extends moodleform {
+    protected function definition() {
+        $badge = $this->_customdata['badge'];       
+        $mform = $this->_form;
+        
+        $mform->addElement('static', 'confirm-issuedon', get_string('issuedon', 'local_obf'), html_writer::div('', 'confirm-issuedon'));
+        $mform->addElement('static', 'confirm-expiresby', get_string('expiresby', 'local_obf'), html_writer::div('', 'confirm-expiresby'));
+        $mform->addElement('static', 'confirm-criteria', get_string('badgecriteria', 'local_obf'),
+                html_writer::link($badge->get_criteria(), get_string('previewcriteria', 'local_obf')));
+        $mform->addElement('static', 'confirm-email', get_string('emailmessage', 'local_obf'),
+                html_writer::div(html_writer::link('#', get_string('previewemail', 'local_obf')), 'confirm-email'));
+        $mform->addElement('static', 'confirm-recipients', get_string('recipients', 'local_obf'), html_writer::div('', 'confirm-recipients'));
+        
+        $this->add_action_buttons(false, get_string('issue', 'local_obf'));
+    }    
 }
 
 class MoodleQuickForm_userselector extends HTML_QuickForm_element {
@@ -67,19 +101,18 @@ class badge_recipient_selector extends user_selector_base {
     private $existingrecipients = array();
 
     protected function get_options() {
-       
+
         $options = parent::get_options();
         $options['file'] = 'local/obf/forms.php';
         return $options;
     }
 
-    
     public function find_users($search) {
         /**
          * @var moodle_database
          */
         global $DB;
-        
+
         $tablealias = 'u';
         $whereclauses = array();
 
@@ -107,7 +140,7 @@ class badge_recipient_selector extends user_selector_base {
         $count = 'SELECT COUNT(' . $tablealias . '.id)';
         $sql = ' FROM {user} ' . $tablealias . $wheresql;
         $orderby = ' ORDER BY ' . $sort;
-        
+
         // Check how many users does the query return and return an error if the number
         // of users is too damn high.
         if (!$this->is_validating()) {
@@ -118,7 +151,7 @@ class badge_recipient_selector extends user_selector_base {
         }
 
         $users = $DB->get_records_sql($fields . $sql . $orderby, array_merge($params, $sortparams));
-        
+
         return array(get_string('recipientcandidates', 'local_obf') => $users);
     }
 

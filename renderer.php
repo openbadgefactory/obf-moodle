@@ -140,13 +140,13 @@ class local_obf_renderer extends plugin_renderer_base {
             'confirm' => get_string('confirmandissue', 'local_obf'));
 
         foreach ($tabs as $key => $item) {
-            $navitems[] = html_writer::link('#' . $key, $item);
+            $navitems[] = html_writer::tag('li', html_writer::link('#' . $key, $item), array('id' => 'tab-' . $key));
             $method = 'print_issuer_wizard_' . $key;
             $tabcontent = method_exists($this, $method) ? call_user_func(array($this, $method), $badge) : $item;
             $items .= html_writer::div($tabcontent, '', array('id' => $key));
         }
 
-        $navigation = html_writer::alist($navitems, array('class' => 'nav nav-tabs'));
+        $navigation = html_writer::tag('ul', implode('', $navitems), array('class' => 'nav nav-tabs'));
         $content = html_writer::div($items);
         $wrapper = html_writer::div($navigation . $content, '', array('id' => 'obf-issuerwizard'));
 
@@ -166,9 +166,15 @@ class local_obf_renderer extends plugin_renderer_base {
         $form = new badge_recipients_form(null, array('badge' => $badge));
         return $form->render();
     }
+    
+    public function print_issuer_wizard_message(obf_badge $badge) {
+        $form = new badge_email_form(null, array('badge' => $badge));
+        return $form->render();
+    }
 
     public function print_issuer_wizard_confirm(obf_badge $badge) {
-        return 'Hola!';
+        $form = new badge_confirmation_form(null, array('badge' => $badge));
+        return $form->render();
     }
 
 }
