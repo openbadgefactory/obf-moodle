@@ -1,8 +1,20 @@
 YUI.add('moodle-local_obf-issuerwizard', function(Y) {
     M.local_obf = {
+        /**
+         * Module initializer.
+         * 
+         * @param {type} config
+         * @returns {undefined}
+         */
         init: function(config) {
             this.create_tabview();
         },
+                
+        /**
+         * Creates the tabview from the existing markup.
+         * 
+         * @returns {undefined}
+         */
         create_tabview: function() {
             YUI({fetchCSS: false}).use('tabview', Y.bind(function(Y) {
                 var tabview = new Y.TabView({srcNode: '#obf-issuerwizard'});
@@ -35,6 +47,12 @@ YUI.add('moodle-local_obf-issuerwizard', function(Y) {
                 Y.one('.confirm-email a').on('click', this.show_email_preview, this);
             }, this));
         },
+        
+        /**
+         * Displays the email preview window.
+         * 
+         * @returns {undefined}
+         */
         show_email_preview: function() {
             var email = '<pre style="white-space: pre-wrap">' +
                     M.util.get_string('emailsubject', 'local_obf') + ': ' + Y.one('#id_emailsubject').get('value') + '\n\n' +
@@ -43,9 +61,10 @@ YUI.add('moodle-local_obf-issuerwizard', function(Y) {
                     '</pre>';
 
             var email_preview_window = window.open('', 'obf-email-preview', 'width=600, height=400' +
-                        ',menubar=0, toolbar=0, status=0, scrollbars=1, resizable=1');           
+                    ',menubar=0, toolbar=0, status=0, scrollbars=1, resizable=1');
             email_preview_window.document.body.innerHTML = email;
         },
+                
         getdatevalues: function(fieldname) {
             return Y.Array(['day', 'month', 'year']).map(function(item) {
                 return Y.one('#details select[name="' + fieldname + '[' + item + ']"]').get('value');

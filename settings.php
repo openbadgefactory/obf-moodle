@@ -14,12 +14,12 @@ if ($hassiteconfig) {
     $badgelist = new admin_externalpage('badgelist', get_string('badgelist', 'local_obf'), $CFG->wwwroot . '/local/obf/badgelist.php');
 
     // issue badge -page
-    $issuebadge = new admin_externalpage('issuebadge', get_string('issuebadge', 'local_obf'), $CFG->wwwroot . '/local/obf/issue.php');
+//    $issuebadge = new admin_externalpage('issuebadge', get_string('issuebadge', 'local_obf'), $CFG->wwwroot . '/local/obf/issue.php');
     
     // add pages to navigation
     $ADMIN->add('root', $obf);
     $ADMIN->add('obf', $settings);
     $ADMIN->add('obf', $badgelist);
-    $ADMIN->add('obf', $issuebadge);
+//    $ADMIN->add('obf', $issuebadge);
 }
 ?>

@@ -137,10 +137,23 @@ class local_obf_renderer extends plugin_renderer_base {
             'message' => get_string('editemailmessage', 'local_obf'),
             'confirm' => get_string('confirmandissue', 'local_obf'));
 
-        $issuerform = new badge_issuer_form(null, array('badge' => $badge,
+        $issuerform = new badge_issuer_form(new moodle_url('/local/obf/issue.php?id=' . $badge->get_id()), array('badge' => $badge,
             'tabs' => $tabs, 'renderer' => $this));
-
-        return $issuerform->render();
+        $output = '';
+        
+        if ($issuerform->is_submitted()) {
+            if ($issuerform->is_validated())
+            {
+                $output .= $this->output->notification('Yay! Badge issued!', 'notifysuccess');
+            }
+            else {
+                $output .= $this->output->error_text('Validation failed!');
+            }
+        }
+        
+        $output .= $issuerform->render();
+        
+        return $output;
     }
 
 }

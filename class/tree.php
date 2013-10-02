@@ -26,9 +26,9 @@ class obf_badge_tree implements renderable, cacheable_object {
      * @param type $reload
      * @return \self
      */
-    public static function get_instance($reload = false) {
+    public static function get_instance($reload = false) {      
         $tree = false;
-        $clientid = obf_client_id();
+        $clientid = obf_client::get_client_id();
         $obfcache = cache::make('local_obf', 'obfcache');
 
         if (!$reload) {
@@ -36,7 +36,7 @@ class obf_badge_tree implements renderable, cacheable_object {
         }
 
         if ($tree === false) {
-            $tree = new self(obf_get_badges());
+            $tree = new self(obf_client::get_instance()->get_badges());
             $obfcache->set($clientid, $tree);
         }
 

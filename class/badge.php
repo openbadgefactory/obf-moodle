@@ -88,10 +88,14 @@ class obf_badge implements cacheable_object {
 
     public function get_issuer() {
         if (is_null($this->issuer)) {
-            $this->issuer = obf_issuer::get_instance_from_json(obf_get_issuer_json());
+            $this->issuer = obf_issuer::get_instance_from_json(obf_client::get_instance()->get_issuer_json());
         }
 
         return $this->issuer;
+    }
+    
+    public function issue(array $recipients, $issuedon, $emailsubject, $emailbody, $emailfooter) {
+        obf_client::get_instance()->issue_badge($this, $recipients, $issuedon, $emailsubject, $emailbody, $emailfooter);
     }
 
     /**
@@ -101,7 +105,7 @@ class obf_badge implements cacheable_object {
      * @return obf_badge
      */
     public function populate() {
-        return $this->populate_from_json(obf_get_badge_json($this->id));
+        return $this->populate_from_json(obf_client::get_instance()->get_badge_json($this->id));
     }
 
     public function has_expiration_date() {

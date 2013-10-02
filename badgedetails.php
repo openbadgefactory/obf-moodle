@@ -32,6 +32,5 @@ if (!method_exists($output, $rendererfunction)) {
 echo $OUTPUT->heading($output->print_badge_image($badge) . ' ' . $badge->get_name());
 echo $output->print_badge_tabs($badgeid, $show);
 echo call_user_func(array($output, $rendererfunction), $badge);
-//echo $output->print_badge_details($badge);
 echo $OUTPUT->footer();
 ?>

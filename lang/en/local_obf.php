@@ -1,6 +1,16 @@
 <?php
 $string['apierror0'] = 'OBF service request failed. Check server logs for more info.';
+$string['apierror400'] = 'OBF service request failed because of an erroneous/missing parameter.';
+$string['apierror403'] = 'TODO: Forbidden';
 $string['apierror404'] = 'Couldn\'t find OBF service. Please check the API URL from the settings.';
+$string['apierror405'] = 'TODO: Method not allowed';
+$string['apierror411'] = 'TODO: Length required';
+$string['apierror413'] = 'TODO: Request entity too large';
+$string['apierror429'] = 'TODO: Too many requests';
+$string['apierror495'] = 'TODO: Cert error';
+$string['apierror496'] = 'TODO: Missing certificate';
+$string['apierror500'] = 'TODO: Internal server error';
+$string['apierror502'] = 'TODO: Bad gateway';
 $string['apierror503'] = 'OBF service is temporarily unavailable. Please try again later.';
 $string['badgecreated'] = 'Created on';
 $string['badgecriteria'] = 'Criteria';
