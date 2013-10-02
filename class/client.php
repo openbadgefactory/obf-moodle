@@ -23,7 +23,7 @@ class obf_client {
      * @throws Exception If the request fails
      * @return type
      */
-    public function get_badge_json($badgeid) {
+    public function get_badge($badgeid) {
         return $this->curl('/badge/' . self::get_client_id() . '/' . $badgeid);
     }
 
@@ -32,7 +32,7 @@ class obf_client {
      * @throws Exception If the request fails
      * @return type
      */
-    public function get_issuer_json() {
+    public function get_issuer() {
         return $this->curl('/client/' . self::get_client_id());
     }
 
@@ -45,6 +45,31 @@ class obf_client {
         return $this->curl('/tree/' . self::get_client_id() . '/badge');
     }
 
+    /**
+     * 
+     * @param type $badgeid
+     * @return type
+     */
+    public function get_assertions($badgeid) {
+        $params = array('badge_id' => $badgeid, 'api_consumer_id' => OBF_API_CONSUMER_ID);
+        
+        // When getting assertions via OBF API the returned JSON isn't valid.
+        // Let's use a closure that converts the returned string into valid JSON
+        // before calling json_decode in $this->curl.
+        return $this->curl('/event/' . self::get_client_id(), 'get', $params, function ($output) {
+            return '[' . implode(',', array_filter(explode("\n", $output))) . ']';
+        });
+    }
+    
+    /**
+     * 
+     * @param obf_badge $badge
+     * @param type $recipients
+     * @param type $issuedon
+     * @param type $emailsubject
+     * @param type $emailbody
+     * @param type $emailfooter
+     */
     public function issue_badge(obf_badge $badge, $recipients, $issuedon, $emailsubject, $emailbody, $emailfooter) {
         $params = array(
             'recipient' => $recipients,
@@ -60,7 +85,17 @@ class obf_client {
         $this->curl('/badge/' . self::get_client_id() . '/' . $badge->get_id(), 'post', $params);
     }
 
-    public function curl($path, $method = 'get', array $params = array()) {
+    /**
+     * 
+     * @global type $CFG
+     * @param type $path
+     * @param type $method
+     * @param array $params
+     * @param Closure $preformatter
+     * @return type
+     * @throws Exception
+     */
+    public function curl($path, $method = 'get', array $params = array(), Closure $preformatter = null) {
         global $CFG;
 
         include_once $CFG->libdir . '/filelib.php';
@@ -68,10 +103,15 @@ class obf_client {
         $curl = new curl();
         $options = $this->get_curl_options();
         $url = $CFG->obf_url . $path;
-        $output = $method == 'get' ? $curl->get($url, array(), $options) : $curl->post($url, json_encode($params), $options);
+        $output = $method == 'get' ? $curl->get($url, $params, $options) : $curl->post($url, json_encode($params), $options);
         $code = $curl->info['http_code'];
+        
+        if (!is_null($preformatter)) {
+            $output = $preformatter($output);
+        }
+            
         $json = json_decode($output, true);
-
+        
         // Codes 2xx should be ok
         if ($code < 200 || $code >= 300) {
             throw new Exception(get_string('apierror' . $code, 'local_obf', array('error' => $json['error'])));

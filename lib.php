@@ -7,4 +7,5 @@ require_once(__DIR__ . '/class/issuer.php');
 require_once(__DIR__ . '/class/folder.php');
 require_once(__DIR__ . '/class/tree.php');
 require_once(__DIR__ . '/class/client.php');
+require_once(__DIR__ . '/class/issuance.php');
 ?>

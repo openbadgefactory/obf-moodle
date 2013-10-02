@@ -88,7 +88,7 @@ class obf_badge implements cacheable_object {
 
     public function get_issuer() {
         if (is_null($this->issuer)) {
-            $this->issuer = obf_issuer::get_instance_from_json(obf_client::get_instance()->get_issuer_json());
+            $this->issuer = obf_issuer::get_instance_from_json(obf_client::get_instance()->get_issuer());
         }
 
         return $this->issuer;
@@ -99,15 +99,48 @@ class obf_badge implements cacheable_object {
     }
 
     /**
+     * 
+     * @return obf_issuance[]
+     */
+    public function get_assertions() {
+        return obf_issuance::get_badge_assertions($this);
+    }
+    
+    /**
+     * 
+     * @return obf_issuance
+     */
+    public function get_non_expired_assertions() {
+        $assertions = $this->get_assertions();
+        $ret = array();
+        
+        foreach ($assertions as $assertion) {
+            if (!$assertion->get_badge()->has_expired()) {
+                $ret[] = $assertion;
+            }
+        }
+        
+        return $ret;
+        
+    }
+    
+    /**
      * Gets the object's data from the OBF API and populates the properties
      * from the returned JSON-data.
      * 
      * @return obf_badge
      */
     public function populate() {
-        return $this->populate_from_json(obf_client::get_instance()->get_badge_json($this->id));
+        return $this->populate_from_json(obf_client::get_instance()->get_badge($this->id));
     }
 
+    /**
+     * @return bool Whether the badge has expired or not
+     */
+    public function has_expired() {
+        return ($this->expiresby < time());
+    }
+    
     public function has_expiration_date() {
         return !empty($this->expiresby);
     }

@@ -144,10 +144,16 @@ class local_obf_renderer extends plugin_renderer_base {
         if ($issuerform->is_submitted()) {
             if ($issuerform->is_validated())
             {
-                $output .= $this->output->notification('Yay! Badge issued!', 'notifysuccess');
+                $issuance = $issuerform->get_issuance();
+                $success = $issuance->process();
+                
+                if ($success)
+                    $output .= $this->output->notification('Yay! Badge issued!', 'notifysuccess');
+                else
+                    $output .= $this->output->notification('Badge issuance failed. Reason: ' . $issuance->get_error());
             }
             else {
-                $output .= $this->output->error_text('Validation failed!');
+                $output .= $this->output->notification('Validation failed!');
             }
         }
         

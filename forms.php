@@ -19,6 +19,12 @@ class badge_issuer_form extends moodleform {
      */
     private $renderer = null;
 
+    /**
+     *
+     * @var obf_issuance
+     */
+    private $issuance = null;
+    
     protected function definition() {
         $this->badge = $this->_customdata['badge'];
         $this->renderer = $this->_customdata['renderer'];
@@ -51,7 +57,7 @@ class badge_issuer_form extends moodleform {
             $method = 'add_' . $key . '_elements';
             if (method_exists($this, $method)) {
                 $this->start_tabpanel($key);
-                call_user_func(array($this, $method), $key);
+                call_user_func(array($this, $method));
                 $this->end_tabpanel();
             }
         }
@@ -75,24 +81,30 @@ class badge_issuer_form extends moodleform {
         $recipient_ids = $data['recipientlist'];
         
         $users = user_get_users_by_id($recipient_ids);
-        $emails = array();
+        $recipients = array();
         
         foreach ($users as $user) {
-            $emails[] = $user->email;
+            $recipients[] = $user->email;
         }
         
         $this->badge->set_expires($expiresby);
-        $this->badge->issue($emails, $issuedon, $emailsubject, $emailbody, $emailfooter);
-        
+        $this->issuance = obf_issuance::get_instance()
+                ->set_badge($this->badge)
+                ->set_emailbody($emailbody)
+                ->set_emailsubject($emailsubject)
+                ->set_emailfooter($emailfooter)
+                ->set_issuedon($issuedon)
+                ->set_recipients($recipients);
+         
         return $errors;
     }
 
     
-    public function add_preview_elements($name) {
+    private function add_preview_elements() {
         $this->_form->addElement('html', $this->renderer->print_badge_details($this->badge));
     }
 
-    public function add_details_elements($name) {
+    private function add_details_elements() {
         $mform = $this->_form;
         $mform->addElement('date_selector', 'issuedon', get_string('issuedon', 'local_obf'), array('stopyear' => date('Y') + 1));
         $mform->addElement('date_selector', 'expiresby', get_string('expiresby', 'local_obf'), array('optional' => true, 'startyear' => date('Y'), 'stopyear' => date('Y') + 20));
@@ -102,13 +114,35 @@ class badge_issuer_form extends moodleform {
         }
     }
 
-    public function add_recipients_elements($name) {
+    private function add_recipients_elements() {
         $mform = $this->_form;
+        $excludes = $this->get_user_ids_with_badge_issued();
         $mform->registerElementType('obf_user_selector', __FILE__, 'MoodleQuickForm_userselector');
-        $mform->addElement('obf_user_selector', 'recipientlist', get_string('selectrecipients', 'local_obf'));
+        $mform->addElement('obf_user_selector', 'recipientlist', get_string('selectrecipients', 'local_obf'),
+                array(), array('exclude' => $excludes));
     }
 
-    public function add_message_elements($name) {
+    private function get_user_ids_with_badge_issued() {
+        global $DB;
+        
+        $assertions = $this->badge->get_non_expired_assertions();
+        $ids = array();
+        $emails = array();
+        
+        foreach ($assertions as $issuance) {
+            $emails = array_merge($emails, $issuance->get_recipients());
+        }
+        
+        $users = $DB->get_records_list('user', 'email', $emails);
+        
+        foreach ($users as $user) {
+            $ids[] = $user->id;
+        }
+        
+        return $ids;
+    }
+    
+    private function add_message_elements() {
         $mform = $this->_form;
         $mform->addElement('text', 'emailsubject', get_string('emailsubject', 'local_obf'));
         $mform->setType('emailsubject', PARAM_TEXT);
@@ -116,7 +150,7 @@ class badge_issuer_form extends moodleform {
         $mform->addElement('textarea', 'emailfooter', get_string('emailfooter', 'local_obf'), array('rows' => 5));
     }
 
-    public function add_confirm_elements($name) {
+    private function add_confirm_elements() {
         $mform = $this->_form;
         $mform->addElement('static', 'confirm-issuedon', get_string('issuedon', 'local_obf'), html_writer::div('', 'confirm-issuedon'));
         $mform->addElement('static', 'confirm-expiresby', get_string('expiresby', 'local_obf'), html_writer::div('', 'confirm-expiresby'));
@@ -146,6 +180,12 @@ class badge_issuer_form extends moodleform {
         $this->_form->addElement('html', html_writer::end_div());
     }
 
+    public function get_issuance() {
+        return $this->issuance;
+    }
+
+
+    
 }
 
 class MoodleQuickForm_userselector extends HTML_QuickForm_element {
@@ -158,7 +198,8 @@ class MoodleQuickForm_userselector extends HTML_QuickForm_element {
         parent::HTML_QuickForm_element($elementName, $elementLabel, $attributes);
         $this->setName($elementName);
         $this->userselector = new badge_recipient_selector($elementName, $options);
-        $this->userselector->set_multiselect(true);
+        $this->userselector->set_multiselect(true);       
+        $this->userselector->exclude($attributes['exclude']);
     }
 
     public function getName() {
