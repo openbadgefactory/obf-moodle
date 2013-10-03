@@ -5,6 +5,7 @@ require_once(__DIR__ . "/lib.php");
 
 $badgeid = required_param('id', PARAM_ALPHANUM);
 $show = optional_param('show', 'details', PARAM_ALPHANUM);
+$currentpage = optional_param('page', 0, PARAM_INT);
 
 require_login();
 
@@ -22,15 +23,15 @@ $PAGE->navbar->add($badge->get_name());
 
 echo $OUTPUT->header();
 $output = $PAGE->get_renderer('local_obf');
-$rendererfunction = 'print_badge_' . $show;
+$rendererfunction = 'print_badge_info_' . $show;
 
 if (!method_exists($output, $rendererfunction)) {
-    $rendererfunction = 'print_badge_details';
+    $rendererfunction = 'print_badge_info_details';
     $show = 'details';
 }
 
 echo $OUTPUT->heading($output->print_badge_image($badge) . ' ' . $badge->get_name());
 echo $output->print_badge_tabs($badgeid, $show);
-echo call_user_func(array($output, $rendererfunction), $badge);
+echo call_user_func(array($output, $rendererfunction), $badge, $currentpage);
 echo $OUTPUT->footer();
 ?>

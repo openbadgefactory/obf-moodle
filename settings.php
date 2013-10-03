@@ -16,10 +16,14 @@ if ($hassiteconfig) {
     // issue badge -page
 //    $issuebadge = new admin_externalpage('issuebadge', get_string('issuebadge', 'local_obf'), $CFG->wwwroot . '/local/obf/issue.php');
     
+    // issuance history -page
+    $history = new admin_externalpage('badgehistory', get_string('history', 'local_obf'), new moodle_url('history.php'));
+    
     // add pages to navigation
     $ADMIN->add('root', $obf);
     $ADMIN->add('obf', $settings);
     $ADMIN->add('obf', $badgelist);
+    $ADMIN->add('obf', $history);
 //    $ADMIN->add('obf', $issuebadge);
 }
 ?>

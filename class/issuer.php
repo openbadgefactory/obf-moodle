@@ -13,10 +13,10 @@ class obf_issuer {
     }
 
     public static function get_instance_from_json($json) {
-        return self::get_instance()->populate_from_json($json);
+        return self::get_instance()->populate_from_array($json);
     }
 
-    public function populate_from_json($json) {
+    public function populate_from_array($json) {
         return $this->set_id($json['id'])
                         ->set_description($json['description'])
                         ->set_email($json['email'])

@@ -24,7 +24,7 @@ class obf_badge_tree implements renderable, cacheable_object {
     /**
      * 
      * @param type $reload
-     * @return \self
+     * @return obf_badge_tree
      */
     public static function get_instance($reload = false) {      
         $tree = false;
@@ -41,6 +41,23 @@ class obf_badge_tree implements renderable, cacheable_object {
         }
 
         return $tree;
+    }
+    
+    /**
+     * 
+     * @param type $badgeid
+     * @return boolean|obf_badge
+     */
+    public function get_badge($badgeid) {
+        foreach ($this->folders as $folder) {
+            foreach ($folder->get_badges() as $badge) {
+                if ($badge->get_id() == $badgeid) {
+                    return $badge;
+                }
+            }
+        }
+        
+        return false;
     }
 
     /**

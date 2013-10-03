@@ -50,8 +50,12 @@ class obf_client {
      * @param type $badgeid
      * @return type
      */
-    public function get_assertions($badgeid) {
-        $params = array('badge_id' => $badgeid, 'api_consumer_id' => OBF_API_CONSUMER_ID);
+    public function get_assertions($badgeid = null) {
+        $params = array('api_consumer_id' => OBF_API_CONSUMER_ID);
+        
+        if (!is_null($badgeid)) {
+            $params['badge_id'] = $badgeid;
+        }
         
         // When getting assertions via OBF API the returned JSON isn't valid.
         // Let's use a closure that converts the returned string into valid JSON

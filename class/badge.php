@@ -52,6 +52,13 @@ class obf_badge implements cacheable_object {
         $obj = new self();
 
         if (!is_null($id)) {
+            // Try from badge_tree first, because it uses Moodle cache
+            $badge = obf_badge_tree::get_instance()->get_badge($id);
+            
+            if ($badge !== false) {
+                return $badge;
+            }
+            
             $obj->set_id($id)->populate();
         }
 
@@ -59,31 +66,31 @@ class obf_badge implements cacheable_object {
     }
 
     /**
-     * Creates a new instance of the class from a JSON-string.
+     * Creates a new instance of the class from an array.
      * 
-     * @param string $json The badge data in JSON
+     * @param string $arr The badge data as an associative array
      * @return obf_badge The badge.
      */
-    public static function get_instance_from_json($json) {
-        return obf_badge::get_instance()->populate_from_json($json);
+    public static function get_instance_from_array($arr) {
+        return obf_badge::get_instance()->populate_from_array($arr);
     }
 
     /**
-     * Populates the object's properties from JSON
+     * Populates the object's properties from an array
      * 
-     * @param string $json The badge's data in JSON
+     * @param string $arr The badge's data as an associative array
      * @return obf_badge
      */
-    public function populate_from_json($json) {
-        return $this->set_criteria($json['criteria'])
-                        ->set_description($json['description'])
-                        ->set_expires($json['expires'])
-                        ->set_id($json['id'])
-                        ->set_isdraft((bool) $json['draft'])
-                        ->set_tags($json['tags'])
-                        ->set_image($json['image'])
-                        ->set_created($json['ctime'])
-                        ->set_name($json['name']);
+    public function populate_from_array($arr) {
+        return $this->set_criteria($arr['criteria'])
+                        ->set_description($arr['description'])
+                        ->set_expires($arr['expires'])
+                        ->set_id($arr['id'])
+                        ->set_isdraft((bool) $arr['draft'])
+                        ->set_tags($arr['tags'])
+                        ->set_image($arr['image'])
+                        ->set_created($arr['ctime'])
+                        ->set_name($arr['name']);
     }
 
     public function get_issuer() {
@@ -100,7 +107,7 @@ class obf_badge implements cacheable_object {
 
     /**
      * 
-     * @return obf_issuance[]
+     * @return obf_assertion_collection
      */
     public function get_assertions() {
         return obf_issuance::get_badge_assertions($this);
@@ -131,7 +138,7 @@ class obf_badge implements cacheable_object {
      * @return obf_badge
      */
     public function populate() {
-        return $this->populate_from_json(obf_client::get_instance()->get_badge($this->id));
+        return $this->populate_from_array(obf_client::get_instance()->get_badge($this->id));
     }
 
     /**
