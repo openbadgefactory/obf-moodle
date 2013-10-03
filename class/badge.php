@@ -66,9 +66,20 @@ class obf_badge implements cacheable_object {
     }
 
     /**
-     * Creates a new instance of the class from an array.
+     * Creates a new instance of the class from an array. The array should have
+     * the following keys:
      * 
-     * @param string $arr The badge data as an associative array
+     * - criteria
+     * - description
+     * - expires
+     * - id
+     * - draft
+     * - tags
+     * - image
+     * - ctime
+     * - name
+     * 
+     * @param array $arr The badge data as an associative array
      * @return obf_badge The badge.
      */
     public static function get_instance_from_array($arr) {
@@ -76,9 +87,10 @@ class obf_badge implements cacheable_object {
     }
 
     /**
-     * Populates the object's properties from an array
+     * Populates the object's properties from an array.
      * 
-     * @param string $arr The badge's data as an associative array
+     * @param array $arr The badge's data as an associative array
+     * @see get_instance_from_array()
      * @return obf_badge
      */
     public function populate_from_array($arr) {
@@ -93,14 +105,26 @@ class obf_badge implements cacheable_object {
                         ->set_name($arr['name']);
     }
 
+    /**
+     * 
+     * @return type
+     */
     public function get_issuer() {
         if (is_null($this->issuer)) {
-            $this->issuer = obf_issuer::get_instance_from_json(obf_client::get_instance()->get_issuer());
+            $this->issuer = obf_issuer::get_instance_from_arr(obf_client::get_instance()->get_issuer());
         }
 
         return $this->issuer;
     }
     
+    /**
+     * 
+     * @param array $recipients
+     * @param type $issuedon
+     * @param type $emailsubject
+     * @param type $emailbody
+     * @param type $emailfooter
+     */
     public function issue(array $recipients, $issuedon, $emailsubject, $emailbody, $emailfooter) {
         obf_client::get_instance()->issue_badge($this, $recipients, $issuedon, $emailsubject, $emailbody, $emailfooter);
     }

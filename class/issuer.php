@@ -12,16 +12,26 @@ class obf_issuer {
         return new self;
     }
 
-    public static function get_instance_from_json($json) {
-        return self::get_instance()->populate_from_array($json);
+    /**
+     * 
+     * @param type $arr
+     * @return obf_issuer
+     */
+    public static function get_instance_from_arr($arr) {
+        return self::get_instance()->populate_from_array($arr);
     }
 
-    public function populate_from_array($json) {
-        return $this->set_id($json['id'])
-                        ->set_description($json['description'])
-                        ->set_email($json['email'])
-                        ->set_url($json['url'])
-                        ->set_name($json['name']);
+    /**
+     * 
+     * @param type $arr
+     * @return obf_issuer
+     */
+    public function populate_from_array($arr) {
+        return $this->set_id($arr['id'])
+                        ->set_description($arr['description'])
+                        ->set_email($arr['email'])
+                        ->set_url($arr['url'])
+                        ->set_name($arr['name']);
     }
 
     public function get_id() {
