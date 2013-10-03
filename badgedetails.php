@@ -6,12 +6,14 @@ require_once(__DIR__ . "/lib.php");
 $badgeid = required_param('id', PARAM_ALPHANUM);
 $show = optional_param('show', 'details', PARAM_ALPHANUM);
 $currentpage = optional_param('page', 0, PARAM_INT);
+$context = context_system::instance();
 
 require_login();
+require_capability('local/obf:viewdetails', $context);
 
 $badge = obf_badge::get_instance($badgeid);
 
-$PAGE->set_context(context_system::instance());
+$PAGE->set_context($context);
 $PAGE->set_url(new moodle_url('/local/obf/badgedetails.php', array('id' => $badgeid, 'show' => $show)));
 $PAGE->set_title(get_string('obf', 'local_obf') . ' - ' . $badge->get_name());
 $PAGE->set_heading(get_string('badgedetails', 'local_obf'));

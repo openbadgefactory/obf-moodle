@@ -12,11 +12,29 @@ $capabilities = array(
         'captype'       => 'read',
         'contextlevel'  => CONTEXT_SYSTEM,
         'archetypes'    => array(
-            'manager'   => CAP_ALLOW
+            'manager'   => CAP_ALLOW,
+            'teacher'   => CAP_ALLOW,
+            'editingteacher' => CAP_ALLOW
         )
     ),
     'local/obf:issuebadge' => array(
         'captype'       => 'write',
+        'contextlevel'  => CONTEXT_SYSTEM,
+        'archetypes'    => array(
+            'manager'   => CAP_ALLOW,
+            'teacher'   => CAP_ALLOW,
+            'editingteacher' => CAP_ALLOW
+        )
+    ),
+    'local/obf:viewhistory' => array(
+        'captype'       => 'read',
+        'contextlevel'  => CONTEXT_SYSTEM,
+        'archetypes'    => array(
+            'manager'   => CAP_ALLOW
+        )
+    ),
+    'local/obf:viewdetails' => array(
+        'captype'       => 'read',
         'contextlevel'  => CONTEXT_SYSTEM,
         'archetypes'    => array(
             'manager'   => CAP_ALLOW,

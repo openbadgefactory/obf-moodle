@@ -21,7 +21,7 @@ class local_obf_renderer extends plugin_renderer_base {
      * Renders the OBF-badge tree with badges categorized into folders
      * 
      * @param obf_badge_tree $tree
-     * @return string Returns the HTML-output
+     * @return string Returns the HTML-output.
      */
     protected function render_obf_badge_tree(obf_badge_tree $tree) {
         $html = '';
@@ -70,14 +70,35 @@ class local_obf_renderer extends plugin_renderer_base {
         return $html;
     }
 
+    /**
+     * Generates the HTML for the badge image.
+     * 
+     * @param obf_badge $badge The badge object
+     * @param int $width The width of the image
+     * @return string The img-tag
+     */
     public function print_badge_image(obf_badge $badge, $width = self::BADGE_IMAGE_SIZE_SMALL) {
         return html_writer::empty_tag("img", array("src" => $badge->get_image(), "width" => $width, "alt" => $badge->get_name()));
     }
 
+    /**
+     * Generates the HTML for a heading.
+     * 
+     * @param string $id The string id in the module's language file.
+     * @param int $level The heading level.
+     * @return string The hX-tag
+     */
     public function print_heading($id, $level = 3) {
         return $this->output->heading(get_string($id, 'local_obf'), $level);
     }
 
+    /**
+     * Generates the HTML for the badge teaser -component. The component
+     * contains the badge image, the name of the badge and the description.
+     * 
+     * @param obf_badge $badge The badge object.
+     * @return string The HTML markup.
+     */
     public function print_badge_teaser(obf_badge $badge) {
         $html = $this->print_heading('badgedetails');
         $imgdiv = html_writer::div($this->print_badge_image($badge, self::BADGE_IMAGE_SIZE_NORMAL), 'obf-badgeimage');
@@ -178,12 +199,15 @@ class local_obf_renderer extends plugin_renderer_base {
                         : '-';
                 $row = new html_table_row();
 
+                // If we're watching the whole history (not just a single badge),
+                // show the badge details in the table.
                 if (!$singlebadgehistory) {
                     $url = new moodle_url('badgedetails.php', array('id' => $assertion->get_badge()->get_id()));
                     $row->cells[] = $this->print_badge_image($assertion->get_badge(), self::BADGE_IMAGE_SIZE_SMALL);
                     $row->cells[] = html_writer::link($url, $assertion->get_badge()->get_name());
                 }
 
+                // Map the assertion recipients to Moodle users
                 $users = $history->get_assertion_users($assertion);
                 $userlist = array();
                 

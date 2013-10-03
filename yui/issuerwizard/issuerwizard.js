@@ -95,9 +95,11 @@ YUI.add('moodle-local_obf-issuerwizard', function(Y) {
             var expiresbynode = Y.one('.confirm-expiresby').setHTML(expiresby);
             var emailpreviewnode = Y.one('.confirm-email');
 
-            // When creating static form elements with Moodleforms, the value has a trailing non-breaking space.
-            // In this case the value is a DOM-node (div) and the NBSP adds an extra row making the form look
-            // stupid with too much space between the elements. So this is how we clear the extra whitespace.
+            // When creating static form elements with Moodleforms, the value
+            // has a trailing non-breaking space. In this case the value is
+            // a DOM-node (div) and the NBSP adds an extra row making the form
+            // look stupid with too much space between the elements. So this is
+            // how we clear the extra whitespace.
             recipientsnode.ancestor().setHTML(recipientsnode);
             issuedonnode.ancestor().setHTML(issuedonnode);
             expiresbynode.ancestor().setHTML(expiresbynode);

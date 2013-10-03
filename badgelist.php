@@ -13,9 +13,7 @@ $PAGE->set_heading(get_string('badgelisttitle', 'local_obf'));
 $PAGE->set_url(new moodle_url('/local/obf/badgelist.php'));
 $PAGE->set_pagelayout('admin');
 
-if (!has_capability('local/obf:viewallbadges', $PAGE->context)) {
-    print_error('capabilityrequired', 'local_obf');
-}
+require_capability('local/obf:viewallbadges', $PAGE->context);
 
 $output = $PAGE->get_renderer('local_obf');
 
