@@ -162,7 +162,7 @@ class local_obf_renderer extends plugin_renderer_base {
 
     public function print_badge_info_history(obf_badge $badge = null, $currentpage = 0) {
         $singlebadgehistory = !is_null($badge);
-        $history = $singlebadgehistory ? $badge->get_assertions() : obf_issuance::get_assertions();
+        $history = $singlebadgehistory ? $badge->get_assertions() : obf_assertion::get_assertions();
         $historytable = new html_table();
         $html = '';
         $historysize = count($history);
@@ -194,8 +194,8 @@ class local_obf_renderer extends plugin_renderer_base {
             // add history rows
             for ($i = $startindex; $i < $endindex; $i++) {
                 $assertion = $history->get_assertion($i);
-                $expirationdate = $assertion->get_badge()->has_expiration_date()
-                        ? userdate($assertion->get_badge()->get_expires(), get_string('strftimedate'))
+                $expirationdate = $assertion->has_expiration_date()
+                        ? userdate($assertion->get_expires(), get_string('strftimedate'))
                         : '-';
                 $row = new html_table_row();
 

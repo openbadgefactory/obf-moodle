@@ -48,10 +48,10 @@ class local_obf_badge_testcase extends advanced_testcase {
     }
     
     public function test_get_existing_instance() {
-//        $badgeclassname = $this->badgeclassname;
-//        $badge = $badgeclassname::get_instance($this->existingid);
-//        
-//        $this->assertFalse($badge->has_expired());
+        $badgeclassname = $this->badgeclassname;
+        $badge = $badgeclassname::get_instance($this->existingid, $this->client_mock);
+        
+        $this->assertEquals('Test description', $badge->get_description());
     }
 
 }

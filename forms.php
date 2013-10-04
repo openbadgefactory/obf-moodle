@@ -111,7 +111,7 @@ class badge_issuer_form extends moodleform {
         $mform->addElement('date_selector', 'expiresby', get_string('expiresby', 'local_obf'), array('optional' => true, 'startyear' => date('Y'), 'stopyear' => date('Y') + 20));
 
         if ($this->badge->has_expiration_date()) {
-            $mform->setDefault('expiresby', $this->badge->get_expiration_date());
+            $mform->setDefault('expiresby', $this->badge->get_default_expiration_date());
         }
     }
 

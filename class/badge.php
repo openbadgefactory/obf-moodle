@@ -10,6 +10,12 @@ require_once __DIR__ . '/client.php';
  */
 class obf_badge implements cacheable_object {
 
+    /**
+     *
+     * @var obf_client
+     */
+    private $client = null;
+    
     private $issuer = null;
 
     /**
@@ -53,9 +59,13 @@ class obf_badge implements cacheable_object {
      * @param string $id The id of the badge.
      * @return obf_badge
      */
-    public static function get_instance($id = null) {
+    public static function get_instance($id = null, $client = null) {
         $obj = new self();
-
+        
+        if (!is_null($client)) {
+            $obj->set_client($client);
+        }
+        
         if (!is_null($id)) {
             // Try from badge_tree first, because it uses Moodle cache
             $badge = static::get_badge_from_tree($id);
@@ -120,7 +130,7 @@ class obf_badge implements cacheable_object {
      */
     public function get_issuer() {
         if (is_null($this->issuer)) {
-            $this->issuer = obf_issuer::get_instance_from_arr(obf_client::get_instance()->get_issuer());
+            $this->issuer = obf_issuer::get_instance_from_arr($this->get_client()->get_issuer());
         }
 
         return $this->issuer;
@@ -138,7 +148,7 @@ class obf_badge implements cacheable_object {
         if (empty($this->id))
             throw new Exception('Invalid or missing badge id');
 
-        obf_client::get_instance()->issue_badge($this, $recipients, $issuedon, $emailsubject, $emailbody, $emailfooter);
+        $this->get_client()->issue_badge($this, $recipients, $issuedon, $emailsubject, $emailbody, $emailfooter);
     }
 
     /**
@@ -146,7 +156,7 @@ class obf_badge implements cacheable_object {
      * @return obf_assertion_collection
      */
     public function get_assertions() {
-        return obf_issuance::get_badge_assertions($this);
+        return obf_assertion::get_badge_assertions($this);
     }
 
     /**
@@ -158,7 +168,7 @@ class obf_badge implements cacheable_object {
         $ret = array();
 
         foreach ($assertions as $assertion) {
-            if (!$assertion->get_badge()->has_expired()) {
+            if (!$assertion->badge_has_expired()) {
                 $ret[] = $assertion;
             }
         }
@@ -173,21 +183,14 @@ class obf_badge implements cacheable_object {
      * @return obf_badge
      */
     public function populate() {
-        return $this->populate_from_array(obf_client::get_instance()->get_badge($this->id));
-    }
-
-    /**
-     * @return bool Whether the badge has expired or not
-     */
-    public function has_expired() {
-        return ($this->expiresby < time());
+        return $this->populate_from_array($this->get_client()->get_badge($this->id));
     }
 
     public function has_expiration_date() {
         return !empty($this->expiresby);
     }
 
-    public function get_expiration_date() {
+    public function get_default_expiration_date() {
         return (strtotime('+ ' . $this->expiresby . ' months'));
     }
 
@@ -286,6 +289,17 @@ class obf_badge implements cacheable_object {
         return $this;
     }
 
+    public function get_client() {
+        if (is_null($this->client))
+            $this->client = obf_client::get_instance();
+        
+        return $this->client;
+    }
+    
+    public function set_client(obf_client $client) {
+        $this->client = $client;
+    }
+    
     /**
      * Prepares the object to cache.
      * 
