@@ -43,6 +43,7 @@ $string['issueremail'] = 'Email';
 $string['issuername'] = 'Name';
 $string['issuerurl'] = 'URL';
 $string['issuethisbadge'] = 'Issue';
+$string['missingapiurl'] = 'Please enter the OBF API URL in the settings.';
 $string['missingclientid'] = 'Please enter your OBF client id in the settings.';
 $string['nobadges'] = 'No badges yet.';
 $string['nohistory'] = 'This badge hasn\'t been issued yet.';

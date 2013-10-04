@@ -11,14 +11,11 @@ class local_obf_folder_testcase extends advanced_testcase {
     private $badge = null;
 
     protected function setUp() {
-        $this->badge = new obf_badge();
-        $this->badge->set_created(time());
-        $this->badge->set_description('Test description');
-        $this->badge->set_id('MTPXU3O8W2');
-        $this->badge->set_name('US OPEN');
+        $this->resetAfterTest();
+        $this->badge = $this->getMock('obf_badge');
     }
 
-    public function test_name2() {
+    public function test_name() {
         $folder = new obf_badge_folder(null);
         $this->assertFalse($folder->has_name());
     }
@@ -30,7 +27,6 @@ class local_obf_folder_testcase extends advanced_testcase {
         $folder->add_badge($badge2);
         $this->assertEquals(2, count($folder->get_badges()));
     }
-
 }
 
 ?>

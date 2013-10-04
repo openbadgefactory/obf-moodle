@@ -3,10 +3,15 @@
 define('OBF_API_CONSUMER_ID', 'Moodle');
 
 class obf_client {
-    
+
     public static function get_client_id() {
         global $CFG;
-        return $CFG->obf_client_id;
+        return isset($CFG->obf_client_id) ? $CFG->obf_client_id : -1;
+    }
+
+    public static function get_api_url() {
+        global $CFG;        
+        return isset($CFG->obf_url) ? $CFG->obf_url : '';
     }
     
     /**
@@ -16,7 +21,7 @@ class obf_client {
     public static function get_instance() {
         return new self();
     }
-    
+
     /**
      * 
      * @param type $badgeid
@@ -52,19 +57,19 @@ class obf_client {
      */
     public function get_assertions($badgeid = null) {
         $params = array('api_consumer_id' => OBF_API_CONSUMER_ID);
-        
+
         if (!is_null($badgeid)) {
             $params['badge_id'] = $badgeid;
         }
-        
+
         // When getting assertions via OBF API the returned JSON isn't valid.
         // Let's use a closure that converts the returned string into valid JSON
         // before calling json_decode in $this->curl.
         return $this->curl('/event/' . self::get_client_id(), 'get', $params, function ($output) {
-            return '[' . implode(',', array_filter(explode("\n", $output))) . ']';
-        });
+                            return '[' . implode(',', array_filter(explode("\n", $output))) . ']';
+                        });
     }
-    
+
     /**
      * 
      * @param obf_badge $badge
@@ -104,24 +109,33 @@ class obf_client {
 
         include_once $CFG->libdir . '/filelib.php';
 
-        $curl = new curl();
+        $apiurl = self::get_api_url();
+
+        if (!isset($apiurl))
+            throw new Exception(get_string('missingapiurl', 'local_obf'));
+
+        $curl = $this->get_curl();
         $options = $this->get_curl_options();
-        $url = $CFG->obf_url . $path;
+        $url = $apiurl . $path;
         $output = $method == 'get' ? $curl->get($url, $params, $options) : $curl->post($url, json_encode($params), $options);
         $code = $curl->info['http_code'];
-        
+
         if (!is_null($preformatter)) {
             $output = $preformatter($output);
         }
-            
-        $json = json_decode($output, true);
-        
+
+        $response = json_decode($output, true);
+
         // Codes 2xx should be ok
         if ($code < 200 || $code >= 300) {
-            throw new Exception(get_string('apierror' . $code, 'local_obf', array('error' => $json['error'])));
+            throw new Exception(get_string('apierror' . $code, 'local_obf', array('error' => $response['error'])));
         }
 
-        return $json;
+        return $response;
+    }
+
+    protected function get_curl() {
+        return new curl();
     }
 
     /**
