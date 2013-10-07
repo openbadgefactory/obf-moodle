@@ -1,4 +1,5 @@
 <?php
+$string['addcriteria'] = 'Add badge criteria';
 $string['apierror0'] = 'OBF service request failed. Check server logs for more info.';
 $string['apierror400'] = 'OBF service request failed because of an erroneous/missing parameter.';
 $string['apierror403'] = 'TODO: Forbidden';
@@ -26,6 +27,7 @@ $string['badgename'] = 'Name';
 $string['clientid'] = 'Your Open Badge Factory client-id';
 $string['clientiddescription'] = 'This is here just for testing purposes.';
 $string['confirmandissue'] = 'Confirm and issue';
+$string['criteriacoursecompletion'] = 'Completing a set of courses';
 $string['editemailmessage'] = 'Edit email message';
 $string['emailbody'] = 'Email body';
 $string['emailfooter'] = 'Email footer';
@@ -33,6 +35,8 @@ $string['emailmessage'] = 'Email message';
 $string['emailsubject'] = 'Email subject';
 $string['expiresby'] = 'Expiration date';
 $string['history'] = 'Previously issued';
+$string['invalidcriteriatype'] = 'Unknown criteria type.';
+$string['invalidtab'] = 'Page not found';
 $string['issue'] = 'Issue badge';
 $string['issuebadge'] = 'Issue a badge';
 $string['issueandexpiration'] = 'Issue and expiration dates';

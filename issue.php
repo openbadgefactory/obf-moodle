@@ -19,14 +19,5 @@ $PAGE->set_title($title);
 $PAGE->set_heading($title);
 $PAGE->set_pagelayout('admin');
 
-$output = $PAGE->get_renderer('local_obf');
-
-echo $OUTPUT->header();
-echo $output->print_issuer_wizard($badge);
-
-$PAGE->requires->yui_module('moodle-local_obf-issuerwizard', 'M.local_obf.init');
-$PAGE->requires->strings_for_js(array(
-        'emailsubject'
-    ), 'local_obf');
-echo $OUTPUT->footer();
+echo $PAGE->get_renderer('local_obf')->page_issue($badge);
 ?>

@@ -15,9 +15,5 @@ $PAGE->set_pagelayout('admin');
 
 require_capability('local/obf:viewhistory', $PAGE->context);
 
-echo $OUTPUT->header();
-$output = $PAGE->get_renderer('local_obf');
-
-echo $output->print_badge_info_history(null, $currentpage);
-echo $OUTPUT->footer();
+echo $PAGE->get_renderer('local_obf')->page_history(null, $currentpage);
 ?>

@@ -18,6 +18,120 @@ class local_obf_renderer extends plugin_renderer_base {
     const BADGE_IMAGE_SIZE_NORMAL = 100;
 
     /**
+     * Renders the page where the user can issue a badge.
+     * 
+     * @param obf_badge $badge
+     * @return type
+     */
+    public function page_issue(obf_badge $badge) {
+        $html = $this->output->header();
+        $html .= $this->print_issuer_wizard($badge);
+
+        $this->page->requires->yui_module('moodle-local_obf-issuerwizard', 'M.local_obf.init');
+        $this->page->requires->strings_for_js(array(
+            'emailsubject'
+                ), 'local_obf');
+        $html .= $this->output->footer();
+
+        return $html;
+    }
+
+    /**
+     * Renders the badge issuance history page.
+     * 
+     * @param obf_badge $badge
+     * @param type $currentpage
+     * @return type
+     */
+    public function page_history(obf_badge $badge = null, $currentpage = 0) {
+        $html = $this->output->header();
+        $html .= $this->print_badge_info_history($badge, $currentpage);
+        $html .= $this->output->footer();
+
+        return $html;
+    }
+
+    /**
+     * Renders the page displaying the badge list.
+     * 
+     * @param type $reload
+     * @return type
+     */
+    public function page_badgelist($reload = false) {
+        $html = $this->output->header();
+        $html .= $this->output->single_button(new moodle_url('badgelist.php', array('reload' => 1)), get_string('updatebadges', 'local_obf'));
+
+        try {
+            $tree = obf_badge_tree::get_instance($reload);
+            $html .= $this->render($tree);
+        } catch (Exception $e) {
+            $html .= $this->output->notification($e->getMessage(), 'notifyproblem');
+        }
+
+        $html .= $this->output->footer();
+
+        return $html;
+    }
+
+    /**
+     * Renders the page with the badge details.
+     * 
+     * @param obf_badge $badge
+     * @param string $tab
+     * @param type $page
+     * @return type
+     */
+    public function page_badgedetails(obf_badge $badge, $tab = 'details', $page = 0) {
+        $methodprefix = 'print_badge_info_';
+        $rendererfunction = $methodprefix . $tab;
+        $html = $this->output->header();
+
+        if (!method_exists($this, $rendererfunction)) {
+            $html .= $this->output->notification(get_string('invalidtab', 'local_obf'));
+        } else {
+            $html .= $this->output->heading($this->print_badge_image($badge) . ' ' .
+                    $badge->get_name());
+            $html .= $this->print_badge_tabs($badge->get_id(), $tab);
+            $html .= call_user_func(array($this, $rendererfunction), $badge, $page);
+        }
+
+        $html .= $this->output->footer();
+
+        return $html;
+    }
+
+    /**
+     * Renders the page that displays the settings of the selected criteria type.
+     * 
+     * @param obf_badge $badge
+     * @param type $criteriatype
+     * @return type
+     */
+    public function page_criteriasettings(obf_badge $badge, $criteriatype) {
+        // add a bit of security here before including any files
+        $criteriatype = preg_replace('/[^a-z_]/', '', $criteriatype);
+        $criteriaclass = 'obf_criteria_' . $criteriatype;
+        $classfile = __DIR__ . '/class/criteria/' . $criteriatype . '.php';
+        
+        if (file_exists($classfile))
+            require_once $classfile;
+        
+        $html = $this->output->header();
+        
+        if (!class_exists($criteriaclass)) {
+            $html .= $this->output->notification(get_string('invalidcriteriatype', 'local_obf'));
+        } else {
+            $html .= $this->output->heading($this->print_badge_image($badge) .
+                    ' ' . $badge->get_name());
+            $html .= $criteriaclass::get_instance()->render($badge);
+        }
+
+        $html .= $this->output->footer();
+        
+        return $html;
+    }
+
+    /**
      * Renders the OBF-badge tree with badges categorized into folders
      * 
      * @param obf_badge_tree $tree
@@ -157,9 +271,21 @@ class local_obf_renderer extends plugin_renderer_base {
     }
 
     public function print_badge_info_criteria(obf_badge $badge) {
-        return html_writer::tag('p', 'TODO');
+        $html = '';
+        $url = new moodle_url('criteria_settings.php', array('id' => $badge->get_id(), 'show' => 'criteria'));
+        $options = array('coursecompletion' => get_string('criteriacoursecompletion', 'local_obf'));
+        $html .= html_writer::tag('label', get_string('addcriteria', 'local_obf'));
+        $html .= $this->output->single_select($url, 'type', $options);
+
+        return $html;
     }
 
+    /**
+     * 
+     * @param obf_badge $badge
+     * @param type $currentpage
+     * @return type
+     */
     public function print_badge_info_history(obf_badge $badge = null, $currentpage = 0) {
         $singlebadgehistory = !is_null($badge);
         $history = $singlebadgehistory ? $badge->get_assertions() : obf_assertion::get_assertions();
@@ -194,9 +320,7 @@ class local_obf_renderer extends plugin_renderer_base {
             // add history rows
             for ($i = $startindex; $i < $endindex; $i++) {
                 $assertion = $history->get_assertion($i);
-                $expirationdate = $assertion->has_expiration_date()
-                        ? userdate($assertion->get_expires(), get_string('strftimedate'))
-                        : '-';
+                $expirationdate = $assertion->has_expiration_date() ? userdate($assertion->get_expires(), get_string('strftimedate')) : '-';
                 $row = new html_table_row();
 
                 // If we're watching the whole history (not just a single badge),
@@ -210,15 +334,14 @@ class local_obf_renderer extends plugin_renderer_base {
                 // Map the assertion recipients to Moodle users
                 $users = $history->get_assertion_users($assertion);
                 $userlist = array();
-                
+
                 foreach ($users as $user) {
                     // TODO: handle case where the user doesn't exist in the
                     // Moodle database
                     $url = new moodle_url('/user/profile.php', array('id' => $user->id));
-                    $userlist[] = html_writer::link($url, $user->firstname . ' ' .
-                            $user->lastname) . ' (' . $user->email . ')';
+                    $userlist[] = html_writer::link($url, fullname($user)) . ' (' . $user->email . ')';
                 }
-                
+
                 $row->cells[] = html_writer::alist($userlist);
                 $row->cells[] = userdate($assertion->get_issuedon(), get_string('strftimedate'));
                 $row->cells[] = $expirationdate;

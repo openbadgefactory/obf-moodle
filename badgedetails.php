@@ -23,17 +23,5 @@ $navigationurl = new moodle_url('/local/obf/badgelist.php');
 navigation_node::override_active_url($navigationurl);
 $PAGE->navbar->add($badge->get_name());
 
-echo $OUTPUT->header();
-$output = $PAGE->get_renderer('local_obf');
-$rendererfunction = 'print_badge_info_' . $show;
-
-if (!method_exists($output, $rendererfunction)) {
-    $rendererfunction = 'print_badge_info_details';
-    $show = 'details';
-}
-
-echo $OUTPUT->heading($output->print_badge_image($badge) . ' ' . $badge->get_name());
-echo $output->print_badge_tabs($badgeid, $show);
-echo call_user_func(array($output, $rendererfunction), $badge, $currentpage);
-echo $OUTPUT->footer();
+echo $PAGE->get_renderer('local_obf')->page_badgedetails($badge, $show, $currentpage);
 ?>
