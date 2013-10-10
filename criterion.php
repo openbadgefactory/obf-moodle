@@ -3,7 +3,7 @@
 require_once('/var/www/moodle/config.php'); // __DIR__ . '/../../config.php';
 require_once(__DIR__ . "/lib.php");
 
-$badgeid = required_param('id', PARAM_ALPHANUM);
+$badgeid = required_param('badgeid', PARAM_ALPHANUM);
 $type = optional_param('type', 'coursecompletion', PARAM_ALPHA);
 $context = context_system::instance();
 
@@ -17,10 +17,6 @@ $PAGE->set_url(new moodle_url('/local/obf/criteria_settings.php', array('id' => 
 $PAGE->set_title(get_string('obf', 'local_obf') . ' - ' . $badge->get_name());
 $PAGE->set_heading(get_string('addcriteria', 'local_obf'));
 $PAGE->set_pagelayout('admin');
-
-//$navigationurl = new moodle_url('/local/obf/badgelist.php');
-//navigation_node::override_active_url($navigationurl);
-//$PAGE->navbar->add($badge->get_name());
 
 echo $PAGE->get_renderer('local_obf')->page_criteriasettings($badge, $type);
 ?>

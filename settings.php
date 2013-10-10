@@ -14,14 +14,14 @@ if ($hassiteconfig) {
 
     // badge list -page
     $badgelist = new admin_externalpage('badgelist', get_string('badgelist', 'local_obf'),
-            new moodle_url('/local/obf/badgelist.php'));
+            new moodle_url('/local/obf/badge.php', array('action' => 'list')));
 
     // issue badge -page
 //    $issuebadge = new admin_externalpage('issuebadge', get_string('issuebadge', 'local_obf'), $CFG->wwwroot . '/local/obf/issue.php');
     
     // issuance history -page
     $history = new admin_externalpage('badgehistory', get_string('history', 'local_obf'),
-            new moodle_url('/local/obf/history.php'));
+            new moodle_url('/local/obf/badge.php', array('action' => 'history')));
     
     // add pages to navigation
     $ADMIN->add('root', $obf);

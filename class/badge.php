@@ -4,6 +4,7 @@ require_once __DIR__ . '/tree.php';
 require_once __DIR__ . '/issuer.php';
 require_once __DIR__ . '/issuance.php';
 require_once __DIR__ . '/client.php';
+require_once __DIR__ . '/criterion/criterion.php';
 
 /**
  * Class for a single Open Badge Factory -badge
@@ -192,6 +193,10 @@ class obf_badge implements cacheable_object {
 
     public function get_default_expiration_date() {
         return (strtotime('+ ' . $this->expiresby . ' months'));
+    }
+    
+    public function get_completion_criteria() {
+        return obf_criterion::get_badge_criteria($this);
     }
 
     public function get_id() {

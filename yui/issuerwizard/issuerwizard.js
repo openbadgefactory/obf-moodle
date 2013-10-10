@@ -1,15 +1,19 @@
 YUI.add('moodle-local_obf-issuerwizard', function(Y) {
-    M.local_obf = {
+    var ISSUERWIZARDNAME = 'obf-issuerwizard';
+    var ISSUERWIZARD = function() {
+        ISSUERWIZARD.superclass.constructor.apply(this, arguments);
+    };
+
+    Y.extend(ISSUERWIZARD, Y.Base, {
         /**
          * Module initializer.
          * 
          * @param {type} config
          * @returns {undefined}
          */
-        init: function(config) {
+        initializer: function(config) {
             this.create_tabview();
         },
-                
         /**
          * Creates the tabview from the existing markup.
          * 
@@ -44,10 +48,9 @@ YUI.add('moodle-local_obf-issuerwizard', function(Y) {
                     }, this), e);
                 }, this));
 
-                Y.one('.confirm-email a').on('click', this.show_email_preview, this);
+                Y.one('.confirm-email a').on('click', this.show_email_preview);
             }, this));
         },
-        
         /**
          * Displays the email preview window.
          * 
@@ -64,7 +67,6 @@ YUI.add('moodle-local_obf-issuerwizard', function(Y) {
                     ',menubar=0, toolbar=0, status=0, scrollbars=1, resizable=1');
             email_preview_window.document.body.innerHTML = email;
         },
-                
         getdatevalues: function(fieldname) {
             return Y.Array(['day', 'month', 'year']).map(function(item) {
                 return Y.one('#details select[name="' + fieldname + '[' + item + ']"]').get('value');
@@ -105,5 +107,15 @@ YUI.add('moodle-local_obf-issuerwizard', function(Y) {
             expiresbynode.ancestor().setHTML(expiresbynode);
             emailpreviewnode.ancestor().setHTML(emailpreviewnode);
         }
+    }, {
+        NAME: ISSUERWIZARDNAME,
+        ATTRS: {
+            aparam: {}
+        }
+    });
+
+    M.local_obf = M.local_obf || {};
+    M.local_obf.init_issuerwizard = function(config) {
+        return new ISSUERWIZARD(config);
     };
 }, '@VERSION@');

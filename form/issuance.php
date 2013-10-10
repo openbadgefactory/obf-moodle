@@ -1,12 +1,11 @@
 <?php
-
 defined('MOODLE_INTERNAL') or die();
 
 require_once($CFG->libdir . '/formslib.php');
 require_once($CFG->dirroot . '/user/selector/lib.php');
 require_once 'HTML/QuickForm/element.php';
 
-class badge_issuer_form extends moodleform {
+class issuanceform extends moodleform {
 
     /**
      * @var obf_badge
@@ -238,10 +237,13 @@ class badge_recipient_selector extends user_selector_base {
         return $options;
     }
 
+    /**
+     * 
+     * @global moodle_database $DB
+     * @param type $search
+     * @return type
+     */
     public function find_users($search) {
-        /**
-         * @var moodle_database
-         */
         global $DB;
 
         $tablealias = 'u';
@@ -287,5 +289,4 @@ class badge_recipient_selector extends user_selector_base {
     }
 
 }
-
 ?>
