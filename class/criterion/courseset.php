@@ -1,150 +1,19 @@
 <?php
 
+defined('MOODLE_INTERNAL') or die();
+
+global $CFG;
+
 require_once __DIR__ . '/criterionbase.php';
-require_once __DIR__ . '/../../form/courseselection.php';
-require_once __DIR__ . '/../../form/courseset.php';
+require_once($CFG->libdir . '/coursecatlib.php');
+require_once($CFG->libdir . '/completionlib.php');
 
 /**
  * Description of coursecompletion
  *
  * @author olli
  */
-class obf_criterion_courseset extends obf_criterion_base implements renderable {
-
-    /**
-     * 
-     * @global moodle_database $DB
-     * @global type $PAGE
-     * @param obf_badge $badge
-     * @return type
-     * @throws Exception
-     */
-    public function render() {
-        $html = '';
-
-        if ($this->id > 0)
-            $html .= $this->handle_courseediting();
-        else
-            $html .= $this->handle_courseselection();
-
-        return $html;
-    }
-
-    /**
-     * 
-     * @global moodle_database $DB
-     * @param obf_badge $badge
-     * @return type
-     * @throws Exception
-     */
-    protected function handle_courseselection() {
-        global $DB;
-
-        $html = '';
-        $courses = $DB->get_records('course', array('enablecompletion' => COMPLETION_ENABLED));
-        $form = new obf_courseselection_form(null, array('courses' => $courses,
-            'badge' => $this->badge), 'post', '', array('id' => 'coursecompletionform'));
-
-        // Form submission was cancelled
-        if ($form->is_cancelled()) {
-            redirect(new moodle_url('/local/obf/badgedetails.php', array('id' => $this->badge->get_id(), 'show' => 'criteria')));
-        }
-        // Form was successfully submitted
-        else if (!is_null($data = $form->get_data())) {
-            $this->set_completion_method(obf_criterion_base::CRITERIA_COMPLETION_ALL);
-
-            if ($this->save() === false) {
-                throw new Exception(get_string('creatingcriterionfailed', 'local_obf'));
-            }
-
-            $courseids = $data->course;
-
-            foreach ($courseids as $courseid) {
-                $course = $DB->get_record('course', array('id' => $courseid,
-                    'enablecompletion' => COMPLETION_ENABLED));
-
-                if ($course !== false) {
-                    $this->save_attribute('course_' . $courseid, $courseid);
-                }
-            }
-
-            redirect(new moodle_url('/local/obf/criterion.php', array('badgeid' => $this->badge->get_id(), 'action' => 'edit',
-                'id' => $this->id)));
-        }
-        // Display the form normally
-        else {
-            $html .= $form->render();
-        }
-
-        return $html;
-    }
-
-    /**
-     * 
-     * @param obf_badge $badge
-     * @param type $criterionid
-     * @global moodle_database $DB
-     * @return type
-     */
-    public function handle_courseediting() {
-        global $DB;
-
-        $html = '';
-        $criterionid = $this->id;
-        $url = new moodle_url('/local/obf/criterion.php', array('badgeid' =>
-            $this->badge->get_id(), 'action' => 'edit', 'type' => self::CRITERIA_TYPE_COURSESET));
-        $attributes = $this->get_parsed_attributes();
-        
-        $form = new obf_courseset_form($url, array('id' => $criterionid,
-            'attributes' => $attributes));
-
-        // Form was cancelled
-        if ($form->is_cancelled()) {
-            die('CANCEL');
-        }
-        // Form was successfully submitted, save data
-        else if (!is_null($data = $form->get_data())) {
-            // TODO: wrap into a transaction
-            if ($data->completion_method != $this->get_completion_method()) {
-                $this->set_completion_method($data->completion_method);
-                $this->update();
-            }
-
-            // ... delete old attributes ...
-            $DB->delete_records('obf_criterion_attributes', array('obf_criterion_id' => $this->id));
-
-            // ... and then add the criterion attributes
-            foreach ($data->mingrade as $courseid => $grade) {
-                $grade = (int) $grade;
-                $completedby = $data->{'completedby_' . $courseid};
-
-                // first add the course...
-                $attribute = new stdClass();
-                $attribute->obf_criterion_id = $this->id;
-                $attribute->name = 'course_' . $courseid;
-                $attribute->value = $courseid;
-
-                $DB->insert_record('obf_criterion_attributes', $attribute, false, true);
-
-                // ... then the grade-attribute if selected...
-                if ($grade > 0) {
-                    $this->save_attribute('grade_' . $courseid, $grade);
-                }
-
-                // ... and finally completion date -attribute if selected
-                if ($completedby > 0) {
-                    $this->save_attribute('completedby_' . $courseid, $completedby);
-                }
-            }
-
-            redirect(new moodle_url('/local/obf/badge.php', array('id' => $this->badge->get_id(), 'action' => 'show',
-                'show' => 'criteria')));
-        } else {
-            $html .= $form->render();
-        }
-
-        return $html;
-    }
+class obf_criterion_courseset extends obf_criterion_base {
 
     /**
      * 
@@ -155,7 +24,8 @@ class obf_criterion_courseset extends obf_criterion_base implements renderable {
         $html = html_writer::tag('strong', $course->coursename);
 
         if (isset($course->attributes['completedby'])) {
-            $html .= ' ' . get_string('completedbycriterion', 'local_obf', userdate($course->attributes['completedby'], get_string('strftimedate')));
+            $html .= ' ' . get_string('completedbycriterion', 'local_obf',
+                            userdate($course->attributes['completedby'], get_string('strftimedate')));
         }
 
         if (isset($course->attributes['grade'])) {
@@ -201,6 +71,114 @@ class obf_criterion_courseset extends obf_criterion_base implements renderable {
         return $ret;
     }
 
+    public function customizeform(obf_criterion_form &$form) {
+        global $DB, $OUTPUT;
+
+        $mform = $form->get_form();
+        
+        // creating a new criterion
+        if ($this->id <= 0) {
+            $courses = $DB->get_records('course', array('enablecompletion' => COMPLETION_ENABLED));
+
+            if (count($courses) > 0) {
+                $categories = coursecat::make_categories_list();
+                $courselist = array();
+
+                // initialize categories for the select list's optgroups
+                foreach ($categories as $category) {
+                    $courselist[$category] = array();
+                }
+
+                foreach ($courses as $course) {
+                    $categoryname = $categories[$course->category];
+                    $courselist[$categoryname][$course->id] = format_string($course->fullname, true);
+                }
+
+                // Course selection
+                $mform->addElement('header', 'header_criterion_fields',
+                        get_string('selectcourses', 'local_obf'));
+                $mform->setExpanded('header_criterion_fields');
+                $mform->addElement('selectgroups', 'course',
+                        get_string('selectcourses', 'local_obf'), $courselist,
+                        array('multiple' => true));
+                $mform->addRule('course', get_string('courserequired', 'local_obf'), 'required');
+
+                $buttons[] = $mform->createElement('submit', 'savecriteria',
+                        get_string('addcourses', 'local_obf'));
+            }
+
+            // No courses found with completion enabled
+            else {
+                $mform->addElement('html',
+                        $OUTPUT->notification(get_string('nocourseswithcompletionenabled',
+                                        'local_obf')));
+            }
+
+            $buttons[] = $mform->createElement('cancel', 'cancelbutton',
+                    get_string('cancel', 'local_obf'));
+            $mform->addGroup($buttons, 'buttonar', '', null, false);
+        }
+
+        // editing an existing criterion
+        else {
+            $attributes = $this->get_parsed_attributes(); //$this->_customdata['attributes'];
+
+            $mform->addElement('header', 'header_criteria_courses',
+                    get_string('criteriacourses', 'local_obf'));
+//            $mform->addElement('hidden', 'id', $criterionid);
+//            $mform->setType('id', PARAM_INT);
+
+            foreach ($attributes as $courseid => $coursedata) {
+                $mform->addElement('html', $OUTPUT->heading($coursedata->coursename, 3));
+
+                // Minimum grade -field
+                $mform->addElement('text', 'mingrade[' . $courseid . ']',
+                        get_string('minimumgrade', 'local_obf'));
+                $mform->addRule('mingrade[' . $courseid . ']', null, 'numeric');
+
+                // Fun fact: Moodle would like the developer to call $mform->setType()
+                // for every form element just in case and shows a E_NOTICE in logs
+                // if it detects a missing setType-call. But if we call setType,
+                // server-side validation stops working and thus makes $mform->addRule()
+                // completely useless. That's why we don't call setType() here.
+
+                if (isset($coursedata->attributes['grade']))
+                    $mform->setDefault('mingrade[' . $courseid . ']',
+                            $coursedata->attributes['grade']);
+
+                // Course completion date -selector. We could try naming the element
+                // using array (like above), but it's broken with date_selector.
+                // Instead of returning an array like it should, $form->get_data()
+                // returns something like array["completedby[60]"] which is fun.
+                $mform->addElement('date_selector', 'completedby_' . $courseid . '',
+                        get_string('coursecompletedby', 'local_obf'),
+                        array('optional' => true, 'startyear' => date('Y')));
+
+                if (isset($coursedata->attributes['completedby']))
+                    $mform->setDefault('completedby_' . $courseid,
+                            $coursedata->attributes['completedby']);
+            }
+
+            // Radiobuttons to select whether this criterion is completed
+            // when any of the courses are completed or all of them
+            $radiobuttons = array();
+            $radiobuttons[] = $mform->createElement('radio', 'completion_method', '',
+                    get_string('criteriacompletionmethodall', 'local_obf'),
+                    obf_criterion_base::CRITERIA_COMPLETION_ALL);
+            $radiobuttons[] = $mform->createElement('radio', 'completion_method', '',
+                    get_string('criteriacompletionmethodany', 'local_obf'),
+                    obf_criterion_base::CRITERIA_COMPLETION_ANY);
+
+            $mform->addElement('header', 'header_completion_method',
+                    get_string('criteriacompletedwhen', 'local_obf'));
+            $mform->setExpanded('header_completion_method');
+            $mform->addGroup($radiobuttons, 'radioar', '', '<br />', false);
+            $mform->setDefault('completion_method', $this->completion_method);
+
+            $form->add_action_buttons();
+        }
+    }
+
 //    public function get_yui_modules() {
 //        return array(
 //            'moodle-local_obf-coursecompletion' => array(
@@ -210,5 +188,4 @@ class obf_criterion_courseset extends obf_criterion_base implements renderable {
 //        );
 //    }
 }
-
 ?>

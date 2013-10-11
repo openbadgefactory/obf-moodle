@@ -136,12 +136,13 @@ class local_obf_renderer extends plugin_renderer_base {
       return $html;
       } */
 
-    protected function render_obf_criterion_courseset(obf_criterion_courseset $criterion) {
+    protected function render_obf_criterion_form(obf_criterion_form $form) {
+        $criterion = $form->get_criterion();
         $badge = $criterion->get_badge();
         $html = $this->output->header();
         $html .= $this->output->heading($this->print_badge_image($badge) .
                 ' ' . $badge->get_name());
-        $html .= $criterion->render();
+        $html .= $form->render();
         $html .= $this->output->footer();
 
         return $html;
@@ -298,7 +299,7 @@ class local_obf_renderer extends plugin_renderer_base {
     public function print_badge_info_criteria(obf_badge $badge) {
         $html = '';
         $file = '/local/obf/criterion.php';
-        $url = new moodle_url($file, array('badgeid' => $badge->get_id()));
+        $url = new moodle_url($file, array('badgeid' => $badge->get_id(), 'action' => 'new'));
         $options = array();
 
         foreach (obf_criterion_base::$CRITERIA_TYPES as $id => $type) {

@@ -131,6 +131,11 @@ abstract class obf_criterion_base {
                 array('obf_criterion_id' => $this->id));
     }
     
+    public function delete_attributes() {
+        global $DB;
+        $DB->delete_records('obf_criterion_attributes', array('obf_criterion_id' => $this->id));
+    }
+    
     /**
      * 
      * @global moodle_database $DB
@@ -171,7 +176,7 @@ abstract class obf_criterion_base {
      * @param type $name
      * @param type $value
      */
-    protected function save_attribute($name, $value) {
+    public function save_attribute($name, $value) {
         global $DB;
         
         if (!empty($this->id)) {
@@ -224,9 +229,9 @@ abstract class obf_criterion_base {
         return $this->type_id;
     }
     
-    abstract public function render();
     abstract public function get_parsed_attributes();
     abstract public function get_attribute_text($attribute);
+    abstract public function customizeform(obf_criterion_form &$form);
 }
 
 ?>
