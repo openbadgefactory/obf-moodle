@@ -28,13 +28,12 @@
     <TABLE NAME="obf_criterion" COMMENT="Default comment for the table, please edit me">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
-        <FIELD NAME="obf_criterion_type_id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="criterion_type_id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="badge_id" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="completion_method" TYPE="int" LENGTH="1" NOTNULL="true" SEQUENCE="false"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
-        <KEY NAME="fk_obf_criterion_type_id" TYPE="foreign" FIELDS="obf_criterion_type_id" REFTABLE="obf_criterion_types" REFFIELDS="id"/>
       </KEYS>
     </TABLE>
   </TABLES>

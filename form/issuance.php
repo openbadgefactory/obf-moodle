@@ -1,11 +1,13 @@
 <?php
 defined('MOODLE_INTERNAL') or die();
 
+global $CFG;
+
 require_once($CFG->libdir . '/formslib.php');
 require_once($CFG->dirroot . '/user/selector/lib.php');
 require_once 'HTML/QuickForm/element.php';
 
-class issuanceform extends moodleform {
+class obf_issuance_form extends moodleform {
 
     /**
      * @var obf_badge

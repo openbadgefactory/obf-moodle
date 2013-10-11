@@ -159,6 +159,20 @@ function xmldb_local_obf_upgrade($oldversion) {
         
         upgrade_plugin_savepoint(true, 2013101000, 'local', 'obf');
     }
+    
+    if ($oldversion < 2013101001) {
+        $table = new xmldb_table('obf_criterion');
+        $table->deleteKey('fk_obf_criterion_type_id');
+        $field = new xmldb_field('obf_criterion_type_id', XMLDB_TYPE_INTEGER,
+                '10', null, XMLDB_NOTNULL, null, null, 'id');
+        
+        $dbman->rename_field($table, $field, 'criterion_type_id');
+        
+        $table = new xmldb_table('obf_criterion_types');
+        $dbman->drop_table($table);
+        
+        upgrade_plugin_savepoint(true, 2013101001, 'local', 'obf');
+    }
 }
 
 ?>
