@@ -2,7 +2,7 @@
 
 // HACK: change this when we're not symlinking the plugin anymore
 require_once('/var/www/moodle/config.php'); // __DIR__ . '/../../config.php';
-require_once(__DIR__ . "/lib.php");
+require_once(__DIR__ . "/class/badge.php");
 
 $badgeid = required_param('id', PARAM_ALPHANUM);
 $context = context_system::instance();

@@ -3,7 +3,7 @@
 // HACK: change this when we're not symlinking the plugin anymore
 require_once('/var/www/moodle/config.php'); // __DIR__ . '/../../config.php';
 require_once(__DIR__ . '/class/criterion/criterionbase.php');
-require_once(__DIR__ . "/lib.php");
+require_once(__DIR__ . "/class/badge.php");
 
 $id = optional_param('id', null, PARAM_INT);
 $action = optional_param('action', 'new', PARAM_ALPHANUM);

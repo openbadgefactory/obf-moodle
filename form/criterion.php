@@ -15,7 +15,6 @@ class obf_criterion_form extends moodleform implements renderable {
         
         $this->criterion = $this->_customdata['criterion'];    
         $this->criterion->customizeform($this);
-//        $this->add_action_buttons();
     }
     
     public function get_criterion() {

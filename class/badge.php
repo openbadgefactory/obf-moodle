@@ -4,7 +4,9 @@ require_once __DIR__ . '/tree.php';
 require_once __DIR__ . '/issuer.php';
 require_once __DIR__ . '/issuance.php';
 require_once __DIR__ . '/client.php';
+require_once __DIR__ . '/email.php';
 require_once __DIR__ . '/criterion/criterionbase.php';
+require_once __DIR__ . '/assertion.php';
 
 /**
  * Class for a single Open Badge Factory -badge
@@ -16,8 +18,16 @@ class obf_badge implements cacheable_object {
      * @var obf_client
      */
     private $client = null;
-    
+
+    /**
+     * @var obf_issuer
+     */
     private $issuer = null;
+
+    /**
+     * @var obf_email
+     */
+    private $email = null;
 
     /**
      * @var string The id of the badge
@@ -62,11 +72,11 @@ class obf_badge implements cacheable_object {
      */
     public static function get_instance($id = null, $client = null) {
         $obj = new self();
-        
+
         if (!is_null($client)) {
             $obj->set_client($client);
         }
-        
+
         if (!is_null($id)) {
             // Try from badge_tree first, because it uses Moodle cache
             $badge = static::get_badge_from_tree($id);
@@ -149,7 +159,8 @@ class obf_badge implements cacheable_object {
         if (empty($this->id))
             throw new Exception('Invalid or missing badge id');
 
-        $this->get_client()->issue_badge($this, $recipients, $issuedon, $emailsubject, $emailbody, $emailfooter);
+        $this->get_client()->issue_badge($this, $recipients, $issuedon, $emailsubject, $emailbody,
+                $emailfooter);
     }
 
     /**
@@ -194,9 +205,22 @@ class obf_badge implements cacheable_object {
     public function get_default_expiration_date() {
         return (strtotime('+ ' . $this->expiresby . ' months'));
     }
-    
+
     public function get_completion_criteria() {
         return obf_criterion_base::get_badge_criteria($this);
+    }
+
+    public function get_email() {
+        if (is_null($this->email)) {
+            $this->email = obf_email::get_by_badge($this);
+        }
+        
+        return $this->email;
+    }
+
+    public function set_email(obf_email $email) {
+        $this->email = $email;
+        return $this;
     }
 
     public function get_id() {
@@ -297,14 +321,14 @@ class obf_badge implements cacheable_object {
     public function get_client() {
         if (is_null($this->client))
             $this->client = obf_client::get_instance();
-        
+
         return $this->client;
     }
-    
+
     public function set_client(obf_client $client) {
         $this->client = $client;
     }
-    
+
     /**
      * Prepares the object to cache.
      * 

@@ -126,13 +126,13 @@ class obf_issuance_form extends moodleform {
     }
 
     private function add_message_elements() {
+        require_once(__DIR__ . '/emailtemplate.php');
+        
         $mform = $this->_form;
         $mform->addElement('html', $this->renderer->print_badge_teaser($this->badge));
         $mform->addElement('html', $this->renderer->print_heading('editemailmessage'));
-        $mform->addElement('text', 'emailsubject', get_string('emailsubject', 'local_obf'));
-        $mform->setType('emailsubject', PARAM_TEXT);
-        $mform->addElement('textarea', 'emailbody', get_string('emailbody', 'local_obf'), array('rows' => 10));
-        $mform->addElement('textarea', 'emailfooter', get_string('emailfooter', 'local_obf'), array('rows' => 5));
+        
+        obf_email_template_form::add_email_fields($mform);
     }
 
     private function add_confirm_elements() {

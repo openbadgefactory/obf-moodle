@@ -1,4 +1,7 @@
 <?php
+require_once(__DIR__ . '/client.php');
+require_once(__DIR__ . '/folder.php');
+require_once(__DIR__ . '/badge.php');
 
 /**
  * Class representing the OBF-badge tree with folders and badges

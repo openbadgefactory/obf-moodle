@@ -75,7 +75,7 @@ class obf_criterion_courseset extends obf_criterion_base {
         global $DB, $OUTPUT;
 
         $mform = $form->get_form();
-        
+
         // creating a new criterion
         if ($this->id <= 0) {
             $courses = $DB->get_records('course', array('enablecompletion' => COMPLETION_ENABLED));
@@ -121,12 +121,10 @@ class obf_criterion_courseset extends obf_criterion_base {
 
         // editing an existing criterion
         else {
-            $attributes = $this->get_parsed_attributes(); //$this->_customdata['attributes'];
+            $attributes = $this->get_parsed_attributes();
 
             $mform->addElement('header', 'header_criteria_courses',
                     get_string('criteriacourses', 'local_obf'));
-//            $mform->addElement('hidden', 'id', $criterionid);
-//            $mform->setType('id', PARAM_INT);
 
             foreach ($attributes as $courseid => $coursedata) {
                 $mform->addElement('html', $OUTPUT->heading($coursedata->coursename, 3));
@@ -177,6 +175,83 @@ class obf_criterion_courseset extends obf_criterion_base {
 
             $form->add_action_buttons();
         }
+    }
+
+    public function review($data) {
+        $userid = $data->userid;
+        $courseid = $data->course;
+        $criterioncourses = $this->get_parsed_attributes();
+        $requireall = $this->get_completion_method() == obf_criterion_base::CRITERIA_COMPLETION_ALL;
+
+        // The completed course doesn't exist in this criterion, no need to continue
+        if (!array_key_exists($courseid, $criterioncourses)) {
+            return false;
+        }
+
+        $criterioncompleted = false;
+        
+        foreach ($criterioncourses as $id => $coursecriterion) {
+            $coursecompleted = $this->review_course($id, $coursecriterion, $userid);
+
+            // All of the courses have to be completed
+            if ($requireall) {
+                if (!$coursecompleted) {
+                    return false;
+                }
+                else {
+                    $criterioncompleted = true;
+                }
+            }
+
+            // Any of the courses has to be completed
+            else {
+                if ($coursecompleted) {
+                    return true;
+                } else {
+                    $criterioncompleted = false;
+                }
+            }
+        }
+        
+        return $criterioncompleted;
+    }
+
+    protected function review_course($courseid, $criterion, $userid) {
+        global $DB;
+        
+        $course = $DB->get_record('course', array('id' => $courseid));
+        $completioninfo = new completion_info($course);
+
+        if ($completioninfo->is_course_complete($userid)) {
+            return false;
+        }
+
+        $datepassed = false;
+        $gradepassed = false;
+        $completion = new completion_completion(array('userid' => $userid, 'course' => $courseid));
+        $completedat = $completion->timecompleted;
+        
+        // check completion date
+        if (isset($criterion['completedby'])) {
+            if ($completedat <= $criterion['completedby']) {
+                $datepassed = true;
+            }
+        } else {
+            $datepassed = true;
+        }
+
+        // check grade
+        if (isset($criterion['grade'])) {
+            $grade = grade_get_course_grade($userid, $courseid);
+
+            if ($grade >= $criterion['grade']) {
+                $gradepassed = true;
+            }
+        } else {
+            $gradepassed = true;
+        }
+
+        return $datepassed && $gradepassed;
     }
 
 //    public function get_yui_modules() {
