@@ -396,11 +396,9 @@ class local_obf_renderer extends plugin_renderer_base {
                     // TODO: handle case where the user doesn't exist in the
                     // Moodle database
                     $url = new moodle_url('/user/profile.php', array('id' => $user->id));
-//                    $userlist[] = html_writer::link($url, fullname($user)) . ' (' . $user->email . ')';
                     $userlist[] = html_writer::link($url, fullname($user), array('title' => $user->email));
                 }
 
-//                $row->cells[] = html_writer::alist($userlist);
                 $row->cells[] = implode(', ', $userlist);
                 $row->cells[] = userdate($assertion->get_issuedon(), get_string('strftimedate'));
                 $row->cells[] = $expirationdate;

@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/../badge.php';
 
 /**
  * Description of criteria_base

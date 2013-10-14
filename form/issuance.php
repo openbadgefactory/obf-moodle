@@ -132,7 +132,7 @@ class obf_issuance_form extends moodleform {
         $mform->addElement('html', $this->renderer->print_badge_teaser($this->badge));
         $mform->addElement('html', $this->renderer->print_heading('editemailmessage'));
         
-        obf_email_template_form::add_email_fields($mform);
+        obf_email_template_form::add_email_fields($mform, $this->badge->get_email());
     }
 
     private function add_confirm_elements() {

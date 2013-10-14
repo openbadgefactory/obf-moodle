@@ -192,7 +192,7 @@ class obf_criterion_courseset extends obf_criterion_base {
         
         foreach ($criterioncourses as $id => $coursecriterion) {
             $coursecompleted = $this->review_course($id, $coursecriterion, $userid);
-
+            
             // All of the courses have to be completed
             if ($requireall) {
                 if (!$coursecompleted) {
@@ -222,7 +222,7 @@ class obf_criterion_courseset extends obf_criterion_base {
         $course = $DB->get_record('course', array('id' => $courseid));
         $completioninfo = new completion_info($course);
 
-        if ($completioninfo->is_course_complete($userid)) {
+        if (!$completioninfo->is_course_complete($userid)) {
             return false;
         }
 
@@ -232,19 +232,19 @@ class obf_criterion_courseset extends obf_criterion_base {
         $completedat = $completion->timecompleted;
         
         // check completion date
-        if (isset($criterion['completedby'])) {
-            if ($completedat <= $criterion['completedby']) {
+        if (isset($criterion->attributes['completedby'])) {
+            if ($completedat <= $criterion->attributes['completedby']) {
                 $datepassed = true;
             }
         } else {
             $datepassed = true;
         }
-
+        
         // check grade
-        if (isset($criterion['grade'])) {
+        if (isset($criterion->attributes['grade'])) {            
             $grade = grade_get_course_grade($userid, $courseid);
-
-            if ($grade >= $criterion['grade']) {
+            
+            if (!is_null($grade->grade) && $grade->grade >= $criterion->attributes['grade']) {
                 $gradepassed = true;
             }
         } else {

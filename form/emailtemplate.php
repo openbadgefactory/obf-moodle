@@ -16,6 +16,11 @@ class obf_email_template_form extends moodleform {
         $this->add_action_buttons(false);
     }
 
+    /**
+     * 
+     * @param MoodleQuickForm $mform
+     * @param obf_email $email
+     */
     public static function add_email_fields(MoodleQuickForm &$mform, obf_email $email = null) {
         $mform->addElement('text', 'emailsubject', get_string('emailsubject', 'local_obf'));
         $mform->setType('emailsubject', PARAM_TEXT);
