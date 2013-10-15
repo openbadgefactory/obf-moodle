@@ -12,7 +12,7 @@ class obf_badge_tree implements renderable, cacheable_object {
      * @var obf_badge_folder[] The badge folders
      */
     private $folders = array();
-
+    
     /**
      * Constructs the object by creating a sane folder structure
      * 
@@ -33,17 +33,38 @@ class obf_badge_tree implements renderable, cacheable_object {
         $tree = false;
         $clientid = obf_client::get_client_id();
         $obfcache = cache::make('local_obf', 'obfcache');
-
+        
         if (!$reload) {
             $tree = $obfcache->get($clientid);
         }
-
+        
         if ($tree === false) {
             $tree = new self(obf_client::get_instance()->get_badges());
             $obfcache->set($clientid, $tree);
         }
-
+        
         return $tree;
+    }
+    
+    /**
+     * 
+     * @return obf_badge_tree
+     */
+    public static function get_from_cache() {
+        $clientid = obf_client::get_client_id();
+        $obfcache = cache::make('local_obf', 'obfcache');
+        
+        return $obfcache->get($clientid);
+    }
+    
+    public function get_badgecount() {
+        $count = 0;
+        
+        foreach ($this->folders as $folder) {
+            $count += count($folder->get_badges());
+        }
+        
+        return $count;
     }
     
     /**
@@ -62,7 +83,7 @@ class obf_badge_tree implements renderable, cacheable_object {
         
         return false;
     }
-
+    
     /**
      * Converts the badges and folders into a format accepted by this class.
      * 

@@ -221,6 +221,23 @@ abstract class obf_criterion_base {
         }
     }
 
+    public function is_met_by_user(stdClass $user) {
+        global $DB;
+        
+        return ($DB->count_records('obf_criterion_met', array('obf_criterion_id' => $this->id,
+            'user_id' => $user->id)) > 0);
+    }
+    
+    public function set_met_by_user(stdClass $user) {
+        global $DB;
+        
+        $obj = new stdClass();
+        $obj->obf_criterion_id = $this->id;
+        $obj->user_id = $user->id;
+        $obj->met_at = time();        
+        $DB->insert_record('obf_criterion_met', $obj);
+    }
+    
     /**
      * 
      * @return obf_badge

@@ -12,6 +12,7 @@ class obf_email_template_form extends moodleform {
         $mform = $this->_form;
         $this->badge = $this->_customdata['badge'];
 
+        $mform->addElement('html', html_writer::tag('p', get_string('emailtemplatedescription', 'local_obf')));
         self::add_email_fields($mform, $this->badge->get_email());
         $this->add_action_buttons(false);
     }
