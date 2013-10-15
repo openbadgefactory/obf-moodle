@@ -5,21 +5,117 @@ define('OBF_API_CONSUMER_ID', 'Moodle');
 class obf_client {
 
     public static function get_client_id() {
-        global $CFG;
-        return isset($CFG->obf_client_id) ? $CFG->obf_client_id : -1;
+//        global $CFG;
+//        return isset($CFG->obf_client_id) ? $CFG->obf_client_id : -1;
+        return get_config('local_obf', 'obfclientid');
     }
 
     public static function get_api_url() {
-        global $CFG;        
-        return isset($CFG->obf_url) ? $CFG->obf_url : '';
+//        global $CFG;
+//        return isset($CFG->obf_url) ? $CFG->obf_url : '';
+        return get_config('local_obf', 'obfurl');
     }
-    
+
     /**
      * 
      * @return obf_client
      */
     public static function get_instance() {
         return new self();
+    }
+
+    public function authenticate($signature) {
+        $signature = trim($signature);
+        $token = base64_decode($signature);
+        $curl = $this->get_curl();
+        $curlopts = $this->get_curl_options();
+        $apiurl = get_config('local_obf', 'obfurl');
+
+        // We don't need these now, we haven't authenticated yet.
+        unset($curlopts['SSLCERT']);
+        unset($curlopts['SSLKEY']);
+
+        // API url isn't set
+        if ($apiurl === false) {
+            throw new Exception(get_string('missingapiurl', 'local_obf'));
+        }
+
+        $pubkey = $curl->get($apiurl . '/client/OBF.rsa.pub', array(), $curlopts);
+
+        // CURL-request failed
+        if ($pubkey === false) {
+            throw new Exception(get_string('pubkeyrequestfailed', 'local_obf') . ': ' . $curl->error);
+        }
+
+        // Server gave us an error
+        if ($curl->info['http_code'] !== 200) {
+            throw new Exception(get_string('pubkeyrequestfailed', 'local_obf') . ': ' .
+            get_string('apierror' . $curl->info['http_code'], 'local_obf'));
+        }
+
+        $decrypted = '';
+
+        // Get the public key
+        $key = openssl_pkey_get_public($pubkey);
+
+        // Couldn't decrypt data with provided key
+        if (openssl_public_decrypt($token, $decrypted, $key, OPENSSL_PKCS1_PADDING) === false) {
+            throw new Exception(get_string('tokendecryptionfailed', 'local_obf'));
+        }
+
+        $json = json_decode($decrypted);
+
+        // Yay, we have the client-id. Let's store it somewhere.
+        set_config('obfclientid', $json->id, 'local_obf');
+
+        // Create a new private key
+        $config = array('private_key_bits' => 2048, 'private_key_type', OPENSSL_KEYTYPE_RSA);
+        $privkey = openssl_pkey_new($config);
+
+        // Export the new private key to a file for later use
+        openssl_pkey_export_to_file($privkey, $this->get_pkey_filename());
+
+        $csrout = '';
+        $dn = array('commonName' => $json->id);
+
+        // Create a new CSR with the private key we just created
+        $csr = openssl_csr_new($dn, $privkey);
+
+        // Export the CSR into string
+        if (openssl_csr_export($csr, $csrout) === false) {
+            throw new Exception(get_string('csrexportfailed', 'local_obf'));
+        }
+
+        $postdata = json_encode(array('signature' => $signature, 'request' => $csrout));      
+        $cert = $curl->post($apiurl . '/client/' . $json->id . '/sign_request', $postdata, $curlopts);
+
+        // Fetching certificate failed
+        if ($cert === false) {
+            throw new Exception(get_string('certrequestfailed', 'local_obf') . ': ' . $curl->error);
+        }
+
+        $httpcode = $curl->info['http_code'];
+        
+        // Server gave us an error
+        if ($httpcode !== 200) {
+            $jsonresp = json_decode($cert);
+            $extrainfo = is_null($jsonresp) ? get_string('apierror' . $httpcode, 'local_obf') : $jsonresp->error;
+            
+            throw new Exception(get_string('certrequestfailed', 'local_obf') . ': ' . $extrainfo);
+        }
+
+        // Everything's ok, store the certificate into a file for later use.
+        file_put_contents($this->get_cert_filename(), $cert);
+
+        return true;
+    }
+
+    private function get_pkey_filename() {
+        return __DIR__ . '/../pki/obf.key';
+    }
+
+    private function get_cert_filename() {
+        return __DIR__ . '/../pki/obf.pem';
     }
 
     /**
@@ -65,7 +161,8 @@ class obf_client {
         // When getting assertions via OBF API the returned JSON isn't valid.
         // Let's use a closure that converts the returned string into valid JSON
         // before calling json_decode in $this->curl.
-        return $this->curl('/event/' . self::get_client_id(), 'get', $params, function ($output) {
+        return $this->curl('/event/' . self::get_client_id(), 'get', $params,
+                        function ($output) {
                             return '[' . implode(',', array_filter(explode("\n", $output))) . ']';
                         });
     }
@@ -79,7 +176,8 @@ class obf_client {
      * @param type $emailbody
      * @param type $emailfooter
      */
-    public function issue_badge(obf_badge $badge, $recipients, $issuedon, $emailsubject, $emailbody, $emailfooter) {
+    public function issue_badge(obf_badge $badge, $recipients, $issuedon, $emailsubject, $emailbody,
+            $emailfooter) {
         $params = array(
             'recipient' => $recipients,
             'expires' => $badge->get_expires(),
@@ -104,7 +202,8 @@ class obf_client {
      * @return type
      * @throws Exception
      */
-    public function curl($path, $method = 'get', array $params = array(), Closure $preformatter = null) {
+    public function curl($path, $method = 'get', array $params = array(),
+            Closure $preformatter = null) {
         global $CFG;
 
         include_once $CFG->libdir . '/filelib.php';
@@ -117,7 +216,8 @@ class obf_client {
         $curl = $this->get_curl();
         $options = $this->get_curl_options();
         $url = $apiurl . $path;
-        $output = $method == 'get' ? $curl->get($url, $params, $options) : $curl->post($url, json_encode($params), $options);
+        $output = $method == 'get' ? $curl->get($url, $params, $options) : $curl->post($url,
+                        json_encode($params), $options);
         $code = $curl->info['http_code'];
 
         if (!is_null($preformatter)) {
@@ -128,7 +228,8 @@ class obf_client {
 
         // Codes 2xx should be ok
         if ($code < 200 || $code >= 300) {
-            throw new Exception(get_string('apierror' . $code, 'local_obf', array('error' => $response['error'])));
+            throw new Exception(get_string('apierror' . $code, 'local_obf',
+                    array('error' => $response['error'])));
         }
 
         return $response;
@@ -148,8 +249,10 @@ class obf_client {
             'FOLLOWLOCATION' => false,
             'SSL_VERIFYHOST' => false, // for testing
             'SSL_VERIFYPEER' => false, // for testing
-            'SSLCERT' => '/home/olli/Projects/OBF-Moodle/test.pem',
-            'SSLKEY' => '/home/olli/Projects/OBF-Moodle/test.key'
+            'SSLCERT' => $this->get_cert_filename(),
+            'SSLKEY' => $this->get_pkey_filename()
+//            'SSLCERT' => '/home/olli/Projects/OBF-Moodle/test.pem',
+//            'SSLKEY' => '/home/olli/Projects/OBF-Moodle/test.key'
         );
     }
 

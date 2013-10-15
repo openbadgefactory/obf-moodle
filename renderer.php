@@ -471,6 +471,10 @@ class local_obf_renderer extends plugin_renderer_base {
         return $output;
     }
 
+    public function render_obf_config_form(obf_config_form $form) {
+        return $form->render();
+    }
+    
 }
 
 class local_obf_badge_renderer extends plugin_renderer_base {
