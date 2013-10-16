@@ -16,6 +16,7 @@ require_once(__DIR__ . '/form/emailtemplate.php');
  */
 class local_obf_renderer extends plugin_renderer_base {
 
+    const BADGE_IMAGE_SIZE_TINY = 22;
     const BADGE_IMAGE_SIZE_SMALL = 32;
     const BADGE_IMAGE_SIZE_NORMAL = 100;
 
@@ -25,18 +26,18 @@ class local_obf_renderer extends plugin_renderer_base {
      * @param obf_badge $badge
      * @return type
      */
-    public function page_issue(obf_badge $badge) {
+/*    public function page_issue(obf_badge $badge) {
         $html = $this->output->header();
         $html .= $this->print_issuer_wizard($badge);
 
-        $this->page->requires->yui_module('moodle-local_obf-issuerwizard',
-                'M.local_obf.init_issuerwizard');
-        $this->page->requires->strings_for_js(array('emailsubject'), 'local_obf');
+//        $this->page->requires->yui_module('moodle-local_obf-issuerwizard',
+//                'M.local_obf.init_issuerwizard');
+//        $this->page->requires->strings_for_js(array('emailsubject'), 'local_obf');
         $html .= $this->output->footer();
 
         return $html;
     }
-
+*/
     /**
      * Renders the badge issuance history page.
      * 
@@ -90,15 +91,26 @@ class local_obf_renderer extends plugin_renderer_base {
      * @param type $page
      * @return type
      */
-    public function page_badgedetails(obf_badge $badge, $tab = 'details', $page = 0) {
+    public function page_badgedetails(obf_badge $badge, $tab = 'details', $page = 0,
+            $message = '') {
         $methodprefix = 'print_badge_info_';
         $rendererfunction = $methodprefix . $tab;
+        $html = '';
 
         if (!method_exists($this, $rendererfunction)) {
             $html .= $this->output->notification(get_string('invalidtab', 'local_obf'));
         } else {
-            $html .= $this->output->heading($this->print_badge_image($badge) . ' ' .
+            $heading =  $this->output->heading($this->print_badge_image($badge) . ' ' .
                     $badge->get_name());
+            $heading .=$this->output->single_button(new moodle_url('/local/obf/issue.php', array('id' => $badge->get_id())),
+                get_string('issuethisbadge', 'local_obf'), 'get');
+            
+            $html .= html_writer::div($heading, 'badgeheading');
+            
+            if (!empty($message)) {
+                $html .= $this->output->notification($message, 'notifysuccess');
+            }
+            
             $html .= $this->print_badge_tabs($badge->get_id(), $tab);
             $html .= call_user_func(array($this, $rendererfunction), $badge, $page);
         }
@@ -251,8 +263,8 @@ class local_obf_renderer extends plugin_renderer_base {
         $badgetable->data[] = array(new obf_table_header('badgename'), $badge->get_name());
         $badgetable->data[] = array(new obf_table_header('badgedescription'), $badge->get_description());
         $badgetable->data[] = array(new obf_table_header('badgecreated'), $badgecreated);
-        $badgetable->data[] = array(new obf_table_header('badgecriteriaurl'), html_writer::link($badge->get_criteria(),
-                    $badge->get_criteria()));
+//        $badgetable->data[] = array(new obf_table_header('badgecriteriaurl'), html_writer::link($badge->get_criteria_html(),
+//                    $badge->get_criteria_html()));
 
         $boxes = html_writer::div($badgeimage, 'obf-badgeimage');
         $badgedetails = $this->print_heading('badgedetails');
@@ -434,42 +446,33 @@ class local_obf_renderer extends plugin_renderer_base {
         return $this->output->tabtree($tabs, $selectedtab);
     }
 
-    public function print_issuer_wizard(obf_badge $badge) {
-
-        $tabs = array(
-            'preview' => get_string('previewbadge', 'local_obf'),
-            'details' => get_string('badgedetails', 'local_obf'),
-            'recipients' => get_string('selectrecipients', 'local_obf'),
-            'message' => get_string('editemailmessage', 'local_obf'),
-            'confirm' => get_string('confirmandissue', 'local_obf'));
-
-        $issuerform = new obf_issuance_form(new moodle_url('/local/obf/issue.php?id=' . $badge->get_id()),
-                array('badge' => $badge,
-            'tabs' => $tabs, 'renderer' => $this));
-        $output = '';
-
-        if ($issuerform->is_submitted()) {
-            if ($issuerform->is_validated()) {
-                $issuance = $issuerform->get_issuance();
-                $success = $issuance->process();
-
-                if ($success) {
-                    redirect(new moodle_url('badge.php',
-                            array('id' => $badge->get_id(),
-                        'action' => 'show', 'show' => 'history')),
-                            get_string('badgeissued', 'local_obf'));
-                } else {
-                    $output .= $this->output->notification('Badge issuance failed. Reason: ' . $issuance->get_error());
-                }
-            } else {
-                $output .= $this->output->notification('Validation failed!'); // TODO: why?
-            }
-        }
-
-        $output .= $issuerform->render();
-
-        return $output;
-    }
+//    public function print_issuer_wizard(obf_badge $badge) {
+//        $issuerform = new obf_issuance_form(new moodle_url('/local/obf/issue.php?id=' . $badge->get_id()),
+//                array('badge' => $badge, 'renderer' => $this));
+//        $output = '';
+//
+//        if ($issuerform->is_submitted()) {
+//            if ($issuerform->is_validated()) {
+//                $issuance = $issuerform->get_issuance();
+//                $success = $issuance->process();
+//
+//                if ($success) {
+//                    redirect(new moodle_url('badge.php',
+//                            array('id' => $badge->get_id(),
+//                        'action' => 'show', 'show' => 'history')),
+//                            get_string('badgeissued', 'local_obf'));
+//                } else {
+//                    $output .= $this->output->notification('Badge issuance failed. Reason: ' . $issuance->get_error());
+//                }
+//            } else {
+//                $output .= $this->output->notification('Validation failed!'); // TODO: why?
+//            }
+//        }
+//
+//        $output .= $issuerform->render();
+//
+//        return $output;
+//    }
 
     public function render_obf_config_form(obf_config_form $form) {
         return $form->render();

@@ -74,7 +74,7 @@ switch ($action) {
         $PAGE->set_title(get_string('obf', 'local_obf') . ' - ' . $badge->get_name());
         $PAGE->set_heading(get_string('badgedetails', 'local_obf'));
         $renderer = $PAGE->get_renderer('local_obf', 'badge');
-
+        
         switch ($show) {
             case 'email':
                 $emailurl = new moodle_url('/local/obf/badge.php',
@@ -106,7 +106,8 @@ switch ($action) {
                 break;
 
             default:
-                $content .= $PAGE->get_renderer('local_obf')->page_badgedetails($badge, $show, $page);
+                $content .= $PAGE->get_renderer('local_obf')->page_badgedetails($badge, $show, $page,
+                        $message);
                 break;
         }
 

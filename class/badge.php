@@ -54,7 +54,8 @@ class obf_badge implements cacheable_object {
      * @var string The badge description
      */
     private $description = '';
-    private $criteria = '';
+    private $criteria_html = '';
+    private $criteria_css = '';
     private $expiresby = null;
     private $tags = array();
 
@@ -124,7 +125,9 @@ class obf_badge implements cacheable_object {
      * @return obf_badge
      */
     public function populate_from_array($arr) {
-        return $this->set_criteria($arr['criteria'])
+
+        return $this->set_criteria_html($arr['criteria_html'])
+                        ->set_criteria_css($arr['css'])
                         ->set_description($arr['description'])
                         ->set_expires($arr['expires'])
                         ->set_id($arr['id'])
@@ -214,7 +217,7 @@ class obf_badge implements cacheable_object {
         if (is_null($this->email)) {
             $this->email = obf_email::get_by_badge($this);
         }
-        
+
         return $this->email;
     }
 
@@ -282,12 +285,12 @@ class obf_badge implements cacheable_object {
         return $this;
     }
 
-    public function get_criteria() {
-        return $this->criteria;
+    public function get_criteria_html() {
+        return $this->criteria_html;
     }
 
-    public function set_criteria($criteria) {
-        $this->criteria = $criteria;
+    public function set_criteria_html($criteria) {
+        $this->criteria_html = $criteria;
         return $this;
     }
 
@@ -327,6 +330,15 @@ class obf_badge implements cacheable_object {
 
     public function set_client(obf_client $client) {
         $this->client = $client;
+    }
+    
+    public function get_criteria_css() {
+        return $this->criteria_css;
+    }
+
+    public function set_criteria_css($criteria_css) {
+        $this->criteria_css = $criteria_css;
+        return $this;
     }
 
     /**

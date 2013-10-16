@@ -1,3 +1,7 @@
+.badgeheading { overflow: hidden; padding-bottom: 10px; }
+.badgeheading h2 { float: left; margin-right: 15px; }
+.badgeheading .singlebutton { margin-top: 15px; }
+
 img.obf-icon { padding: 0 0 0 5px;}
 .obf-badgewrapper{overflow:hidden}
 .obf-badgeimage{float:left;width:120px;margin-left:20px}
