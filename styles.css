@@ -1,14 +1,24 @@
-.badgeheading { overflow: hidden; padding-bottom: 10px; }
-.badgeheading h2 { float: left; margin-right: 15px; }
-.badgeheading .singlebutton { margin-top: 15px; }
+dl.obf-definition-list { overflow: hidden; margin-left: 0; }
+dl.obf-definition-list dt { width: 100px; float: left; clear: left; padding-bottom: 5px;}
+dl.obf-definition-list dd { clear: right; margin-left: 120px; padding-bottom: 5px; }
 
-img.obf-icon { padding: 0 0 0 5px;}
-.obf-badgewrapper{overflow:hidden}
-.obf-badgeimage{float:left;width:120px;margin-left:20px}
-.obf-badgedetails{width:100%;margin-left:160px}
-.obf-badgeteaser { overflow: hidden; }
-table.obf-table th{width:120px}
-.yui3-tab-panel{display:none}
-.yui3-tab-panel-selected{display:block}
+.badgeheading	{ overflow: hidden; padding-bottom: 10px; }
+.badgeheading h2	{ float: left; margin-right: 15px; }
+.badgeheading .singlebutton	{ margin-top: 15px; }
+
+img.obf-icon	{ padding: 0 0 0 5px; }
+.obf-badgewrapper	{ overflow: hidden; }
+.obf-badgeimage	{ float: left; margin-left: 20px; width: 120px; }
+.obf-badgedetails	{ margin-left: 160px; width: 100%; }
+.obf-badgeteaser	{ overflow: hidden; }
+table.obf-table th	{ width: 120px; }
+
+.yui3-tab-panel	{ display: none; }
+.yui3-tab-panel-selected	{ display: block; }
 .ftext input,
-.felement textarea { width: 90%;}
+.felement textarea	{ width: 90%; }
+
+.obf-assertion { overflow: hidden; }
+.obf-assertion img { float: left; margin-left: 20px; }
+.obf-assertion-details  { margin: 0 0 0 150px; }
+.obf-assertion-details h3 { text-align: left !important; }

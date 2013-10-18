@@ -5,7 +5,7 @@ require_once('/var/www/moodle/config.php'); // __DIR__ . '/../../config.php';
 require_once($CFG->libdir . '/adminlib.php');
 require_once(__DIR__ . '/form/config.php');
 
-admin_externalpage_setup('obfconfig');
+//admin_externalpage_setup('obfconfig');
 
 $context = context_system::instance();
 $url = new moodle_url('/local/obf/config.php');
@@ -46,4 +46,3 @@ if (!empty($msg)) {
 $content .= $PAGE->get_renderer('local_obf')->render($form);
 $content .= $OUTPUT->footer();
 echo $content;
-?>

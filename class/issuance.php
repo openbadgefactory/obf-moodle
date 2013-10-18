@@ -29,7 +29,8 @@ class obf_issuance {
 
     public function process() {
         try {
-            $this->badge->issue($this->recipients, $this->issuedon, $this->emailsubject, $this->emailbody, $this->emailfooter);
+            $this->badge->issue($this->recipients, $this->issuedon, $this->emailsubject,
+                    $this->emailbody, $this->emailfooter);
             return true;
         } catch (Exception $e) {
             $this->error = $e->getMessage();

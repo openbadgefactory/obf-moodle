@@ -35,5 +35,3 @@ function obf_course_completed(stdClass $eventdata) {
 
     return true;
 }
-
-?>

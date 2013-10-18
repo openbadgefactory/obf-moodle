@@ -5,14 +5,10 @@ define('OBF_API_CONSUMER_ID', 'Moodle');
 class obf_client {
 
     public static function get_client_id() {
-//        global $CFG;
-//        return isset($CFG->obf_client_id) ? $CFG->obf_client_id : -1;
         return get_config('local_obf', 'obfclientid');
     }
 
     public static function get_api_url() {
-//        global $CFG;
-//        return isset($CFG->obf_url) ? $CFG->obf_url : '';
         return get_config('local_obf', 'obfurl');
     }
 
@@ -151,11 +147,15 @@ class obf_client {
      * @param type $badgeid
      * @return type
      */
-    public function get_assertions($badgeid = null) {
+    public function get_assertions($badgeid = null, $email = null) {
         $params = array('api_consumer_id' => OBF_API_CONSUMER_ID);
 
         if (!is_null($badgeid)) {
             $params['badge_id'] = $badgeid;
+        }
+        
+        if (!is_null($email)) {
+            $params['email'] = $email;
         }
 
         // When getting assertions via OBF API the returned JSON isn't valid.
@@ -165,6 +165,10 @@ class obf_client {
                         function ($output) {
                             return '[' . implode(',', array_filter(explode("\n", $output))) . ']';
                         });
+    }
+    
+    public function get_event($eventid) {
+        return $this->curl('/event/' . self::get_client_id() . '/' . $eventid, 'get');
     }
 
     /**

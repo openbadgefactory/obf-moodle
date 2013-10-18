@@ -86,7 +86,7 @@ class obf_issuance_form extends moodleform {
         foreach ($users as $user) {
             $ids[] = $user->id;
         }
-
+        
         return $ids;
     }
     
@@ -110,7 +110,10 @@ class MoodleQuickForm_userselector extends HTML_QuickForm_element {
         $this->setName($elementName);
         $this->userselector = new badge_recipient_selector($elementName, $options);
         $this->userselector->set_multiselect(true);
-        $this->userselector->exclude($attributes['exclude']);
+
+        if (is_array($attributes) && isset($attributes['exclude'])) {
+            $this->userselector->exclude($attributes['exclude']);
+        }
     }
 
     public function getName() {

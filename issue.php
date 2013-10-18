@@ -8,7 +8,6 @@ require_once($CFG->dirroot . '/user/lib.php');
 
 $badgeid = required_param('id', PARAM_ALPHANUM);
 $context = context_system::instance();
-$title = get_string('issuebadge', 'local_obf');
 
 require_login();
 require_capability('local/obf:issuebadge', $context);
@@ -17,9 +16,13 @@ $badge = obf_badge::get_instance($badgeid);
 
 $PAGE->set_context($context);
 $PAGE->set_url(new moodle_url('/local/obf/issue.php', array('id' => $badgeid)));
-$PAGE->set_title($title);
-$PAGE->set_heading($title);
+$PAGE->set_title(get_string('obf', 'local_obf'));
 $PAGE->set_pagelayout('admin');
+
+navigation_node::override_active_url(new moodle_url('/local/obf/badge.php', array('action' => 'list')));
+$PAGE->navbar->add($badge->get_name(), new moodle_url('/local/obf/badge.php', array('action' => 'show',
+        'id' => $badgeid, 'show' => 'details')));
+$PAGE->navbar->add(get_string('issue', 'local_obf'));
 
 $content = $OUTPUT->header();
 
@@ -72,4 +75,3 @@ $content .= $issuerform->render();
 $content .= $OUTPUT->footer();
 
 echo $content;
-?>

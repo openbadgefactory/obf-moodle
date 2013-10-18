@@ -20,9 +20,21 @@ $PAGE->set_context($context);
 $PAGE->set_url(new moodle_url('/local/obf/criterion.php',
         array('action' => $action,
     'id' => $id, 'badgeid' => $badgeid, 'type' => $type)));
-$PAGE->set_title(get_string('obf', 'local_obf') . ' - ' . $badge->get_name());
-$PAGE->set_heading(get_string('addcriteria', 'local_obf'));
+$PAGE->set_title(get_string('obf', 'local_obf'));
 $PAGE->set_pagelayout('admin');
+
+navigation_node::override_active_url(new moodle_url('/local/obf/badge.php',
+        array('action' => 'list')));
+
+$PAGE->navbar->add($badge->get_name(),
+        new moodle_url('/local/obf/badge.php',
+        array('action' => 'show',
+    'show' => 'details', 'id' => $badgeid)));
+$PAGE->navbar->add(get_string('badgecriteria', 'local_obf'),
+        new moodle_url('/local/obf/badge.php',
+        array('action' => 'show',
+    'show' => 'criteria', 'id' => $badgeid)));
+$PAGE->navbar->add(get_string('configurecriteria', 'local_obf'));
 
 switch ($action) {
 
@@ -97,16 +109,17 @@ switch ($action) {
     // Updating an existing criterion
     case 'update':
         require_once(__DIR__ . '/form/criterion.php');
-        
+
         $criterionobj = obf_criterion_base::get_instance($id);
         $criterionform = new obf_criterion_form($FULLME, array('criterion' => $criterionobj));
 
         // Form was cancelled
         if ($criterionform->is_cancelled()) {
-            redirect(new moodle_url('/local/obf/badge.php', array('id' => $badge->get_id(),
-            'action' => 'show', 'show' => 'criteria')));
+            redirect(new moodle_url('/local/obf/badge.php',
+                    array('id' => $badge->get_id(),
+                'action' => 'show', 'show' => 'criteria')));
         }
-        
+
         // Form was successfully submitted, save data
         else if (!is_null($data = $criterionform->get_data())) {
             // TODO: wrap into a transaction
@@ -117,7 +130,7 @@ switch ($action) {
 
             // ... delete old attributes ...
             $criterionobj->delete_attributes();
-            
+
             // ... and then add the criterion attributes
             foreach ($data->mingrade as $courseid => $grade) {
                 $grade = (int) $grade;
@@ -173,4 +186,3 @@ switch ($action) {
 }
 
 echo $content;
-?>

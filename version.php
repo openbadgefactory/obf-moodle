@@ -8,4 +8,3 @@ $plugin->component  = 'local_obf';
 $plugin->maturity   = MATURITY_ALPHA;
 $plugin->release    = '0.1';
 $plugin->dependencies   = array();
-?>

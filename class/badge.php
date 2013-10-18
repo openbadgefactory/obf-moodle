@@ -125,7 +125,6 @@ class obf_badge implements cacheable_object {
      * @return obf_badge
      */
     public function populate_from_array($arr) {
-
         return $this->set_criteria_html($arr['criteria_html'])
                         ->set_criteria_css($arr['css'])
                         ->set_description($arr['description'])
@@ -165,7 +164,24 @@ class obf_badge implements cacheable_object {
         $this->get_client()->issue_badge($this, $recipients, $issuedon, $emailsubject, $emailbody,
                 $emailfooter);
     }
-
+    
+    public static function get_by_user($user) {
+        $email = $user->email;
+        $assertions = obf_assertion::get_assertions(null, $email);
+        $badges = array();
+        
+        for ($i = 0; $i < $assertions->count(); $i++) {
+           $assertion = $assertions->get_assertion($i);
+           $badge = $assertion->get_badge();
+           
+           if (!isset($badges[$badge->get_id()])) {
+               $badges[$badge->get_id()] = $badge;
+           }
+        }
+        
+        return $badges;
+    }
+    
     /**
      * 
      * @return obf_assertion_collection
@@ -331,7 +347,7 @@ class obf_badge implements cacheable_object {
     public function set_client(obf_client $client) {
         $this->client = $client;
     }
-    
+
     public function get_criteria_css() {
         return $this->criteria_css;
     }

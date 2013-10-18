@@ -1,85 +1,90 @@
 <?php
-
 // HACK: change this when we're not symlinking the plugin anymore
 require_once('/var/www/moodle/config.php'); // __DIR__ . '/../../config.php';
 require_once(__DIR__ . '/class/badge.php');
+require_once($CFG->libdir . '/adminlib.php');
 
 $badgeid = optional_param('id', '', PARAM_ALPHANUM);
 $action = optional_param('action', 'list', PARAM_ALPHANUM);
-$badge = empty($badgeid) ? null : obf_badge::get_instance($badgeid);
 $context = context_system::instance();
-$url = new moodle_url('/local/obf/badge.php', array('id' => $badgeid, 'action' => $action));
 $message = optional_param('msg', '', PARAM_TEXT);
+
+$url = new moodle_url('/local/obf/badge.php', array('action' => $action));
+$badge = empty($badgeid) ? null : obf_badge::get_instance($badgeid);
+
+if (!empty($badgeid)) {
+    $url->param('id', $badgeid);
+}
 
 require_login();
 
 $PAGE->set_context($context);
 $PAGE->set_url($url);
 $PAGE->set_pagelayout('admin');
+$PAGE->set_title(get_string('obf', 'local_obf'));
 
-// TODO: fix breadcrumbs
-$content = $OUTPUT->header();
+$content = '';
 
 switch ($action) {
 
-    // show issuance history
+    // Show issuance history.
     case 'history':
         require_capability('local/obf:viewhistory', $context);
 
         $page = optional_param('page', 0, PARAM_INT);
-        $PAGE->set_title(get_string('obf', 'local_obf') . ' - ' . get_string('history', 'local_obf'));
-        $PAGE->set_heading(get_string('history', 'local_obf'));
         $content .= $PAGE->get_renderer('local_obf')->page_history($badge, $page);
         break;
 
-    // show the list of badges
+    // Show the list of badges.
     case 'list':
         require_capability('local/obf:viewallbadges', $context);
 
         $reload = optional_param('reload', false, PARAM_BOOL);
-        $PAGE->set_title(get_string('obf', 'local_obf') . ' - ' . get_string('badgelist',
-                        'local_obf'));
-        $PAGE->set_heading(get_string('badgelisttitle', 'local_obf'));
 
         try {
             $countbefore = 0;
-            
+
             if ($reload) {
                 $cachedtree = obf_badge_tree::get_from_cache();
                 $countbefore = $cachedtree !== false ? $cachedtree->get_badgecount() : 0;
             }
-            
+
             $tree = obf_badge_tree::get_instance($reload);
-            
+            $msg = '';
+
             if ($reload) {
                 $countafter = $tree->get_badgecount();
                 $countdiff = max(array(0, $countafter-$countbefore));
-                $content .= $OUTPUT->notification(get_string('badgesupdated', 'local_obf',
-                        $countdiff), 'notifysuccess');
+                $msg = get_string('badgesupdated', 'local_obf', $countdiff);
             }
-            
-            $content .= $PAGE->get_renderer('local_obf')->render_badgelist($tree);
+
+            $content .= $PAGE->get_renderer('local_obf')->render_badgelist($tree, $msg);
         } catch (Exception $e) {
             $content .= $OUTPUT->notification($e->getMessage(), 'notifyproblem');
         }
 
         break;
 
-    // display badge info
+    // Display badge info.
     case 'show':
         require_capability('local/obf:viewdetails', $context);
 
         $page = optional_param('page', 0, PARAM_INT);
         $show = optional_param('show', 'details', PARAM_ALPHANUM);
-        $PAGE->set_title(get_string('obf', 'local_obf') . ' - ' . $badge->get_name());
-        $PAGE->set_heading(get_string('badgedetails', 'local_obf'));
+        $baseurl = new moodle_url('/local/obf/badge.php', array('action' => 'show', 'id' => $badgeid));
+
+        navigation_node::override_active_url(new moodle_url('/local/obf/badge.php', array('action' => 'list')));
+        $PAGE->navbar->add($badge->get_name(), $baseurl);
+
         $renderer = $PAGE->get_renderer('local_obf', 'badge');
-        
+
         switch ($show) {
             case 'email':
                 $emailurl = new moodle_url('/local/obf/badge.php',
                         array('id' => $badge->get_id(),
                     'action' => 'show', 'show' => 'email'));
+
+                $PAGE->navbar->add(get_string('badgeemail', 'local_obf'), $emailurl);
                 $form = new obf_email_template_form($emailurl, array('badge' => $badge));
                 $html = '';
 
@@ -105,15 +110,21 @@ switch ($action) {
                 $content .= $renderer->page($badge, 'email', $html);
                 break;
 
+
             default:
+                // Small hack here, we'll beautify this later.
+                if ($show != 'details') {
+                    $taburl = clone $baseurl;
+                    $taburl->param('show', $show);
+                    $PAGE->navbar->add(get_string('badge' . $show, 'local_obf'), $taburl);
+                }
                 $content .= $PAGE->get_renderer('local_obf')->page_badgedetails($badge, $show, $page,
                         $message);
-                break;
         }
 
         break;
 }
 
-$content .= $OUTPUT->footer();
+echo $OUTPUT->header();
 echo $content;
-?>
+echo $OUTPUT->footer();
