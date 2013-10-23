@@ -2,6 +2,7 @@
 require_once(__DIR__ . '/issuance.php');
 require_once(__DIR__ . '/client.php');
 require_once(__DIR__ . '/badge.php');
+require_once(__DIR__ . '/collection.php');
 
 /**
  * Description of assertion
@@ -12,7 +13,7 @@ class obf_assertion extends obf_issuance {
 
     private $expires = null;
     private $id = null;
-    
+
     public function badge_has_expired() {
         return (!empty($this->expires) && $this->expires < time());
     }
@@ -20,7 +21,7 @@ class obf_assertion extends obf_issuance {
     public function has_expiration_date() {
         return !empty($this->expires);
     }
-    
+
     public static function get_instance_by_id($id) {
         $client = obf_client::get_instance();
         $arr = $client->get_event($id);
@@ -31,12 +32,12 @@ class obf_assertion extends obf_issuance {
                 ->set_issuedon($arr['issued_on'])
                 ->set_id($arr['id'])
                 ->set_badge(obf_badge::get_instance($arr['badge_id'], $client));
-        
+
         return $obj;
     }
-    
+
     /**
-     * 
+     *
      * @param obf_badge $badge
      * @return \obf_assertion_collection
      */
@@ -44,9 +45,10 @@ class obf_assertion extends obf_issuance {
         $badgeid = is_null($badge) ? null : $badge->get_id();
         $arr = obf_client::get_instance()->get_assertions($badgeid, $email);
         $assertions = array();
+        $collection = new obf_badge_collection();
 
         foreach ($arr as $item) {
-            $b = is_null($badge) ? obf_badge::get_instance($item['badge_id']) : $badge;
+            $b = is_null($badge) ? $collection->get_badge($item['badge_id']) : $badge;
             $assertions[] = self::get_instance()
                     ->set_badge($b)
                     ->set_id($item['id'])
@@ -54,28 +56,28 @@ class obf_assertion extends obf_issuance {
                     ->set_expires($item['expires'])
                     ->set_issuedon($item['issued_on']);
         }
-        
+
         usort($assertions, function (obf_assertion $a1, obf_assertion $a2) {
             return $a1->get_issuedon() <= $a2->get_issuedon();
         });
-        
+
         if ($limit > 0) {
             $assertions = array_slice($assertions, 0, $limit);
         }
-        
+
         return new obf_assertion_collection($assertions);
     }
 
-    
+
     /**
-     * 
+     *
      * @param obf_badge $badge
      * @return obf_assertion_collection
      */
     public static function get_badge_assertions(obf_badge $badge) {
         return self::get_assertions($badge);
     }
-    
+
     public function get_expires() {
         return $this->expires;
     }
@@ -95,7 +97,7 @@ class obf_assertion extends obf_issuance {
     }
 
 
-    
+
 }
 
 class obf_assertion_collection implements Countable {
@@ -107,7 +109,7 @@ class obf_assertion_collection implements Countable {
 
     /**
      * Assertion recipients mapped as Moodle users
-     * 
+     *
      * @var array
      */
     private $users = array();
@@ -121,7 +123,7 @@ class obf_assertion_collection implements Countable {
     }
 
     /**
-     * 
+     *
      * @param int $index
      * @return obf_assertion
      */

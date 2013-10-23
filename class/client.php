@@ -139,8 +139,19 @@ class obf_client {
      * @throws Exception If the request fails
      * @return type
      */
-    public function get_badges() {
+    public function get_tree() {
         return $this->curl('/tree/' . self::get_client_id() . '/badge');
+    }
+
+    /**
+     *
+     * @return type
+     */
+    public function get_badges() {
+        return $this->curl('/badge/' . self::get_client_id(), 'get', array(),
+                        function ($output) {
+                    return '[' . implode(',', array_filter(explode("\n", $output))) . ']';
+                });
     }
 
     /**
@@ -164,15 +175,19 @@ class obf_client {
         // before calling json_decode in $this->curl.
         return $this->curl('/event/' . self::get_client_id(), 'get', $params,
                         function ($output) {
-                            return '[' . implode(',', array_filter(explode("\n", $output))) . ']';
-                        });
+                    return '[' . implode(',', array_filter(explode("\n", $output))) . ']';
+                });
     }
 
     public function get_event($eventid) {
         return $this->curl('/event/' . self::get_client_id() . '/' . $eventid, 'get');
     }
 
-
+    /**
+     * Exports a badge to Open Badge Factory
+     *
+     * @param obf_badge $badge
+     */
     public function export_badge(obf_badge $badge) {
         $params = array(
             'name' => $badge->get_name(),

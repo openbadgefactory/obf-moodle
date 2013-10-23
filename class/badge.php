@@ -79,21 +79,10 @@ class obf_badge implements cacheable_object {
         }
 
         if (!is_null($id)) {
-            // Try from badge_tree first, because it uses Moodle cache
-            $badge = static::get_badge_from_tree($id);
-
-            if ($badge !== false) {
-                return $badge;
-            }
-
             $obj->set_id($id)->populate();
         }
 
         return $obj;
-    }
-
-    public static function get_badge_from_tree($id) {
-        return obf_badge_tree::get_instance()->get_badge($id);
     }
 
     /**
@@ -125,23 +114,33 @@ class obf_badge implements cacheable_object {
      * @return obf_badge
      */
     public function populate_from_array($arr) {
-        return $this->set_criteria_html($arr['criteria_html'])
-                        ->set_criteria_css($arr['css'])
-                        ->set_description($arr['description'])
-                        ->set_expires($arr['expires'])
-                        ->set_id($arr['id'])
-                        ->set_isdraft((bool) $arr['draft'])
-                        ->set_tags($arr['tags'])
-                        ->set_image($arr['image'])
-                        ->set_created($arr['ctime'])
-                        ->set_name($arr['name']);
+        $this->set_description($arr['description'])
+                ->set_expires($arr['expires'])
+                ->set_id($arr['id'])
+                ->set_isdraft((bool) $arr['draft'])
+                ->set_image($arr['image'])
+                ->set_created($arr['ctime'])
+                ->set_name($arr['name']);
+
+        if (isset($arr['tags'])) {
+            $this->set_tags($arr['tags']);
+        }
+
+        if (isset($arr['css'])) {
+            $this->set_criteria_css($arr['css']);
+        }
+
+        if (isset($arr['criteria_html'])) {
+            $this->set_criteria_html($arr['criteria_html']);
+        }
+
+        return $this;
     }
 
     public function export() {
         try {
             obf_client::get_instance()->export_badge($this);
-        }
-        catch (Exception $e) {
+        } catch (Exception $e) {
             debugging('Exporting badge ' . $this->get_name() . ' failed: ' . $e->getMessage());
             return false;
         }
@@ -183,12 +182,12 @@ class obf_badge implements cacheable_object {
         $badges = array();
 
         for ($i = 0; $i < $assertions->count(); $i++) {
-           $assertion = $assertions->get_assertion($i);
-           $badge = $assertion->get_badge();
+            $assertion = $assertions->get_assertion($i);
+            $badge = $assertion->get_badge();
 
-           if (!isset($badges[$badge->get_id()])) {
-               $badges[$badge->get_id()] = $badge;
-           }
+            if (!isset($badges[$badge->get_id()])) {
+                $badges[$badge->get_id()] = $badge;
+            }
         }
 
         return $badges;
@@ -273,8 +272,9 @@ class obf_badge implements cacheable_object {
     }
 
     public function get_image() {
-        if (empty($this->image))
+        if (empty($this->image)) {
             $this->populate();
+        }
 
         return $this->image;
     }
@@ -303,8 +303,9 @@ class obf_badge implements cacheable_object {
     }
 
     public function get_description() {
-        if (is_null($this->description))
+        if (is_null($this->description)) {
             $this->populate();
+        }
         return $this->description;
     }
 
@@ -350,8 +351,9 @@ class obf_badge implements cacheable_object {
     }
 
     public function get_client() {
-        if (is_null($this->client))
+        if (is_null($this->client)) {
             $this->client = obf_client::get_instance();
+        }
 
         return $this->client;
     }
