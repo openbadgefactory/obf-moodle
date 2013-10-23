@@ -6,7 +6,7 @@ require_once(__DIR__ . '/class/badge.php');
 require_once(__DIR__ . '/form/issuance.php');
 require_once($CFG->dirroot . '/user/lib.php');
 
-$badgeid = required_param('id', null, PARAM_ALPHANUM);
+$badgeid = required_param('id', PARAM_ALPHANUM);
 $courseid = optional_param('courseid', null, PARAM_INT);
 $context = !is_null($courseid) ? context_course::instance($courseid) : context_system::instance();
 $urlparams = array();
@@ -88,7 +88,8 @@ if ($issuerform->is_cancelled()) {
 
     if ($success) {
         if (!empty($courseid)) {
-            // TODO: where to redirect?
+            redirect(new moodle_url('/local/obf/badge.php', array('action' => 'list', 'courseid' => $courseid,
+                'msg' => get_string('badgeissued', 'local_obf'))));
         } else {
             redirect(new moodle_url('/local/obf/badge.php',
                     array('id' => $badge->get_id(),

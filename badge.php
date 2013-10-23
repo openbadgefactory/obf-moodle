@@ -47,30 +47,10 @@ switch ($action) {
     case 'list':
         require_capability('local/obf:viewallbadges', $context);
 
-//        $reload = optional_param('reload', false, PARAM_BOOL);
-
         try {
-            $countbefore = 0;
-
-//            if ($reload) {
-//                $cachedtree = obf_badge_tree::get_from_cache();
-//                $countbefore = $cachedtree !== false ? $cachedtree->get_badgecount() : 0;
-//            }
-
-//            $tree = obf_badge_tree::get_instance($reload);
             $tree = obf_badge_tree::get_instance();
-//            $msg = '';
-
-//            if ($reload) {
-//                $countafter = $tree->get_badgecount();
-//                $countdiff = max(array(0, $countafter - $countbefore));
-//                $msg = get_string('badgesupdated', 'local_obf', $countdiff);
-//            }
-
-//            $content .= $PAGE->get_renderer('local_obf')->render_badgelist($tree,
-//                    $hasissuecapability, $msg);
             $content .= $PAGE->get_renderer('local_obf')->render_badgelist($tree,
-                    $hasissuecapability);
+                    $hasissuecapability, $context, $message);
         } catch (Exception $e) {
             $content .= $OUTPUT->notification($e->getMessage(), 'notifyproblem');
         }
@@ -91,9 +71,12 @@ switch ($action) {
         $PAGE->navbar->add($badge->get_name(), $baseurl);
 
         $renderer = $PAGE->get_renderer('local_obf', 'badge');
+        $content .= $PAGE->get_renderer('local_obf')->render_badge_heading($badge, $context);
 
         switch ($show) {
             case 'email':
+                require_capability('local/obf:configure', $context);
+
                 $emailurl = new moodle_url('/local/obf/badge.php',
                         array('id' => $badge->get_id(),
                     'action' => 'show', 'show' => 'email'));
@@ -124,7 +107,8 @@ switch ($action) {
                 $content .= $renderer->page($badge, 'email', $html);
                 break;
 
-
+            case 'criteria':
+                require_capability('local/obf:configure', $context);
             default:
                 // Small hack here, we'll beautify this later.
                 if ($show != 'details') {
@@ -132,8 +116,8 @@ switch ($action) {
                     $taburl->param('show', $show);
                     $PAGE->navbar->add(get_string('badge' . $show, 'local_obf'), $taburl);
                 }
-                $content .= $PAGE->get_renderer('local_obf')->page_badgedetails($badge, $show,
-                        $page, $message);
+                $content .= $PAGE->get_renderer('local_obf')->page_badgedetails($badge, $context,
+                        $show, $page, $message);
         }
 
         break;

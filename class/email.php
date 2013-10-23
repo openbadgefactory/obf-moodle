@@ -12,7 +12,7 @@ class obf_email {
         global $DB;
 
         $record = $DB->get_record('obf_email_templates', array('badge_id' => $badge->get_id()));
-        
+
         if ($record !== false) {
             $obj = new self();
             $obj->set_badge_id($badge->get_id())
@@ -72,7 +72,7 @@ class obf_email {
     }
 
     /**
-     * 
+     *
      * @global moodle_database $DB
      */
     public function save() {

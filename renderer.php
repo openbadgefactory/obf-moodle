@@ -33,45 +33,17 @@ class local_obf_renderer extends plugin_renderer_base {
         return $html;
     }
 
-    public function render_badgelist(obf_badge_tree $tree, $hasissuecapability, $message = '') {
+    public function render_badgelist(obf_badge_tree $tree, $hasissuecapability, context $context,
+            $message) {
         $heading = $this->print_heading('badgelisttitle', 2);
-//        $button = $this->output->single_button(new moodle_url('badge.php',
-//                array('show' => 'list', 'reload' => 1)), get_string('updatebadges', 'local_obf'));
-//        $html = html_writer::div($heading . $button, 'badgeheading');
         $html = html_writer::div($heading, 'badgeheading');
 
         if (!empty($message)) {
             $html .= $this->output->notification($message, 'notifysuccess');
         }
 
-//        $html .= $this->render($tree);
-        $html .= $this->render_obf_badge_tree($tree, $hasissuecapability);
+        $html .= $this->render_obf_badge_tree($tree, $hasissuecapability, $context);
 
-        return $html;
-    }
-
-    public function render_badge_selector(obf_badge_tree $tree, moodle_url $issueurl) {
-        $html = $this->print_heading('selectbadge', 2);
-
-        if ($tree->get_badgecount() === 0) {
-            $html .= $this->output->notification(get_string('nobadges', 'local_obf'));
-        }
-        else {
-            foreach ($tree->get_folders() as $folder) {
-                $name = $folder->has_name() ? $folder->get_name() : get_string('nofolder', 'local_obf');
-                $html .= $this->output->heading($name, 3);
-                $items = array();
-
-                foreach ($folder->get_badges() as $badge) {
-                    $url = clone $issueurl;
-                    $url->param('id', $badge->get_id());
-                    $items[] = html_writer::link($url, $this->print_badge_image($badge, self::BADGE_IMAGE_SIZE_NORMAL)) .
-                            html_writer::tag('p', html_writer::link($url, $badge->get_name()));
-                }
-
-                $html .= html_writer::alist($items, array('class' => 'badgelist'));
-            }
-        }
 
         return $html;
     }
@@ -152,7 +124,8 @@ class local_obf_renderer extends plugin_renderer_base {
      * @param type $page
      * @return type
      */
-    public function page_badgedetails(obf_badge $badge, $tab = 'details', $page = 0, $message = '') {
+    public function page_badgedetails(obf_badge $badge, context $context, $tab = 'details',
+            $page = 0, $message = '') {
         $methodprefix = 'print_badge_info_';
         $rendererfunction = $methodprefix . $tab;
         $html = '';
@@ -160,23 +133,32 @@ class local_obf_renderer extends plugin_renderer_base {
         if (!method_exists($this, $rendererfunction)) {
             $html .= $this->output->notification(get_string('invalidtab', 'local_obf'));
         } else {
-            $heading = $this->output->heading($this->print_badge_image($badge) . ' ' .
-                    $badge->get_name());
-            $heading .=$this->output->single_button(new moodle_url('/local/obf/issue.php',
-                    array('id' => $badge->get_id())), get_string('issuethisbadge', 'local_obf'),
-                    'get');
-
-            $html .= html_writer::div($heading, 'badgeheading');
-
             if (!empty($message)) {
                 $html .= $this->output->notification($message, 'notifysuccess');
             }
 
-            $html .= $this->print_badge_tabs($badge->get_id(), $tab);
+            if ($context instanceof context_system) {
+                $html .= $this->print_badge_tabs($badge->get_id(), $tab);
+            }
+
             $html .= call_user_func(array($this, $rendererfunction), $badge, $page);
         }
 
         return $html;
+    }
+
+    public function render_badge_heading(obf_badge $badge, context $context) {
+        $heading = $this->output->heading($this->print_badge_image($badge) . ' ' .
+                $badge->get_name());
+        $issueurl = new moodle_url('/local/obf/issue.php', array('id' => $badge->get_id()));
+
+        if ($context instanceof context_course) {
+            $issueurl->param('courseid', $context->instanceid);
+        }
+
+        $heading .= $this->output->single_button($issueurl,
+                get_string('issuethisbadge', 'local_obf'), 'get');
+        return html_writer::div($heading, 'badgeheading');
     }
 
     protected function render_obf_criterion_form(obf_criterion_form $form) {
@@ -205,11 +187,12 @@ class local_obf_renderer extends plugin_renderer_base {
      * @param obf_badge_tree $tree
      * @return string Returns the HTML-output.
      */
-    protected function render_obf_badge_tree(obf_badge_tree $tree, $hasissuecapability) {
+    protected function render_obf_badge_tree(obf_badge_tree $tree, $hasissuecapability,
+            context $context) {
         $html = '';
 
         // No need to render the table if there aren't any folders/badges
-        if (count($tree->get_folders())) {
+        if (count($tree->get_folders()) > 0) {
             $table = new html_table();
             $table->head = array(
                 get_string('badgeimage', 'local_obf'),
@@ -220,44 +203,59 @@ class local_obf_renderer extends plugin_renderer_base {
             $table->headspan = array(1, 1, 1, 1);
 
             foreach ($tree->get_folders() as $folder) {
-                $foldername = $folder->has_name() ? $folder->get_name() : get_string('nofolder',
-                                'local_obf');
-                $header = new html_table_cell($foldername);
-                $header->header = true;
-                $header->colspan = array_sum($table->headspan);
-                $headerrow = new html_table_row(array($header));
-                $table->data[] = $headerrow;
-
-                foreach ($folder->get_badges() as $badge) {
-                    $img = $this->print_badge_image($badge, self::BADGE_IMAGE_SIZE_SMALL);
-                    $createdon = $badge->get_created();
-                    $date = empty($createdon) ? '' : userdate($createdon, get_string('strftimedate'));
-                    $name = html_writer::link(new moodle_url('/local/obf/badge.php',
-                                    array('id' => $badge->get_id(), 'action' => 'show')),
-                                    $badge->get_name());
-
-                    $actions = '';
-
-                    if ($hasissuecapability) {
-                        $issueurl = new moodle_url('/local/obf/issue.php',
-                                array('id' => $badge->get_id()));
-                        $actions .= $this->output->action_icon($issueurl,
-                                        new pix_icon('t/award',
-                                        get_string('issuethisbadge', 'local_obf'))) . " ";
-                    }
-
-                    $row = array($img, $name, $date, $actions);
-                    $table->data[] = $row;
-                }
+                $this->render_badge_folder($table, $folder, $hasissuecapability, $context);
             }
 
-            $htmltable = html_writer::table($table);
-            $html .= $htmltable;
+            $html .= html_writer::table($table);
         } else {
             $html .= $this->output->notification(get_string('nobadges', 'local_obf'), 'notifynotice');
         }
 
         return $html;
+    }
+
+    private function render_badge_folder(&$table, obf_badge_folder $folder, $hasissuecapability,
+            context $context) {
+        $foldername = $folder->has_name() ? $folder->get_name() : get_string('nofolder', 'local_obf');
+        $header = new html_table_cell($foldername);
+        $header->header = true;
+        $header->colspan = array_sum($table->headspan);
+        $headerrow = new html_table_row(array($header));
+        $table->data[] = $headerrow;
+
+        foreach ($folder->get_badges() as $badge) {
+            $table->data[] = $this->render_badge_row($badge, $hasissuecapability, $context);
+        }
+    }
+
+    private function render_badge_row(obf_badge $badge, $hasissuecapability, context $context) {
+        $img = $this->print_badge_image($badge, self::BADGE_IMAGE_SIZE_SMALL);
+        $createdon = $badge->get_created();
+        $date = empty($createdon) ? '' : userdate($createdon, get_string('strftimedate'));
+        $url = new moodle_url('/local/obf/badge.php',
+                array('id' => $badge->get_id(), 'action' => 'show'));
+
+        if ($context instanceof context_course) {
+            $url->param('courseid', $context->instanceid);
+        }
+
+        $name = html_writer::link($url, s($badge->get_name()));
+        $actions = '';
+
+        if ($hasissuecapability) {
+            $issueurl = new moodle_url('/local/obf/issue.php', array('id' => $badge->get_id()));
+
+            if ($context instanceof context_course) {
+                $issueurl->param('courseid', $context->instanceid);
+            }
+
+            $actions .= $this->output->action_icon($issueurl,
+                            new pix_icon('t/award', get_string('issuethisbadge', 'local_obf'))) . " ";
+        }
+
+        $row = array($img, $name, $date, $actions);
+
+        return $row;
     }
 
     /**
@@ -337,16 +335,7 @@ class local_obf_renderer extends plugin_renderer_base {
             get_string('issuerdescription', 'local_obf') => empty($description) ? '-' : $description,
             get_string('issueremail', 'local_obf') => $issuer->get_email()
         ));
-//        $issuertable = new html_table();
-//        $issuertable->attributes['class'] = $tableclass;
-//        $issuer = $badge->get_issuer();
-//        $url = $issuer->get_url();
-//        $issuerurl = empty($url) ? '' : html_writer::link($url, $url);
-//        $issuertable->data[] = array(new obf_table_header('issuername'), $issuer->get_name());
-//        $issuertable->data[] = array(new obf_table_header('issuerurl'), $issuerurl);
-//        $issuertable->data[] = array(new obf_table_header('issuerdescription'), $issuer->get_description());
-//        $issuertable->data[] = array(new obf_table_header('issueremail'), $issuer->get_email());
-//        $badgedetails .= html_writer::table($issuertable);
+
         $boxes .= html_writer::div($badgedetails, 'obf-badgedetails');
         $html .= html_writer::div($boxes, 'obf-badgewrapper');
 
@@ -446,7 +435,9 @@ class local_obf_renderer extends plugin_renderer_base {
 
             if (!$singlebadgehistory) {
                 $headingrow[] = new obf_table_header('badgename');
-                $historytable->headspan = array(2, 1, 1, 1);
+                $historytable->headspan = array(2, 1, 1, 2);
+            } else {
+                $historytable->headspan = array(1, 1, 2);
             }
 
             $headingrow[] = new obf_table_header('recipients');
@@ -457,38 +448,8 @@ class local_obf_renderer extends plugin_renderer_base {
             // add history rows
             for ($i = $startindex; $i < $endindex; $i++) {
                 $assertion = $history->get_assertion($i);
-                $expirationdate = $assertion->has_expiration_date() ? userdate($assertion->get_expires(),
-                                get_string('strftimedate')) : '-';
-                $row = new html_table_row();
-
-                // If we're watching the whole history (not just a single badge),
-                // show the badge details in the table.
-                if (!$singlebadgehistory) {
-                    $b = $assertion->get_badge();
-                    $url = new moodle_url($path, array('action' => 'show', 'id' => $b->get_id()));
-                    $row->cells[] = $this->print_badge_image($b, self::BADGE_IMAGE_SIZE_TINY);
-                    $row->cells[] = html_writer::link($url, s($b->get_name()));
-                }
-
-                // Map the assertion recipients to Moodle users
-                $users = $history->get_assertion_users($assertion);
-                $userlist = array();
-
-                foreach ($users as $user) {
-                    // TODO: handle case where the user doesn't exist in the
-                    // Moodle database
-                    $url = new moodle_url('/user/view.php', array('id' => $user->id));
-                    $userlist[] = html_writer::link($url, fullname($user),
-                                    array('title' => $user->email));
-                }
-
-                $row->cells[] = html_writer::div(implode(', ', $userlist), 'recipientlist');
-                $row->cells[] = userdate($assertion->get_issuedon(), get_string('strftimedate'));
-                $row->cells[] = $expirationdate;
-                $row->cells[] = html_writer::link(new moodle_url('/local/obf/event.php',
-                                array('id' => $assertion->get_id())),
-                                get_string('showassertion', 'local_obf'));
-                $historytable->data[] = $row;
+                $historytable->data[] = $this->render_historytable_row($assertion,
+                        $singlebadgehistory, $path, $history->get_assertion_users($assertion));
             }
 
             $html .= $htmlpager;
@@ -503,12 +464,52 @@ class local_obf_renderer extends plugin_renderer_base {
         return $html;
     }
 
+    private function render_historytable_row(obf_assertion $assertion, $singlebadgehistory, $path,
+            array $users) {
+        $expirationdate = $assertion->has_expiration_date() ? userdate($assertion->get_expires(),
+                        get_string('strftimedate')) : '-';
+        $row = new html_table_row();
+
+        // If we're watching the whole history (not just a single badge),
+        // show the badge details in the table.
+        if (!$singlebadgehistory) {
+            $b = $assertion->get_badge();
+            $url = new moodle_url($path, array('action' => 'show', 'id' => $b->get_id()));
+            $row->cells[] = $this->print_badge_image($b, self::BADGE_IMAGE_SIZE_TINY);
+            $row->cells[] = html_writer::link($url, s($b->get_name()));
+        }
+
+        $userlist = $this->render_userlist($users);
+
+        $row->cells[] = html_writer::div(implode(', ', $userlist), 'recipientlist');
+        $row->cells[] = userdate($assertion->get_issuedon(), get_string('strftimedate'));
+        $row->cells[] = $expirationdate;
+        $row->cells[] = html_writer::link(new moodle_url('/local/obf/event.php',
+                        array('id' => $assertion->get_id())),
+                        get_string('showassertion', 'local_obf'));
+
+        return $row;
+    }
+
+    private function render_userlist(array $users) {
+        $userlist = array();
+
+        foreach ($users as $user) {
+            // TODO: handle case where the user doesn't exist in the
+            // Moodle database
+            $url = new moodle_url('/user/view.php', array('id' => $user->id));
+            $userlist[] = html_writer::link($url, fullname($user), array('title' => $user->email));
+        }
+
+        return $userlist;
+    }
+
     public function print_badge_tabs($badgeid, $selectedtab = 'details') {
         $tabdata = array('details', 'criteria', 'email', 'history');
         $tabs = array();
 
         foreach ($tabdata as $tabname) {
-            $url = new moodle_url('badge.php',
+            $url = new moodle_url('/local/obf/badge.php',
                     array('id' => $badgeid, 'action' => 'show',
                 'show' => $tabname));
             $tabs[] = new tabobject($tabname, $url, get_string('badge' . $tabname, 'local_obf'));
@@ -530,6 +531,7 @@ class local_obf_renderer extends plugin_renderer_base {
 
         return $html;
     }
+
 }
 
 class local_obf_badge_renderer extends plugin_renderer_base {
@@ -549,9 +551,7 @@ class local_obf_badge_renderer extends plugin_renderer_base {
     }
 
     public function page(obf_badge $badge, $tab, $content) {
-        $html = $this->output->heading($this->badge_image($badge) . ' ' .
-                $badge->get_name());
-        $html .= $this->tabs($badge->get_id(), $tab);
+        $html = $this->tabs($badge->get_id(), $tab);
         $html .= $content;
 
         return $html;

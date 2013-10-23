@@ -134,6 +134,30 @@ class obf_badge implements cacheable_object {
             $this->set_criteria_html($arr['criteria_html']);
         }
 
+        $email = obf_email::get_by_badge($this);
+
+        // No email template in the local database yet
+        if (is_null($email)) {
+            $email = new obf_email();
+            $email->set_badge_id($this->get_id());
+
+            if (isset($arr['email_subject'])) {
+                $email->set_subject($arr['email_subject']);
+            }
+
+            if (isset($arr['email_footer'])) {
+                $email->set_footer($arr['email_footer']);
+            }
+
+            if (isset($arr['email_body'])) {
+                $email->set_body($arr['email_body']);
+            }
+
+            $email->save();
+        }
+
+        $this->set_email($email);
+
         return $this;
     }
 

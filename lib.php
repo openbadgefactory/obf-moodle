@@ -41,8 +41,6 @@ function local_obf_extends_settings_navigation(settings_navigation $navigation) 
 
     if (($branch = $navigation->get('courseadmin'))) {
         $obfnode = navigation_node::create(get_string('obf', 'local_obf'));
-//        $obfnode->add(get_string('issue', 'local_obf'),
-//                new moodle_url('/local/obf/issue.php', array('courseid' => $COURSE->id)));
         $obfnode->add(get_string('badgelist', 'local_obf'),
                 new moodle_url('/local/obf/badge.php',
                 array('action' => 'list', 'courseid' => $COURSE->id)));
