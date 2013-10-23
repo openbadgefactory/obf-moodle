@@ -1,3 +1,6 @@
+ul.badgelist { list-style: none; margin: 0; overflow: hidden; }
+ul.badgelist li { text-align: center; float: left; margin: 0 2em 1em 0; }
+
 dl.obf-definition-list { overflow: hidden; margin-left: 0; }
 dl.obf-definition-list dt { width: 100px; float: left; clear: left; padding-bottom: 5px;}
 dl.obf-definition-list dd { clear: right; margin-left: 120px; padding-bottom: 5px; }

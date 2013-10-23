@@ -14,6 +14,7 @@ class obf_issuance_form extends moodleform {
      * @var obf_badge
      */
     private $badge = null;
+    private $courseid = null;
 
     /**
      *
@@ -24,6 +25,7 @@ class obf_issuance_form extends moodleform {
     protected function definition() {
         $this->badge = $this->_customdata['badge'];
         $this->renderer = $this->_customdata['renderer'];
+        $this->courseid = $this->_customdata['courseid'];
 
         $this->add_details_elements();
         $this->add_recipients_elements();
@@ -57,8 +59,10 @@ class obf_issuance_form extends moodleform {
         $excludes = $this->get_user_ids_with_badge_issued();
         $mform->registerElementType('obf_user_selector', __FILE__, 'MoodleQuickForm_userselector');
         $mform->addElement('obf_user_selector', 'recipientlist',
-                get_string('selectrecipients', 'local_obf'), array(), array('exclude' => $excludes));
-        $mform->addRule('recipientlist', get_string('selectatleastonerecipient', 'local_obf'), 'required');
+                get_string('selectrecipients', 'local_obf'), array('courseid' => $this->courseid),
+                array('exclude' => $excludes));
+        $mform->addRule('recipientlist', get_string('selectatleastonerecipient', 'local_obf'),
+                'required');
     }
 
     private function add_message_elements() {
@@ -86,16 +90,17 @@ class obf_issuance_form extends moodleform {
         foreach ($users as $user) {
             $ids[] = $user->id;
         }
-        
+
         return $ids;
     }
-    
+
     public function validation($data, $files) {
         $errors = parent::validation($data, $files);
 //        $errors['recipientlist'] = 'ERRROROROROR';
-        
+
         return $errors;
     }
+
 }
 
 class MoodleQuickForm_userselector extends HTML_QuickForm_element {
@@ -114,6 +119,10 @@ class MoodleQuickForm_userselector extends HTML_QuickForm_element {
         if (is_array($attributes) && isset($attributes['exclude'])) {
             $this->userselector->exclude($attributes['exclude']);
         }
+
+//        if (is_array($attributes) && !empty($attributes['courseid'])) {
+//            $this->userselector->set_courseid($attributes['courseid']);
+//        }
     }
 
     public function getName() {
@@ -140,16 +149,29 @@ class badge_recipient_selector extends user_selector_base {
     const MAX_USERS_IN_LIST = 5000;
 
     private $existingrecipients = array();
+    private $courseid = null;
+
+    public function __construct($name, $options = array()) {
+        parent::__construct($name, $options);
+
+        if (isset($options['courseid'])) {
+            $this->courseid = $options['courseid'];
+        }
+    }
 
     protected function get_options() {
-
         $options = parent::get_options();
         $options['file'] = 'local/obf/form/issuance.php';
+        $options['courseid'] = $this->courseid;
         return $options;
     }
 
+    public function set_courseid($id) {
+        $this->courseid = $id;
+    }
+
     /**
-     * 
+     *
      * @global moodle_database $DB
      * @param type $search
      * @return type
@@ -179,11 +201,26 @@ class badge_recipient_selector extends user_selector_base {
             $wheresql = ' WHERE ' . implode(' AND ', $whereclauses);
         }
 
+        $enrolledsql = '';
+
+        if (!empty($this->courseid)) {
+            $context = context_course::instance($this->courseid);
+            list ($enrolledsql, $enrolledparams) = get_enrolled_sql($context, 'local/obf:earnbadge',
+                    0, true);
+            $params = array_merge($params, $enrolledparams);
+        }
+
         list($sort, $sortparams) = users_order_by_sql($tablealias, $search);
 
         $fields = 'SELECT ' . $this->required_fields_sql($tablealias);
         $count = 'SELECT COUNT(' . $tablealias . '.id)';
-        $sql = ' FROM {user} ' . $tablealias . $wheresql;
+        $sql = ' FROM {user} ' . $tablealias;
+
+        if (!empty($enrolledsql)) {
+            $sql .= ' JOIN (' . $enrolledsql . ') eu ON eu.id = ' . $tablealias . '.id';
+        }
+
+        $sql .= $wheresql;
         $orderby = ' ORDER BY ' . $sort;
 
         // Check how many users does the query return and return an error if the number

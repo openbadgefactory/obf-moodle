@@ -3,7 +3,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 /**
- * 
+ *
  * @global moodle_database $DB
  * @param int $oldversion
  * @return boolean
@@ -11,7 +11,7 @@ defined('MOODLE_INTERNAL') || die();
 function xmldb_local_obf_upgrade($oldversion) {
     global $DB;
 
-    $dbman = $DB->get_manager(); // loads ddl manager and xmldb classes   
+    $dbman = $DB->get_manager(); // loads ddl manager and xmldb classes
 
     if ($oldversion < 2013100701) {
 
@@ -53,8 +53,6 @@ function xmldb_local_obf_upgrade($oldversion) {
 
         // Obf savepoint reached.
         upgrade_plugin_savepoint(true, 2013100701, 'local', 'obf');
-
-        return true;
     }
 
     if ($oldversion < 2013100702) {
@@ -233,6 +231,8 @@ function xmldb_local_obf_upgrade($oldversion) {
         // Obf savepoint reached.
         upgrade_plugin_savepoint(true, 2013101401, 'local', 'obf');
     }
+
+    return true;
 }
 
 ?>

@@ -1,4 +1,5 @@
 <?php
+
 defined('MOODLE_INTERNAL') || die();
 
 if ($hassiteconfig) {
@@ -9,18 +10,20 @@ if ($hassiteconfig) {
     $settings = new admin_externalpage('obfconfig', get_string('settings', 'local_obf'),
             new moodle_url('/local/obf/config.php'));
 
-    // badge list -page
-    $badgelist = new admin_externalpage('badgelist', get_string('badgelist', 'local_obf'),
-            new moodle_url('/local/obf/badge.php', array('action' => 'list')));
-
-    // issuance history -page
-    $history = new admin_externalpage('badgehistory', get_string('history', 'local_obf'),
-            new moodle_url('/local/obf/badge.php', array('action' => 'history')));
-    
     // add pages to navigation
     $ADMIN->add('root', $obf, 'location');
     $ADMIN->add('obf', $settings);
-    $ADMIN->add('obf', $badgelist);
-    $ADMIN->add('obf', $history);
-//    $ADMIN->add('obf', $issuebadge);
+
+    if (get_config('local_obf', 'connectionestablished')) {
+        // badge list -page
+        $badgelist = new admin_externalpage('badgelist', get_string('badgelist', 'local_obf'),
+                new moodle_url('/local/obf/badge.php', array('action' => 'list')));
+
+        // issuance history -page
+        $history = new admin_externalpage('badgehistory', get_string('history', 'local_obf'),
+                new moodle_url('/local/obf/badge.php', array('action' => 'history')));
+
+        $ADMIN->add('obf', $badgelist);
+        $ADMIN->add('obf', $history);
+    }
 }

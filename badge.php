@@ -1,4 +1,5 @@
 <?php
+
 // HACK: change this when we're not symlinking the plugin anymore
 require_once('/var/www/moodle/config.php'); // __DIR__ . '/../../config.php';
 require_once(__DIR__ . '/class/badge.php');
@@ -6,8 +7,9 @@ require_once($CFG->libdir . '/adminlib.php');
 
 $badgeid = optional_param('id', '', PARAM_ALPHANUM);
 $action = optional_param('action', 'list', PARAM_ALPHANUM);
-$context = context_system::instance();
+$courseid = optional_param('courseid', null, PARAM_INT);
 $message = optional_param('msg', '', PARAM_TEXT);
+$context = empty($courseid) ? context_system::instance() : context_course::instance($courseid);
 
 $url = new moodle_url('/local/obf/badge.php', array('action' => $action));
 $badge = empty($badgeid) ? null : obf_badge::get_instance($badgeid);
@@ -16,14 +18,20 @@ if (!empty($badgeid)) {
     $url->param('id', $badgeid);
 }
 
-require_login();
+if (empty($courseid)) {
+    require_login();
+} else {
+    $url->param('courseid', $courseid);
+    require_login($courseid);
+}
 
 $PAGE->set_context($context);
 $PAGE->set_url($url);
-$PAGE->set_pagelayout('admin');
+$PAGE->set_pagelayout(empty($courseid) ? 'admin' : 'course');
 $PAGE->set_title(get_string('obf', 'local_obf'));
 
 $content = '';
+$hasissuecapability = has_capability('local/obf:issuebadge', $context);
 
 switch ($action) {
 
@@ -54,11 +62,12 @@ switch ($action) {
 
             if ($reload) {
                 $countafter = $tree->get_badgecount();
-                $countdiff = max(array(0, $countafter-$countbefore));
+                $countdiff = max(array(0, $countafter - $countbefore));
                 $msg = get_string('badgesupdated', 'local_obf', $countdiff);
             }
 
-            $content .= $PAGE->get_renderer('local_obf')->render_badgelist($tree, $msg);
+            $content .= $PAGE->get_renderer('local_obf')->render_badgelist($tree,
+                    $hasissuecapability, $msg);
         } catch (Exception $e) {
             $content .= $OUTPUT->notification($e->getMessage(), 'notifyproblem');
         }
@@ -71,9 +80,11 @@ switch ($action) {
 
         $page = optional_param('page', 0, PARAM_INT);
         $show = optional_param('show', 'details', PARAM_ALPHANUM);
-        $baseurl = new moodle_url('/local/obf/badge.php', array('action' => 'show', 'id' => $badgeid));
+        $baseurl = new moodle_url('/local/obf/badge.php',
+                array('action' => 'show', 'id' => $badgeid));
 
-        navigation_node::override_active_url(new moodle_url('/local/obf/badge.php', array('action' => 'list')));
+        navigation_node::override_active_url(new moodle_url('/local/obf/badge.php',
+                array('action' => 'list')));
         $PAGE->navbar->add($badge->get_name(), $baseurl);
 
         $renderer = $PAGE->get_renderer('local_obf', 'badge');
@@ -118,8 +129,8 @@ switch ($action) {
                     $taburl->param('show', $show);
                     $PAGE->navbar->add(get_string('badge' . $show, 'local_obf'), $taburl);
                 }
-                $content .= $PAGE->get_renderer('local_obf')->page_badgedetails($badge, $show, $page,
-                        $message);
+                $content .= $PAGE->get_renderer('local_obf')->page_badgedetails($badge, $show,
+                        $page, $message);
         }
 
         break;

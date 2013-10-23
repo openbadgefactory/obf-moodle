@@ -9,7 +9,7 @@ function obf_course_completed(stdClass $eventdata) {
 
     $user = $DB->get_record('user', array('id' => $eventdata->userid));
     $recipients = array($user->email);
-    
+
     // Get all criteria related to course completion
     $typeid = obf_criterion_base::CRITERIA_TYPE_COURSESET;
     $criteria = obf_criterion_base::get_criteria(array('c.criterion_type_id' => $typeid));
@@ -18,7 +18,7 @@ function obf_course_completed(stdClass $eventdata) {
         // User has already met this criterion
         if ($criterion->is_met_by_user($user))
             continue;
-        
+
         // Has the user completed all the required criteria (completion/grade/date)
         // in this criterion?
         $criteriamet = $criterion->review($eventdata);
@@ -34,4 +34,18 @@ function obf_course_completed(stdClass $eventdata) {
     }
 
     return true;
+}
+
+function local_obf_extends_settings_navigation(settings_navigation $navigation) {
+    global $COURSE;
+
+    if (($branch = $navigation->get('courseadmin'))) {
+        $obfnode = navigation_node::create(get_string('obf', 'local_obf'));
+//        $obfnode->add(get_string('issue', 'local_obf'),
+//                new moodle_url('/local/obf/issue.php', array('courseid' => $COURSE->id)));
+        $obfnode->add(get_string('badgelist', 'local_obf'),
+                new moodle_url('/local/obf/badge.php',
+                array('action' => 'list', 'courseid' => $COURSE->id)));
+        $branch->add_node($obfnode, 'backup');
+    }
 }

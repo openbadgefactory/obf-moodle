@@ -40,12 +40,12 @@ class obf_badge implements cacheable_object {
     private $name = '';
 
     /**
-     * @var string The badge image in base64 
+     * @var string The badge image in base64
      */
     private $image = null;
 
     /**
-     * @var string The name of badge's folder 
+     * @var string The name of badge's folder
      */
     private $folder = '';
     private $isdraft = true;
@@ -66,8 +66,8 @@ class obf_badge implements cacheable_object {
 
     /**
      * Returns an instance of the class. If <code>$id</code> isn't set, this
-     * will return a new instance. 
-     * 
+     * will return a new instance.
+     *
      * @param string $id The id of the badge.
      * @return obf_badge
      */
@@ -99,7 +99,7 @@ class obf_badge implements cacheable_object {
     /**
      * Creates a new instance of the class from an array. The array should have
      * the following keys:
-     * 
+     *
      * - criteria
      * - description
      * - expires
@@ -109,7 +109,7 @@ class obf_badge implements cacheable_object {
      * - image
      * - ctime
      * - name
-     * 
+     *
      * @param array $arr The badge data as an associative array
      * @return obf_badge The badge.
      */
@@ -119,7 +119,7 @@ class obf_badge implements cacheable_object {
 
     /**
      * Populates the object's properties from an array.
-     * 
+     *
      * @param array $arr The badge's data as an associative array
      * @see get_instance_from_array()
      * @return obf_badge
@@ -137,8 +137,20 @@ class obf_badge implements cacheable_object {
                         ->set_name($arr['name']);
     }
 
+    public function export() {
+        try {
+            obf_client::get_instance()->export_badge($this);
+        }
+        catch (Exception $e) {
+            debugging('Exporting badge ' . $this->get_name() . ' failed: ' . $e->getMessage());
+            return false;
+        }
+
+        return true;
+    }
+
     /**
-     * 
+     *
      * @return type
      */
     public function get_issuer() {
@@ -150,7 +162,7 @@ class obf_badge implements cacheable_object {
     }
 
     /**
-     * 
+     *
      * @param array $recipients
      * @param type $issuedon
      * @param type $emailsubject
@@ -164,26 +176,26 @@ class obf_badge implements cacheable_object {
         $this->get_client()->issue_badge($this, $recipients, $issuedon, $emailsubject, $emailbody,
                 $emailfooter);
     }
-    
+
     public static function get_by_user($user) {
         $email = $user->email;
         $assertions = obf_assertion::get_assertions(null, $email);
         $badges = array();
-        
+
         for ($i = 0; $i < $assertions->count(); $i++) {
            $assertion = $assertions->get_assertion($i);
            $badge = $assertion->get_badge();
-           
+
            if (!isset($badges[$badge->get_id()])) {
                $badges[$badge->get_id()] = $badge;
            }
         }
-        
+
         return $badges;
     }
-    
+
     /**
-     * 
+     *
      * @return obf_assertion_collection
      */
     public function get_assertions() {
@@ -191,7 +203,7 @@ class obf_badge implements cacheable_object {
     }
 
     /**
-     * 
+     *
      * @return obf_issuance
      */
     public function get_non_expired_assertions() {
@@ -210,7 +222,7 @@ class obf_badge implements cacheable_object {
     /**
      * Gets the object's data from the OBF API and populates the properties
      * from the returned array.
-     * 
+     *
      * @return obf_badge
      */
     public function populate() {
@@ -359,7 +371,7 @@ class obf_badge implements cacheable_object {
 
     /**
      * Prepares the object to cache.
-     * 
+     *
      * @return type
      */
     public function prepare_to_cache() {
@@ -368,7 +380,7 @@ class obf_badge implements cacheable_object {
 
     /**
      * Called when woken up from the cache.
-     * 
+     *
      * @param type $data
      * @return type
      */

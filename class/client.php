@@ -13,7 +13,7 @@ class obf_client {
     }
 
     /**
-     * 
+     *
      * @return obf_client
      */
     public static function get_instance() {
@@ -82,7 +82,7 @@ class obf_client {
             throw new Exception(get_string('csrexportfailed', 'local_obf'));
         }
 
-        $postdata = json_encode(array('signature' => $signature, 'request' => $csrout));      
+        $postdata = json_encode(array('signature' => $signature, 'request' => $csrout));
         $cert = $curl->post($apiurl . '/client/' . $json->id . '/sign_request', $postdata, $curlopts);
 
         // Fetching certificate failed
@@ -91,17 +91,18 @@ class obf_client {
         }
 
         $httpcode = $curl->info['http_code'];
-        
+
         // Server gave us an error
         if ($httpcode !== 200) {
             $jsonresp = json_decode($cert);
             $extrainfo = is_null($jsonresp) ? get_string('apierror' . $httpcode, 'local_obf') : $jsonresp->error;
-            
+
             throw new Exception(get_string('certrequestfailed', 'local_obf') . ': ' . $extrainfo);
         }
 
         // Everything's ok, store the certificate into a file for later use.
         file_put_contents($this->get_cert_filename(), $cert);
+        set_config('connectionestablished', true, 'local_obf');
 
         return true;
     }
@@ -115,7 +116,7 @@ class obf_client {
     }
 
     /**
-     * 
+     *
      * @param type $badgeid
      * @throws Exception If the request fails
      * @return type
@@ -125,7 +126,7 @@ class obf_client {
     }
 
     /**
-     * 
+     *
      * @throws Exception If the request fails
      * @return type
      */
@@ -134,7 +135,7 @@ class obf_client {
     }
 
     /**
-     * 
+     *
      * @throws Exception If the request fails
      * @return type
      */
@@ -143,7 +144,7 @@ class obf_client {
     }
 
     /**
-     * 
+     *
      * @param type $badgeid
      * @return type
      */
@@ -153,7 +154,7 @@ class obf_client {
         if (!is_null($badgeid)) {
             $params['badge_id'] = $badgeid;
         }
-        
+
         if (!is_null($email)) {
             $params['email'] = $email;
         }
@@ -166,13 +167,32 @@ class obf_client {
                             return '[' . implode(',', array_filter(explode("\n", $output))) . ']';
                         });
     }
-    
+
     public function get_event($eventid) {
         return $this->curl('/event/' . self::get_client_id() . '/' . $eventid, 'get');
     }
 
+
+    public function export_badge(obf_badge $badge) {
+        $params = array(
+            'name' => $badge->get_name(),
+            'description' => $badge->get_description(),
+            'image' => $badge->get_image(),
+            'css' => $badge->get_criteria_css(),
+            'criteria_html' => $badge->get_criteria_html(),
+            'email_subject' => $badge->get_email()->get_subject(),
+            'email_body' => $badge->get_email()->get_body(),
+            'email_footer' => $badge->get_email()->get_footer(),
+            'expires' => '',
+            'tags' => array(),
+            'draft' => $badge->get_isdraft()
+        );
+
+        $this->curl('/badge/' . self::get_client_id(), 'post', $params);
+    }
+
     /**
-     * 
+     *
      * @param obf_badge $badge
      * @param type $recipients
      * @param type $issuedon
@@ -197,7 +217,7 @@ class obf_client {
     }
 
     /**
-     * 
+     *
      * @global type $CFG
      * @param type $path
      * @param type $method
@@ -244,7 +264,7 @@ class obf_client {
     }
 
     /**
-     * 
+     *
      * @return type
      */
     public function get_curl_options() {
