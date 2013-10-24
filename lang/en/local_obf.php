@@ -66,6 +66,12 @@ $string['emailtemplatedescription'] = 'Here you can set the default template for
 $string['evidence'] = 'Evidence';
 $string['existingcriteria'] = 'Existing courses';
 $string['expiresby'] = 'Expires';
+$string['expiringcertificate'] = 'Open Badge Factory client certificate is expiring in <b>{$a->days}</b> '
+        . 'days. To renew the certificate <a href="{$a->obfurl}">log in to Open Badge Factory</a> '
+        . 'with your organization admin account, go to Admin tools -> Edit Organisation Details '
+        . '-> More settings, generate the certificate signing request token and paste it to Moodle '
+        . '(Open Badges -> Settings -> OBF request token).';
+$string['expiringcertificatesubject'] = 'Open Badge Factory client certificate is expiring.';
 $string['gradecriterion'] = 'with minimum grade of {$a}';
 $string['history'] = 'History';
 $string['invalidcriteriatype'] = 'Unknown criteria type.';

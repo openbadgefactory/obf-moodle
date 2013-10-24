@@ -107,6 +107,19 @@ class obf_client {
         return true;
     }
 
+    public function get_certificate_expiration_date() {
+        $certfile = $this->get_cert_filename();
+
+        if (!file_exists($certfile)) {
+            return false;
+        }
+
+        $cert = file_get_contents($certfile);
+        $ssl = openssl_x509_parse($cert);
+
+        return $ssl['validTo_time_t'];
+    }
+
     private function get_pkey_filename() {
         return __DIR__ . '/../pki/obf.key';
     }
