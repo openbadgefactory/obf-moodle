@@ -56,6 +56,7 @@ class obf_badge implements cacheable_object {
     private $description = '';
     private $criteria_html = '';
     private $criteria_css = '';
+    private $criteria_url = '';
     private $expiresby = null;
     private $tags = array();
 
@@ -392,6 +393,15 @@ class obf_badge implements cacheable_object {
 
     public function set_criteria_css($criteria_css) {
         $this->criteria_css = $criteria_css;
+        return $this;
+    }
+
+    public function get_criteria_url() {
+        return $this->criteria_url;
+    }
+
+    public function set_criteria_url($criteria_url) {
+        $this->criteria_url = $criteria_url;
         return $this;
     }
 

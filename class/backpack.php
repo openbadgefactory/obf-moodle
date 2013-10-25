@@ -1,4 +1,5 @@
 <?php
+require_once(__DIR__ . '/assertion.php');
 
 class obf_backpack {
 
@@ -66,8 +67,7 @@ class obf_backpack {
 
         if ($backpackid !== false) {
             $this->set_backpack_id($backpackid);
-        }
-        else {
+        } else {
             $this->set_backpack_id(-1);
             $this->set_group_id(-1);
         }
@@ -88,6 +88,43 @@ class obf_backpack {
         return $json->groups;
     }
 
+    public function get_assertions($limit = -1) {
+        global $CFG;
+
+        require_once($CFG->libdir . '/filelib.php');
+
+        if ($this->backpack_id < 0) {
+            throw new Exception('Backpack connection isn\'t set.');
+        }
+
+        if ($this->group_id < 0) {
+            throw new Exception('Badge group isn\'t selected.');
+        }
+
+        $curl = new curl();
+        $output = $curl->get(self::BACKPACK_URL . $this->get_backpack_id() . '/group/' . $this->group_id . '.json');
+        $json = json_decode($output);
+        $assertions = new obf_assertion_collection();
+
+        foreach ($json->badges as $item) {
+            $assertion = new obf_assertion();
+            $badge = new obf_badge();
+            $badge->set_name($item->assertion->badge->name);
+            $badge->set_image($item->imageUrl);
+            $badge->set_description($item->assertion->badge->description);
+            $badge->set_criteria_url($item->assertion->badge->criteria);
+            $assertion->set_badge($badge);
+
+            $assertions->add_assertion($assertion);
+
+            if ($limit > 0 && count($assertions) == $limit) {
+                break;
+            }
+        }
+
+        return $assertions;
+    }
+
     /**
      *
      * @global moodle_database $DB
@@ -104,8 +141,7 @@ class obf_backpack {
         if ($this->id > 0) {
             $obj->id = $this->id;
             $DB->update_record('obf_backpack_emails', $obj);
-        }
-        else {
+        } else {
             $id = $DB->insert_record('obf_backpack_emails', $obj);
             $this->set_id($id);
         }
@@ -150,6 +186,7 @@ class obf_backpack {
         $this->backpack_id = $backpack_id;
         return $this;
     }
+
     public function get_group_id() {
         return $this->group_id;
     }
@@ -158,6 +195,5 @@ class obf_backpack {
         $this->group_id = $group_id;
         return $this;
     }
-
 
 }

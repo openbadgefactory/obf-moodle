@@ -61,7 +61,7 @@ class local_obf_renderer extends plugin_renderer_base {
             $assertion = $assertions->get_assertion($i);
             $badge = $assertion->get_badge();
             $badgeimage = $this->print_badge_image($badge, self::BADGE_IMAGE_SIZE_NORMAL);
-            $url = new moodle_url('/local/obf/event.php', array('id' => $assertion->get_id()));
+            $url = $badge->get_criteria_url();
             $badgename = html_writer::tag('p', html_writer::link($url, $badge->get_name()),
                             array('class' => 'badgename'));
             $items[] = $badgeimage . $badgename;
