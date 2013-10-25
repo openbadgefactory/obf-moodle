@@ -232,6 +232,47 @@ function xmldb_local_obf_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2013101401, 'local', 'obf');
     }
 
+    if ($oldversion < 2013102405) {
+
+        // Define table obf_backpack_emails to be created.
+        $table = new xmldb_table('obf_backpack_emails');
+
+        // Adding fields to table obf_backpack_emails.
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('user_id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('email', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('backpack_id', XMLDB_TYPE_INTEGER, '10', null, null, null, null);
+
+        // Adding keys to table obf_backpack_emails.
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
+        $table->add_key('fk_user_id', XMLDB_KEY_FOREIGN, array('user_id'), 'user', array('id'));
+
+        // Conditionally launch create table for obf_backpack_emails.
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        // Obf savepoint reached.
+        upgrade_plugin_savepoint(true, 2013102405, 'local', 'obf');
+    }
+
+    if ($oldversion < 2013102500) {
+
+        // Define field group_id to be added to obf_backpack_emails.
+        $table = new xmldb_table('obf_backpack_emails');
+        $field = new xmldb_field('group_id', XMLDB_TYPE_INTEGER, '10', null, null, null, null,
+                'backpack_id');
+
+        // Conditionally launch add field group_id.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Obf savepoint reached.
+        upgrade_plugin_savepoint(true, 2013102500, 'local', 'obf');
+    }
+
+
     return true;
 }
 

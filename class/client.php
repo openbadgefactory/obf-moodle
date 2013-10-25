@@ -107,6 +107,11 @@ class obf_client {
         return true;
     }
 
+    /**
+     * Returns the expiration date of the OBF certificate as a unix timestamp.
+     *
+     * @return mixed The expiration date or false if the certificate is missing.
+     */
     public function get_certificate_expiration_date() {
         $certfile = $this->get_cert_filename();
 
@@ -262,8 +267,9 @@ class obf_client {
 
         $apiurl = self::get_api_url();
 
-        if (!isset($apiurl))
+        if (!isset($apiurl)) {
             throw new Exception(get_string('missingapiurl', 'local_obf'));
+        }
 
         $curl = $this->get_curl();
         $options = $this->get_curl_options();
@@ -303,8 +309,6 @@ class obf_client {
             'SSL_VERIFYPEER' => false, // for testing
             'SSLCERT' => $this->get_cert_filename(),
             'SSLKEY' => $this->get_pkey_filename()
-//            'SSLCERT' => '/home/olli/Projects/OBF-Moodle/test.pem',
-//            'SSLKEY' => '/home/olli/Projects/OBF-Moodle/test.key'
         );
     }
 

@@ -2,6 +2,8 @@
 
 defined('MOODLE_INTERNAL') || die();
 
+define('OBF_DEFAULT_ADDRESS', 'https://192.168.1.23/obf/');
+
 require_once(__DIR__ . '/class/criterion/criterionbase.php');
 
 function local_obf_course_completed(stdClass $eventdata) {
@@ -46,6 +48,10 @@ function local_obf_extends_settings_navigation(settings_navigation $navigation) 
                 new moodle_url('/local/obf/badge.php',
                 array('action' => 'list', 'courseid' => $COURSE->id)));
         $branch->add_node($obfnode, 'backup');
+    } else if (($branch = $navigation->get('usercurrentsettings'))) {
+        $node = navigation_node::create(get_string('obf', 'local_obf'),
+                        new moodle_url('/local/obf/userconfig.php'));
+        $branch->add_node($node);
     }
 }
 
@@ -68,7 +74,7 @@ function local_obf_cron() {
     $admins = get_admins();
     $textparams = new stdClass();
     $textparams->days = $days;
-    $textparams->obfurl = 'https://192.168.1.23/obf/'; // TODO: hard-coded here
+    $textparams->obfurl = OBF_DEFAULT_ADDRESS;
 
     foreach ($admins as $admin) {
         $eventdata = new object();

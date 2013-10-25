@@ -532,6 +532,13 @@ class local_obf_renderer extends plugin_renderer_base {
         return $html;
     }
 
+    public function render_userconfig(obf_userconfig_form $form) {
+        $html = $this->print_heading('obf', 2);
+        $html .= $form->render();
+
+        return $html;
+    }
+
 }
 
 class local_obf_badge_renderer extends plugin_renderer_base {

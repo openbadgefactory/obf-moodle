@@ -8,6 +8,13 @@ $capabilities = array(
             'manager'   => CAP_ALLOW
         )
     ),
+    'local/obf:configureuser' => array(
+        'captype'       => 'write',
+        'contextlevel'  => CONTEXT_SYSTEM,
+        'archetypes'    => array(
+            'user'      => CAP_ALLOW
+        )
+    ),
     'local/obf:viewallbadges' => array(
         'captype'       => 'read',
         'contextlevel'  => CONTEXT_SYSTEM,
