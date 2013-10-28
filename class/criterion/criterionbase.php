@@ -30,7 +30,7 @@ abstract class obf_criterion_base {
     }
 
     /**
-     * 
+     *
      * @global moodle_database $DB
      * @param type $id
      * @return boolean
@@ -39,8 +39,9 @@ abstract class obf_criterion_base {
         global $DB;
         $record = $DB->get_record('obf_criterion', array('id' => $id));
 
-        if (!$record)
+        if (!$record) {
             return false;
+        }
 
         $badge = obf_badge::get_instance($record->badge_id);
         $obj = self::get_empty_instance($record->criterion_type_id, $badge);
@@ -51,15 +52,16 @@ abstract class obf_criterion_base {
     }
 
     /**
-     * 
+     *
      * @param int $criteriatype
      * @param obf_badge $badge
      * @return obf_criterion_base
      * @throws Exception
      */
     public static function get_empty_instance($criteriatype, obf_badge $badge) {
-        if (!isset(self::$CRITERIA_TYPES[$criteriatype]))
+        if (!isset(self::$CRITERIA_TYPES[$criteriatype])) {
             throw new Exception('Invalid criteria type');
+        }
 
         $classname = 'obf_criterion_' . self::$CRITERIA_TYPES[$criteriatype];
 
@@ -72,7 +74,7 @@ abstract class obf_criterion_base {
     }
 
     /**
-     * 
+     *
      * @global moodle_database $DB
      */
     public function update() {
@@ -88,7 +90,7 @@ abstract class obf_criterion_base {
     }
 
     /**
-     * 
+     *
      * @global moodle_database $DB
      * @return boolean
      */
@@ -102,8 +104,9 @@ abstract class obf_criterion_base {
 
         $id = $DB->insert_record('obf_criterion', $obj, true);
 
-        if ($id === false)
+        if ($id === false) {
             return false;
+        }
 
         $this->set_id($id);
 
@@ -111,7 +114,7 @@ abstract class obf_criterion_base {
     }
 
     /**
-     * 
+     *
      * @global moodle_database $DB
      * @return boolean
      */
@@ -127,7 +130,7 @@ abstract class obf_criterion_base {
     }
 
     /**
-     * 
+     *
      * @global moodle_database $DB
      */
     public function update_attributes() {
@@ -137,7 +140,7 @@ abstract class obf_criterion_base {
     }
 
     /**
-     * 
+     *
      * @global moodle_database $DB
      */
     public function delete_attributes() {
@@ -146,7 +149,7 @@ abstract class obf_criterion_base {
     }
 
     /**
-     * 
+     *
      * @param obf_badge $badge
      * @return obf_criterion_base[]
      */
@@ -155,7 +158,7 @@ abstract class obf_criterion_base {
     }
 
     /**
-     * 
+     *
      * @global moodle_database $DB
      * @param array $conditions
      * @return type
@@ -183,11 +186,11 @@ abstract class obf_criterion_base {
 
         foreach ($records as $record) {
             if (!isset($ret[$record->criterionid])) {
-                
+
                 // PENDING: obf_badge::get_instance() uses cache internally, so this shouldn't be
                 // that bad. Investigate later, though.
-                $badge = obf_badge::get_instance($record->badge_id);                
-                
+                $badge = obf_badge::get_instance($record->badge_id);
+
                 $obj = self::get_empty_instance($record->criterion_type_id, $badge);
                 $obj->set_id($record->criterionid);
                 $obj->set_completion_method($record->completion_method);
@@ -202,7 +205,7 @@ abstract class obf_criterion_base {
     }
 
     /**
-     * 
+     *
      * @global moodle_database $DB
      * @param type $criterionid
      * @param type $name
@@ -223,23 +226,23 @@ abstract class obf_criterion_base {
 
     public function is_met_by_user(stdClass $user) {
         global $DB;
-        
+
         return ($DB->count_records('obf_criterion_met', array('obf_criterion_id' => $this->id,
             'user_id' => $user->id)) > 0);
     }
-    
+
     public function set_met_by_user(stdClass $user) {
         global $DB;
-        
+
         $obj = new stdClass();
         $obj->obf_criterion_id = $this->id;
         $obj->user_id = $user->id;
-        $obj->met_at = time();        
+        $obj->met_at = time();
         $DB->insert_record('obf_criterion_met', $obj);
     }
-    
+
     /**
-     * 
+     *
      * @return obf_badge
      */
     public function get_badge() {

@@ -532,8 +532,13 @@ class local_obf_renderer extends plugin_renderer_base {
         return $html;
     }
 
-    public function render_userconfig(obf_userconfig_form $form) {
+    public function render_userconfig(obf_userconfig_form $form, $errormsg = '') {
         $html = $this->print_heading('obf', 2);
+
+        if (!empty($errormsg)) {
+            $html .= $this->output->notification($errormsg);
+        }
+
         $html .= $form->render();
 
         return $html;

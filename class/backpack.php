@@ -1,4 +1,5 @@
 <?php
+
 require_once(__DIR__ . '/assertion.php');
 
 class obf_backpack {
@@ -61,19 +62,23 @@ class obf_backpack {
         return false;
     }
 
+    public function disconnect() {
+        $this->set_backpack_id(-1);
+        $this->set_group_id(-1);
+        $this->save();
+    }
+
     public function connect($email) {
         $this->set_email($email);
         $backpackid = self::connect_to_backpack($email);
 
         if ($backpackid !== false) {
             $this->set_backpack_id($backpackid);
+            $this->save();
         } else {
-            $this->set_backpack_id(-1);
-            $this->set_group_id(-1);
+            $this->disconnect();
+            throw new Exception(get_string('backpackemailnotfound', 'local_obf', s($email)));
         }
-
-        // Save the backpack settings in any case
-        $this->save();
     }
 
     public function get_groups() {

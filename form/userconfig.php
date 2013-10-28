@@ -15,7 +15,6 @@ class obf_userconfig_form extends moodleform {
                 get_string('connectionstatus', 'local_obf'), $statustext);
 
         $mform->addElement('text', 'backpackemail', get_string('backpackemail', 'local_obf'));
-        $mform->addRule('backpackemail', null, 'required');
         $mform->addRule('backpackemail', null, 'email');
         $mform->setType('backpackemail', PARAM_NOTAGS);
         $mform->addHelpButton('backpackemail', 'backpackemail', 'local_obf');
@@ -47,7 +46,16 @@ class obf_userconfig_form extends moodleform {
             }
         }
 
-        $this->add_action_buttons(false);
+        $buttonarray = array();
+        $submittext = $backpack->is_connected() ? get_string('savechanges') : get_string('connect', 'local_obf');
+        $buttonarray[] = $mform->createElement('submit', 'submitbutton', $submittext);
+
+        if ($backpack->is_connected()) {
+            $buttonarray[] = $mform->createElement('cancel', null, get_string('disconnect', 'local_obf'));
+        }
+
+        $mform->addGroup($buttonarray, 'buttonar', '', array(' '), false);
+        $mform->closeHeaderBefore('buttonar');
     }
 
 }
