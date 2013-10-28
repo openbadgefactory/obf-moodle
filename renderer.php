@@ -474,9 +474,16 @@ class local_obf_renderer extends plugin_renderer_base {
         // show the badge details in the table.
         if (!$singlebadgehistory) {
             $b = $assertion->get_badge();
-            $url = new moodle_url($path, array('action' => 'show', 'id' => $b->get_id()));
-            $row->cells[] = $this->print_badge_image($b, self::BADGE_IMAGE_SIZE_TINY);
-            $row->cells[] = html_writer::link($url, s($b->get_name()));
+
+            if (!is_null($b)) {
+                $url = new moodle_url($path, array('action' => 'show', 'id' => $b->get_id()));
+                $row->cells[] = $this->print_badge_image($b, self::BADGE_IMAGE_SIZE_TINY);
+                $row->cells[] = html_writer::link($url, s($b->get_name()));
+            }
+            else {
+                $row->cells[] = '&nbsp;';
+                $row->cells[] = s($assertion->get_name());
+            }
         }
 
         $userlist = $this->render_userlist($users);
@@ -495,10 +502,13 @@ class local_obf_renderer extends plugin_renderer_base {
         $userlist = array();
 
         foreach ($users as $user) {
-            // TODO: handle case where the user doesn't exist in the
-            // Moodle database
-            $url = new moodle_url('/user/view.php', array('id' => $user->id));
-            $userlist[] = html_writer::link($url, fullname($user), array('title' => $user->email));
+            if (is_string($user)) {
+                $userlist[] = $user;
+            } else {
+                $url = new moodle_url('/user/view.php', array('id' => $user->id));
+                $userlist[] = html_writer::link($url, fullname($user),
+                                array('title' => $user->email));
+            }
         }
 
         return $userlist;

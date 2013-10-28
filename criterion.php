@@ -123,8 +123,11 @@ switch ($action) {
         // Form was successfully submitted, save data
         else if (!is_null($data = $criterionform->get_data())) {
             // TODO: wrap into a transaction
-            if ($data->completion_method != $criterionobj->get_completion_method()) {
-                $criterionobj->set_completion_method($data->completion_method);
+            // TODO: Saving should be handled by the specialized class
+            $completion_method = isset($data->completion_method) ? $data->completion_method : obf_criterion_base::CRITERIA_COMPLETION_ALL;
+
+            if ($completion_method != $criterionobj->get_completion_method()) {
+                $criterionobj->set_completion_method($completion_method);
                 $criterionobj->update();
             }
 
@@ -172,7 +175,7 @@ switch ($action) {
         if ($deletionform->is_cancelled()) {
             redirect($url);
         }
-        // deletion confirmed                
+        // deletion confirmed
         else if ($deletionform->is_submitted()) {
             $criterionobj->delete();
             redirect($url, get_string('criteriondeleted', 'local_obf'));

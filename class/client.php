@@ -166,7 +166,7 @@ class obf_client {
      * @return type
      */
     public function get_badges() {
-        return $this->curl('/badge/' . self::get_client_id(), 'get', array(),
+        return $this->curl('/badge/' . self::get_client_id(), 'get', array('draft' => 0),
                         function ($output) {
                     return '[' . implode(',', array_filter(explode("\n", $output))) . ']';
                 });
@@ -286,8 +286,7 @@ class obf_client {
 
         // Codes 2xx should be ok
         if ($code < 200 || $code >= 300) {
-            throw new Exception(get_string('apierror' . $code, 'local_obf',
-                    array('error' => $response['error'])));
+            throw new Exception(get_string('apierror' . $code, 'local_obf', $response[0]['error']));
         }
 
         return $response;

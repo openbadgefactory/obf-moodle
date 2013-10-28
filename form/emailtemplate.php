@@ -18,7 +18,7 @@ class obf_email_template_form extends moodleform {
     }
 
     /**
-     * 
+     *
      * @param MoodleQuickForm $mform
      * @param obf_email $email
      */
@@ -39,5 +39,3 @@ class obf_email_template_form extends moodleform {
     }
 
 }
-
-?>

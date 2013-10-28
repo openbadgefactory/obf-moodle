@@ -6,11 +6,11 @@ class obf_badge_collection {
 
     private $badges = array();
 
-    public function get_badge($badgeid) {
-        if (!isset($this->badges[$badgeid])) {
-            $this->populate();
-        }
+    public function __construct() {
+        $this->populate();
+    }
 
+    public function get_badge($badgeid) {
         return isset($this->badges[$badgeid]) ? $this->badges[$badgeid] : null;
     }
 

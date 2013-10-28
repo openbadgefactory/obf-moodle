@@ -18,9 +18,10 @@ class obf_issuance {
     protected $issuedon = null;
     protected $recipients = array();
     protected $error = '';
+    protected $name = '';
 
     /**
-     * 
+     *
      * @return obf_issuance
      */
     public static function get_instance() {
@@ -96,6 +97,14 @@ class obf_issuance {
         return $this;
     }
 
-}
+    public function get_name() {
+        return $this->name;
+    }
 
-?>
+    public function set_name($name) {
+        $this->name = $name;
+        return $this;
+    }
+
+
+}

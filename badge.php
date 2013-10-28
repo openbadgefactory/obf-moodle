@@ -74,6 +74,7 @@ switch ($action) {
         $content .= $PAGE->get_renderer('local_obf')->render_badge_heading($badge, $context);
 
         switch ($show) {
+            // Email template
             case 'email':
                 require_capability('local/obf:configure', $context);
 

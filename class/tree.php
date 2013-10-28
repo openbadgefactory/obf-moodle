@@ -1,4 +1,5 @@
 <?php
+
 require_once(__DIR__ . '/client.php');
 require_once(__DIR__ . '/folder.php');
 require_once(__DIR__ . '/badge.php');
@@ -34,14 +35,11 @@ class obf_badge_tree implements renderable, cacheable_object {
 //        $tree = false;
 //        $clientid = obf_client::get_client_id();
 //        $obfcache = cache::make('local_obf', 'obfcache');
-
 //        if (!$reload) {
 //            $tree = $obfcache->get($clientid);
 //        }
-
 //        if ($tree === false) {
 //            $tree = new self(obf_client::get_instance()->get_tree());
-
 //            var_dump($tree);
 //            $obfcache->set($clientid, $tree);
 //        }
@@ -125,6 +123,11 @@ class obf_badge_tree implements renderable, cacheable_object {
 
         // Create the badge objects and add them to corresponding folder objects.
         foreach ($tree as $badgeid => $badgedata) {
+            // Skip drafts.
+            if ($badgedata['draft']) {
+                continue;
+            }
+
             $badgefolder = $badgedata['path'];
 
             if (empty($badgefolder) && !$emptyfoldercreated) {
@@ -136,12 +139,6 @@ class obf_badge_tree implements renderable, cacheable_object {
             $badge = $badgedata ? obf_badge::get_instance_from_array($badgedata) : obf_badge::get_instance($badgeid);
             $badge->set_folder($badgefolder);
 
-//            $badge = obf_badge::get_instance()
-//                    ->set_id($badgeid)
-//                    ->set_folder($badgefolder)
-//                    ->populate();
-
-//            $badge = obf_badge::get
             $this->get_folder($badge->get_folder())->add_badge($badge);
         }
     }

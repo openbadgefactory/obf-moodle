@@ -1,4 +1,5 @@
 <?php
+
 require_once(__DIR__ . '/issuance.php');
 require_once(__DIR__ . '/client.php');
 require_once(__DIR__ . '/badge.php');
@@ -31,6 +32,7 @@ class obf_assertion extends obf_issuance {
                 ->set_emailsubject($arr['email_subject'])
                 ->set_issuedon($arr['issued_on'])
                 ->set_id($arr['id'])
+                ->set_name($arr['name'])
                 ->set_badge(obf_badge::get_instance($arr['badge_id'], $client));
 
         return $obj;
@@ -54,10 +56,12 @@ class obf_assertion extends obf_issuance {
                     ->set_id($item['id'])
                     ->set_recipients($item['recipient'])
                     ->set_expires($item['expires'])
+                    ->set_name($item['name'])
                     ->set_issuedon($item['issued_on']);
         }
 
-        usort($assertions, function (obf_assertion $a1, obf_assertion $a2) {
+        usort($assertions,
+                function (obf_assertion $a1, obf_assertion $a2) {
             return $a1->get_issuedon() <= $a2->get_issuedon();
         });
 
@@ -67,7 +71,6 @@ class obf_assertion extends obf_issuance {
 
         return new obf_assertion_collection($assertions);
     }
-
 
     /**
      *
@@ -95,8 +98,6 @@ class obf_assertion extends obf_issuance {
         $this->id = $id;
         return $this;
     }
-
-
 
 }
 
@@ -131,6 +132,13 @@ class obf_assertion_collection implements Countable {
         return $this->assertions[$index];
     }
 
+    /**
+     * Returns an array of Moodle-users that are related to selected assertion.
+     *
+     * @global type $DB
+     * @param obf_assertion $assertion
+     * @return type
+     */
     public function get_assertion_users(obf_assertion $assertion) {
         if (count($this->users) === 0) {
             global $DB;
@@ -145,13 +153,32 @@ class obf_assertion_collection implements Countable {
 
         $ret = array();
 
-        foreach ($this->users as $user) {
-            if (in_array($user->email, $assertion->get_recipients())) {
+        foreach ($assertion->get_recipients() as $recipient) {
+            if (($user = $this->find_user_by_email($recipient)) !== false) {
                 $ret[] = $user;
+            }
+            else {
+                $ret[] = $recipient;
             }
         }
 
+//        foreach ($this->users as $user) {
+//            if (in_array($user->email, $assertion->get_recipients())) {
+//                $ret[] = $user;
+//            }
+//        }
+
         return $ret;
+    }
+
+    private function find_user_by_email($email) {
+        foreach ($this->users as $user) {
+            if ($user->email == $email) {
+                return $user;
+            }
+        }
+
+        return false;
     }
 
     public function count() {
@@ -159,5 +186,3 @@ class obf_assertion_collection implements Countable {
     }
 
 }
-
-?>

@@ -39,6 +39,11 @@ function local_obf_course_completed(stdClass $eventdata) {
     return true;
 }
 
+function local_obf_course_deleted(stdClass $course) {
+    obf_criterion_courseset::delete_course_criteria($course->id);
+    return true;
+}
+
 function local_obf_extends_settings_navigation(settings_navigation $navigation) {
     global $COURSE;
 

@@ -135,10 +135,13 @@ class obf_badge implements cacheable_object {
             $this->set_criteria_html($arr['criteria_html']);
         }
 
+        // Try to get the email template from the local database first.
         $email = obf_email::get_by_badge($this);
 
-        // No email template in the local database yet
-        if (is_null($email)) {
+        // No email template in the local database yet, try to get from the array.
+        $hasemail = isset($arr['email_subject']) || isset($arr['email_footer']) || isset($arr['email_body']);
+
+        if (is_null($email) && $hasemail) {
             $email = new obf_email();
             $email->set_badge_id($this->get_id());
 
@@ -157,7 +160,9 @@ class obf_badge implements cacheable_object {
             $email->save();
         }
 
-        $this->set_email($email);
+        if (!is_null($email)) {
+            $this->set_email($email);
+        }
 
         return $this;
     }
