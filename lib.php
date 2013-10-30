@@ -2,9 +2,10 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-define('OBF_DEFAULT_ADDRESS', 'https://192.168.1.23/obf/');
+define('OBF_DEFAULT_ADDRESS', 'https://elvis.discendum.com/obf/');
 
-require_once(__DIR__ . '/class/criterion/criterionbase.php');
+require_once(__DIR__ . '/class/criterion/criterion.php');
+require_once(__DIR__ . '/class/criterion/course.php');
 
 function local_obf_course_completed(stdClass $eventdata) {
     global $DB;
@@ -13,8 +14,7 @@ function local_obf_course_completed(stdClass $eventdata) {
     $recipients = array($user->email);
 
     // Get all criteria related to course completion
-    $typeid = obf_criterion_base::CRITERIA_TYPE_COURSESET;
-    $criteria = obf_criterion_base::get_criteria(array('c.criterion_type_id' => $typeid));
+    $criteria = obf_criterion::get_criteria();
 
     foreach ($criteria as $criterionid => $criterion) {
         // User has already met this criterion
@@ -24,9 +24,9 @@ function local_obf_course_completed(stdClass $eventdata) {
 
         // Has the user completed all the required criteria (completion/grade/date)
         // in this criterion?
-        $criteriamet = $criterion->review($eventdata);
+        $criterionmet = $criterion->review($eventdata);
 
-        if ($criteriamet) {
+        if ($criterionmet) {
             $badge = $criterion->get_badge();
             $email = is_null($badge->get_email()) ? new obf_email() : $badge->get_email();
 
@@ -40,7 +40,7 @@ function local_obf_course_completed(stdClass $eventdata) {
 }
 
 function local_obf_course_deleted(stdClass $course) {
-    obf_criterion_courseset::delete_course_criteria($course->id);
+    obf_criterion_course::delete_by_course($course);
     return true;
 }
 

@@ -272,8 +272,60 @@ function xmldb_local_obf_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2013102500, 'local', 'obf');
     }
 
+    if ($oldversion < 2013102900) {
+
+        // Define table obf_criterion_courses to be dropped.
+        $table = new xmldb_table('obf_criterion_attributes');
+
+        // Conditionally launch drop table for obf_criterion_courses.
+        if ($dbman->table_exists($table)) {
+            $dbman->drop_table($table);
+        }
+
+        // Define table obf_criterion_courses to be created.
+        $table = new xmldb_table('obf_criterion_courses');
+
+        // Adding fields to table obf_criterion_courses.
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('obf_criterion_id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null,
+                null);
+        $table->add_field('courseid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('grade', XMLDB_TYPE_INTEGER, '2', null, null, null, null);
+        $table->add_field('completed_by', XMLDB_TYPE_INTEGER, '10', null, null, null, null);
+
+        // Adding keys to table obf_criterion_courses.
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
+        $table->add_key('fk_obf_criterion_id', XMLDB_KEY_FOREIGN, array('obf_criterion_id'),
+                'obf_criterion', array('id'));
+        $table->add_key('fk_course_id', XMLDB_KEY_FOREIGN, array('courseid'), 'course', array('id'));
+
+        // Conditionally launch create table for obf_criterion_courses.
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        // Obf savepoint reached.
+        upgrade_plugin_savepoint(true, 2013102900, 'local', 'obf');
+    }
+
+    if ($oldversion < 2013103000) {
+
+        // Define field criterion_type_id to be dropped from obf_criterion.
+        $table = new xmldb_table('obf_criterion');
+        $field = new xmldb_field('criterion_type_id');
+        $key = new xmldb_key('obf_critgrou_obf_ix', XMLDB_KEY_UNIQUE, array('criterion_type_id'));
+
+        $dbman->drop_key($table, $key);
+
+        // Conditionally launch drop field criterion_type_id.
+        if ($dbman->field_exists($table, $field)) {
+            $dbman->drop_field($table, $field);
+        }
+
+        // Obf savepoint reached.
+        upgrade_plugin_savepoint(true, 2013103000, 'local', 'obf');
+    }
+
 
     return true;
 }
-
-?>

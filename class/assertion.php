@@ -162,12 +162,6 @@ class obf_assertion_collection implements Countable {
             }
         }
 
-//        foreach ($this->users as $user) {
-//            if (in_array($user->email, $assertion->get_recipients())) {
-//                $ret[] = $user;
-//            }
-//        }
-
         return $ret;
     }
 

@@ -40,7 +40,8 @@ switch ($action) {
         require_capability('local/obf:viewhistory', $context);
 
         $page = optional_param('page', 0, PARAM_INT);
-        $content .= $PAGE->get_renderer('local_obf')->page_history($badge, $page);
+        $content .= $PAGE->get_renderer('local_obf')->print_badge_info_history($badge, $context,
+                $page);
         break;
 
     // Show the list of badges.
@@ -108,17 +109,27 @@ switch ($action) {
                 $content .= $renderer->page($badge, 'email', $html);
                 break;
 
-            case 'criteria':
-                require_capability('local/obf:configure', $context);
-            default:
-                // Small hack here, we'll beautify this later.
-                if ($show != 'details') {
-                    $taburl = clone $baseurl;
-                    $taburl->param('show', $show);
-                    $PAGE->navbar->add(get_string('badge' . $show, 'local_obf'), $taburl);
-                }
+            // Badge details
+            case 'details':
+                $taburl = clone $baseurl;
+                $taburl->param('show', $show);
+                $PAGE->navbar->add(get_string('badge' . $show, 'local_obf'), $taburl);
+
                 $content .= $PAGE->get_renderer('local_obf')->page_badgedetails($badge, $context,
                         $show, $page, $message);
+                break;
+
+            // Badge criteria
+            case 'criteria':
+                $content .= $PAGE->get_renderer('local_obf')->page_badgedetails($badge, $context,
+                        $show, $page, $message);
+                break;
+
+            // Badge issuance history
+            case 'history':
+                $content .= $PAGE->get_renderer('local_obf')->page_badgedetails($badge, $context,
+                        $show, $page, $message);
+                break;
         }
 
         break;

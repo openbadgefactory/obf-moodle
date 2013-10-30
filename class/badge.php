@@ -5,7 +5,7 @@ require_once __DIR__ . '/issuer.php';
 require_once __DIR__ . '/issuance.php';
 require_once __DIR__ . '/client.php';
 require_once __DIR__ . '/email.php';
-require_once __DIR__ . '/criterion/criterionbase.php';
+require_once __DIR__ . '/criterion/criterion.php';
 require_once __DIR__ . '/assertion.php';
 
 /**
@@ -266,8 +266,28 @@ class obf_badge implements cacheable_object {
         return (strtotime('+ ' . $this->expiresby . ' months'));
     }
 
+    /**
+     *
+     * @return obf_criterion_base[]
+     */
     public function get_completion_criteria() {
-        return obf_criterion_base::get_badge_criteria($this);
+        return obf_criterion::get_badge_criteria($this);
+    }
+
+    public function has_completion_criteria_with_course(stdClass $course) {
+        $criteria = $this->get_completion_criteria();
+
+        foreach ($criteria as $criterion) {
+            $courses = $criterion->get_items();
+
+            foreach ($courses as $criterioncourse) {
+                if ($criterioncourse->get_courseid() == $course->id) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 
     public function get_email() {

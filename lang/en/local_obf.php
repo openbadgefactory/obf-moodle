@@ -1,6 +1,6 @@
 <?php
 $string['addcourses'] = 'Add selected courses';
-$string['addcriteria'] = 'Add badge criteria';
+$string['addcriteria'] = 'Create new criterion';
 $string['addnewcriterion'] = 'Add course';
 $string['apierror0'] = 'OBF service request failed. Check server logs for more info.';
 $string['apierror400'] = 'OBF service request failed because of an erroneous/missing parameter.';
@@ -35,11 +35,15 @@ $string['badgeexport'] = 'Export Moodle\'s existing badges';
 $string['badgehistory'] = 'Issuance history';
 $string['badgeimage'] = 'Badge';
 $string['badgeissued'] = 'Badge was successfully issued.';
+$string['badgeissuedwhen'] = 'This badge is automatically issued when any of the following criteria '
+        . 'is met:';
 $string['badgelist'] = 'Badges';
 $string['badgelisttitle'] = 'All badges';
 $string['badgename'] = 'Name';
 $string['badgesupdated'] = 'The badges were updated from Open Badge Factory. <strong>{$a}</strong> new badge(s) found.';
 $string['cancel'] = 'Cancel';
+$string['cannoteditcriterion'] = 'This criterion cannot be edited, because the badge has already '
+        . 'been issued automatically based on this criterion.';
 $string['certrequestfailed'] = 'There was an error while requesting the certificate from the API';
 $string['clientid'] = 'Your Open Badge Factory client-id';
 $string['clientiddescription'] = 'This is here just for testing purposes.';
@@ -52,8 +56,8 @@ $string['connectionstatus'] = 'Backpack connection status';
 $string['coursecompletedby'] = 'Completed by';
 $string['courserequired'] = 'At least one course has to be selected';
 $string['criteriacompletedwhen'] = 'This criterion is completed when...';
-$string['criteriacompletedwhenall'] = 'All of the following courses have to be completed.';
-$string['criteriacompletedwhenany'] = 'Any of the following courses has to be completed';
+$string['criteriacompletedwhenall'] = 'All of the following courses have to be completed:';
+$string['criteriacompletedwhenany'] = 'Any of the following courses has to be completed:';
 $string['criteriacompletionmethodall'] = 'All of these courses are completed';
 $string['criteriacompletionmethodany'] = 'Any of these courses is completed';
 $string['criteriacourses'] = 'Courses in this criterion';
@@ -105,9 +109,10 @@ $string['nobackpackgroups'] = 'No public badge groups in your backpack. Create a
         . 'group to your backpack.';
 $string['nobadges'] = 'No badges yet.';
 $string['nocourseswithcompletionenabled'] = 'There are no courses with completion enabled.';
-$string['nocriteriayet'] = 'Add course to this criterion using the form above.';
+$string['nocriteriayet'] = 'No automatic issuance criteria create yet.';
 $string['nohistory'] = 'This badge hasn\'t been issued yet.';
 $string['nofolder'] = 'No folder';
+$string['novalidcourses'] = 'All available courses are already related to this badge\'s criteria.';
 $string['nouserbadges'] = 'No badges earned yet.';
 $string['numberofbadgessingle'] = ' badge';
 $string['numberofbadgesmany'] = ' badges';
@@ -132,6 +137,8 @@ $string['selectatleastonerecipient'] = 'Select at least one recipient';
 $string['selectbadge'] = 'Select badge';
 $string['selectbadgestoexport'] = 'Select badges you want to export to Open Badge Factory';
 $string['selectcourses'] = 'Select courses';
+$string['selectcourses_help'] = 'Select courses that need to be completed to in order to receive '
+        . 'this badge automatically.';
 $string['selectrecipients'] = 'Select recipients';
 $string['setbadgedetails'] = 'Set badge details';
 $string['settings'] = 'Settings';

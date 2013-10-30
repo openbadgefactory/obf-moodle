@@ -6,8 +6,6 @@ require_once($CFG->libdir . '/adminlib.php');
 require_once(__DIR__ . '/form/config.php');
 require_once(__DIR__ . '/form/badgeexport.php');
 
-//admin_externalpage_setup('obfconfig');
-
 $context = context_system::instance();
 $url = new moodle_url('/local/obf/config.php');
 $msg = optional_param('msg', '', PARAM_TEXT);
