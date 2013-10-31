@@ -13,11 +13,7 @@ require_once __DIR__ . '/assertion.php';
  */
 class obf_badge implements cacheable_object {
 
-    /**
-     *
-     * @var obf_client
-     */
-    private $client = null;
+    private static $badgecache = array();
 
     /**
      * @var obf_issuer
@@ -73,17 +69,36 @@ class obf_badge implements cacheable_object {
      * @return obf_badge
      */
     public static function get_instance($id = null, $client = null) {
-        $obj = new self();
+        $obj = null;
 
-        if (!is_null($client)) {
-            $obj->set_client($client);
+        if (!isset(self::$badgecache[$id])) {
+            $obj = new self();
+
+            if (!is_null($client)) {
+                $obj->set_client($client);
+            }
+
+            if (!is_null($id)) {
+                $obj->set_id($id)->populate();
+                self::$badgecache[$id] = $obj;
+            }
         }
-
-        if (!is_null($id)) {
-            $obj->set_id($id)->populate();
+        else {
+            $obj = self::$badgecache[$id];
         }
 
         return $obj;
+    }
+
+    public static function get_badges() {
+        $badgearr = obf_client::get_instance()->get_badges();
+
+        foreach ($badgearr as $badgedata) {
+            $badge = self::get_instance_from_array($badgedata);
+            self::$badgecache[$badge->get_id()] = $badge;
+        }
+
+        return self::$badgecache;
     }
 
     /**
@@ -116,12 +131,17 @@ class obf_badge implements cacheable_object {
      */
     public function populate_from_array($arr) {
         $this->set_description($arr['description'])
-                ->set_expires($arr['expires'])
                 ->set_id($arr['id'])
                 ->set_isdraft((bool) $arr['draft'])
                 ->set_image($arr['image'])
                 ->set_created($arr['ctime'])
                 ->set_name($arr['name']);
+
+        $expires = (int) $arr['expires'];
+
+        if ($expires > 0) {
+            $this->set_expires(strtotime('+ ' . $expires . ' months'));
+        }
 
         if (isset($arr['tags'])) {
             $this->set_tags($arr['tags']);
@@ -401,11 +421,7 @@ class obf_badge implements cacheable_object {
     }
 
     public function get_client() {
-        if (is_null($this->client)) {
-            $this->client = obf_client::get_instance();
-        }
-
-        return $this->client;
+        return obf_client::get_instance();
     }
 
     public function set_client(obf_client $client) {
@@ -428,6 +444,17 @@ class obf_badge implements cacheable_object {
     public function set_criteria_url($criteria_url) {
         $this->criteria_url = $criteria_url;
         return $this;
+    }
+
+    public static function get_badges_in_course($courseid) {
+        $criteria = obf_criterion::get_course_criterion($courseid);
+        $badges = array();
+
+        foreach ($criteria as $criterion) {
+            $badges[] = $criterion->get_badge();
+        }
+
+        return $badges;
     }
 
     /**

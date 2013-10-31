@@ -24,7 +24,7 @@ function local_obf_course_completed(stdClass $eventdata) {
 
         // Has the user completed all the required criteria (completion/grade/date)
         // in this criterion?
-        $criterionmet = $criterion->review($eventdata);
+        $criterionmet = $criterion->review($eventdata->userid, $eventdata->course);
 
         if ($criterionmet) {
             $badge = $criterion->get_badge();
@@ -32,7 +32,7 @@ function local_obf_course_completed(stdClass $eventdata) {
 
             $badge->issue($recipients, time(), $email->get_subject(), $email->get_body(),
                     $email->get_footer());
-            $criterion->set_met_by_user($user);
+            $criterion->set_met_by_user($user->id);
         }
     }
 

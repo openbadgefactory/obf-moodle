@@ -1,6 +1,9 @@
 <?php
-require_once __DIR__ . '/../badge.php';
-require_once __DIR__ . '/course.php';
+
+require_once(__DIR__ . '/../badge.php');
+require_once(__DIR__ . '/course.php');
+require_once($CFG->dirroot . '/grade/querylib.php');
+require_once($CFG->libdir . '/gradelib.php');
 
 /**
  * Description of criteria_base
@@ -142,8 +145,8 @@ class obf_criterion {
         return self::get_criteria($conditions);
     }
 
-    public function get_items() {
-        if (is_null($this->items)) {
+    public function get_items($force = false) {
+        if (is_null($this->items) || $force) {
             $this->items = obf_criterion_course::get_criterion_courses($this);
         }
 
@@ -170,6 +173,10 @@ class obf_criterion {
         return $ret;
     }
 
+    public static function get_course_criterion($courseid) {
+        return self::get_criteria(array('cc.courseid' => $courseid));
+    }
+
     /**
      *
      * @global moodle_database $DB
@@ -180,8 +187,8 @@ class obf_criterion {
         global $DB;
 
         $sql = 'SELECT cc.*, c.id AS criterionid, c.badge_id, c.completion_method ' .
-                 'FROM {obf_criterion_courses} cc ' .
-            'LEFT JOIN {obf_criterion} c ON cc.obf_criterion_id = c.id';
+                'FROM {obf_criterion_courses} cc ' .
+                'LEFT JOIN {obf_criterion} c ON cc.obf_criterion_id = c.id';
         $params = array();
         $cols = array();
 
@@ -200,7 +207,6 @@ class obf_criterion {
         foreach ($records as $record) {
             // Group by criterion
             if (!isset($ret[$record->criterionid])) {
-                // FIXME: this probably makes an API call every time.
                 $badge = obf_badge::get_instance($record->badge_id);
                 $obj = new self();
                 $obj->set_badge($badge);
@@ -224,16 +230,22 @@ class obf_criterion {
     public function is_met_by_user(stdClass $user) {
         global $DB;
 
-        return ($DB->count_records('obf_criterion_met', array('obf_criterion_id' => $this->id,
-            'user_id' => $user->id)) > 0);
+        return ($DB->count_records('obf_criterion_met',
+                        array('obf_criterion_id' => $this->id,
+                    'user_id' => $user->id)) > 0);
     }
 
-    public function set_met_by_user(stdClass $user) {
+    /**
+     *
+     * @global moodle_database $DB
+     * @param type $userid The id of the user
+     */
+    public function set_met_by_user($userid) {
         global $DB;
 
         $obj = new stdClass();
         $obj->obf_criterion_id = $this->id;
-        $obj->user_id = $user->id;
+        $obj->user_id = $userid;
         $obj->met_at = time();
         $DB->insert_record('obf_criterion_met', $obj);
     }
@@ -281,10 +293,60 @@ class obf_criterion {
         return false;
     }
 
-    public function review($data) {
-        $userid = $data->userid;
-        $courseid = $data->course;
-        $criterioncourses = $this->get_items();
+    /**
+     * Reviews all the previous completions related to courses in this criterion and issues the
+     * badge if the criterion is met by the user.
+     *
+     * @return int To how many users the badge was issued automatically when reviewing.
+     */
+    public function review_previous_completions() {
+        // Just in case...
+        set_time_limit(0);
+        raise_memory_limit(MEMORY_EXTRA);
+
+        $courses = $this->get_related_courses();
+        $recipientemails = array();
+        $recipientids = array();
+
+        foreach ($courses as $course) {
+            $context = context_course::instance($course->id);
+            $users = get_enrolled_users($context, 'local/obf:earnbadge', 0, 'u.id, u.email');
+
+            foreach ($users as $user) {
+                if ($this->review($user->id, $course->id)) {
+                    $recipientemails[] = $user->email;
+                    $recipientids[] = $user->id;
+                }
+            }
+        }
+
+        if (count($recipientemails) > 0) {
+            $badge = $this->get_badge();
+            $email = $badge->get_email();
+
+            if (is_null($email)) {
+                $email = new obf_email();
+            }
+
+            $badge->issue($recipientemails, time(), $email->get_subject(), $email->get_body(),
+                    $email->get_footer());
+
+            foreach ($recipientids as $userid) {
+                $this->set_met_by_user($userid);
+            }
+        }
+
+        return count($recipientemails);
+    }
+
+    /**
+     *
+     * @param type $userid
+     * @param type $courseid
+     * @return boolean
+     */
+    public function review($userid, $courseid) {
+        $criterioncourses = $this->get_items(true);
         $requireall = $this->get_completion_method() == obf_criterion::CRITERIA_COMPLETION_ALL;
 
         // The completed course doesn't exist in this criterion, no need to continue
@@ -336,7 +398,7 @@ class obf_criterion {
         $completedat = $completion->timecompleted;
 
         // check completion date
-        if ($criterioncourse->get_completedby() > 0) {
+        if ($criterioncourse->has_completion_date()) {
             if ($completedat <= $criterioncourse->get_completedby()) {
                 $datepassed = true;
             }
@@ -345,7 +407,7 @@ class obf_criterion {
         }
 
         // check grade
-        if ($criterioncourse->get_grade() > 0) {
+        if ($criterioncourse->has_grade()) {
             $grade = grade_get_course_grade($userid, $courseid);
 
             if (!is_null($grade->grade) && $grade->grade >= $criterioncourse->get_grade()) {
@@ -357,4 +419,5 @@ class obf_criterion {
 
         return $datepassed && $gradepassed;
     }
+
 }

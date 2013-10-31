@@ -45,7 +45,7 @@ class obf_badge_tree implements renderable, cacheable_object {
 //        }
 
         $client = obf_client::get_instance();
-        $tree = new self($client->get_tree(), $client->get_badges());
+        $tree = new self($client->get_tree(), obf_badge::get_badges());
 
         return $tree;
     }
@@ -135,23 +135,24 @@ class obf_badge_tree implements renderable, cacheable_object {
                 $emptyfoldercreated = true;
             }
 
-            $badgedata = $this->findbadgedata($badgeid, $badges);
-            $badge = $badgedata ? obf_badge::get_instance_from_array($badgedata) : obf_badge::get_instance($badgeid);
+//            $badgedata = $this->findbadgedata($badgeid, $badges);
+//            $badge = $badgedata ? obf_badge::get_instance_from_array($badgedata) : obf_badge::get_instance($badgeid);
+            $badge = $badges[$badgeid];
             $badge->set_folder($badgefolder);
 
             $this->get_folder($badge->get_folder())->add_badge($badge);
         }
     }
 
-    private function findbadgedata($badgeid, $badges) {
-        foreach ($badges as $badgedata) {
-            if ($badgedata['id'] == $badgeid) {
-                return $badgedata;
-            }
-        }
-
-        return false;
-    }
+//    private function findbadgedata($badgeid, $badges) {
+//        foreach ($badges as $badgedata) {
+//            if ($badgedata['id'] == $badgeid) {
+//                return $badgedata;
+//            }
+//        }
+//
+//        return false;
+//    }
 
     /**
      * Returns the badge folders

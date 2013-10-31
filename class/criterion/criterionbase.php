@@ -9,6 +9,10 @@ require_once __DIR__ . '/../badge.php';
  */
 abstract class obf_criterion_base {
 
+    public function exists() {
+        return $this->id > 0;
+    }
+
 //    const CRITERIA_COMPLETION_ALL = 1;
 //    const CRITERIA_COMPLETION_ANY = 2;
 //    const CRITERIA_TYPE_COURSESET = 1;

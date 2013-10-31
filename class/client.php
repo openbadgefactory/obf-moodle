@@ -4,6 +4,8 @@ define('OBF_API_CONSUMER_ID', 'Moodle');
 
 class obf_client {
 
+    private static $client = null;
+
     public static function get_client_id() {
         return get_config('local_obf', 'obfclientid');
     }
@@ -17,7 +19,11 @@ class obf_client {
      * @return obf_client
      */
     public static function get_instance() {
-        return new self();
+        if (is_null(self::$client)) {
+            self::$client = new self();
+        }
+
+        return self::$client;
     }
 
     public function authenticate($signature) {
@@ -237,7 +243,6 @@ class obf_client {
             $emailfooter) {
         $params = array(
             'recipient' => $recipients,
-            'expires' => $badge->get_expires(),
             'issued_on' => $issuedon,
             'email_subject' => $emailsubject,
             'email_body' => $emailbody,
@@ -245,6 +250,10 @@ class obf_client {
             'api_consumer_id' => OBF_API_CONSUMER_ID,
             'log_entry' => array('foo' => 'Just testing')
         );
+
+        if (!is_null($badge->get_expires() && $badge->get_expires() > 0)) {
+            $params['expires'] = $badge->get_expires();
+        }
 
         $this->curl('/badge/' . self::get_client_id() . '/' . $badge->get_id(), 'post', $params);
     }

@@ -41,18 +41,23 @@ $string['badgelist'] = 'Badges';
 $string['badgelisttitle'] = 'All badges';
 $string['badgename'] = 'Name';
 $string['badgesupdated'] = 'The badges were updated from Open Badge Factory. <strong>{$a}</strong> new badge(s) found.';
+$string['badgewasautomaticallyissued'] = 'After reviewing the badge was issued to {$a} recipient(s).';
 $string['cancel'] = 'Cancel';
 $string['cannoteditcriterion'] = 'This criterion cannot be edited, because the badge has already '
         . 'been issued automatically based on this criterion.';
 $string['certrequestfailed'] = 'There was an error while requesting the certificate from the API';
 $string['clientid'] = 'Your Open Badge Factory client-id';
 $string['clientiddescription'] = 'This is here just for testing purposes.';
-$string['completedbycriterion'] = 'completed by {$a}';
+$string['completedbycriterion'] = 'completed by <strong>{$a}</strong>';
 $string['configurecriteria'] = 'Configure';
 $string['confirmandissue'] = 'Confirm and issue';
 $string['confirmcriteriondeletion'] = 'Are you sure you want to delete this criterion?';
 $string['connect'] = 'Connect';
 $string['connectionstatus'] = 'Backpack connection status';
+$string['coursealreadyincriterion'] = 'The criterion of automatic issuance of this badge in this '
+        . 'course cannot be edited, because this course/badge -combination already exists in a '
+        . 'criterion containing multiple courses.';
+$string['coursebadgelisttitle'] = 'Badges related to this course';
 $string['coursecompletedby'] = 'Completed by';
 $string['courserequired'] = 'At least one course has to be selected';
 $string['criteriacompletedwhen'] = 'This criterion is completed when...';
@@ -86,7 +91,7 @@ $string['expiringcertificate'] = 'Open Badge Factory client certificate is expir
         . '-> More settings, generate the certificate signing request token and paste it to Moodle '
         . '(Open Badges -> Settings -> OBF request token).';
 $string['expiringcertificatesubject'] = 'Open Badge Factory client certificate is expiring.';
-$string['gradecriterion'] = 'with minimum grade of {$a}';
+$string['gradecriterion'] = 'with <strong>minimum grade of {$a}</strong>';
 $string['history'] = 'History';
 $string['invalidcriteriatype'] = 'Unknown criteria type.';
 $string['invalidtab'] = 'Page not found';
@@ -109,7 +114,7 @@ $string['nobackpackgroups'] = 'No public badge groups in your backpack. Create a
         . 'group to your backpack.';
 $string['nobadges'] = 'No badges yet.';
 $string['nocourseswithcompletionenabled'] = 'There are no courses with completion enabled.';
-$string['nocriteriayet'] = 'No automatic issuance criteria create yet.';
+$string['nocriteriayet'] = 'No automatic issuance criteria created yet.';
 $string['nohistory'] = 'This badge hasn\'t been issued yet.';
 $string['nofolder'] = 'No folder';
 $string['novalidcourses'] = 'All available courses are already related to this badge\'s criteria.';
@@ -132,6 +137,10 @@ $string['recipientcandidates'] = 'Users matching the search';
 $string['requesttoken'] = 'OBF request token';
 $string['requesttoken_help'] = 'Paste here the token that is used to connect to Open Badge Factory ' .
         'API. Leave blank if the connection has already been established.';
+$string['reviewcriterionaftersave'] = 'Review criterion after saving';
+$string['reviewcriterionaftersave_help'] = 'If this checkbox is checked, the criterion will be '
+        . 'reviewed after saving and if someone has already met this criterion earlier, this badge '
+        . 'will then be automatically issued.';
 $string['savecriteria'] = 'Save';
 $string['selectatleastonerecipient'] = 'Select at least one recipient';
 $string['selectbadge'] = 'Select badge';
@@ -143,6 +152,7 @@ $string['selectrecipients'] = 'Select recipients';
 $string['setbadgedetails'] = 'Set badge details';
 $string['settings'] = 'Settings';
 $string['showassertion'] = 'Details';
+$string['toearnthisbadge'] = 'To earn this badge this course has to be';
 $string['tokendecryptionfailed'] = 'Decrypting the request token failed';
 $string['updatebadges'] = 'Update badges from Open Badge Factory';
 $string['url'] = 'Open Badge Factory URL';

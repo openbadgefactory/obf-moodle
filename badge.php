@@ -50,8 +50,15 @@ switch ($action) {
 
         try {
             $tree = obf_badge_tree::get_instance();
-            $content .= $PAGE->get_renderer('local_obf')->render_badgelist($tree,
+
+            if ($context instanceof context_system) {
+                $content .= $PAGE->get_renderer('local_obf')->render_badgelist($tree,
                     $hasissuecapability, $context, $message);
+            }
+            else {
+                $content .= $PAGE->get_renderer('local_obf')->render_badgelist_course($tree,
+                        $hasissuecapability, $context, $message);
+            }
         } catch (Exception $e) {
             $content .= $OUTPUT->notification($e->getMessage(), 'notifyproblem');
         }

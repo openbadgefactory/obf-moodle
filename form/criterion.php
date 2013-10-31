@@ -93,7 +93,7 @@ class obf_criterion_form extends moodleform implements renderable {
             foreach ($criterioncourses as $course) {
                 $coursename = $courses[$course->get_courseid()]->fullname;
                 $mform->addElement('html', $OUTPUT->heading($coursename, 3));
-                $this->add_coursefields($mform, $course);
+                self::add_coursefields($mform, $course);
             }
 
             // Radiobuttons to select whether this criterion is completed
@@ -114,12 +114,16 @@ class obf_criterion_form extends moodleform implements renderable {
                 $mform->setDefault('completion_method', $this->criterion->get_completion_method());
             }
 
+            $mform->addElement('header', 'header_review_criterion_after_save', get_string('reviewcriterionaftersave', 'local_obf'));
+            $mform->setExpanded('header_review_criterion_after_save');
+            $mform->addElement('advcheckbox', 'reviewaftersave', get_string('reviewcriterionaftersave', 'local_obf'));
+            $mform->addHelpButton('reviewaftersave', 'reviewcriterionaftersave', 'local_obf');
+
             $this->add_action_buttons();
         }
     }
 
-    public function add_coursefields(&$mform, obf_criterion_course $course) {
-//        $courseid = $course->get_courseid();
+    public static function add_coursefields(&$mform, obf_criterion_course $course) {
         $criterioncourseid = $course->get_id();
         $grade = $course->get_grade();
         $completedby = $course->get_completedby();
@@ -135,7 +139,7 @@ class obf_criterion_form extends moodleform implements renderable {
         // server-side validation stops working and thus makes $mform->addRule()
         // completely useless. That's why we don't call setType() here.
 
-        if (!empty($grade)) {
+        if ($course->has_grade()) {
             $mform->setDefault('mingrade[' . $criterioncourseid . ']', $grade);
         }
 
@@ -147,7 +151,7 @@ class obf_criterion_form extends moodleform implements renderable {
                 get_string('coursecompletedby', 'local_obf'),
                 array('optional' => true, 'startyear' => date('Y')));
 
-        if (!empty($completedby)) {
+        if ($course->has_completion_date()) {
             $mform->setDefault('completedby_' . $criterioncourseid, $completedby);
         }
     }

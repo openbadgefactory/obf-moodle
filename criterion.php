@@ -117,7 +117,7 @@ switch ($action) {
             $criterionform = new obf_criterion_form($url, array('criterion' => $criterion));
             $content = $PAGE->get_renderer('local_obf')->render($criterionform);
         }
-        
+
         break;
 
     // Updating an existing criterion
@@ -127,8 +127,8 @@ switch ($action) {
         $criterion = obf_criterion::get_instance($id);
         $criterionform = new obf_criterion_form($FULLME, array('criterion' => $criterion));
 
-        // Form was cancelled
-        if ($criterionform->is_cancelled()) {
+        // Form was cancelled or editing is prohibited (criterion has already been met)
+        if ($criterionform->is_cancelled() || $criterion->is_met()) {
             redirect(new moodle_url('/local/obf/badge.php',
                     array('id' => $badge->get_id(),
                 'action' => 'show', 'show' => 'criteria')));
@@ -136,8 +136,8 @@ switch ($action) {
 
         // Form was successfully submitted, save data
         else if (!is_null($data = $criterionform->get_data())) {
-            // TODO: wrap into a transaction
-            // TODO: Saving should be handled by the specialized class
+            // TODO: wrap into a transaction?
+
             $completion_method = isset($data->completion_method) ? $data->completion_method : obf_criterion::CRITERIA_COMPLETION_ALL;
 
             if ($completion_method != $criterion->get_completion_method()) {
@@ -153,9 +153,18 @@ switch ($action) {
                 $criterioncourse->save();
             }
 
-            redirect(new moodle_url('/local/obf/badge.php',
+            $tourl = new moodle_url('/local/obf/badge.php',
                     array('id' => $badge->get_id(), 'action' => 'show',
-                'show' => 'criteria')));
+                'show' => 'criteria'));
+
+            // If the review-checkbox was selected, let's review the criterion and check whether
+            // the badge can be issued right now.
+            if ($data->reviewaftersave) {
+                $recipientcount = $criterion->review_previous_completions();
+                $tourl->param('msg', get_string('badgewasautomaticallyissued', 'local_obf', $recipientcount));
+            }
+
+            redirect($tourl);
         } else {
             $content .= $PAGE->get_renderer('local_obf')->render($criterionform);
         }

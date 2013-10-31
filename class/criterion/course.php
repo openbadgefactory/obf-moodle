@@ -13,6 +13,7 @@ class obf_criterion_course extends obf_criterion_base {
     protected $grade = -1;
     protected $completedby = -1;
     protected $coursename = '';
+    protected $criterion = null;
 
     public static function get_instance($id) {
         global $DB;
@@ -38,6 +39,14 @@ class obf_criterion_course extends obf_criterion_base {
         return $ret;
     }
 
+    public function has_grade() {
+        return (!empty($this->grade) && $this->grade > 0);
+    }
+
+    public function has_completion_date() {
+        return (!empty($this->completedby) && $this->completedby > 0);
+    }
+
     public function populate_from_record(\stdClass $record) {
         $this->set_id($record->id)
                 ->set_criterionid($record->obf_criterion_id)
@@ -46,6 +55,14 @@ class obf_criterion_course extends obf_criterion_base {
                 ->set_completedby($record->completed_by);
 
         return $this;
+    }
+
+    public function get_criterion() {
+        if (is_null($this->criterion)) {
+            $this->criterion = obf_criterion::get_instance($this->criterionid);
+        }
+
+        return $this->criterion;
     }
 
     /**
@@ -58,14 +75,8 @@ class obf_criterion_course extends obf_criterion_base {
         $obj = new stdClass();
         $obj->obf_criterion_id = $this->criterionid;
         $obj->courseid = $this->courseid;
-
-        if ($this->grade > 0) {
-            $obj->grade = $this->grade;
-        }
-
-        if ($this->completedby > 0) {
-            $obj->completed_by = $this->completedby;
-        }
+        $obj->grade = $this->has_grade() ? $this->grade : null;
+        $obj->completed_by = $this->has_completion_date() ? $this->completedby : null;
 
         // Updating existing record
         if ($this->id > 0) {
@@ -131,16 +142,40 @@ class obf_criterion_course extends obf_criterion_base {
     public function get_text() {
         $html = html_writer::tag('strong', $this->get_coursename());
 
-        if ($this->completedby > 0) {
+        if ($this->has_completion_date()) {
             $html .= ' ' . get_string('completedbycriterion', 'local_obf', userdate($this->completedby,
                     get_string('strftimedate')));
         }
 
-        if ($this->grade > 0) {
+        if ($this->has_grade()) {
             $html .= ' ' . get_string('gradecriterion', 'local_obf', $this->grade);
         }
 
         return $html;
+    }
+
+    public function get_text_for_single_course() {
+        $html = get_string('toearnthisbadge', 'local_obf');
+
+        if ($this->has_completion_date()) {
+            $html .= ' ' . get_string('completedbycriterion', 'local_obf', userdate($this->completedby,
+                    get_string('strftimedate')));
+        }
+
+        if ($this->has_grade()) {
+            $html .= ' ' . get_string('gradecriterion', 'local_obf', $this->grade);
+        }
+
+        $html .= '.';
+
+        return $html;
+    }
+
+    public function delete() {
+        global $DB;
+
+        $DB->delete_records('obf_criterion_courses', array('id' => $this->id));
+        obf_criterion::delete_empty();
     }
 
     public static function delete_by_course(stdClass $course) {

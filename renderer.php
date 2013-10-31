@@ -22,8 +22,43 @@ class local_obf_renderer extends plugin_renderer_base {
     const BADGE_IMAGE_SIZE_SMALL = 32;
     const BADGE_IMAGE_SIZE_NORMAL = 100;
 
+    public function render_badgelist_course(obf_badge_tree $tree, $hasissuecapability,
+            context $context, $message = '') {
+        $html = '';
+
+        if (!empty($message)) {
+            $html .= $this->output->notification($message, 'notifysuccess');
+        }
+
+        $badgesincourse = obf_badge::get_badges_in_course($context->instanceid);
+        $html .= $this->print_heading('coursebadgelisttitle', 2);
+
+        if (count($badgesincourse) == 0) {
+            $html .= $this->output->notification(get_string('nobadgesincourse', 'local_obf'));
+        } else {
+            $table = new html_table();
+            $table->head = array(
+                get_string('badgeimage', 'local_obf'),
+                get_string('badgename', 'local_obf'),
+                get_string('badgecreated', 'local_obf'),
+                get_string('badgeactions', 'local_obf')
+            );
+            $table->headspan = array(1, 1, 1, 1);
+
+            foreach ($badgesincourse as $badge) {
+                $table->data[] = $this->render_badge_row($badge, $hasissuecapability, $context);
+            }
+
+            $html .= html_writer::table($table);
+        }
+
+        $html .= $this->render_badgelist($tree, $hasissuecapability, $context);
+
+        return $html;
+    }
+
     public function render_badgelist(obf_badge_tree $tree, $hasissuecapability, context $context,
-            $message) {
+            $message = '') {
         $heading = $this->print_heading('badgelisttitle', 2);
         $html = html_writer::div($heading, 'badgeheading');
 
@@ -32,7 +67,6 @@ class local_obf_renderer extends plugin_renderer_base {
         }
 
         $html .= $this->render_obf_badge_tree($tree, $hasissuecapability, $context);
-
 
         return $html;
     }
@@ -355,74 +389,89 @@ class local_obf_renderer extends plugin_renderer_base {
      */
     public function render_badge_criteria_course(obf_badge $badge, $courseid) {
         $html = '';
-        $type = obf_criterion_base::CRITERIA_TYPE_COURSESET;
-        $criteria = $badge->get_completion_criteria($type);
-        $criterion = null;
-        $coursedata = null;
+        $course = get_course($courseid);
+        $criteria = $badge->get_completion_criteria();
+        $coursewithcriterion = null;
+        $criterioncourseid = null;
+        $courseincriterion = false;
+        $error = '';
         $url = new moodle_url('/local/obf/badge.php',
                 array('id' => $badge->get_id(), 'action' =>
             'show', 'show' => 'criteria', 'courseid' => $courseid));
 
-        // Show edit form if there aren't any criteria related to this course or there is only one
-        // and the criterion hasn't been met yet by any user.
-        if (count($criteria) > 0) {
-            $criterion = array_pop($criteria);
+        // Show edit form if there aren't any criteria related to this badge or there is only one
+        // which hasn't been met yet by any user.
+        foreach ($criteria as $criterion) {
+            $courses = $criterion->get_items();
+            $courseincriterion = $criterion->has_course($courseid);
 
-            if (!$criterion->is_met()) {
-                $attributes = $criterion->get_parsed_attributes();
-                $courseincriterion = array_key_exists($courseid, $attributes);
+            // If the course is already related to a criterion containing other courses also,
+            // the criterion cannot be modified in course context.
+            if ($courseincriterion) {
+                $coursewithcriterion = $criterion;
 
-                if (!$courseincriterion) {
-                    $coursedata = obf_criterion_courseset::get_empty_coursedata();
-                    $coursedata->id = $courseid;
-                } else if (count($attributes) === 1) {
-                    $coursedata = $attributes[$courseid];
+                if (count($courses) > 1) {
+                    $error = 'coursealreadyincriterion';
+                } else if ($criterion->is_met()) {
+                    $error = 'cannoteditcriterion';
+                } else {
+                    $criterioncourseid = $courses[0]->get_id();
                 }
+
+                break;
             }
         }
-        // There isn't any course-related criteria related to this badge, so it's ok to create some
-        else {
-            $criterion = obf_criterion_base::get_empty_instance($type, $badge);
-            $coursedata = obf_criterion_courseset::get_empty_coursedata();
-            $coursedata->id = $courseid;
-        }
+
+        $canedit = !is_null($criterioncourseid) || !$courseincriterion;
 
         // The criteria cannot be modified or added -> show a message to user
-        if (is_null($coursedata)) {
-            $html .= $this->output->notification(get_string('cannoteditcriterion', 'local_obf'));
+        if (!$canedit) {
+            if (!is_null($coursewithcriterion) && $coursewithcriterion->is_met()) {
+                $obj = $coursewithcriterion->get_items()[0];
+                $html .= html_writer::tag('p', $obj->get_text_for_single_course());
+            }
+
+            $html .= $this->output->notification(get_string($error, 'local_obf'));
         }
 
         // Show the course criteria form
         else {
-            $criterionform = new obf_coursecriterion_form($url, array('coursedata' => $coursedata));
+            $criterioncourse = is_null($criterioncourseid) ? new obf_criterion_course : obf_criterion_course::get_instance($criterioncourseid);
+            $criterionform = new obf_coursecriterion_form($url,
+                    array('criterioncourse' => $criterioncourse));
 
-            // Form was submitted
             if (!is_null($data = $criterionform->get_data())) {
-                $mingrade = (int) $data->mingrade[$courseid];
-                $completedby = (int) $data->{'completedby_' . $courseid};
+                $grade = (int) $data->mingrade;
+                $completedby = (int) $data->completedby;
 
                 // Both fields are empty -> remove criterion
-                if ($mingrade == 0 && $completedby == 0 && $criterion->exists()) {
-                    $criterion->delete();
+                if ($criterioncourse->exists() && $grade === 0 && $completedby === 0) {
+                    $criterioncourse->delete();
                 }
 
-                // Update criterion and attributes
+                // Update or insert criterion course
                 else {
-                    if (!$criterion->exists()) {
-                        $criterion->set_completion_method(obf_criterion_base::CRITERIA_COMPLETION_ALL);
+                    // Object doesn't exist yet, let's create the criterion.
+                    if (!$criterioncourse->exists()) {
+                        $criterion = new obf_criterion();
+                        $criterion->set_badge($badge);
+                        $criterion->set_completion_method(obf_criterion::CRITERIA_COMPLETION_ALL);
                         $criterion->save();
-                    } else {
-                        $criterion->delete_attributes();
+
+                        $criterioncourse->set_criterionid($criterion->get_id());
                     }
 
-                    $criterion->save_attribute('course_' . $courseid, $courseid);
+                    $criterioncourse->set_courseid($courseid);
+                    $criterioncourse->set_grade($grade);
+                    $criterioncourse->set_completedby($completedby);
+                    $criterioncourse->save();
 
-                    if ($mingrade > 0) {
-                        $criterion->save_attribute('grade_' . $courseid, $mingrade);
-                    }
+                    if ($data->reviewaftersave) {
+                        $crit = $criterioncourse->get_criterion();
+                        $recipientcount = $crit->review_previous_completions();
 
-                    if ($completedby > 0) {
-                        $criterion->save_attribute('completedby_' . $courseid, $completedby);
+                        $html .= $this->output->notification(get_string('badgewasautomaticallyissued',
+                                        'local_obf', $recipientcount), 'notifysuccess');
                     }
                 }
             }
