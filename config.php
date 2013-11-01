@@ -122,6 +122,10 @@ switch ($action) {
             if ($data->disablemoodlebadges) {
                 set_config('enablebadges', 0);
             }
+
+            $url->param('msg', get_string('authenticationsuccess', 'local_obf'));
+
+            redirect($url);
         }
 
         $content .= $PAGE->get_renderer('local_obf')->render_badge_exporter($exportform);

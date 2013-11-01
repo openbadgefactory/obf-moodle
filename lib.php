@@ -7,6 +7,13 @@ define('OBF_DEFAULT_ADDRESS', 'https://elvis.discendum.com/obf/');
 require_once(__DIR__ . '/class/criterion/criterion.php');
 require_once(__DIR__ . '/class/criterion/course.php');
 
+/**
+ * Reviews the badge criteria and issues the badges (if necessary) when a course is completed.
+ *
+ * @global type $DB
+ * @param stdClass $eventdata
+ * @return boolean
+ */
 function local_obf_course_completed(stdClass $eventdata) {
     global $DB;
 
@@ -39,27 +46,48 @@ function local_obf_course_completed(stdClass $eventdata) {
     return true;
 }
 
+/**
+ * When the course is deleted, this function deletes also the related badge issuance criteria.
+ *
+ * @param stdClass $course
+ * @return boolean
+ */
 function local_obf_course_deleted(stdClass $course) {
     obf_criterion_course::delete_by_course($course);
     return true;
 }
 
+/**
+ * Adds the OBF-links to Moodle's navigation.
+ *
+ * @global type $COURSE
+ * @param settings_navigation $navigation
+ */
 function local_obf_extends_settings_navigation(settings_navigation $navigation) {
     global $COURSE;
 
     if (($branch = $navigation->get('courseadmin'))) {
-        $obfnode = navigation_node::create(get_string('obf', 'local_obf'));
-        $obfnode->add(get_string('badgelist', 'local_obf'),
-                new moodle_url('/local/obf/badge.php',
-                array('action' => 'list', 'courseid' => $COURSE->id)));
+        $obfnode = navigation_node::create(get_string('obf', 'local_obf'),
+                        new moodle_url('/local/obf/badge.php',
+                        array('action' => 'list', 'courseid' => $COURSE->id)));
         $branch->add_node($obfnode, 'backup');
-    } else if (($branch = $navigation->get('usercurrentsettings'))) {
+    }
+
+    if (($branch = $navigation->get('usercurrentsettings'))) {
         $node = navigation_node::create(get_string('obf', 'local_obf'),
                         new moodle_url('/local/obf/userconfig.php'));
         $branch->add_node($node);
     }
 }
 
+/**
+ * Checks the certificate expiration of the OBF-client and sends a message to admin if the
+ * certificate is expiring. This function is called periodically when Moodle's cron job is run.
+ * The interval is defined in version.php.
+ *
+ * @global type $CFG
+ * @return boolean
+ */
 function local_obf_cron() {
     global $CFG;
 

@@ -59,8 +59,8 @@ class local_obf_renderer extends plugin_renderer_base {
 
     public function render_badgelist(obf_badge_tree $tree, $hasissuecapability, context $context,
             $message = '') {
-        $heading = $this->print_heading('badgelisttitle', 2);
-        $html = html_writer::div($heading, 'badgeheading');
+        $html = $this->print_heading('badgelisttitle', 2);
+//        $html = html_writer::div($heading, 'badgeheading');
 
         if (!empty($message)) {
             $html .= $this->output->notification($message, 'notifysuccess');
@@ -466,13 +466,17 @@ class local_obf_renderer extends plugin_renderer_base {
                     $criterioncourse->set_completedby($completedby);
                     $criterioncourse->save();
 
+                    $redirecturl = new moodle_url('/local/obf/badge.php', array('id' => $badge->get_id(),
+                        'action' => 'show', 'show' => 'criteria', 'courseid' => $courseid));
+
                     if ($data->reviewaftersave) {
                         $crit = $criterioncourse->get_criterion();
                         $recipientcount = $crit->review_previous_completions();
-
-                        $html .= $this->output->notification(get_string('badgewasautomaticallyissued',
-                                        'local_obf', $recipientcount), 'notifysuccess');
+                        $redirecturl->param('msg', get_string('badgewasautomaticallyissued',
+                                        'local_obf', $recipientcount));
                     }
+
+                    redirect($redirecturl);
                 }
             }
 
