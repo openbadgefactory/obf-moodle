@@ -9,12 +9,38 @@ require_once(__DIR__ . '/criterion.php');
 
 class obf_criterion_course extends obf_criterion_base {
 
+    /**
+     * @var int The course id
+     */
     protected $courseid = -1;
+
+    /**
+     * @var int The minimum grade.
+     */
     protected $grade = -1;
+
+    /**
+     * @var int The completed by -field of the course criterion as a unix timestamp
+     */
     protected $completedby = -1;
+
+    /**
+     * @var string For caching the name of the course
+     */
     protected $coursename = '';
+
+    /**
+     * @var obf_criterion The criterion this course belongs to.
+     */
     protected $criterion = null;
 
+    /**
+     * Get the instance of this class by id.
+     *
+     * @global moodle_database $DB
+     * @param int $id The id of the course criterion
+     * @return obf_criterion_course
+     */
     public static function get_instance($id) {
         global $DB;
 
@@ -24,6 +50,13 @@ class obf_criterion_course extends obf_criterion_base {
         return $obj->populate_from_record($record);
     }
 
+    /**
+     * Returns all the course criterion objects related to $criterion
+     *
+     * @global moodle_database $DB
+     * @param obf_criterion $criterion
+     * @return obf_criterion_course[]
+     */
     public static function get_criterion_courses(obf_criterion $criterion) {
         global $DB;
 
@@ -39,14 +72,30 @@ class obf_criterion_course extends obf_criterion_base {
         return $ret;
     }
 
+    /**
+     * Is there a minimum grade defined in this course criterion?
+     *
+     * @return boolean
+     */
     public function has_grade() {
         return (!empty($this->grade) && $this->grade > 0);
     }
 
+    /**
+     * Is there a completion date in this course criterion?
+     *
+     * @return boolean
+     */
     public function has_completion_date() {
         return (!empty($this->completedby) && $this->completedby > 0);
     }
 
+    /**
+     * Initializes this object with values from $record
+     *
+     * @param \stdClass $record The record from Moodle's database
+     * @return \obf_criterion_course
+     */
     public function populate_from_record(\stdClass $record) {
         $this->set_id($record->id)
                 ->set_criterionid($record->obf_criterion_id)
@@ -57,6 +106,11 @@ class obf_criterion_course extends obf_criterion_base {
         return $this;
     }
 
+    /**
+     * Returns the criterion related to this object.
+     *
+     * @return obf_criterion
+     */
     public function get_criterion() {
         if (is_null($this->criterion)) {
             $this->criterion = obf_criterion::get_instance($this->criterionid);
@@ -66,8 +120,11 @@ class obf_criterion_course extends obf_criterion_base {
     }
 
     /**
+     * Saves this course criterion to database. If it exists already, the existing record will be
+     * updated.
      *
      * @global moodle_database $DB
+     * @return mixed Returns this object if everything went ok, false otherwise.
      */
     public function save() {
         global $DB;
@@ -126,8 +183,10 @@ class obf_criterion_course extends obf_criterion_base {
     }
 
     /**
+     * Returns the name of the course this criterion is related to.
      *
      * @global moodle_database $DB
+     * @return string The full name of the course.
      */
     public function get_coursename() {
         global $DB;
@@ -139,6 +198,11 @@ class obf_criterion_course extends obf_criterion_base {
         return $this->coursename;
     }
 
+    /**
+     * Returns this criterion as text, including the name of the course.
+     *
+     * @return string
+     */
     public function get_text() {
         $html = html_writer::tag('strong', $this->get_coursename());
 
@@ -154,6 +218,11 @@ class obf_criterion_course extends obf_criterion_base {
         return $html;
     }
 
+    /**
+     * Returns this criterion as text without the course name.
+     *
+     * @return string
+     */
     public function get_text_for_single_course() {
         $html = get_string('toearnthisbadge', 'local_obf');
 
@@ -171,6 +240,12 @@ class obf_criterion_course extends obf_criterion_base {
         return $html;
     }
 
+    /**
+     * Deletes this record from the database. Also deletes the related criterion if it doesn't have
+     * any courses.
+     *
+     * @global moodle_database $DB
+     */
     public function delete() {
         global $DB;
 
@@ -178,6 +253,13 @@ class obf_criterion_course extends obf_criterion_base {
         obf_criterion::delete_empty();
     }
 
+    /**
+     * Deletes all course criterion records from the database that are related to $course. Also
+     * deletes all the related criteria with no related courses in them.
+     *
+     * @global moodle_database $DB
+     * @param stdClass $course
+     */
     public static function delete_by_course(stdClass $course) {
         global $DB;
 

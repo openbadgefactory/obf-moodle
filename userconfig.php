@@ -26,11 +26,14 @@ if ($form->is_cancelled()) {
     $backpack->disconnect();
     redirect($url);
 }
+
+// User configuration was saved.
 else if (($data = $form->get_data())) {
+
     $email = $data->backpackemail;
 
-    if (isset($data->groupbuttons['selectedgroup'])) {
-        $backpack->set_group_id($data->groupbuttons['selectedgroup']);
+    if (isset($data->backpackgroups)) {
+        $backpack->set_groups(array_keys($data->backpackgroups));
     }
 
     $redirecturl = clone $url;

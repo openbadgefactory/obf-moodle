@@ -72,6 +72,11 @@ class obf_assertion extends obf_issuance {
         return new obf_assertion_collection($assertions);
     }
 
+    public function equals(obf_assertion $another) {
+        // PENDING: Is this comparison enough?
+        return ($this->get_badge()->get_image() == $another->get_badge()->get_image());
+    }
+
     /**
      *
      * @param obf_badge $badge
@@ -121,6 +126,31 @@ class obf_assertion_collection implements Countable {
 
     public function add_assertion(obf_assertion $assertion) {
         $this->assertions[] = $assertion;
+    }
+
+    /**
+     *
+     * @param obf_assertion_collection $collection
+     */
+    public function add_collection(obf_assertion_collection $collection) {
+        for ($i = 0; $i < count($collection); $i++) {
+            $assertion = $collection->get_assertion($i);
+
+            // Skip duplicates.
+            if (!$this->has_assertion($assertion)) {
+                $this->add_assertion($assertion);
+            }
+        }
+    }
+
+    public function has_assertion(obf_assertion $assertion) {
+        for ($i = 0; $i < count($this->assertions); $i++) {
+            if ($this->get_assertion($i)->equals($assertion)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**

@@ -10,7 +10,7 @@ class obf_backpack {
     private $user_id = -1;
     private $email = '';
     private $backpack_id = -1;
-    private $group_id = -1;
+    private $groups = array();
 
     /**
      *
@@ -31,7 +31,8 @@ class obf_backpack {
 
             // Matching email found from the backpack service
             if ($backpackid !== false) {
-                $obj->set_backpack_id($json->userId);
+//                $obj->set_backpack_id($json->userId);
+                $obj->set_backpack_id($backpackid);
                 $obj->set_email($user->email);
                 $obj->save();
             }
@@ -39,7 +40,7 @@ class obf_backpack {
             $obj->set_backpack_id($backpackobj->backpack_id);
             $obj->set_email($backpackobj->email);
             $obj->set_id($backpackobj->id);
-            $obj->set_group_id($backpackobj->group_id);
+            $obj->set_groups(unserialize($backpackobj->groups));
         }
 
         return $obj;
@@ -64,7 +65,7 @@ class obf_backpack {
 
     public function disconnect() {
         $this->set_backpack_id(-1);
-        $this->set_group_id(-1);
+        $this->set_groups(array());
         $this->save();
     }
 
@@ -93,7 +94,7 @@ class obf_backpack {
         return $json->groups;
     }
 
-    public function get_assertions($limit = -1) {
+    public function get_group_assertions($groupid, $limit = -1) {
         global $CFG;
 
         require_once($CFG->libdir . '/filelib.php');
@@ -102,12 +103,8 @@ class obf_backpack {
             throw new Exception('Backpack connection isn\'t set.');
         }
 
-        if ($this->group_id < 0) {
-            throw new Exception('Badge group isn\'t selected.');
-        }
-
         $curl = new curl();
-        $output = $curl->get(self::BACKPACK_URL . $this->get_backpack_id() . '/group/' . $this->group_id . '.json');
+        $output = $curl->get(self::BACKPACK_URL . $this->get_backpack_id() . '/group/' . $groupid . '.json');
         $json = json_decode($output);
         $assertions = new obf_assertion_collection();
 
@@ -130,6 +127,20 @@ class obf_backpack {
         return $assertions;
     }
 
+    public function get_assertions($limit = -1) {
+        if (count($this->groups) == 0) {
+            throw new Exception('No badge groups selected.');
+        }
+
+        $assertions = new obf_assertion_collection();
+
+        foreach ($this->groups as $groupid) {
+            $assertions->add_collection($this->get_group_assertions($groupid));
+        }
+
+        return $assertions;
+    }
+
     /**
      *
      * @global moodle_database $DB
@@ -141,7 +152,7 @@ class obf_backpack {
         $obj->user_id = $this->user_id;
         $obj->email = $this->email;
         $obj->backpack_id = $this->backpack_id;
-        $obj->group_id = $this->group_id;
+        $obj->groups = serialize($this->groups);
 
         if ($this->id > 0) {
             $obj->id = $this->id;
@@ -192,12 +203,12 @@ class obf_backpack {
         return $this;
     }
 
-    public function get_group_id() {
-        return $this->group_id;
+    public function get_group_ids() {
+        return $this->groups;
     }
 
-    public function set_group_id($group_id) {
-        $this->group_id = $group_id;
+    public function set_groups($groups) {
+        $this->groups = is_array($groups) ? $groups : array();
         return $this;
     }
 

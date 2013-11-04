@@ -28,5 +28,4 @@ class obf_coursecriterion_form extends moodleform {
 
         $this->add_action_buttons(false);
     }
-
 }

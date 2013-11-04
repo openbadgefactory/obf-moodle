@@ -39,6 +39,7 @@ $PAGE->navbar->add(get_string('configurecriteria', 'local_obf'));
 
 switch ($action) {
 
+    // Save the criterion
     case 'save':
         require_once(__DIR__ . '/form/criterion.php');
 
@@ -63,9 +64,10 @@ switch ($action) {
             if ($criterion->save() === false) {
                 $content .= $OUTPUT->error_text(get_string('creatingcriterionfailed', 'local_obf'));
                 $content = $PAGE->get_renderer('local_obf')->render($criterionform);
+            }
 
-                // Then add the selected courses.
-            } else {
+            // Then add the selected courses.
+            else {
                 $courseids = $data->course;
 
                 foreach ($courseids as $courseid) {

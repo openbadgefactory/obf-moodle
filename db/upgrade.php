@@ -326,6 +326,20 @@ function xmldb_local_obf_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2013103000, 'local', 'obf');
     }
 
+    if ($oldversion < 2013110400) {
+
+        // Changing type of field group_id on table obf_backpack_emails to int.
+        $table = new xmldb_table('obf_backpack_emails');
+        $field = new xmldb_field('group_id', XMLDB_TYPE_CHAR, '255', null, null, null, null, 'backpack_id');
+
+        // Launch change of type for field group_id.
+        $dbman->change_field_type($table, $field);
+        $dbman->rename_field($table, $field, 'groups');
+
+        // Obf savepoint reached.
+        upgrade_plugin_savepoint(true, 2013110400, 'local', 'obf');
+    }
+
 
     return true;
 }

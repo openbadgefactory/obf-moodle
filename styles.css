@@ -1,8 +1,8 @@
 span.backpackconnected { color: #6a6; }
 span.backpackdisconnected { color: #a66; }
 
-ul.badgelist { list-style: none; margin: 0; overflow: hidden; }
-ul.badgelist li { text-align: center; float: left; margin: 0 2em 1em 0; }
+ul.badgelist { list-style: none; margin: 0; overflow: hidden; padding: 10px; }
+ul.badgelist li { text-align: center; float: left; margin: 0 7px; width: 100px; }
 
 dl.obf-definition-list { overflow: hidden; margin-left: 0; }
 dl.obf-definition-list dt { width: 100px; float: left; clear: left; padding-bottom: 5px;}

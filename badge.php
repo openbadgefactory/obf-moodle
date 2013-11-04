@@ -18,9 +18,13 @@ if (!empty($badgeid)) {
     $url->param('id', $badgeid);
 }
 
+// site context
 if (empty($courseid)) {
     require_login();
-} else {
+}
+
+// course context
+else {
     $url->param('courseid', $courseid);
     require_login($courseid);
 }

@@ -15,10 +15,13 @@ if (!is_null($badgeid)) {
     $urlparams['id'] = $badgeid;
 }
 
+// course context
 if (!is_null($courseid)) {
     $urlparams['courseid'] = $courseid;
     require_login($courseid);
-} else {
+}
+// site context
+else {
     require_login();
 }
 
@@ -50,6 +53,7 @@ if (!is_null($courseid)) {
 $issuerform = new obf_issuance_form($url,
         array('badge' => $badge, 'courseid' => $courseid, 'renderer' => $PAGE->get_renderer('local_obf')));
 
+// Issuance was cancelled
 if ($issuerform->is_cancelled()) {
     // TODO: check referer maybe and redirect there
 
@@ -60,48 +64,50 @@ if ($issuerform->is_cancelled()) {
                 array('id' => $badge->get_id(), 'action' => 'show',
             'show' => 'details')));
     }
-} else if (!is_null($data = $issuerform->get_data())) {
-    $emailsubject = $data->emailsubject;
-    $emailbody = $data->emailbody;
-    $emailfooter = $data->emailfooter;
-    $issuedon = $data->issuedon;
-    $expiresby = $data->expiresby;
-    $recipient_ids = $data->recipientlist;
+}
 
-    $users = user_get_users_by_id($recipient_ids);
+// Issuance form was submitted
+else if (!is_null($data = $issuerform->get_data())) {
+    $users = user_get_users_by_id($data->recipientlist);
     $recipients = array();
 
     foreach ($users as $user) {
         $recipients[] = $user->email;
     }
 
-    $badge->set_expires($expiresby);
+    $badge->set_expires($data->expiresby);
     $issuance = obf_issuance::get_instance()
             ->set_badge($badge)
-            ->set_emailbody($emailbody)
-            ->set_emailsubject($emailsubject)
-            ->set_emailfooter($emailfooter)
-            ->set_issuedon($issuedon)
+            ->set_emailbody($data->emailbody)
+            ->set_emailsubject($data->emailsubject)
+            ->set_emailfooter($data->emailfooter)
+            ->set_issuedon($data->issuedon)
             ->set_recipients($recipients);
 
     $success = $issuance->process();
 
+    // Badage was successfully issued.
     if ($success) {
+        // Course context
         if (!empty($courseid)) {
-            redirect(new moodle_url('/local/obf/badge.php', array('action' => 'list', 'courseid' => $courseid,
+            redirect(new moodle_url('/local/obf/badge.php',
+                    array('action' => 'list', 'courseid' => $courseid,
                 'msg' => get_string('badgeissued', 'local_obf'))));
-        } else {
+        }
+        // Site context
+        else {
             redirect(new moodle_url('/local/obf/badge.php',
                     array('id' => $badge->get_id(),
                 'action' => 'show', 'show' => 'history', 'msg' => get_string('badgeissued',
                         'local_obf'))));
         }
-    } else {
+    }
+    // Oh noes, issuance failed.
+    else {
         $content .= $OUTPUT->notification('Badge issuance failed. Reason: ' . $issuance->get_error());
     }
 }
 
 $content .= $issuerform->render();
-
 $content .= $OUTPUT->footer();
 echo $content;

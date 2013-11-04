@@ -300,7 +300,7 @@ class obf_criterion {
      * @return int To how many users the badge was issued automatically when reviewing.
      */
     public function review_previous_completions() {
-        // Just in case...
+        // Just in case this operation takes ages, raise the limits a bit.
         set_time_limit(0);
         raise_memory_limit(MEMORY_EXTRA);
 
@@ -310,8 +310,11 @@ class obf_criterion {
 
         foreach ($courses as $course) {
             $context = context_course::instance($course->id);
+            // The all users that are (and were?) enrolled to this course with the capability
+            // of earning badges.
             $users = get_enrolled_users($context, 'local/obf:earnbadge', 0, 'u.id, u.email');
 
+            // Review all enrolled users of this course separately
             foreach ($users as $user) {
                 if ($this->review($user->id, $course->id)) {
                     $recipientemails[] = $user->email;
@@ -320,6 +323,7 @@ class obf_criterion {
             }
         }
 
+        // We found users that have completed this criterion. Let's issue some badges, then!
         if (count($recipientemails) > 0) {
             $badge = $this->get_badge();
             $email = $badge->get_email();
@@ -331,6 +335,7 @@ class obf_criterion {
             $badge->issue($recipientemails, time(), $email->get_subject(), $email->get_body(),
                     $email->get_footer());
 
+            // Update the database
             foreach ($recipientids as $userid) {
                 $this->set_met_by_user($userid);
             }

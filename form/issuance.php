@@ -236,7 +236,4 @@ class badge_recipient_selector extends user_selector_base {
 
         return array(get_string('recipientcandidates', 'local_obf') => $users);
     }
-
 }
-
-?>

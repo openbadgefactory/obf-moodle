@@ -10,15 +10,21 @@ require_once(__DIR__ . '/class/criterion/course.php');
 /**
  * Reviews the badge criteria and issues the badges (if necessary) when a course is completed.
  *
- * @global type $DB
+ * @global moodle_database $DB
  * @param stdClass $eventdata
- * @return boolean
+ * @return boolean Returns true if everything went ok.
  */
 function local_obf_course_completed(stdClass $eventdata) {
     global $DB;
 
     $user = $DB->get_record('user', array('id' => $eventdata->userid));
     $recipients = array($user->email);
+
+    // No capability -> no badge.
+    if (!has_capability('local/obf:earnbadge', context_course::instance($eventdata->course),
+            $eventdata->userid)) {
+        return true;
+    }
 
     // Get all criteria related to course completion
     $criteria = obf_criterion::get_criteria();
@@ -33,6 +39,7 @@ function local_obf_course_completed(stdClass $eventdata) {
         // in this criterion?
         $criterionmet = $criterion->review($eventdata->userid, $eventdata->course);
 
+        // Criterion was met, issue the badge
         if ($criterionmet) {
             $badge = $criterion->get_badge();
             $email = is_null($badge->get_email()) ? new obf_email() : $badge->get_email();
@@ -60,7 +67,7 @@ function local_obf_course_deleted(stdClass $course) {
 /**
  * Adds the OBF-links to Moodle's navigation.
  *
- * @global type $COURSE
+ * @global type $COURSE The current course
  * @param settings_navigation $navigation
  */
 function local_obf_extends_settings_navigation(settings_navigation $navigation) {
@@ -97,6 +104,8 @@ function local_obf_cron() {
     $certexpiresin = obf_client::get_instance()->get_certificate_expiration_date();
     $diff = $certexpiresin - time();
     $days = floor($diff / (60 * 60 * 24));
+
+    // Notify only if there's certain amount of days left before the certification expires.
     $notify = in_array($days, array(30, 25, 20, 15, 10, 5, 4, 3, 2, 1));
 
     if (!$notify) {
