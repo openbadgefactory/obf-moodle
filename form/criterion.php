@@ -78,7 +78,7 @@ class obf_criterion_form extends moodleform implements renderable {
             }
 
             $buttons[] = $mform->createElement('cancel', 'cancelbutton',
-                    get_string('cancel', 'local_obf'));
+                    get_string('back', 'local_obf'));
             $mform->addGroup($buttons, 'buttonar', '', null, false);
         }
 
@@ -116,6 +116,7 @@ class obf_criterion_form extends moodleform implements renderable {
 
             $mform->addElement('header', 'header_review_criterion_after_save', get_string('reviewcriterionaftersave', 'local_obf'));
             $mform->setExpanded('header_review_criterion_after_save');
+            $mform->addElement('html', $OUTPUT->notification(get_string('warningcannoteditafterreview', 'local_obf')));
             $mform->addElement('advcheckbox', 'reviewaftersave', get_string('reviewcriterionaftersave', 'local_obf'));
             $mform->addHelpButton('reviewaftersave', 'reviewcriterionaftersave', 'local_obf');
 

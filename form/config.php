@@ -1,21 +1,36 @@
 <?php
+
 defined('MOODLE_INTERNAL') or die();
 
 require_once($CFG->libdir . '/formslib.php');
 
 class obf_config_form extends moodleform implements renderable {
-    protected function definition() {
-        $mform = $this->_form;
-        $obfurl = get_config('local_obf', 'obfurl');
 
-        $mform->addElement('text', 'obfurl', get_string('url', 'local_obf'));
-        $mform->setType('obfurl', PARAM_URL);
-        $mform->setDefault('obfurl', $obfurl === false ? '' : $obfurl);
+    protected function definition() {
+        global $OUTPUT;
+
+        $mform = $this->_form;
+        $connectionestablished = obf_client::get_instance()->test_connection();
+//        $obfurl = obf_client::get_api_url();
+//        $mform->addElement('text', 'obfurl', get_string('url', 'local_obf'));
+//        $mform->setType('obfurl', PARAM_URL);
+//        $mform->setDefault('obfurl', $obfurl === false ? '' : $obfurl);
+
+        if ($connectionestablished) {
+            $mform->addElement('html',
+                    html_writer::tag('p', get_string('connectionisworking', 'local_obf')));
+            $mform->addElement('header', 'config', get_string('showconnectionconfig', 'local_obf'));
+            $mform->setExpanded('config', false);
+        }
 
         $mform->addElement('textarea', 'obftoken', get_string('requesttoken', 'local_obf'),
                 array('rows' => 10));
+//        $mform->addRule('obftoken', '', 'required');
         $mform->addHelpButton('obftoken', 'requesttoken', 'local_obf');
 
-        $this->add_action_buttons(false);
+        $buttonarray = array($mform->createElement('submit', 'submitbutton',
+                    get_string('savechanges')));
+        $mform->addGroup($buttonarray, 'buttonar', '', array(' '), false);
     }
+
 }

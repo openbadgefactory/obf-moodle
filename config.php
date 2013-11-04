@@ -28,9 +28,9 @@ switch ($action) {
 
         if (!is_null($data = $form->get_data())) {
 
-            if (!empty($data->obfurl)) {
-                set_config('obfurl', $data->obfurl, 'local_obf');
-            }
+//            if (!empty($data->obfurl)) {
+//                set_config('obfurl', $data->obfurl, 'local_obf');
+//            }
 
             // OBF request token is set, (re)do authentication.
             if (!empty($data->obftoken)) {
@@ -57,6 +57,8 @@ switch ($action) {
                 } catch (Exception $e) {
                     $content .= $OUTPUT->notification($e->getMessage());
                 }
+            } else {
+                redirect(new moodle_url('/local/obf/config.php'));
             }
         } else {
             // Connection hasn't been made yet. Let's tell the user that, shall we?

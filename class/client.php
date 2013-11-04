@@ -1,6 +1,5 @@
 <?php
-
-define('OBF_API_CONSUMER_ID', 'Moodle');
+require_once(__DIR__ . '/../lib.php');
 
 class obf_client {
 
@@ -11,7 +10,7 @@ class obf_client {
     }
 
     public static function get_api_url() {
-        return get_config('local_obf', 'obfurl');
+        return OBF_API_URL;
     }
 
     /**
@@ -26,12 +25,21 @@ class obf_client {
         return self::$client;
     }
 
+    public function test_connection() {
+        try {
+            $this->curl('/ping');
+            return true;
+        } catch (Exception $exc) {
+            return false;
+        }
+    }
+
     public function authenticate($signature) {
         $signature = trim($signature);
         $token = base64_decode($signature);
         $curl = $this->get_curl();
         $curlopts = $this->get_curl_options();
-        $apiurl = get_config('local_obf', 'obfurl');
+        $apiurl = self::get_api_url();
 
         // We don't need these now, we haven't authenticated yet.
         unset($curlopts['SSLCERT']);

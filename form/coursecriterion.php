@@ -3,6 +3,8 @@
 class obf_coursecriterion_form extends moodleform {
 
     protected function definition() {
+        global $OUTPUT;
+
         $mform = $this->_form;
         $criterioncourse = $this->_customdata['criterioncourse'];
 
@@ -22,6 +24,7 @@ class obf_coursecriterion_form extends moodleform {
             $mform->setDefault('completedby', $criterioncourse->get_completedby());
         }
 
+        $mform->addElement('html', $OUTPUT->notification(get_string('warningcannoteditafterreview', 'local_obf')));
         $mform->addElement('advcheckbox', 'reviewaftersave',
                 get_string('reviewcriterionaftersave', 'local_obf'));
         $mform->addHelpButton('reviewaftersave', 'reviewcriterionaftersave', 'local_obf');

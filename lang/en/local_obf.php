@@ -1,6 +1,6 @@
 <?php
 $string['addcourses'] = 'Add selected courses';
-$string['addcriteria'] = 'Create new criterion';
+$string['addcriteria'] = 'Create new awarding rule';
 $string['addnewcriterion'] = 'Add course';
 $string['apierror0'] = 'OBF service request failed. Check server logs for more info.';
 $string['apierror400'] = 'OBF service request failed because of an erroneous/missing parameter.';
@@ -17,6 +17,7 @@ $string['apierror500'] = 'TODO: Internal server error';
 $string['apierror502'] = 'TODO: Bad gateway';
 $string['apierror503'] = 'OBF service is temporarily unavailable. Please try again later.';
 $string['authenticationsuccess'] = 'Authentication successful.';
+$string['back'] = 'Back';
 $string['backpackconnected'] = 'Connected';
 $string['backpackdisconnected'] = 'Disconnected';
 $string['backpackemail'] = 'Email address';
@@ -26,7 +27,7 @@ $string['backpackgroups'] = 'Badge groups';
 $string['backpackgroups_help'] = 'Select the badge groups that are shown in your badge displayer.';
 $string['badgeactions'] = 'Actions';
 $string['badgecreated'] = 'Created on';
-$string['badgecriteria'] = 'Criteria';
+$string['badgecriteria'] = 'Awarding rules';
 $string['badgecriteriaurl'] = 'Criteria URL';
 $string['badgedescription'] = 'Description';
 $string['badgedetails'] = 'Badge details';
@@ -35,42 +36,43 @@ $string['badgeexport'] = 'Export Moodle\'s existing badges';
 $string['badgehistory'] = 'Issuance history';
 $string['badgeimage'] = 'Badge';
 $string['badgeissued'] = 'Badge was successfully issued.';
-$string['badgeissuedwhen'] = 'This badge is automatically issued when any of the following criteria '
+$string['badgeissuedwhen'] = 'This badge is automatically awarded when any of the following rule '
         . 'is met:';
 $string['badgelist'] = 'Badges';
 $string['badgelisttitle'] = 'All badges';
 $string['badgename'] = 'Name';
 $string['badgesupdated'] = 'The badges were updated from Open Badge Factory. <strong>{$a}</strong> new badge(s) found.';
-$string['badgewasautomaticallyissued'] = 'After reviewing the badge was issued to {$a} recipient(s).';
+$string['badgewasautomaticallyissued'] = 'After reviewing the badge was awarded to {$a} recipient(s).';
 $string['cancel'] = 'Cancel';
-$string['cannoteditcriterion'] = 'This criterion cannot be edited, because the badge has already '
-        . 'been issued automatically based on this criterion.';
+$string['cannoteditcriterion'] = 'This rule cannot be edited, because the badge has already '
+        . 'been awarded automatically based on this rule.';
 $string['certrequestfailed'] = 'There was an error while requesting the certificate from the API';
 $string['clientid'] = 'Your Open Badge Factory client-id';
 $string['clientiddescription'] = 'This is here just for testing purposes.';
 $string['completedbycriterion'] = 'by <strong>{$a}</strong>';
 $string['configurecriteria'] = 'Configure';
 $string['confirmandissue'] = 'Confirm and issue';
-$string['confirmcriteriondeletion'] = 'Are you sure you want to delete this criterion?';
+$string['confirmcriteriondeletion'] = 'Are you sure you want to delete this awarding rule?';
 $string['connect'] = 'Connect';
+$string['connectionisworking'] = 'OBF connection is up and working.';
 $string['connectionstatus'] = 'Backpack connection status';
-$string['coursealreadyincriterion'] = 'The criterion of automatic issuance of this badge in this '
-        . 'course cannot be edited, because this course/badge -combination already exists in a '
-        . 'criterion containing multiple courses.';
+$string['coursealreadyincriterion'] = 'The rule of automatic awarding of this badge in this '
+        . 'course cannot be edited, because this course/badge -combination already exists in another '
+        . 'rule containing multiple courses.';
 $string['coursebadgelisttitle'] = 'Badges related to this course';
 $string['coursecompletedby'] = 'Completed by';
 $string['courserequired'] = 'At least one course has to be selected';
-$string['criteriacompletedwhen'] = 'This criterion is completed when...';
+$string['criteriacompletedwhen'] = 'This rule is met when...';
 $string['criteriacompletedwhenall'] = 'All of the following courses have to be completed:';
 $string['criteriacompletedwhenany'] = 'Any of the following courses has to be completed:';
 $string['criteriacompletionmethodall'] = 'All of these courses are completed';
 $string['criteriacompletionmethodany'] = 'Any of these courses is completed';
-$string['criteriacourses'] = 'Courses in this criterion';
+$string['criteriacourses'] = 'Courses in this rule';
 $string['criteriapreview'] = 'Badge criteria preview';
 $string['criteriatypecourseset'] = 'Completing a set of courses';
-$string['criteriondeleted'] = 'Criterion was deleted.';
+$string['criteriondeleted'] = 'Awarding rule was deleted.';
 $string['csrexportfailed'] = 'There was an error while trying to export the certificate signing request';
-$string['deletecriterion'] = 'Delete criterion';
+$string['deletecriterion'] = 'Delete awarding rule';
 $string['disablemoodlebadges'] = 'Disable Moodle\'s own badge-module.';
 $string['disconnect'] = 'Disconnect';
 $string['editemailmessage'] = 'Edit email message';
@@ -114,10 +116,11 @@ $string['nobackpackgroups'] = 'No public badge groups in your backpack. Create a
         . 'group to your backpack.';
 $string['nobadges'] = 'No badges yet.';
 $string['nocourseswithcompletionenabled'] = 'There are no courses with completion enabled.';
-$string['nocriteriayet'] = 'No automatic issuance criteria created yet.';
+$string['nocriteriayet'] = 'No automatic awarding rules created yet.';
 $string['nohistory'] = 'This badge hasn\'t been issued yet.';
 $string['nofolder'] = 'No folder';
-$string['novalidcourses'] = 'All available courses are already related to this badge\'s criteria.';
+$string['novalidcourses'] = 'All available courses are already related to this badge\'s awarding rules.';
+$string['novalidcourses'] = 'There are no courses without awarding rules regarding to this badge.';
 $string['nouserbadges'] = 'No badges earned yet.';
 $string['numberofbadgessingle'] = ' badge';
 $string['numberofbadgesmany'] = ' badges';
@@ -136,11 +139,12 @@ $string['recipients'] = 'Recipients';
 $string['recipientcandidates'] = 'Users matching the search';
 $string['requesttoken'] = 'OBF request token';
 $string['requesttoken_help'] = 'Paste here the token that is used to connect to Open Badge Factory ' .
-        'API. Leave blank if the connection has already been established.';
-$string['reviewcriterionaftersave'] = 'Review criterion after saving';
-$string['reviewcriterionaftersave_help'] = 'If this checkbox is checked, the criterion will be '
-        . 'reviewed after saving and if someone has already met this criterion earlier, this badge '
-        . 'will then be automatically issued.';
+        'API.';
+$string['reviewcriterionaftersave'] = 'Review rule after saving';
+$string['reviewcriterionaftersave_help'] = 'If this checkbox is checked, the rule will be '
+        . 'reviewed after saving and if someone has already met this rule earlier, this badge '
+        . 'will then be automatically awarded.';
+$string['saveconfiguration'] = 'Continue';
 $string['savecriteria'] = 'Save';
 $string['selectatleastonerecipient'] = 'Select at least one recipient';
 $string['selectbadge'] = 'Select badge';
@@ -152,9 +156,14 @@ $string['selectrecipients'] = 'Select recipients';
 $string['setbadgedetails'] = 'Set badge details';
 $string['settings'] = 'Settings';
 $string['showassertion'] = 'Details';
+$string['showconnectionconfig'] = 'I know it\'s working, let me change the token anyway';
 $string['toearnthisbadge'] = 'To earn this badge this course has to be completed';
 $string['tokendecryptionfailed'] = 'Decrypting the request token failed. Be sure to paste the '
         . 'certificate signing request token fully.';
 $string['updatebadges'] = 'Update badges from Open Badge Factory';
 $string['url'] = 'Open Badge Factory URL';
 $string['urldescription'] = 'The URL where the OBF API is found.';
+$string['warningcannoteditafterreview'] = 'Note that if the badge is awarded when these rules are ' .
+        'being reviewed, the rule(s) cannot be edited anymore. Once the badge has been automatically ' .
+        'awarded to at least one person, editing of the rules is prohibited. So make sure the rules ' .
+        'are set correctly before reviewing.';

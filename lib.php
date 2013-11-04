@@ -3,6 +3,8 @@
 defined('MOODLE_INTERNAL') || die();
 
 define('OBF_DEFAULT_ADDRESS', 'https://elvis.discendum.com/obf/');
+define('OBF_API_URL', OBF_DEFAULT_ADDRESS . 'v1');
+define('OBF_API_CONSUMER_ID', 'Moodle');
 
 require_once(__DIR__ . '/class/criterion/criterion.php');
 require_once(__DIR__ . '/class/criterion/course.php');
