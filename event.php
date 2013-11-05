@@ -1,6 +1,6 @@
 <?php
 
-require_once('/var/www/moodle/config.php'); // HACK: change to __DIR__ . '/../../config.php when not symlinked anymore
+require_once(__DIR__ . '/../../config.php');
 require_once($CFG->dirroot . '/local/obf/class/assertion.php');
 
 $eventid = required_param('id', PARAM_ALPHANUM);

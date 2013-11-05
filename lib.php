@@ -24,7 +24,7 @@ function local_obf_course_completed(stdClass $eventdata) {
 
     // No capability -> no badge.
     if (!has_capability('local/obf:earnbadge', context_course::instance($eventdata->course),
-            $eventdata->userid)) {
+                    $eventdata->userid)) {
         return true;
     }
 
@@ -72,20 +72,24 @@ function local_obf_course_deleted(stdClass $course) {
  * @global type $COURSE The current course
  * @param settings_navigation $navigation
  */
-function local_obf_extends_settings_navigation(settings_navigation $navigation) {
-    global $COURSE;
+function obf_extends_navigation(global_navigation $navigation) {
+    global $COURSE, $PAGE;
 
-    if (($branch = $navigation->get('courseadmin'))) {
-        $obfnode = navigation_node::create(get_string('obf', 'local_obf'),
-                        new moodle_url('/local/obf/badge.php',
-                        array('action' => 'list', 'courseid' => $COURSE->id)));
-        $branch->add_node($obfnode, 'backup');
-    }
+//    var_dump($PAGE->settingsnav->get_children_key_list());
 
-    if (($branch = $navigation->get('usercurrentsettings'))) {
-        $node = navigation_node::create(get_string('obf', 'local_obf'),
-                        new moodle_url('/local/obf/userconfig.php'));
-        $branch->add_node($node);
+    if (@$PAGE->settingsnav) {
+        if (($branch = $PAGE->settingsnav->get('courseadmin'))) {
+            $obfnode = navigation_node::create(get_string('obf', 'local_obf'),
+                            new moodle_url('/local/obf/badge.php',
+                            array('action' => 'list', 'courseid' => $COURSE->id)));
+            $branch->add_node($obfnode, 'backup');
+        }
+
+        if (($branch = $PAGE->settingsnav->get('usercurrentsettings'))) {
+            $node = navigation_node::create(get_string('obf', 'local_obf'),
+                            new moodle_url('/local/obf/userconfig.php'));
+            $branch->add_node($node);
+        }
     }
 }
 

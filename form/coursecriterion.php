@@ -1,6 +1,7 @@
 <?php
+require_once(__DIR__ . '/obfform.php');
 
-class obf_coursecriterion_form extends moodleform {
+class obf_coursecriterion_form extends obfform {
 
     protected function definition() {
         global $OUTPUT;

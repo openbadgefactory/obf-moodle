@@ -4,11 +4,11 @@ defined('MOODLE_INTERNAL') or die();
 
 global $CFG;
 
-require_once($CFG->libdir . '/formslib.php');
+require_once(__DIR__ . '/obfform.php');
 require_once($CFG->dirroot . '/user/selector/lib.php');
 require_once 'HTML/QuickForm/element.php';
 
-class obf_issuance_form extends moodleform {
+class obf_issuance_form extends obfform {
 
     /**
      * @var obf_badge
@@ -210,7 +210,7 @@ class badge_recipient_selector extends user_selector_base {
             $params = array_merge($params, $enrolledparams);
         }
 
-        list($sort, $sortparams) = users_order_by_sql($tablealias, $search);
+        list($sort, $sortparams) = $this->users_order_by_sql($tablealias, $search);
 
         $fields = 'SELECT ' . $this->required_fields_sql($tablealias);
         $count = 'SELECT COUNT(' . $tablealias . '.id)';
@@ -236,4 +236,53 @@ class badge_recipient_selector extends user_selector_base {
 
         return array(get_string('recipientcandidates', 'local_obf') => $users);
     }
+
+    /**
+     * This function generates the standard ORDER BY clause for use when generating
+     * lists of users. If you don't have a reason to use a different order, then
+     * you should use this method to generate the order when displaying lists of users.
+     *
+     * COPIED FROM THE CODE OF MOODLE 2.5
+     */
+    function users_order_by_sql($usertablealias = '', $search = null, context $context = null) {
+        global $DB, $PAGE;
+
+        if ($usertablealias) {
+            $tableprefix = $usertablealias . '.';
+        } else {
+            $tableprefix = '';
+        }
+
+        $sort = "{$tableprefix}lastname, {$tableprefix}firstname, {$tableprefix}id";
+        $params = array();
+
+        if (!$search) {
+            return array($sort, $params);
+        }
+
+        if (!$context) {
+            $context = $PAGE->context;
+        }
+
+        $exactconditions = array();
+        $paramkey = 'usersortexact1';
+
+        $exactconditions[] = $DB->sql_fullname($tableprefix . 'firstname', $tableprefix . 'lastname') .
+                ' = :' . $paramkey;
+        $params[$paramkey] = $search;
+        $paramkey++;
+
+        $fieldstocheck = array_merge(array('firstname', 'lastname'), get_extra_user_fields($context));
+        foreach ($fieldstocheck as $key => $field) {
+            $exactconditions[] = 'LOWER(' . $tableprefix . $field . ') = LOWER(:' . $paramkey . ')';
+            $params[$paramkey] = $search;
+            $paramkey++;
+        }
+
+        $sort = 'CASE WHEN ' . implode(' OR ', $exactconditions) .
+                ' THEN 0 ELSE 1 END, ' . $sort;
+
+        return array($sort, $params);
+    }
+
 }

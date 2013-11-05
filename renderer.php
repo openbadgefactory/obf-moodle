@@ -146,9 +146,9 @@ class local_obf_renderer extends plugin_renderer_base {
             get_string('evidence', 'local_obf') => '-'
         ));
 
-        $html .= html_writer::div($details, 'obf-assertion-details');
+        $html .= obf_html::div($details, 'obf-assertion-details');
 
-        return html_writer::div($html, 'obf-assertion');
+        return obf_html::div($html, 'obf-assertion');
     }
 
     /**
@@ -215,7 +215,8 @@ class local_obf_renderer extends plugin_renderer_base {
 
         $heading .= $this->output->single_button($issueurl,
                 get_string('issuethisbadge', 'local_obf'), 'get');
-        return html_writer::div($heading, 'badgeheading');
+
+        return obf_html::div($heading, 'badgeheading');
     }
 
     // Renders the criterion-form
@@ -326,8 +327,9 @@ class local_obf_renderer extends plugin_renderer_base {
                 $issueurl->param('courseid', $context->instanceid);
             }
 
-            $actions .= $this->output->action_icon($issueurl,
-                            new pix_icon('t/award', get_string('issuethisbadge', 'local_obf'))) . " ";
+            $actions .= html_writer::link($issueurl, get_string('issue', 'local_obf'));
+//            $actions .= $this->output->action_icon($issueurl,
+//                            new pix_icon('t/award', get_string('issuethisbadge', 'local_obf'))) . " ";
         }
 
         $row = array($img, $name, $date, $actions);
@@ -367,14 +369,14 @@ class local_obf_renderer extends plugin_renderer_base {
      */
 //    public function print_badge_teaser(obf_badge $badge) {
 //        $html = $this->print_heading('badgedetails');
-//        $imgdiv = html_writer::div($this->print_badge_image($badge, self::BADGE_IMAGE_SIZE_NORMAL),
+//        $imgdiv = obf_html::div($this->print_badge_image($badge, self::BADGE_IMAGE_SIZE_NORMAL),
 //                        'obf-badgeimage');
-//        $detailsdiv = html_writer::div(html_writer::tag('dl',
+//        $detailsdiv = obf_html::div(html_writer::tag('dl',
 //                                html_writer::tag('dt', get_string('badgename', 'local_obf')) .
 //                                html_writer::tag('dd', $badge->get_name()) .
 //                                html_writer::tag('dt', get_string('badgedescription', 'local_obf')) .
 //                                html_writer::tag('dd', $badge->get_description())));
-//        $html .= html_writer::div($imgdiv . $detailsdiv, 'obf-badgeteaser');
+//        $html .= obf_html::div($imgdiv . $detailsdiv, 'obf-badgeteaser');
 //
 //        return $html;
 //    }
@@ -393,7 +395,7 @@ class local_obf_renderer extends plugin_renderer_base {
         $badgecreated = empty($createdon) ? '&amp;' : userdate($createdon,
                         get_string('strftimedate'));
 
-        $boxes = html_writer::div($badgeimage, 'obf-badgeimage');
+        $boxes = obf_html::div($badgeimage, 'obf-badgeimage');
         $badgedetails = $this->print_heading('badgedetails');
         $badgedetails .= $this->render_definition_list(array(
             get_string('badgename', 'local_obf') => $badge->get_name(),
@@ -415,8 +417,8 @@ class local_obf_renderer extends plugin_renderer_base {
             get_string('issueremail', 'local_obf') => $issuer->get_email()
         ));
 
-        $boxes .= html_writer::div($badgedetails, 'obf-badgedetails');
-        $html .= html_writer::div($boxes, 'obf-badgewrapper');
+        $boxes .= obf_html::div($badgedetails, 'obf-badgedetails');
+        $html .= obf_html::div($boxes, 'obf-badgewrapper');
 
         return $html;
     }
@@ -449,7 +451,7 @@ class local_obf_renderer extends plugin_renderer_base {
      */
     public function render_badge_criteria_course(obf_badge $badge, $courseid) {
         $html = '';
-        $course = get_course($courseid);
+//        $course = get_course($courseid);
         $criteria = $badge->get_completion_criteria();
         $coursewithcriterion = null;
         $criterioncourseid = null;
@@ -487,8 +489,8 @@ class local_obf_renderer extends plugin_renderer_base {
         // The criteria cannot be modified or added -> show a message to user
         if (!$canedit) {
             if (!is_null($coursewithcriterion) && $coursewithcriterion->is_met()) {
-                $obj = $coursewithcriterion->get_items()[0];
-                $html .= html_writer::tag('p', $obj->get_text_for_single_course());
+                $items = $coursewithcriterion->get_items();
+                $html .= html_writer::tag('p', $items[0]->get_text_for_single_course());
             }
 
             $html .= $this->output->notification(get_string($error, 'local_obf'));
@@ -585,17 +587,17 @@ class local_obf_renderer extends plugin_renderer_base {
             $deleteurl = new moodle_url($file,
                     array('badgeid' => $badge->get_id(),
                 'action' => 'delete', 'id' => $id));
-            $heading .= $this->icon($deleteurl, 't/delete', 'delete');
+            $heading .= obf_html::icon($deleteurl, 't/delete', 'delete');
 
             // If the criterion can be edited, show the edit-icon
             if ($canedit) {
                 $editurl = new moodle_url($file,
                         array('badgeid' => $badge->get_id(),
                     'action' => 'edit', 'id' => $id));
-                $heading .= $this->icon($editurl, 't/edit', 'edit');
+                $heading .= obf_html::icon($editurl, 't/edit', 'edit');
             }
 
-            $criterionhtml .= $this->output->heading(html_writer::div($heading), 3);
+            $criterionhtml .= $this->output->heading(obf_html::div($heading), 3);
 
             if (!$canedit) {
                 $criterionhtml .= $this->output->notification(get_string('cannoteditcriterion',
@@ -616,19 +618,6 @@ class local_obf_renderer extends plugin_renderer_base {
         $html .= $this->output->single_button($url, get_string('addcriteria', 'local_obf'));
 
         return $html;
-    }
-
-    /**
-     * Renders an icon.
-     *
-     * @param moodle_url $url
-     * @param type $icon
-     * @param type $langkey
-     * @return type
-     */
-    public function icon(moodle_url $url, $icon, $langkey) {
-        return $this->output->action_icon($url,
-                        new pix_icon($icon, get_string($langkey), null, array('class' => 'obf-icon')));
     }
 
     /**
@@ -728,7 +717,7 @@ class local_obf_renderer extends plugin_renderer_base {
 
         $userlist = $this->render_userlist($users);
 
-        $row->cells[] = html_writer::div(implode(', ', $userlist), 'recipientlist');
+        $row->cells[] = obf_html::div(implode(', ', $userlist), 'recipientlist');
         $row->cells[] = userdate($assertion->get_issuedon(), get_string('strftimedate'));
         $row->cells[] = $expirationdate;
         $row->cells[] = html_writer::link(new moodle_url('/local/obf/event.php',
@@ -789,7 +778,16 @@ class local_obf_renderer extends plugin_renderer_base {
             $tabs[] = new tabobject($tabname, $url, get_string('badge' . $tabname, 'local_obf'));
         }
 
-        return $this->output->tabtree($tabs, $selectedtab);
+        return self::render_tabs($tabs, $selectedtab);
+//        return $this->output->tabtree($tabs, $selectedtab);
+    }
+
+    public static function render_tabs(array $tabs, $selectedtab = '') {
+        ob_start();
+        print_tabs(array($tabs), $selectedtab);
+        $out = ob_get_contents();
+        ob_end_clean();
+        return $out;
     }
 
     /**
@@ -852,7 +850,7 @@ class local_obf_badge_renderer extends plugin_renderer_base {
             $tabs[] = new tabobject($tabname, $url, get_string('badge' . $tabname, 'local_obf'));
         }
 
-        return $this->output->tabtree($tabs, $selectedtab);
+        return local_obf_renderer::render_tabs($tabs, $selectedtab);
     }
 
     public function page(obf_badge $badge, $tab, $content) {
@@ -883,5 +881,24 @@ class obf_table_header extends html_table_cell {
         $this->header = true;
         parent::__construct(is_null($stringid) ? null : get_string($stringid, 'local_obf'));
     }
+}
 
+class obf_html {
+    /**
+     * Renders an icon.
+     *
+     * @param moodle_url $url
+     * @param type $icon
+     * @param type $langkey
+     * @return type
+     */
+    public static function icon(moodle_url $url, $icon, $langkey) {
+        global $OUTPUT;
+        return $OUTPUT->action_icon($url,
+                        new pix_icon($icon, get_string($langkey), null, array('class' => 'obf-icon')));
+    }
+
+    public static function div($content, $classes = '') {
+        return html_writer::tag('div', $content, empty($classes) ? array() : array('class' => $classes));
+    }
 }

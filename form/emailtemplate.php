@@ -2,9 +2,9 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-require_once($CFG->libdir . '/formslib.php');
+require_once(__DIR__ . '/obfform.php');
 
-class obf_email_template_form extends moodleform {
+class obf_email_template_form extends obfform {
 
     private $badge = null;
 

@@ -1,8 +1,9 @@
 <?php
 
-require_once($CFG->libdir . '/formslib.php');
+require_once(__DIR__ . '/obfform.php');
+require_once(__DIR__ . '/../renderer.php');
 
-class obf_userconfig_form extends moodleform {
+class obf_userconfig_form extends obfform {
 
     protected function definition() {
         global $OUTPUT;
@@ -46,10 +47,6 @@ class obf_userconfig_form extends moodleform {
                 foreach ($backpack->get_group_ids() as $id) {
                     $mform->setDefault('backpackgroups[' . $id . ']', true);
                 }
-
-//                if ($backpack->get_groups() > 0) {
-//                    $mform->setDefault('groupbuttons[selectedgroup]', $backpack->get_group_ids());
-//                }
             }
         }
 
@@ -76,7 +73,7 @@ class obf_userconfig_form extends moodleform {
 
         for ($i = 0; $i < count($assertions); $i++) {
             $badge = $assertions->get_assertion($i)->get_badge();
-            $items[] = html_writer::div($renderer->print_badge_image($badge, $size) .
+            $items[] = obf_html::div($renderer->print_badge_image($badge, $size) .
                             html_writer::tag('p', s($badge->get_name())));
         }
 

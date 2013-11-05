@@ -2,10 +2,9 @@
 
 defined('MOODLE_INTERNAL') or die();
 
-global $CFG;
-require_once($CFG->libdir . '/formslib.php');
+require_once(__DIR__ . '/obfform.php');
 
-class obf_criterion_deletion_form extends moodleform implements renderable {
+class obf_criterion_deletion_form extends obfform implements renderable {
     protected function definition() {
         $mform = $this->_form;
 //        $criterion = $this->_customdata['criterion'];

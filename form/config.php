@@ -10,6 +10,7 @@ class obf_config_form extends obfform implements renderable {
 
         $mform = $this->_form;
         $connectionestablished = obf_client::get_instance()->test_connection();
+
 //        $obfurl = obf_client::get_api_url();
 //        $mform->addElement('text', 'obfurl', get_string('url', 'local_obf'));
 //        $mform->setType('obfurl', PARAM_URL);

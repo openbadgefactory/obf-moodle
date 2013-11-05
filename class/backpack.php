@@ -31,7 +31,6 @@ class obf_backpack {
 
             // Matching email found from the backpack service
             if ($backpackid !== false) {
-//                $obj->set_backpack_id($json->userId);
                 $obj->set_backpack_id($backpackid);
                 $obj->set_email($user->email);
                 $obj->save();

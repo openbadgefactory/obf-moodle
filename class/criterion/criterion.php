@@ -4,6 +4,7 @@ require_once(__DIR__ . '/../badge.php');
 require_once(__DIR__ . '/course.php');
 require_once($CFG->dirroot . '/grade/querylib.php');
 require_once($CFG->libdir . '/gradelib.php');
+require_once($CFG->libdir . '/completionlib.php');
 
 /**
  * Description of criteria_base
