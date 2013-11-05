@@ -2,7 +2,7 @@
 /**
  * Class for representing a badge folder in Open Badge Factory
  */
-class obf_badge_folder implements cacheable_object {
+class obf_badge_folder {// implements cacheable_object {
 
     /**
      * @var string The name of the badge folder
@@ -16,7 +16,7 @@ class obf_badge_folder implements cacheable_object {
 
     /**
      * Constructs the object
-     * 
+     *
      * @param string $name The name of the badge folder
      */
     public function __construct($name) {
@@ -25,7 +25,7 @@ class obf_badge_folder implements cacheable_object {
 
     /**
      * Adds a badge to this folder
-     * 
+     *
      * @param obf_badge $badge The badge to be added.
      */
     public function add_badge(obf_badge $badge) {
@@ -33,7 +33,7 @@ class obf_badge_folder implements cacheable_object {
     }
 
     /**
-     * 
+     *
      * @return type
      */
     public function get_badges() {
@@ -41,7 +41,7 @@ class obf_badge_folder implements cacheable_object {
     }
 
     /**
-     * 
+     *
      * @param array $badges
      */
     public function set_badges(array $badges) {
@@ -50,7 +50,7 @@ class obf_badge_folder implements cacheable_object {
 
     /**
      * Checks whether the folder has a name
-     * 
+     *
      * @return bool Returns true if the folder has a name and false otherwise
      */
     public function has_name() {
@@ -63,7 +63,7 @@ class obf_badge_folder implements cacheable_object {
 
     /**
      * Prepares the object to cache.
-     * 
+     *
      * @return type
      */
     public function prepare_to_cache() {
@@ -72,7 +72,7 @@ class obf_badge_folder implements cacheable_object {
 
     /**
      * Called when woken up from the cache.
-     * 
+     *
      * @param type $data
      * @return \obf_badge_folder
      */

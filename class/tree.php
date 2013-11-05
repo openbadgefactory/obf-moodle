@@ -7,7 +7,7 @@ require_once(__DIR__ . '/badge.php');
 /**
  * Class representing the OBF-badge tree with folders and badges
  */
-class obf_badge_tree implements renderable, cacheable_object {
+class obf_badge_tree implements renderable {//, cacheable_object {
 
     /**
      * @var obf_badge_folder[] The badge folders

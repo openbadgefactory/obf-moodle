@@ -1,7 +1,7 @@
 <?php
 
 // HACK: change this when we're not symlinking the plugin anymore
-require_once('/var/www/moodle/config.php'); // __DIR__ . '/../../config.php';
+require_once(__DIR__ . '/../../config.php');
 require_once($CFG->libdir . '/adminlib.php');
 require_once(__DIR__ . '/form/config.php');
 require_once(__DIR__ . '/form/badgeexport.php');

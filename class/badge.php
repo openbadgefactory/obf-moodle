@@ -11,7 +11,7 @@ require_once __DIR__ . '/assertion.php';
 /**
  * Class for a single Open Badge Factory -badge
  */
-class obf_badge implements cacheable_object {
+class obf_badge {//implements cacheable_object {
 
     private static $badgecache = array();
 

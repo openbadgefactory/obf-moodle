@@ -2,8 +2,8 @@
 
 global $CFG;
 
-require_once($CFG->libdir . '/coursecatlib.php');
-require_once($CFG->libdir . '/completionlib.php');
+//require_once($CFG->libdir . '/coursecatlib.php');
+//require_once($CFG->libdir . '/completionlib.php');
 require_once(__DIR__ . '/criterionbase.php');
 require_once(__DIR__ . '/criterion.php');
 

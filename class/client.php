@@ -303,7 +303,8 @@ class obf_client {
 
         // Codes 2xx should be ok
         if ($code < 200 || $code >= 300) {
-            throw new Exception(get_string('apierror' . $code, 'local_obf', $response[0]['error']));
+//            throw new Exception(get_string('apierror' . $code, 'local_obf', $response[0]['error']));
+            throw new Exception(get_string('apierror' . $code, 'local_obf', $response['error']));
         }
 
         return $response;
@@ -329,5 +330,3 @@ class obf_client {
     }
 
 }
-
-?>

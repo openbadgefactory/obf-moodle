@@ -2,12 +2,11 @@
 
 defined('MOODLE_INTERNAL') or die();
 
-require_once($CFG->libdir . '/formslib.php');
+require_once(__DIR__ . '/obfform.php');
 
-class obf_config_form extends moodleform implements renderable {
+class obf_config_form extends obfform implements renderable {
 
     protected function definition() {
-        global $OUTPUT;
 
         $mform = $this->_form;
         $connectionestablished = obf_client::get_instance()->test_connection();
@@ -20,7 +19,10 @@ class obf_config_form extends moodleform implements renderable {
             $mform->addElement('html',
                     html_writer::tag('p', get_string('connectionisworking', 'local_obf')));
             $mform->addElement('header', 'config', get_string('showconnectionconfig', 'local_obf'));
-            $mform->setExpanded('config', false);
+
+            if (method_exists($mform, 'setExpanded')) {
+                $mform->setExpanded('config', false);
+            }
         }
 
         $mform->addElement('textarea', 'obftoken', get_string('requesttoken', 'local_obf'),
@@ -32,5 +34,4 @@ class obf_config_form extends moodleform implements renderable {
                     get_string('savechanges')));
         $mform->addGroup($buttonarray, 'buttonar', '', array(' '), false);
     }
-
 }
