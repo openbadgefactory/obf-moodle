@@ -9,22 +9,22 @@ YUI.add('moodle-local_obf-courseuserbadgedisplayer', function(Y) {
          * Module configuration
          */
         config: null,
-
         /**
          * Panel that displays a single assertion
          */
         panel: null,
-
         /**
          * Assertion cache
          */
         assertions: {},
-
         /**
          * Precompiled templates
          */
         templates: {},
-
+        /**
+         * If true, we're dealing only with a single list of badges (one user, one backpack).
+         */
+        init_list_only: false,
         /**
          * Module initializer
          *
@@ -38,6 +38,8 @@ YUI.add('moodle-local_obf-courseuserbadgedisplayer', function(Y) {
             }, true);
 
             this.config = config;
+            this.assertions = config.assertions || {};
+            this.init_list_only = config.init_list_only || false;
 
             // compile templates
             var micro = new Y.Template();
@@ -45,15 +47,14 @@ YUI.add('moodle-local_obf-courseuserbadgedisplayer', function(Y) {
             this.templates.badge = micro.compile(unescape(this.config.tpl.badge));
 
             // do it!
-            this.process();
-        },
-        process: function() {
-            var table = Y.one('table#obf-participants');
-
-            if (!table) {
-                return;
+            if (this.init_list_only) {
+                this.process_single();
             }
-
+            else {
+                this.process();
+            }
+        },
+        init_panel: function() {
             this.panel = new Y.Panel({
                 id: 'obf-assertion-panel',
                 headerContent: '',
@@ -64,6 +65,19 @@ YUI.add('moodle-local_obf-courseuserbadgedisplayer', function(Y) {
                 render: true,
                 zIndex: 10
             });
+        },
+        process_single: function() {
+            this.init_panel();
+            Y.one('ul.badgelist').delegate('click', this.display_badge, 'li', this);
+        },
+        process: function() {
+            var table = Y.one('table#obf-participants');
+
+            if (!table) {
+                return;
+            }
+
+            this.init_panel();
 
             // Show badges of a participants
             table.delegate('click', function(e) {
@@ -76,16 +90,17 @@ YUI.add('moodle-local_obf-courseuserbadgedisplayer', function(Y) {
             }, 'td.show-badges a', this);
 
             // Display a single badge
-            table.delegate('click', function(e) {
-                e.preventDefault();
+            table.delegate('click', this.display_badge, 'ul.badgelist li', this);
+        },
+        display_badge: function(e) {
+            e.preventDefault();
 
-                var node = e.currentTarget;
-                var data = this.assertions[node.generateID()];
+            var node = e.currentTarget;
+            var data = this.assertions[node.generateID()];
 
-                this.panel.set('bodyContent', this.templates.assertion(data));
-                this.panel.set('headerContent', data.badge.name);
-                this.panel.show();
-            }, 'ul.badgelist li', this);
+            this.panel.set('bodyContent', this.templates.assertion(data));
+            this.panel.set('headerContent', data.badge.name);
+            this.panel.show();
         },
         toggle_badge_row: function(row) {
             var badgerow = row.next();
@@ -146,6 +161,11 @@ YUI.add('moodle-local_obf-courseuserbadgedisplayer', function(Y) {
 
     M.local_obf = M.local_obf || {};
     M.local_obf.init_courseuserbadgedisplayer = function(config) {
+        return new COURSEUSERBADGEDISPLAYER(config);
+    };
+
+    M.local_obf.init_badgedisplayer = function(config) {
+        config.init_list_only = true;
         return new COURSEUSERBADGEDISPLAYER(config);
     };
 }, '@VERSION@', {requires: ['io-base', 'json-parse', 'template', 'panel']});

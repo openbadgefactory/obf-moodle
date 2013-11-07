@@ -34,7 +34,7 @@ class obf_userconfig_form extends moodleform {
                 foreach ($groups as $group) {
                     $assertions = $backpack->get_group_assertions($group->groupId);
                     $grouphtml = s($group->name) . $OUTPUT->box($this->render_badge_group($assertions),
-                                    'generalbox service');
+                                    'generalbox service obf-userconfig-group');
                     $checkboxes[] = $mform->createElement('checkbox', $group->groupId, '',
                             $grouphtml);
                 }
@@ -46,10 +46,6 @@ class obf_userconfig_form extends moodleform {
                 foreach ($backpack->get_group_ids() as $id) {
                     $mform->setDefault('backpackgroups[' . $id . ']', true);
                 }
-
-//                if ($backpack->get_groups() > 0) {
-//                    $mform->setDefault('groupbuttons[selectedgroup]', $backpack->get_group_ids());
-//                }
             }
         }
 

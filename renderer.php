@@ -95,19 +95,26 @@ class local_obf_renderer extends plugin_renderer_base {
      */
     public function render_user_assertions(obf_assertion_collection $assertions) {
         $html = '';
-        $items = array();
+        $items = '';
+        $userid = $USER->id;
+        $js_assertions = array();
 
         for ($i = 0; $i < count($assertions); $i++) {
             $assertion = $assertions->get_assertion($i);
             $badge = $assertion->get_badge();
-            $badgeimage = $this->print_badge_image($badge, self::BADGE_IMAGE_SIZE_NORMAL);
-            $url = $badge->get_criteria_url();
-            $badgename = html_writer::tag('p', html_writer::link($url, $badge->get_name()),
-                            array('class' => 'badgename'));
-            $items[] = $badgeimage . $badgename;
+            $badgeimage = $this->print_badge_image($badge, -1);
+            $badgename = html_writer::tag('p', s($badge->get_name()));
+            $aid = $userid . '-' . $i;
+            $js_assertions[$aid] = $assertion->toArray();
+            $items .= html_writer::tag('li', html_writer::div($badgeimage . $badgename), array('id' => $aid));
         }
 
-        $html .= html_writer::alist($items, array('class' => 'userbadges'));
+        $html .= html_writer::tag('ul', $items, array('class' => 'badgelist'));
+        $params = $this->get_displayer_params();
+        $params['assertions'] = $js_assertions;
+
+        $this->page->requires->yui_module('moodle-local_obf-courseuserbadgedisplayer',
+                'M.local_obf.init_badgedisplayer', array($params));
 
         return $html;
     }
@@ -927,10 +934,19 @@ class local_obf_renderer extends plugin_renderer_base {
 
         $html .= html_writer::table($table);
         $url = new moodle_url('/local/obf/backpack.php');
-        $assertion = $this->get_template_assertion();
+        $params = $this->get_displayer_params();
+        $params['url'] = $url->out();
 
-        // TODO: use existing rendereres instead of duplicating them here
-        $params = array('url' => $url->out(), 'tpl' => array(
+        $this->page->requires->yui_module('moodle-local_obf-courseuserbadgedisplayer',
+                'M.local_obf.init_courseuserbadgedisplayer', array($params));
+
+        return $html;
+    }
+
+    private function get_displayer_params() {
+        $assertion = $this->get_template_assertion();
+        $params = array(
+            'tpl' => array(
                 'list' => html_writer::tag('ul', '{{{ this.content }}}',
                         array('class' => 'badgelist')),
                 'assertion' => $this->render_assertion($assertion, false),
@@ -942,16 +958,12 @@ class local_obf_renderer extends plugin_renderer_base {
                         array('title' => '{{ this.badge.name }}', 'id' => '{{ this.id }}'))
         ));
 
-        $this->page->requires->yui_module('moodle-local_obf-courseuserbadgedisplayer',
-                'M.local_obf.init_courseuserbadgedisplayer', array($params));
-//        $this->page->requires->string_for_js('showmorerecipients', 'local_obf');
-
-        return $html;
+        return $params;
     }
 
     private function get_template_assertion() {
         $issuer = obf_issuer::get_instance_from_arr(array('id' => '', 'description' => '',
-            'email' => '', 'url' => '', 'name' => '{{ this.badge.issuer.name }}'));
+                    'email' => '', 'url' => '', 'name' => '{{ this.badge.issuer.name }}'));
         $badge = new obf_badge();
         $badge->set_name('{{ this.badge.name }}');
         $badge->set_description('{{ this.badge.description }}');

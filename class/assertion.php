@@ -134,6 +134,16 @@ class obf_assertion_collection implements Countable, IteratorAggregate {
         $this->assertions[] = $assertion;
     }
 
+    public function toArray() {
+        $ret = array();
+
+        foreach ($this->assertions as $assertion) {
+            $ret[] = $assertion->toArray();
+        }
+
+        return $ret;
+    }
+
     /**
      *
      * @param obf_assertion_collection $collection
