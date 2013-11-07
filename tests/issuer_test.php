@@ -15,7 +15,7 @@ class local_obf_issuer_testcase extends advanced_testcase {
             'url' => 'http://example.com/',
             'name' => 'Test Issuer');
         $issuer = obf_issuer::get_instance_from_arr($data);
-        
+
         $this->assertInstanceOf('obf_issuer', $issuer);
         $this->assertEquals('testissuer', $issuer->get_id());
         $this->assertEquals('Issuer description', $issuer->get_description());
@@ -24,4 +24,3 @@ class local_obf_issuer_testcase extends advanced_testcase {
         $this->assertEquals('Test Issuer', $issuer->get_name());
     }
 }
-?>

@@ -72,7 +72,7 @@ class obf_userconfig_form extends moodleform {
 
         $items = array();
         $renderer = $PAGE->get_renderer('local_obf');
-        $size = $renderer::BADGE_IMAGE_SIZE_NORMAL;
+        $size = -1;
 
         for ($i = 0; $i < count($assertions); $i++) {
             $badge = $assertions->get_assertion($i)->get_badge();

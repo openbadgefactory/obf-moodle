@@ -1,7 +1,5 @@
 <?php
-
-// HACK: change this when we're not symlinking the plugin anymore
-require_once('/var/www/moodle/config.php'); // __DIR__ . '/../../config.php';
+require_once(__DIR__ . '/../../config.php');
 require_once(__DIR__ . '/form/userconfig.php');
 require_once(__DIR__ . '/class/backpack.php');
 

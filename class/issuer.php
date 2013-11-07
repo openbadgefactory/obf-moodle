@@ -7,13 +7,14 @@ class obf_issuer {
     private $description = '';
     private $email = '';
     private $url = '';
+    private $organization = '';
 
     public static function get_instance() {
         return new self;
     }
 
     /**
-     * 
+     *
      * @param type $arr
      * @return obf_issuer
      */
@@ -21,8 +22,26 @@ class obf_issuer {
         return self::get_instance()->populate_from_array($arr);
     }
 
-    /**
-     * 
+    public static function get_instance_from_backpack_data(stdClass $obj) {
+        $issuer = new self();
+        $issuer->set_email($obj->contact);
+        $issuer->set_name($obj->name);
+        $issuer->set_url($obj->origin);
+        $issuer->set_organization($obj->org);
+
+        return $issuer;
+    }
+    public function get_organization() {
+        return $this->organization;
+    }
+
+    public function set_organization($organization) {
+        $this->organization = $organization;
+        return $this;
+    }
+
+        /**
+     *
      * @param type $arr
      * @return obf_issuer
      */
@@ -32,6 +51,16 @@ class obf_issuer {
                         ->set_email($arr['email'])
                         ->set_url($arr['url'])
                         ->set_name($arr['name']);
+    }
+
+    public function toArray() {
+        return array(
+            'id' => $this->get_id(),
+            'description' => $this->get_description(),
+            'email' => $this->get_email(),
+            'url' => $this->get_url(),
+            'name' => $this->get_name()
+        );
     }
 
     public function get_id() {
