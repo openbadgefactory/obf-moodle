@@ -38,6 +38,12 @@ class obf_assertion extends obf_issuance {
         return $obj;
     }
 
+    public function toArray() {
+        return array(
+            'badge' => $this->badge->toArray(),
+            'issued_on' => $this->get_issuedon());
+    }
+
     /**
      *
      * @param obf_badge $badge
@@ -106,7 +112,7 @@ class obf_assertion extends obf_issuance {
 
 }
 
-class obf_assertion_collection implements Countable {
+class obf_assertion_collection implements Countable, IteratorAggregate {
 
     /**
      * @var obf_assertion[]
@@ -126,6 +132,16 @@ class obf_assertion_collection implements Countable {
 
     public function add_assertion(obf_assertion $assertion) {
         $this->assertions[] = $assertion;
+    }
+
+    public function toArray() {
+        $ret = array();
+
+        foreach ($this->assertions as $assertion) {
+            $ret[] = $assertion->toArray();
+        }
+
+        return $ret;
     }
 
     /**
@@ -207,6 +223,10 @@ class obf_assertion_collection implements Countable {
 
     public function count() {
         return count($this->assertions);
+    }
+
+    public function getIterator() {
+        return new ArrayIterator($this->assertions);
     }
 
 }

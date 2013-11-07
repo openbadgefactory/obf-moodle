@@ -1,8 +1,38 @@
+/** Path: plugins local_obf **/
+/** Path: plugins local_obf **/
+/** Path: plugins local_obf **/
+/** Path: plugins local_obf **/
+/** Path: plugins local_obf **/
 span.backpackconnected { color: #6a6; }
 span.backpackdisconnected { color: #a66; }
 
-ul.badgelist { list-style: none; margin: 0; overflow: hidden; padding: 10px; }
-ul.badgelist li { text-align: center; float: left; margin: 0 7px; width: 100px; }
+ul.badgelist { list-style: none; margin: 0; overflow: hidden; padding:10px; }
+ul.badgelist li {background-image:-webkit-gradient(
+       linear,
+       left top,
+       left bottom,
+       color-stop(0, #EEEEEE),
+       color-stop(1, #CCCCCC)
+       );background-image:-o-linear-gradient(bottom, #EEE 0%, #CCC 100%);background-image:-moz-linear-gradient(bottom, #EEE 0%, #CCC 100%);background-image:-webkit-linear-gradient(bottom, #EEE 0%, #CCC 100%);background-image:-ms-linear-gradient(bottom, #EEE 0%, #CCC 100%);background-image:linear-gradient(to bottom, #EEE 0%, #CCC 100%);border-radius:8px;text-align:center;float:left;margin:0
+       15px 15px 0;width:120px;border:solid #ccc 1px; box-shadow: 0 0 10px -2px #888; }
+ul.badgelist li,
+#obf-assertion-panel .yui3-widget-hd {
+    background-image:-webkit-gradient(
+       linear,
+       left top,
+       left bottom,
+       color-stop(0, #EEEEEE),
+       color-stop(1, #CCCCCC)
+       );background-image:-o-linear-gradient(bottom, #EEE 0%, #CCC 100%);background-image:-moz-linear-gradient(bottom, #EEE 0%, #CCC 100%);background-image:-webkit-linear-gradient(bottom, #EEE 0%, #CCC 100%);background-image:-ms-linear-gradient(bottom, #EEE 0%, #CCC 100%);background-image:linear-gradient(to bottom, #EEE 0%, #CCC 100%);
+}
+ul.badgelist li:hover { border-color: #aaa; cursor: pointer; }
+ul.badgelist li p { background: #fff; margin: 0; padding: 5px 10px; border-radius: 0 0 8px 8px; width: 100px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+ul.badgelist li img { max-height: 90px; margin: 15px 0; }
+
+.obf-userconfig-group ul.badgelist li:hover { cursor: inherit; border-color: #ccc; }
+
+.block ul.badgelist { text-align: center; padding: 1em 0 0 0; }
+.block ul.badgelist li { margin-left: auto; margin-right: auto; float: none; }
 
 dl.obf-definition-list { overflow: hidden; margin-left: 0; }
 dl.obf-definition-list dt { width: 100px; float: left; clear: left; padding-bottom: 5px;}
@@ -24,7 +54,17 @@ table.obf-table th	{ width: 120px; }
 .ftext input,
 .felement textarea	{ width: 90%; }
 
-.obf-assertion { overflow: hidden; }
-.obf-assertion img { float: left; margin-left: 20px; }
-.obf-assertion-details  { margin: 0 0 0 150px; }
-.obf-assertion-details h3 { text-align: left !important; }
+.obf-assertion { overflow: hidden; padding: 20px; }
+.obf-assertion .image-wrapper { float: left; width: 120px; text-align: center; }
+.obf-assertion img { max-width: 100%; }
+.obf-assertion .assertion-details { margin-left: 160px;}
+.obf-assertion .badge-details { width: 45%; float: left; }
+.obf-assertion .issuer-details { width: 45%; float: right; }
+.obf-assertion h3 { margin-bottom: 1.5em; }
+
+.obf-assertion dl.obf-definition-list { }
+.obf-assertion dl.obf-definition-list dt { width: auto; float: none; clear: none; }
+.obf-assertion dl.obf-definition-list dd { clear: none; margin-left: 20px; padding-bottom: 20px; }
+
+#obf-assertion-panel .yui3-panel-content { border-color: #ccc; box-shadow: 0 0 50px #333; }
+#obf-assertion-panel .yui3-widget-hd { color: #555; font-weight: bold; border-bottom: solid #ccc 1px; }

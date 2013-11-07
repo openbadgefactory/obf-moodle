@@ -11,7 +11,7 @@ require_once __DIR__ . '/assertion.php';
 /**
  * Class for a single Open Badge Factory -badge
  */
-class obf_badge {//implements cacheable_object {
+class obf_badge {
 
     private static $badgecache = array();
 
@@ -209,8 +209,13 @@ class obf_badge {//implements cacheable_object {
 
         return $this->issuer;
     }
+    
+    public function set_issuer(obf_issuer $issuer) {
+        $this->issuer = $issuer;
+        return $this;
+    }
 
-    /**
+        /**
      *
      * @param array $recipients
      * @param type $issuedon
@@ -457,33 +462,12 @@ class obf_badge {//implements cacheable_object {
         return $badges;
     }
 
-    /**
-     * Prepares the object to cache.
-     *
-     * @return type
-     */
-    public function prepare_to_cache() {
-        return get_object_vars($this);
+    public function toArray() {
+        return array(
+            'issuer' => $this->get_issuer()->toArray(),
+            'name' => $this->get_name(),
+            'image' => $this->get_image(),
+            'description' => $this->get_description(),
+            'criteria_url' => $this->get_criteria_url());
     }
-
-    /**
-     * Called when woken up from the cache.
-     *
-     * @param type $data
-     * @return type
-     */
-    public static function wake_from_cache($data) {
-        $badge = self::get_instance();
-
-        foreach ($data as $name => $value) {
-            if (property_exists($badge, $name)) {
-                call_user_func(array($badge, 'set_' . $name), $value);
-            }
-        }
-
-        return $badge;
-    }
-
 }
-
-?>

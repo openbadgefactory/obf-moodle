@@ -45,6 +45,24 @@ class obf_backpack {
         return $obj;
     }
 
+    public static function get_instance_by_userid($userid) {
+        global $DB;
+        return self::get_instance($DB->get_record('user', array('id' => $userid)));
+    }
+
+    public static function get_user_ids_with_backpack() {
+        global $DB;
+
+        $ret = array();
+        $records = $DB->get_records_select('obf_backpack_emails', 'backpack_id > 0');
+
+        foreach ($records as $record) {
+            $ret[] = $record->user_id;
+        }
+
+        return $ret;
+    }
+
     private static function connect_to_backpack($email) {
         global $CFG;
 
@@ -114,7 +132,13 @@ class obf_backpack {
             $badge->set_image($item->imageUrl);
             $badge->set_description($item->assertion->badge->description);
             $badge->set_criteria_url($item->assertion->badge->criteria);
+            $badge->set_issuer(obf_issuer::get_instance_from_backpack_data($item->assertion->badge->issuer));
+
             $assertion->set_badge($badge);
+
+            if (isset($item->assertion->issued_on)) {
+                $assertion->set_issuedon($item->assertion->issued_on);
+            }
 
             $assertions->add_assertion($assertion);
 
@@ -126,6 +150,12 @@ class obf_backpack {
         return $assertions;
     }
 
+    /**
+     *
+     * @param type $limit
+     * @return \obf_assertion_collection
+     * @throws Exception
+     */
     public function get_assertions($limit = -1) {
         if (count($this->groups) == 0) {
             throw new Exception('No badge groups selected.');
@@ -138,6 +168,17 @@ class obf_backpack {
         }
 
         return $assertions;
+    }
+
+    public function get_assertions_as_array($limit = -1) {
+        $assertions = $this->get_assertions($limit);
+        $ret = array();
+
+        foreach ($assertions as $assertion) {
+            $ret[] = $assertion->toArray();
+        }
+
+        return $ret;
     }
 
     /**

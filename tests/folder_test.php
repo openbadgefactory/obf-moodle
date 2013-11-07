@@ -28,5 +28,3 @@ class local_obf_folder_testcase extends advanced_testcase {
         $this->assertEquals(2, count($folder->get_badges()));
     }
 }
-
-?>

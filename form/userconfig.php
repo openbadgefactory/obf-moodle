@@ -35,7 +35,7 @@ class obf_userconfig_form extends obfform {
                 foreach ($groups as $group) {
                     $assertions = $backpack->get_group_assertions($group->groupId);
                     $grouphtml = s($group->name) . $OUTPUT->box($this->render_badge_group($assertions),
-                                    'generalbox service');
+                                    'generalbox service obf-userconfig-group');
                     $checkboxes[] = $mform->createElement('checkbox', $group->groupId, '',
                             $grouphtml);
                 }
@@ -69,7 +69,7 @@ class obf_userconfig_form extends obfform {
 
         $items = array();
         $renderer = $PAGE->get_renderer('local_obf');
-        $size = $renderer::BADGE_IMAGE_SIZE_NORMAL;
+        $size = -1;
 
         for ($i = 0; $i < count($assertions); $i++) {
             $badge = $assertions->get_assertion($i)->get_badge();

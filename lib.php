@@ -66,16 +66,25 @@ function local_obf_course_deleted(stdClass $course) {
     return true;
 }
 
+function local_obf_extends_navigation(global_navigation $navigation) {
+    global $PAGE, $COURSE;
+
+    if ($coursenode = $PAGE->navigation->find($COURSE->id, navigation_node::TYPE_COURSE)) {
+        $node = navigation_node::create(get_string('courseuserbadges', 'local_obf'),
+                new moodle_url('/local/obf/courseuserbadges.php', array('courseid' => $COURSE->id)));
+        $coursenode->add_node($node);
+    }
+}
+
 /**
  * Adds the OBF-links to Moodle's navigation.
  *
  * @global type $COURSE The current course
+ * @global moodle_page $PAGE
  * @param settings_navigation $navigation
  */
 function obf_extends_navigation(global_navigation $navigation) {
     global $COURSE, $PAGE;
-
-//    var_dump($PAGE->settingsnav->get_children_key_list());
 
     if (@$PAGE->settingsnav) {
         if (($branch = $PAGE->settingsnav->get('courseadmin'))) {
