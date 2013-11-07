@@ -106,7 +106,7 @@ class local_obf_renderer extends plugin_renderer_base {
             $badgename = html_writer::tag('p', s($badge->get_name()));
             $aid = $userid . '-' . $i;
             $js_assertions[$aid] = $assertion->toArray();
-            $items .= html_writer::tag('li', html_writer::div($badgeimage . $badgename), array('id' => $aid));
+            $items .= html_writer::tag('li', obf_html::div($badgeimage . $badgename), array('id' => $aid));
         }
 
         $html .= html_writer::tag('ul', $items, array('class' => 'badgelist'));
@@ -154,38 +154,6 @@ class local_obf_renderer extends plugin_renderer_base {
                                         'issuer-details'), 'assertion-details'), 'obf-assertion');
 
         return $html;
-
-//        $badge = $assertion->get_badge();
-//        $issuer = $badge->get_issuer();
-//        $html = $this->print_heading('issuancedetails', 2);
-//        $html .= $this->print_badge_image($badge, self::BADGE_IMAGE_SIZE_NORMAL);
-//        $details = '';
-//
-//        // issuer details
-//        $details .= $this->print_heading('issuerdetails');
-//        $details .= $this->render_definition_list(array(
-//            get_string('issuername', 'local_obf') => $issuer->get_name(),
-//            get_string('issuerurl', 'local_obf') => html_writer::link($issuer->get_url(),
-//                    $issuer->get_url())
-//        ));
-//
-//        // badge details
-//        $details .= $this->print_heading('badgedetails');
-//        $details .= $this->render_definition_list(array(
-//            get_string('badgename', 'local_obf') => $badge->get_name(),
-//            get_string('badgedescription', 'local_obf') => $badge->get_description(),
-//            get_string('badgecriteriaurl', 'local_obf') => '-'
-//        ));
-//
-//        // assertion details
-//        $details .= $this->print_heading('issuancedetails');
-//        $details .= $this->render_definition_list(array(
-//            get_string('evidence', 'local_obf') => '-'
-//        ));
-//
-//        $html .= html_writer::div($details, 'obf-assertion-details');
-//
-//        return html_writer::div($html, 'obf-assertion');
     }
 
     /**
@@ -949,7 +917,7 @@ class local_obf_renderer extends plugin_renderer_base {
                         array('class' => 'badgelist')),
                 'assertion' => $this->render_assertion($assertion, false),
                 'badge' => html_writer::tag('li',
-                        html_writer::div(
+                        obf_html::div(
                                 html_writer::empty_tag('img',
                                         array('src' => '{{{ this.badge.image }}}')) .
                                 html_writer::tag('p', '{{ this.badge.name }}')),
