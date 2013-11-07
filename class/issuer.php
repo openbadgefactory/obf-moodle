@@ -24,13 +24,21 @@ class obf_issuer {
 
     public static function get_instance_from_backpack_data(stdClass $obj) {
         $issuer = new self();
-        $issuer->set_email($obj->contact);
+
+        if ($obj->contact) {
+            $issuer->set_email($obj->contact);
+        }
+
         $issuer->set_name($obj->name);
         $issuer->set_url($obj->origin);
-        $issuer->set_organization($obj->org);
+
+        if ($obj->org) {
+            $issuer->set_organization($obj->org);
+        }
 
         return $issuer;
     }
+    
     public function get_organization() {
         return $this->organization;
     }
