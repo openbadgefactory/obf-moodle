@@ -232,7 +232,7 @@ class obf_client {
             'email_footer' => $badge->get_email()->get_footer(),
             'expires' => '',
             'tags' => array(),
-            'draft' => $badge->get_isdraft()
+            'draft' => $badge->is_draft()
         );
 
         $this->curl('/badge/' . self::get_client_id(), 'post', $params);

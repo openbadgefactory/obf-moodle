@@ -90,8 +90,14 @@ class obf_badge {
         return $obj;
     }
 
-    public static function get_badges() {
-        $badgearr = obf_client::get_instance()->get_badges();
+    /**
+     *
+     * @param obf_client $client
+     * @return obf_badge[]
+     */
+    public static function get_badges(obf_client $client = null) {
+        $client = is_null($client) ? obf_client::get_instance() : $client;
+        $badgearr = $client->get_badges();
 
         foreach ($badgearr as $badgedata) {
             $badge = self::get_instance_from_array($badgedata);
@@ -209,7 +215,7 @@ class obf_badge {
 
         return $this->issuer;
     }
-    
+
     public function set_issuer(obf_issuer $issuer) {
         $this->issuer = $issuer;
         return $this;
@@ -368,7 +374,7 @@ class obf_badge {
         return $this;
     }
 
-    public function get_isdraft() {
+    public function is_draft() {
         return $this->isdraft;
     }
 

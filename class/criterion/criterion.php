@@ -20,6 +20,7 @@ class obf_criterion {
     private $id = -1;
     private $completion_method = null;
     private $items = null;
+    private $badgeid = null;
 
     /**
      *
@@ -133,6 +134,7 @@ class obf_criterion {
     public function delete_items() {
         global $DB;
         $DB->delete_records('obf_criterion_courses', array('obf_criterion_id' => $this->id));
+        $this->items = array();
     }
 
     /**
@@ -143,7 +145,7 @@ class obf_criterion {
     public static function get_badge_criteria(obf_badge $badge) {
         $conditions = array('c.badge_id' => $badge->get_id());
 
-        return self::get_criteria($conditions);
+        return self::get_criteria($conditions, $badge);
     }
 
     public function get_items($force = false) {
@@ -175,7 +177,10 @@ class obf_criterion {
     }
 
     public static function get_course_criterion($courseid) {
-        return self::get_criteria(array('cc.courseid' => $courseid));
+        $where = 'c.id IN (SELECT obf_criterion_id FROM {obf_criterion_courses} WHERE courseid = ' .
+                intval($courseid) . ')';
+        return self::get_criteria($where);
+//        return self::get_criteria(array('cc.courseid' => $courseid));
     }
 
     /**
@@ -184,7 +189,7 @@ class obf_criterion {
      * @param array $conditions
      * @return type
      */
-    public static function get_criteria(array $conditions = array()) {
+    public static function get_criteria($conditions = '') {
         global $DB;
 
         $sql = 'SELECT cc.*, c.id AS criterionid, c.badge_id, c.completion_method ' .
@@ -193,7 +198,7 @@ class obf_criterion {
         $params = array();
         $cols = array();
 
-        if (count($conditions) > 0) {
+        if (is_array($conditions) && count($conditions) > 0) {
             foreach ($conditions as $column => $value) {
                 $cols[] = $column . ' = ?';
                 $params[] = $value;
@@ -201,6 +206,12 @@ class obf_criterion {
 
             $sql .= ' WHERE ' . implode(' AND ', $cols);
         }
+        else if (is_string($conditions) && !empty($conditions)) {
+            $sql .= ' WHERE ' . $conditions;
+        }
+
+//        var_dump($sql);
+//        var_dump($params);
 
         $records = $DB->get_records_sql($sql, $params);
         $ret = array();
@@ -208,9 +219,9 @@ class obf_criterion {
         foreach ($records as $record) {
             // Group by criterion
             if (!isset($ret[$record->criterionid])) {
-                $badge = obf_badge::get_instance($record->badge_id);
                 $obj = new self();
-                $obj->set_badge($badge);
+                $obj->set_badgeid($record->badge_id);
+//                $obj->set_badge($badge);
                 $obj->set_id($record->criterionid);
                 $obj->set_completion_method($record->completion_method);
 
@@ -256,7 +267,8 @@ class obf_criterion {
      * @return obf_badge
      */
     public function get_badge() {
-        return $this->badge;
+        return (!empty($this->badge) ? $this->badge : (!empty($this->badgeid) ? obf_badge::get_instance($this->badgeid)
+                                    : null));
     }
 
     public function set_badge(obf_badge $badge) {
@@ -424,6 +436,15 @@ class obf_criterion {
         }
 
         return $datepassed && $gradepassed;
+    }
+
+    public function get_badgeid() {
+        return $this->badgeid;
+    }
+
+    public function set_badgeid($badgeid) {
+        $this->badgeid = $badgeid;
+        return $this;
     }
 
 }
