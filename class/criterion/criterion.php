@@ -36,10 +36,11 @@ class obf_criterion {
             return false;
         }
 
-        $badge = obf_badge::get_instance($record->badge_id);
+//        $badge = obf_badge::get_instance($record->badge_id);
 
         $obj = new self();
-        $obj->set_badge($badge);
+        $obj->set_badgeid($record->badge_id);
+//        $obj->set_badge($badge);
         $obj->set_id($record->id);
         $obj->set_completion_method($record->completion_method);
 
@@ -55,7 +56,7 @@ class obf_criterion {
 
         $obj = new stdClass();
         $obj->id = $this->id;
-        $obj->badge_id = $this->badge->get_id();
+        $obj->badge_id = $this->get_badgeid();
         $obj->completion_method = $this->completion_method;
 
         $DB->update_record('obf_criterion', $obj);
@@ -70,7 +71,7 @@ class obf_criterion {
         global $DB;
 
         $obj = new stdClass();
-        $obj->badge_id = $this->badge->get_id();
+        $obj->badge_id = $this->get_badgeid();
         $obj->completion_method = $this->completion_method;
 
         $id = $DB->insert_record('obf_criterion', $obj, true);
@@ -273,6 +274,7 @@ class obf_criterion {
 
     public function set_badge(obf_badge $badge) {
         $this->badge = $badge;
+        $this->badge_id = $badge->get_id();
         return $this;
     }
 
@@ -439,7 +441,7 @@ class obf_criterion {
     }
 
     public function get_badgeid() {
-        return $this->badgeid;
+        return (empty($this->badgeid) ? $this->get_badge()->get_id() : $this->badgeid);
     }
 
     public function set_badgeid($badgeid) {

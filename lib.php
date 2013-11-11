@@ -19,6 +19,8 @@ require_once(__DIR__ . '/class/criterion/course.php');
 function local_obf_course_completed(stdClass $eventdata) {
     global $DB;
 
+    syslog(LOG_DEBUG, 'MOODLE: Course completed -event fired');
+
     $user = $DB->get_record('user', array('id' => $eventdata->userid));
     $recipients = array($user->email);
 
@@ -62,6 +64,8 @@ function local_obf_course_completed(stdClass $eventdata) {
  * @return boolean
  */
 function local_obf_course_deleted(stdClass $course) {
+    syslog(LOG_DEBUG, 'MOODLE: Course deleted -event fired');
+
     obf_criterion_course::delete_by_course($course);
     return true;
 }

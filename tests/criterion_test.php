@@ -45,8 +45,8 @@ class local_obf_criterion_testcase extends advanced_testcase {
         $this->assertCount(2, $rule->get_items());
         $this->assertTrue($courserule1->exists());
         $this->assertTrue($courserule2->exists());
-        $this->assertEquals($courserule1->get_criterion(), $rule);
-        $this->assertEquals($course1->name, $courserule1->get_coursename());
+        $this->assertEquals($courserule1->get_criterion()->get_badgeid(), $rule->get_badgeid());
+        $this->assertEquals($course1->fullname, $courserule1->get_coursename());
 
         // Test completion data validity
         $this->assertTrue($courserule1->has_completion_date());

@@ -333,8 +333,10 @@ function xmldb_local_obf_upgrade($oldversion) {
         $field = new xmldb_field('group_id', XMLDB_TYPE_CHAR, '255', null, null, null, null, 'backpack_id');
 
         // Launch change of type for field group_id.
-        $dbman->change_field_type($table, $field);
-        $dbman->rename_field($table, $field, 'groups');
+        if ($dbman->field_exists($table, $field)) {
+            $dbman->change_field_type($table, $field);
+            $dbman->rename_field($table, $field, 'groups');
+        }
 
         // Obf savepoint reached.
         upgrade_plugin_savepoint(true, 2013110500, 'local', 'obf');
