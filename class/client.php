@@ -27,6 +27,7 @@ class obf_client {
 
     public function test_connection() {
         try {
+            // TODO: does ping check certificate validity?
             $this->curl('/ping');
             return true;
         } catch (Exception $exc) {
@@ -173,6 +174,10 @@ class obf_client {
      */
     public function get_tree() {
         return $this->curl('/tree/' . self::get_client_id() . '/badge');
+    }
+
+    public function get_categories() {
+        return $this->curl('/badge/' . self::get_client_id() . '/_/categorylist');
     }
 
     /**

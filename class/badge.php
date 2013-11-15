@@ -61,6 +61,8 @@ class obf_badge {
      */
     private $created = null;
 
+    private $categories = array();
+
     /**
      * Returns an instance of the class. If <code>$id</code> isn't set, this
      * will return a new instance.
@@ -79,8 +81,10 @@ class obf_badge {
             }
 
             if (!is_null($id)) {
-                $obj->set_id($id)->populate();
-                self::$badgecache[$id] = $obj;
+
+                if ($obj->set_id($id)->populate() !== false) {
+                    self::$badgecache[$id] = $obj;
+                }
             }
         }
         else {
@@ -95,9 +99,9 @@ class obf_badge {
      * @param obf_client $client
      * @return obf_badge[]
      */
-    public static function get_badges(obf_client $client = null) {
+    public static function get_badges(obf_client $client = null, $drafts = false) {
         $client = is_null($client) ? obf_client::get_instance() : $client;
-        $badgearr = $client->get_badges();
+        $badgearr = $client->get_badges($drafts);
 
         foreach ($badgearr as $badgedata) {
             $badge = self::get_instance_from_array($badgedata);
@@ -147,6 +151,10 @@ class obf_badge {
 
         if ($expires > 0) {
             $this->set_expires(strtotime('+ ' . $expires . ' months'));
+        }
+
+        if (isset($arr['category'])) {
+            $this->set_categories($arr['category']);
         }
 
         if (isset($arr['tags'])) {
@@ -286,7 +294,16 @@ class obf_badge {
      * @return obf_badge
      */
     public function populate() {
-        return $this->populate_from_array($this->get_client()->get_badge($this->id));
+        try {
+            $arr = $this->get_client()->get_badge($this->id);
+            return $this->populate_from_array($arr);
+        } catch (Exception $exc) {
+            return false;
+        }
+
+
+
+//        return $this->populate_from_array($this->get_client()->get_badge($this->id));
     }
 
     public function has_expiration_date() {
@@ -476,4 +493,19 @@ class obf_badge {
             'description' => $this->get_description(),
             'criteria_url' => $this->get_criteria_url());
     }
+
+    public function has_name() {
+        return !empty($this->name);
+    }
+
+    public function get_categories() {
+        return $this->categories;
+    }
+
+    public function set_categories($categories) {
+        $this->categories = $categories;
+        return $this;
+    }
+
+
 }

@@ -13,7 +13,8 @@ class obf_badge_export_form extends moodleform {
             $mform->addElement('checkbox', 'toexport[' . $badge->id . ']', '', $label);
         }
 
-        $mform->addElement('header', 'header_disablebadges', get_string('disablemoodlebadges', 'local_obf'));
+        $mform->addElement('header', 'header_disablebadges', get_string('exportextrasettings', 'local_obf'));
+        $mform->addElement('advcheckbox', 'makevisible', '', get_string('makeexportedvisible', 'local_obf'));
         $mform->addElement('advcheckbox', 'disablemoodlebadges', '', get_string('disablemoodlebadges', 'local_obf'));
         $mform->setDefault('disablemoodlebadges', true);
 

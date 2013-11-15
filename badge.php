@@ -51,14 +51,15 @@ switch ($action) {
         require_capability('local/obf:viewallbadges', $context);
 
         try {
-            $tree = obf_badge_tree::get_instance();
+//            $tree = obf_badge_tree::get_instance();
+            $badges = obf_badge::get_badges();
 
             if ($context instanceof context_system) {
-                $content .= $PAGE->get_renderer('local_obf')->render_badgelist($tree,
+                $content .= $PAGE->get_renderer('local_obf')->render_badgelist($badges,
                     $hasissuecapability, $context, $message);
             }
             else {
-                $content .= $PAGE->get_renderer('local_obf')->render_badgelist_course($tree,
+                $content .= $PAGE->get_renderer('local_obf')->render_badgelist_course($badges,
                         $hasissuecapability, $context, $message);
             }
         } catch (Exception $e) {
@@ -76,9 +77,18 @@ switch ($action) {
         $baseurl = new moodle_url('/local/obf/badge.php',
                 array('action' => 'show', 'id' => $badgeid));
 
-        navigation_node::override_active_url(new moodle_url('/local/obf/badge.php',
-                array('action' => 'list')));
-        $PAGE->navbar->add($badge->get_name(), $baseurl);
+        if ($context instanceof context_system) {
+            navigation_node::override_active_url(new moodle_url('/local/obf/badge.php',
+                    array('action' => 'list')));
+            $PAGE->navbar->add($badge->get_name(), $baseurl);
+        }
+        else {
+            navigation_node::override_active_url(new moodle_url('/local/obf/badge.php',
+                    array('action' => 'list', 'courseid' => $courseid)));
+            $coursebadgeurl = clone $baseurl;
+            $coursebadgeurl->param('courseid', $courseid);
+            $PAGE->navbar->add($badge->get_name(), $coursebadgeurl);
+        }
 
         $renderer = $PAGE->get_renderer('local_obf', 'badge');
         $content .= $PAGE->get_renderer('local_obf')->render_badge_heading($badge, $context);
@@ -122,7 +132,10 @@ switch ($action) {
             case 'details':
                 $taburl = clone $baseurl;
                 $taburl->param('show', $show);
-                $PAGE->navbar->add(get_string('badge' . $show, 'local_obf'), $taburl);
+
+                if ($context instanceof context_system) {
+                    $PAGE->navbar->add(get_string('badge' . $show, 'local_obf'), $taburl);
+                }
 
                 $content .= $PAGE->get_renderer('local_obf')->page_badgedetails($badge, $context,
                         $show, $page, $message);

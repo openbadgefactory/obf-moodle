@@ -28,8 +28,6 @@ if ($form->is_cancelled()) {
 // User configuration was saved.
 else if (($data = $form->get_data())) {
 
-    $email = $data->backpackemail;
-
     if (isset($data->backpackgroups)) {
         $backpack->set_groups(array_keys($data->backpackgroups));
     }
@@ -37,7 +35,12 @@ else if (($data = $form->get_data())) {
     $redirecturl = clone $url;
 
     try {
-        $backpack->connect($email);
+        if (isset($data->backpackemail)) {
+            $backpack->connect($data->backpackemail);
+        }
+        else {
+            $backpack->save();
+        }
     }
     catch (Exception $e) {
         $redirecturl->param('error', $e->getMessage());

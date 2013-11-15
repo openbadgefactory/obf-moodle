@@ -25,7 +25,9 @@ $string['backpackemailnotfound'] = 'Couldn\'t find a user by the email \'{$a}\' 
 $string['backpackemail_help'] = 'Email address associated with your Mozilla OpenBadges Backpack account.';
 $string['backpackgroups'] = 'Badge groups';
 $string['backpackgroups_help'] = 'Select the badge groups that are shown in your badge displayer.';
+$string['backpacksettings'] = 'My Open Badges';
 $string['badgeactions'] = 'Actions';
+$string['badgecategories'] = 'Categories';
 $string['badgecreated'] = 'Created on';
 $string['badgecriteria'] = 'Awarding rules';
 $string['badgecriteriaurl'] = 'Criteria URL';
@@ -38,20 +40,16 @@ $string['badgeimage'] = 'Badge';
 $string['badgeissued'] = 'Badge was successfully issued.';
 $string['badgeissuedwhen'] = 'This badge is automatically awarded when any of the following rule '
         . 'is met:';
-$string['badgelist'] = 'Badges';
+$string['badgelist'] = 'Badge list';
 $string['badgelisttitle'] = 'All badges';
 $string['badgename'] = 'Name';
-$string['badgesupdated'] = 'The badges were updated from Open Badge Factory. <strong>{$a}</strong> new badge(s) found.';
 $string['badgewasautomaticallyissued'] = 'After reviewing the badge was awarded to {$a} recipient(s).';
 $string['cancel'] = 'Cancel';
 $string['cannoteditcriterion'] = 'This rule cannot be edited, because the badge has already '
         . 'been awarded automatically based on this rule.';
 $string['certrequestfailed'] = 'There was an error while requesting the certificate from the API';
-$string['clientid'] = 'Your Open Badge Factory client-id';
-$string['clientiddescription'] = 'This is here just for testing purposes.';
 $string['completedbycriterion'] = 'by <strong>{$a}</strong>';
 $string['configurecriteria'] = 'Configure';
-$string['confirmandissue'] = 'Confirm and issue';
 $string['confirmcriteriondeletion'] = 'Are you sure you want to delete this awarding rule?';
 $string['connect'] = 'Connect';
 $string['connectionisworking'] = 'OBF connection is up and working.';
@@ -86,7 +84,6 @@ $string['emailtemplatedescription'] = 'Here you can set the default template for
         'will be sent to the user receiving this badge. The email can be customized before the ' .
         'badge is awarded.';
 $string['evidence'] = 'Evidence';
-$string['existingcriteria'] = 'Existing courses';
 $string['expiresby'] = 'Expires';
 $string['expiringcertificate'] = 'Open Badge Factory client certificate is expiring in <b>{$a->days}</b> '
         . 'days. To renew the certificate <a href="{$a->obfurl}">log in to Open Badge Factory</a> '
@@ -94,9 +91,9 @@ $string['expiringcertificate'] = 'Open Badge Factory client certificate is expir
         . '-> More settings, generate the certificate signing request token and paste it to Moodle '
         . '(Open Badges -> Settings -> OBF request token).';
 $string['expiringcertificatesubject'] = 'Open Badge Factory client certificate is expiring.';
+$string['exportextrasettings'] = 'Export settings';
 $string['gradecriterion'] = 'with <strong>minimum grade of {$a}</strong>';
 $string['history'] = 'History';
-$string['invalidcriteriatype'] = 'Unknown criteria type.';
 $string['invalidtab'] = 'Page not found';
 $string['issue'] = 'Issue badge';
 $string['issuancedetails'] = 'Issuance details';
@@ -109,18 +106,19 @@ $string['issueremail'] = 'Email';
 $string['issuername'] = 'Name';
 $string['issuerurl'] = 'URL';
 $string['issuethisbadge'] = 'Issue this badge';
+$string['makeexportedvisible'] = 'Make exported badges visible by default';
 $string['minimumgrade'] = 'Minimum grade';
 $string['missingapiurl'] = 'Please enter the OBF API URL in the settings.';
-$string['missingclientid'] = 'Please enter your OBF client id in the settings.';
 $string['showmorerecipients'] = 'more';
 $string['nobackpackgroups'] = 'No public badge groups in your backpack. Create at least one public '
         . 'group to your backpack.';
 $string['nobadges'] = 'No badges yet.';
+$string['nobadgesincourse'] = 'No related badges yet.';
 $string['nocourseswithcompletionenabled'] = 'There are no courses with completion enabled.';
 $string['nocriteriayet'] = 'No automatic awarding rules created yet.';
-$string['nohistory'] = 'This badge hasn\'t been issued yet.';
+$string['nobadgehistory'] = 'This badge hasn\'t been issued yet.';
 $string['nofolder'] = 'No folder';
-$string['novalidcourses'] = 'All available courses are already related to this badge\'s awarding rules.';
+$string['nohistory'] = 'No badges issued yet.';
 $string['novalidcourses'] = 'There are no courses without awarding rules regarding to this badge.';
 $string['nouserbadges'] = 'No badges earned yet.';
 $string['numberofbadgessingle'] = ' badge';
@@ -156,17 +154,13 @@ $string['selectcourses'] = 'Select courses';
 $string['selectcourses_help'] = 'Select courses that need to be completed to in order to receive '
         . 'this badge automatically.';
 $string['selectrecipients'] = 'Select recipients';
-$string['setbadgedetails'] = 'Set badge details';
 $string['settings'] = 'Settings';
 $string['showassertion'] = 'Details';
 $string['showbadges'] = 'Show badges';
-$string['showconnectionconfig'] = 'I know it\'s working, let me change the token anyway';
+$string['showconnectionconfig'] = 'I know it\'s working, let me change the token anyway.';
 $string['toearnthisbadge'] = 'To earn this badge this course has to be completed';
 $string['tokendecryptionfailed'] = 'Decrypting the request token failed. Be sure to paste the '
         . 'certificate signing request token fully.';
-$string['updatebadges'] = 'Update badges from Open Badge Factory';
-$string['url'] = 'Open Badge Factory URL';
-$string['urldescription'] = 'The URL where the OBF API is found.';
 $string['warningcannoteditafterreview'] = 'Note that if the badge is awarded when these rules are ' .
         'being reviewed, the rule(s) cannot be edited anymore. Once the badge has been automatically ' .
         'awarded to at least one person, editing of the rules is prohibited. So make sure the rules ' .

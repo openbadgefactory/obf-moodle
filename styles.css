@@ -1,8 +1,3 @@
-/** Path: plugins local_obf **/
-/** Path: plugins local_obf **/
-/** Path: plugins local_obf **/
-/** Path: plugins local_obf **/
-/** Path: plugins local_obf **/
 span.backpackconnected { color: #6a6; }
 span.backpackdisconnected { color: #a66; }
 
@@ -28,6 +23,7 @@ ul.badgelist li,
 ul.badgelist li:hover { border-color: #aaa; cursor: pointer; }
 ul.badgelist li p { background: #fff; margin: 0; padding: 5px 10px; border-radius: 0 0 8px 8px; width: 100px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
 ul.badgelist li img { max-height: 90px; margin: 15px 0; }
+ul.badgelist li a { color: inherit; text-decoration: none; }
 
 .obf-userconfig-group ul.badgelist li:hover { cursor: inherit; border-color: #ccc; }
 

@@ -17,11 +17,19 @@ class obf_userconfig_form extends obfform {
         $mform->addElement('static', 'connectionstatus',
                 get_string('connectionstatus', 'local_obf'), $statustext);
 
-        $mform->addElement('text', 'backpackemail', get_string('backpackemail', 'local_obf'));
-        $mform->addRule('backpackemail', null, 'email');
-        $mform->setType('backpackemail', PARAM_NOTAGS);
+
+        // Allow editing the email address only if the connection isn't established yet
+        if (!$backpack->is_connected()) {
+            $mform->addElement('text', 'backpackemail', get_string('backpackemail', 'local_obf'));
+            $mform->addRule('backpackemail', null, 'email');
+            $mform->setType('backpackemail', PARAM_NOTAGS);
+            $mform->setDefault('backpackemail', $backpack->get_email());
+        } else {
+            $mform->addElement('static', 'backpackemail', get_string('backpackemail', 'local_obf'),
+                    s($backpack->get_email()));
+        }
+
         $mform->addHelpButton('backpackemail', 'backpackemail', 'local_obf');
-        $mform->setDefault('backpackemail', $backpack->get_email());
 
         if ($backpack->is_connected()) {
             $groups = $backpack->get_groups();
