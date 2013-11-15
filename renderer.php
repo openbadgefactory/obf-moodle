@@ -25,14 +25,14 @@ class local_obf_renderer extends plugin_renderer_base {
     /**
      * Renders the list of badges in course context
      *
-     * @param obf_badge_tree $tree
+     * @param obf_badge[] $badges
      * @param type $hasissuecapability
      * @param context $context
      * @param type $message
      * @return type
      */
-    public function render_badgelist_course(obf_badge_tree $tree, $hasissuecapability,
-            context $context, $message = '') {
+    public function render_badgelist_course($badges, $hasissuecapability, context $context,
+            $message = '') {
         $html = '';
 
         if (!empty($message)) {
@@ -41,27 +41,26 @@ class local_obf_renderer extends plugin_renderer_base {
 
         $badgesincourse = obf_badge::get_badges_in_course($context->instanceid);
         $html .= $this->print_heading('coursebadgelisttitle', 2);
+        $errormsg = $this->output->notification(get_string('nobadgesincourse', 'local_obf'));
 
         if (count($badgesincourse) == 0) {
-            $html .= $this->output->notification(get_string('nobadgesincourse', 'local_obf'));
+            $html .= $errormsg;
         } else {
-            $table = new html_table();
-            $table->head = array(
-                get_string('badgeimage', 'local_obf'),
-                get_string('badgename', 'local_obf'),
-                get_string('badgecreated', 'local_obf'),
-                get_string('badgeactions', 'local_obf')
-            );
-            $table->headspan = array(1, 1, 1, 1);
+            $validbadges = array();
 
             foreach ($badgesincourse as $badge) {
-                $table->data[] = $this->render_badge_row($badge, $hasissuecapability, $context);
+                // Badge is deleted from OBF, but there are still rules in the database. It shouldn't
+                // happen in practice, but in theory it's possible. We should handle it better.
+                if ($badge->has_name()) {
+                    $validbadges[] = $badge;
+                }
             }
 
-            $html .= html_writer::table($table);
+            $html .= count($validbadges) > 0 ? $this->render_badges($validbadges,
+                            $hasissuecapability, $context) : $errormsg;
         }
 
-        $html .= $this->render_badgelist($tree, $hasissuecapability, $context);
+        $html .= $this->render_badgelist($badges, $hasissuecapability, $context);
 
         return $html;
     }
@@ -69,21 +68,20 @@ class local_obf_renderer extends plugin_renderer_base {
     /**
      * Renders the list of badges.
      *
-     * @param obf_badge_tree $tree
+     * @param obf_badge[] $badges
      * @param type $hasissuecapability
      * @param context $context
      * @param type $message
      * @return type
      */
-    public function render_badgelist(obf_badge_tree $tree, $hasissuecapability, context $context,
-            $message = '') {
+    public function render_badgelist($badges, $hasissuecapability, context $context, $message = '') {
         $html = $this->print_heading('badgelisttitle', 2);
 
         if (!empty($message)) {
             $html .= $this->output->notification($message, 'notifysuccess');
         }
 
-        $html .= $this->render_obf_badge_tree($tree, $hasissuecapability, $context);
+        $html .= $this->render_badges($badges, $hasissuecapability, $context);
 
         return $html;
     }
@@ -106,7 +104,8 @@ class local_obf_renderer extends plugin_renderer_base {
             $badgename = html_writer::tag('p', s($badge->get_name()));
             $aid = $userid . '-' . $i;
             $js_assertions[$aid] = $assertion->toArray();
-            $items .= html_writer::tag('li', obf_html::div($badgeimage . $badgename), array('id' => $aid));
+            $items .= html_writer::tag('li', obf_html::div($badgeimage . $badgename),
+                            array('id' => $aid));
         }
 
         $html .= html_writer::tag('ul', $items, array('class' => 'badgelist'));
@@ -249,34 +248,57 @@ class local_obf_renderer extends plugin_renderer_base {
     /**
      * Renders the OBF-badge tree with badges categorized into folders.
      *
-     * @param obf_badge_tree $tree
+     * @param obf_badge[] $badges
      * @param type $hasissuecapability
      * @param context $context
      * @return type
      */
-    protected function render_obf_badge_tree(obf_badge_tree $tree, $hasissuecapability,
-            context $context) {
+    protected function render_badges($badges, $hasissuecapability, context $context) {
         $html = '';
 
-        // No need to render the table if there aren't any folders/badges
-        if (count($tree->get_folders()) > 0) {
-            $table = new html_table();
-            $table->head = array(
-                get_string('badgeimage', 'local_obf'),
-                get_string('badgename', 'local_obf'),
-                get_string('badgecreated', 'local_obf'),
-                get_string('badgeactions', 'local_obf')
-            );
-            $table->headspan = array(1, 1, 1, 1);
+        if (count($badges) === 0) {
+            $html .= $this->output->notification(get_string('nobadges', 'local_obf'), 'notifynotice');
+        } else {
+            $items = '';
 
-            foreach ($tree->get_folders() as $folder) {
-                $this->render_badge_folder($table, $folder, $hasissuecapability, $context);
+            foreach ($badges as $badge) {
+                $badgeimage = $this->print_badge_image($badge, -1);
+                $badgename = html_writer::tag('p', s($badge->get_name()));
+
+                $url = new moodle_url('/local/obf/badge.php',
+                        array('id' => $badge->get_id(), 'action' => 'show'));
+
+                if ($context instanceof context_course) {
+                    $url->param('courseid', $context->instanceid);
+                }
+
+                $items .= html_writer::tag('li',
+                                obf_html::div(html_writer::link(
+                                                $url, $badgeimage . $badgename)));
             }
 
-            $html .= html_writer::table($table);
-        } else {
-            $html .= $this->output->notification(get_string('nobadges', 'local_obf'), 'notifynotice');
+            $html .= html_writer::tag('ul', $items, array('class' => 'badgelist'));
         }
+
+        // No need to render the table if there aren't any folders/badges
+//        if (count($badges->get_folders()) > 0) {
+//            $table = new html_table();
+//            $table->head = array(
+//                get_string('badgeimage', 'local_obf'),
+//                get_string('badgename', 'local_obf'),
+//                get_string('badgecreated', 'local_obf'),
+//                get_string('badgeactions', 'local_obf')
+//            );
+//            $table->headspan = array(1, 1, 1, 1);
+//
+//            foreach ($badges->get_folders() as $folder) {
+//                $this->render_badge_folder($table, $folder, $hasissuecapability, $context);
+//            }
+//
+//            $html .= html_writer::table($table);
+//        } else {
+//            $html .= $this->output->notification(get_string('nobadges', 'local_obf'), 'notifynotice');
+//        }
 
         return $html;
     }
@@ -332,9 +354,8 @@ class local_obf_renderer extends plugin_renderer_base {
                 $issueurl->param('courseid', $context->instanceid);
             }
 
-            $actions .= html_writer::link($issueurl, get_string('issue', 'local_obf'));
-//            $actions .= $this->output->action_icon($issueurl,
-//                            new pix_icon('t/award', get_string('issuethisbadge', 'local_obf'))) . " ";
+            $actions .= $this->output->action_icon($issueurl,
+                            new pix_icon('t/award', get_string('issuethisbadge', 'local_obf'))) . " ";
         }
 
         $row = array($img, $name, $date, $actions);
@@ -407,12 +428,19 @@ class local_obf_renderer extends plugin_renderer_base {
 
         $boxes = obf_html::div($badgeimage, 'obf-badgeimage');
         $badgedetails = $this->print_heading('badgedetails');
-        $badgedetails .= $this->render_definition_list(array(
+
+        $definitions = array(
             get_string('badgename', 'local_obf') => $badge->get_name(),
             get_string('badgedescription', 'local_obf') => $badge->get_description(),
             get_string('badgecreated', 'local_obf') => $badgecreated
-        ));
+        );
 
+        if (count($badge->get_categories()) > 0) {
+            $definitions[get_string('badgecategories', 'local_obf')] = implode(', ',
+                    array_map('s', $badge->get_categories()));
+        }
+
+        $badgedetails .= $this->render_definition_list($definitions);
         $issuer = $badge->get_issuer();
         $url = $issuer->get_url();
         $issuerurl = empty($url) ? '' : html_writer::link($url, $url);
@@ -648,9 +676,10 @@ class local_obf_renderer extends plugin_renderer_base {
         $historytable->attributes = array('class' => 'generaltable historytable');
         $html = $this->print_heading('history', 2);
         $historysize = count($history);
+        $langkey = $singlebadgehistory ? 'nobadgehistory' : 'nohistory';
 
         if ($historysize == 0) {
-            $html .= $this->output->notification(get_string('nohistory', 'local_obf'), 'generalbox');
+            $html .= $this->output->notification(get_string($langkey, 'local_obf'), 'generalbox');
         } else {
             // paging settings
             $perpage = 10; // TODO: hard-coded here
@@ -790,16 +819,7 @@ class local_obf_renderer extends plugin_renderer_base {
             $tabs[] = new tabobject($tabname, $url, get_string('badge' . $tabname, 'local_obf'));
         }
 
-        return self::render_tabs($tabs, $selectedtab);
-//        return $this->output->tabtree($tabs, $selectedtab);
-    }
-
-    public static function render_tabs(array $tabs, $selectedtab = '') {
-        ob_start();
-        print_tabs(array($tabs), $selectedtab);
-        $out = ob_get_contents();
-        ob_end_clean();
-        return $out;
+        return $this->output->tabtree($tabs, $selectedtab);
     }
 
     /**
@@ -958,7 +978,7 @@ class local_obf_badge_renderer extends plugin_renderer_base {
             $tabs[] = new tabobject($tabname, $url, get_string('badge' . $tabname, 'local_obf'));
         }
 
-        return local_obf_renderer::render_tabs($tabs, $selectedtab);
+        return $this->output->tabtree($tabs, $selectedtab);
     }
 
     public function page(obf_badge $badge, $tab, $content) {
@@ -989,9 +1009,11 @@ class obf_table_header extends html_table_cell {
         $this->header = true;
         parent::__construct(is_null($stringid) ? null : get_string($stringid, 'local_obf'));
     }
+
 }
 
 class obf_html {
+
     /**
      * Renders an icon.
      *
@@ -1007,6 +1029,8 @@ class obf_html {
     }
 
     public static function div($content, $classes = '') {
-        return html_writer::tag('div', $content, empty($classes) ? array() : array('class' => $classes));
+        return html_writer::tag('div', $content,
+                        empty($classes) ? array() : array('class' => $classes));
     }
+
 }

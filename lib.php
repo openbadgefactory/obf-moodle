@@ -19,8 +19,6 @@ require_once(__DIR__ . '/class/criterion/course.php');
 function local_obf_course_completed(stdClass $eventdata) {
     global $DB;
 
-    syslog(LOG_DEBUG, 'MOODLE: Course completed -event fired');
-
     $user = $DB->get_record('user', array('id' => $eventdata->userid));
     $recipients = array($user->email);
 
@@ -64,45 +62,37 @@ function local_obf_course_completed(stdClass $eventdata) {
  * @return boolean
  */
 function local_obf_course_deleted(stdClass $course) {
-    syslog(LOG_DEBUG, 'MOODLE: Course deleted -event fired');
-
     obf_criterion_course::delete_by_course($course);
     return true;
+}
+
+function local_obf_extends_settings_navigation(settings_navigation $navigation) {
+    global $COURSE;
+
+    if (($branch = $navigation->get('courseadmin'))) {
+        $obfnode = navigation_node::create(get_string('obf', 'local_obf'),
+                        new moodle_url('/local/obf/badge.php',
+                        array('action' => 'list', 'courseid' => $COURSE->id)));
+        $branch->add_node($obfnode, 'backup');
+    }
+
+    if (($branch = $navigation->get('usercurrentsettings'))) {
+        $node = navigation_node::create(get_string('backpacksettings', 'local_obf'),
+                        new moodle_url('/local/obf/userconfig.php'));
+        $branch->add_node($node);
+    }
 }
 
 function local_obf_extends_navigation(global_navigation $navigation) {
     global $PAGE, $COURSE;
 
-    if ($coursenode = $PAGE->navigation->find($COURSE->id, navigation_node::TYPE_COURSE)) {
+    // Course id 1 is Moodle
+    if ($COURSE->id > 1 && $coursenode = $PAGE->navigation->find($COURSE->id,
+            navigation_node::TYPE_COURSE)) {
         $node = navigation_node::create(get_string('courseuserbadges', 'local_obf'),
-                new moodle_url('/local/obf/courseuserbadges.php', array('courseid' => $COURSE->id)));
+                        new moodle_url('/local/obf/courseuserbadges.php',
+                        array('courseid' => $COURSE->id)));
         $coursenode->add_node($node);
-    }
-}
-
-/**
- * Adds the OBF-links to Moodle's navigation.
- *
- * @global type $COURSE The current course
- * @global moodle_page $PAGE
- * @param settings_navigation $navigation
- */
-function obf_extends_navigation(global_navigation $navigation) {
-    global $COURSE, $PAGE;
-
-    if (@$PAGE->settingsnav) {
-        if (($branch = $PAGE->settingsnav->get('courseadmin'))) {
-            $obfnode = navigation_node::create(get_string('obf', 'local_obf'),
-                            new moodle_url('/local/obf/badge.php',
-                            array('action' => 'list', 'courseid' => $COURSE->id)));
-            $branch->add_node($obfnode, 'backup');
-        }
-
-        if (($branch = $PAGE->settingsnav->get('usercurrentsettings'))) {
-            $node = navigation_node::create(get_string('obf', 'local_obf'),
-                            new moodle_url('/local/obf/userconfig.php'));
-            $branch->add_node($node);
-        }
     }
 }
 

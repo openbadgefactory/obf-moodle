@@ -5,7 +5,7 @@ defined('MOODLE_INTERNAL') or die();
 global $CFG;
 
 require_once(__DIR__ . '/obfform.php');
-require_once($CFG->dirroot . '/course/lib.php');
+require_once($CFG->libdir . '/coursecatlib.php');
 require_once($CFG->libdir . '/completionlib.php');
 
 class obf_criterion_form extends obfform implements renderable {
@@ -28,11 +28,7 @@ class obf_criterion_form extends obfform implements renderable {
             $courses = $DB->get_records('course', array('enablecompletion' => COMPLETION_ENABLED));
 
             if (count($courses) > 0) {
-                $categories = array();
-                $parents = array();
-
-                make_categories_list($categories, $parents);
-
+                $categories = coursecat::make_categories_list();
                 $courselist = $this->initialize_categories($categories);
 
                 foreach ($courses as $course) {
@@ -52,7 +48,7 @@ class obf_criterion_form extends obfform implements renderable {
 
                 $mform->addElement('header', 'header_criterion_fields',
                         get_string('selectcourses', 'local_obf'));
-//                $mform->setExpanded('header_criterion_fields');
+                $mform->setExpanded('header_criterion_fields');
 
                 // There aren't any courses that aren't already in this badge's criteria
                 if ($validcourses === 0) {
@@ -113,14 +109,16 @@ class obf_criterion_form extends obfform implements renderable {
 
                 $mform->addElement('header', 'header_completion_method',
                         get_string('criteriacompletedwhen', 'local_obf'));
-//                $mform->setExpanded('header_completion_method');
+                $mform->setExpanded('header_completion_method');
                 $mform->addGroup($radiobuttons, 'radioar', '', '<br />', false);
                 $mform->setDefault('completion_method', $this->criterion->get_completion_method());
             }
 
-            $mform->addElement('header', 'header_review_criterion_after_save', get_string('reviewcriterionaftersave', 'local_obf'));
-//            $mform->setExpanded('header_review_criterion_after_save');
-            $mform->addElement('html', $OUTPUT->notification(get_string('warningcannoteditafterreview', 'local_obf')));
+            $mform->addElement('header', 'header_review_criterion_after_save',
+                    get_string('reviewcriterionaftersave', 'local_obf'));
+            $mform->setExpanded('header_review_criterion_after_save');
+            $mform->addElement('html',
+                    $OUTPUT->notification(get_string('warningcannoteditafterreview', 'local_obf')));
             $mform->addElement('advcheckbox', 'reviewaftersave', get_string('reviewcriterionaftersave', 'local_obf'));
             $mform->addHelpButton('reviewaftersave', 'reviewcriterionaftersave', 'local_obf');
 
@@ -136,13 +134,17 @@ class obf_criterion_form extends obfform implements renderable {
         // Minimum grade -field
         $mform->addElement('text', 'mingrade[' . $criterioncourseid . ']',
                 get_string('minimumgrade', 'local_obf'));
-        $mform->addRule('mingrade[' . $criterioncourseid . ']', null, 'numeric');
 
         // Fun fact: Moodle would like the developer to call $mform->setType()
         // for every form element just in case and shows a E_NOTICE in logs
         // if it detects a missing setType-call. But if we call setType,
         // server-side validation stops working and thus makes $mform->addRule()
         // completely useless. That's why we don't call setType() here.
+        //
+        // ... EXCEPT that Behat-tests are failing because of the E_NOTICE, so let's add client
+        // side validation + server side cleaning
+        $mform->addRule('mingrade[' . $criterioncourseid . ']', null, 'numeric', null, 'client');
+        $mform->setType('mingrade[' . $criterioncourseid . ']', PARAM_INT);
 
         if ($course->has_grade()) {
             $mform->setDefault('mingrade[' . $criterioncourseid . ']', $grade);
