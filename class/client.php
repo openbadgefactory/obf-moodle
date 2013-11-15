@@ -149,6 +149,7 @@ class obf_client {
     }
 
     /**
+     * Get a single badge from the API.
      *
      * @param type $badgeid
      * @throws Exception If the request fails
@@ -159,6 +160,7 @@ class obf_client {
     }
 
     /**
+     * Get issuer data from the API.
      *
      * @throws Exception If the request fails
      * @return type
@@ -168,7 +170,9 @@ class obf_client {
     }
 
     /**
+     * Get badge tree from the API.
      *
+     * @deprecated
      * @throws Exception If the request fails
      * @return type
      */
@@ -176,11 +180,17 @@ class obf_client {
         return $this->curl('/tree/' . self::get_client_id() . '/badge');
     }
 
+    /**
+     * Get badge categories from the API.
+     *
+     * @return type
+     */
     public function get_categories() {
         return $this->curl('/badge/' . self::get_client_id() . '/_/categorylist');
     }
 
     /**
+     * Get all the badges from the API.
      *
      * @return type
      */
@@ -192,8 +202,10 @@ class obf_client {
     }
 
     /**
+     * Get badge assertions from the API.
      *
      * @param type $badgeid
+     * @param string $email
      * @return type
      */
     public function get_assertions($badgeid = null, $email = null) {
@@ -216,8 +228,18 @@ class obf_client {
                 });
     }
 
+    /**
+     * Get single assertion from the API.
+     *
+     * @param type $eventid
+     * @return type
+     */
     public function get_event($eventid) {
         return $this->curl('/event/' . self::get_client_id() . '/' . $eventid, 'get');
+    }
+
+    public function delete_badges() {
+        $this->curl('/badge/' . self::get_client_id(), 'delete');
     }
 
     /**
@@ -244,6 +266,7 @@ class obf_client {
     }
 
     /**
+     * Issues a badge.
      *
      * @param obf_badge $badge
      * @param type $recipients
@@ -272,6 +295,7 @@ class obf_client {
     }
 
     /**
+     * Makes a CURL-request.
      *
      * @global type $CFG
      * @param type $path

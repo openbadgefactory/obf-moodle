@@ -1,21 +1,32 @@
 <?php
 
-use Behat\Gherkin\Node\TableNode;
 use Behat\Behat\Context\Step\Given;
+use Behat\Behat\Event\FeatureEvent;
+use Behat\Gherkin\Node\TableNode;
+use Behat\Mink\Driver\Selenium2Driver;
+use Behat\Mink\Session;
 
 class behat_obf extends behat_base {
+
+    /**
+     * @AfterFeature
+     */
+    public static function teardownFeature(FeatureEvent $event) {
+        require_once(__DIR__ . '/../../class/client.php');
+        obf_client::get_instance()->delete_badges();
+    }
 
     /**
      * @Given /^I enter a valid request token to "([^"]*)"$/
      */
     public function iEnterAValidRequestTokenTo($fieldname) {
         $session = $this->getSession();
-        $seleniumsession = new \Behat\Mink\Session(new \Behat\Mink\Driver\Selenium2Driver());
+        $seleniumsession = new Session(new Selenium2Driver());
         $seleniumsession->start();
 
         $seleniumsession->visit('https://elvis.discendum.com/obf/');
-        $seleniumsession->getPage()->fillField('username', 'test');
-        $seleniumsession->getPage()->fillField('password', 'test');
+        $seleniumsession->getPage()->fillField('username', 'behat');
+        $seleniumsession->getPage()->fillField('password', 'behat');
         $seleniumsession->getPage()->pressButton('Login');
         $seleniumsession->getPage()->clickLink('Admin tools');
         $seleniumsession->wait(1000);

@@ -29,7 +29,7 @@ $string['backpackemailnotfound'] = 'Sähköpostiosoitteella \'{$a}\' ei löytyny
         . 'Backpackista.';
 $string['backpackemail_help'] = 'Omaan Mozilla OpenBadges Backpack -tiliin liitetty '
         . 'sähköpostiosoitteesi';
-$string['backpackgroups'] = 'Osaamismerkkiryhmät';
+$string['backpackgroups'] = 'Näytettävät ryhmät';
 $string['backpackgroups_help'] = 'Valitse ryhmät, joiden osaamismerkit haluat näkyvän Moodlen '
         . 'merkkinäkymässä.';
 $string['backpacksettings'] = 'Backpack-asetukset';
