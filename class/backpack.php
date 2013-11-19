@@ -5,6 +5,7 @@ require_once(__DIR__ . '/assertion.php');
 class obf_backpack {
 
     const BACKPACK_URL = 'http://beta.openbadges.org/displayer/';
+    const PERSONA_VERIFIER_URL = 'https://verifier.login.persona.org/verify';
 
     private $id = -1;
     private $user_id = -1;
@@ -14,42 +15,82 @@ class obf_backpack {
 
     /**
      *
-     * @global moodle_database $DB
      * @param type $user
      */
     public static function get_instance($user) {
+        return self::get_instance_by_fields(array('user_id' => $user->id));
+    }
+
+    /**
+     *
+     * @global moodle_database $DB
+     * @param array $fields
+     * @return \self|boolean
+     */
+    protected static function get_instance_by_fields(array $fields) {
         global $DB;
 
-        $backpackobj = $DB->get_record('obf_backpack_emails', array('user_id' => $user->id));
-        $obj = new self();
-        $obj->set_user_id($user->id);
+        $backpackobj = $DB->get_record('obf_backpack_emails', $fields);
 
-        // No backpack data found from the database, let's try connection with the default email
-        // address of the user
         if ($backpackobj === false) {
-            $backpackid = self::connect_to_backpack($user->email);
-
-            // Matching email found from the backpack service
-            if ($backpackid !== false) {
-                $obj->set_backpack_id($backpackid);
-                $obj->set_email($user->email);
-                $obj->save();
-            }
-        } else {
-            $obj->set_backpack_id($backpackobj->backpack_id);
-            $obj->set_email($backpackobj->email);
-            $obj->set_id($backpackobj->id);
-            $obj->set_groups(unserialize($backpackobj->groups));
+            return false;
         }
+
+        $obj = new self();
+        $obj->set_user_id($backpackobj->user_id);
+        $obj->set_backpack_id($backpackobj->backpack_id);
+        $obj->set_email($backpackobj->email);
+        $obj->set_id($backpackobj->id);
+        $obj->set_groups(unserialize($backpackobj->groups));
 
         return $obj;
     }
 
+    /**
+     *
+     * @param type $email
+     */
+    public static function get_instance_by_backpack_email($email) {
+        return self::get_instance_by_fields(array('email' => $email));
+    }
+
+    /**
+     *
+     * @global moodle_database $DB
+     * @param type $userid
+     * @return type
+     */
     public static function get_instance_by_userid($userid) {
         global $DB;
         return self::get_instance($DB->get_record('user', array('id' => $userid)));
     }
 
+    /**
+     * Returns an array of backpack email addresses matching the user ids found from $userids
+     *
+     * @global moodle_database $DB
+     * @param array $userids
+     * @return String[] An array of backpack emails
+     */
+    public static function get_emails_by_userids(array $userids) {
+        global $DB;
+
+        $records = $DB->get_records_list('obf_backpack_emails', 'user_id', $userids, '',
+                'user_id,email');
+        $ret = array();
+
+        foreach ($records as $record) {
+            $ret[$record->user_id] = $record->email;
+        }
+
+        return $ret;
+    }
+
+    /**
+     *
+     * @global moodle_database $DB
+     * @return type
+     */
     public static function get_user_ids_with_backpack() {
         global $DB;
 
@@ -63,6 +104,12 @@ class obf_backpack {
         return $ret;
     }
 
+    /**
+     *
+     * @global type $CFG
+     * @param type $email
+     * @return boolean
+     */
     private static function connect_to_backpack($email) {
         global $CFG;
 
@@ -80,12 +127,40 @@ class obf_backpack {
         return false;
     }
 
-    public function disconnect() {
-        $this->set_backpack_id(-1);
-        $this->set_groups(array());
-        $this->save();
+    public function verify($assertion) {
+        global $CFG;
+
+        require_once($CFG->libdir . '/filelib.php');
+
+        $urlparts = parse_url($CFG->wwwroot);
+        $port = isset($urlparts['port']) ? $urlparts['port'] : 80;
+        $url = $urlparts['scheme'] . '://' . $urlparts['host'] . ':' . $port; // . $urlparts['path'];
+        $params = array('assertion' => $assertion, 'audience' => $url);
+        $curl = new curl();
+
+        $curl->setHeader('Content-Type: application/json');
+        $output = $curl->post(self::PERSONA_VERIFIER_URL, json_encode($params));
+        $ret = json_decode($output);
+
+        if ($ret->status == 'failure') {
+            return false;
+        }
+
+        return $ret->email;
     }
 
+    /**
+     *
+     */
+    public function disconnect() {
+        $this->delete();
+    }
+
+    /**
+     *
+     * @param type $email
+     * @throws Exception
+     */
     public function connect($email) {
         $this->set_email($email);
         $backpackid = self::connect_to_backpack($email);
@@ -200,6 +275,14 @@ class obf_backpack {
         } else {
             $id = $DB->insert_record('obf_backpack_emails', $obj);
             $this->set_id($id);
+        }
+    }
+
+    public function delete() {
+        global $DB;
+
+        if ($this->id > 0) {
+            $DB->delete_records('obf_backpack_emails', array('id' => $this->id));
         }
     }
 

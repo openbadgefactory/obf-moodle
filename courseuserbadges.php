@@ -6,7 +6,7 @@ $url = new moodle_url('/local/obf/courseuserbadges.php');
 $context = context_course::instance($courseid);
 
 require_login($courseid);
-// TODO: require a capability?
+require_capability('local/obf:seeparticipantbadges', $context);
 
 $PAGE->set_context($context);
 $PAGE->set_url($url);

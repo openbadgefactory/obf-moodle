@@ -68,9 +68,16 @@ if ($issuerform->is_cancelled()) {
 else if (!is_null($data = $issuerform->get_data())) {
     $users = user_get_users_by_id($data->recipientlist);
     $recipients = array();
+    $userids = array();
 
     foreach ($users as $user) {
-        $recipients[] = $user->email;
+        $userids[] = $user->id;
+    }
+
+    $backpackemails = obf_backpack::get_emails_by_userids($userids);
+
+    foreach ($users as $user) {
+        $recipients[] = isset($backpackemails[$user->id]) ? $backpackemails[$user->id] : $user->email;
     }
 
     $badge->set_expires($data->expiresby);

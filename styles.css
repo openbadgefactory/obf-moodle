@@ -1,3 +1,5 @@
+/** Path: plugins local_obf **/
+/** Path: plugins local_obf **/
 span.backpackconnected { color: #6a6; }
 span.backpackdisconnected { color: #a66; }
 
@@ -64,3 +66,11 @@ table.obf-table th	{ width: 120px; }
 
 #obf-assertion-panel .yui3-panel-content { border-color: #ccc; box-shadow: 0 0 50px #333; }
 #obf-assertion-panel .yui3-widget-hd { color: #555; font-weight: bold; border-bottom: solid #ccc 1px; }
+
+/**
+ * Badge categories
+ */
+.obf-category-wrapper { overflow: hidden; }
+.obf-category-wrapper p { float: left; margin: 0 1em 0 0; padding: 2px 0 0 0; }
+ul.obf-categories { list-style: none; overflow: hidden; margin: 0; }
+ul.obf-categories li { float: left; }

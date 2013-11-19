@@ -20,7 +20,11 @@ function local_obf_course_completed(stdClass $eventdata) {
     global $DB;
 
     $user = $DB->get_record('user', array('id' => $eventdata->userid));
-    $recipients = array($user->email);
+    $backpack = obf_backpack::get_instance_by_userid($eventdata->userid);
+
+    // If the user has configured the backpack settings, use the backpack email instead of the
+    // default email.
+    $recipients = array($backpack === false ? $user->email : $backpack->get_email());
 
     // No capability -> no badge.
     if (!has_capability('local/obf:earnbadge', context_course::instance($eventdata->course),
@@ -70,10 +74,12 @@ function local_obf_extends_settings_navigation(settings_navigation $navigation) 
     global $COURSE;
 
     if (($branch = $navigation->get('courseadmin'))) {
-        $obfnode = navigation_node::create(get_string('obf', 'local_obf'),
-                        new moodle_url('/local/obf/badge.php',
-                        array('action' => 'list', 'courseid' => $COURSE->id)));
-        $branch->add_node($obfnode, 'backup');
+        if (has_capability('local/obf:issuebadge', context_course::instance($COURSE->id))) {
+            $obfnode = navigation_node::create(get_string('obf', 'local_obf'),
+                            new moodle_url('/local/obf/badge.php',
+                            array('action' => 'list', 'courseid' => $COURSE->id)));
+            $branch->add_node($obfnode, 'backup');
+        }
     }
 
     if (($branch = $navigation->get('usercurrentsettings'))) {
@@ -89,10 +95,12 @@ function local_obf_extends_navigation(global_navigation $navigation) {
     // Course id 1 is Moodle
     if ($COURSE->id > 1 && $coursenode = $PAGE->navigation->find($COURSE->id,
             navigation_node::TYPE_COURSE)) {
-        $node = navigation_node::create(get_string('courseuserbadges', 'local_obf'),
-                        new moodle_url('/local/obf/courseuserbadges.php',
-                        array('courseid' => $COURSE->id)));
-        $coursenode->add_node($node);
+        if (has_capability('local/obf:seeparticipantbadges', context_course::instance($COURSE->id))) {
+            $node = navigation_node::create(get_string('courseuserbadges', 'local_obf'),
+                            new moodle_url('/local/obf/courseuserbadges.php',
+                            array('courseid' => $COURSE->id)));
+            $coursenode->add_node($node);
+        }
     }
 }
 

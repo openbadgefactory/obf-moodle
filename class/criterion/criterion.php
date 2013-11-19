@@ -118,6 +118,7 @@ class obf_criterion {
 
         $subquery = 'SELECT obf_criterion_id FROM {obf_criterion_courses}';
         $DB->delete_records_select('obf_criterion', 'id NOT IN (' . $subquery . ')');
+        $DB->delete_records_select('obf_criterion_met', 'obf_criterion_id NOT IN (' . $subquery . ')');
     }
 
     public function delete_met() {
@@ -320,8 +321,8 @@ class obf_criterion {
         raise_memory_limit(MEMORY_EXTRA);
 
         $courses = $this->get_related_courses();
-        $recipientemails = array();
         $recipientids = array();
+        $recipients = array();
 
         foreach ($courses as $course) {
             $context = context_course::instance($course->id);
@@ -332,19 +333,26 @@ class obf_criterion {
             // Review all enrolled users of this course separately
             foreach ($users as $user) {
                 if ($this->review($user->id, $course->id)) {
-                    $recipientemails[] = $user->email;
+                    $recipients[] = $user;
                     $recipientids[] = $user->id;
                 }
             }
         }
 
         // We found users that have completed this criterion. Let's issue some badges, then!
-        if (count($recipientemails) > 0) {
+        if (count($recipients) > 0) {
             $badge = $this->get_badge();
             $email = $badge->get_email();
 
             if (is_null($email)) {
                 $email = new obf_email();
+            }
+
+            $backpackemails = obf_backpack::get_emails_by_userids($recipientids);
+            $recipientemails = array();
+
+            foreach ($recipients as $user) {
+                $recipientemails[] = isset($backpackemails[$user->id]) ? $backpackemails[$user->id] : $user->email;
             }
 
             $badge->issue($recipientemails, time(), $email->get_subject(), $email->get_body(),

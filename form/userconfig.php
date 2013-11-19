@@ -16,18 +16,18 @@ class obf_userconfig_form extends obfform {
 
         $mform->addElement('static', 'connectionstatus',
                 get_string('connectionstatus', 'local_obf'), $statustext);
-
+        $email = $backpack->get_email();
 
         // Allow editing the email address only if the connection isn't established yet
-        if (!$backpack->is_connected()) {
-            $mform->addElement('text', 'backpackemail', get_string('backpackemail', 'local_obf'));
-            $mform->addRule('backpackemail', null, 'email');
-            $mform->setType('backpackemail', PARAM_NOTAGS);
-            $mform->setDefault('backpackemail', $backpack->get_email());
-        } else {
+//        if (!$backpack->is_connected()) {
+//            $mform->addElement('text', 'backpackemail', get_string('backpackemail', 'local_obf'));
+//            $mform->addRule('backpackemail', null, 'email');
+//            $mform->setType('backpackemail', PARAM_NOTAGS);
+//            $mform->setDefault('backpackemail', $backpack->get_email());
+//        } else {
             $mform->addElement('static', 'backpackemail', get_string('backpackemail', 'local_obf'),
-                    s($backpack->get_email()));
-        }
+                    empty($email) ? '-' : s($email));
+//        }
 
         $mform->addHelpButton('backpackemail', 'backpackemail', 'local_obf');
 
@@ -59,9 +59,11 @@ class obf_userconfig_form extends obfform {
         }
 
         $buttonarray = array();
+        $type = $backpack->is_connected() ? 'submit' : 'button';
         $submittext = $backpack->is_connected() ? get_string('savechanges') : get_string('connect',
                         'local_obf');
-        $buttonarray[] = $mform->createElement('submit', 'submitbutton', $submittext);
+        $buttonarray[] = $mform->createElement($type, 'submitbutton', $submittext,
+                array('class' => !$backpack->is_connected() ? 'verifyemail' : 'savegroups'));
 
         if ($backpack->is_connected()) {
             $buttonarray[] = $mform->createElement('cancel', null,

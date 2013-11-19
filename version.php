@@ -1,9 +1,8 @@
 <?php
 defined('MOODLE_INTERNAL') or die();
 
-$plugin->version    = 2013110500;
-//$plugin->requires   = 2013051400;
-$plugin->requires   = 2011120511;
+$plugin->version    = 2013111502;
+$plugin->requires   = 2013051402;
 $plugin->cron       = 86400;
 $plugin->component  = 'local_obf';
 $plugin->maturity   = MATURITY_ALPHA;

@@ -41,7 +41,7 @@ class obf_assertion extends obf_issuance {
     public function toArray() {
         return array(
             'badge' => $this->badge->toArray(),
-            'issued_on' => $this->get_issuedon());
+            'issued_on' => $this->get_issuedon() == '' ? '-' : $this->get_issuedon());
     }
 
     /**
@@ -186,8 +186,9 @@ class obf_assertion_collection implements Countable, IteratorAggregate {
      * @return type
      */
     public function get_assertion_users(obf_assertion $assertion) {
+        global $DB;
+
         if (count($this->users) === 0) {
-            global $DB;
             $emails = array();
 
             foreach ($this->assertions as $a) {
@@ -199,12 +200,18 @@ class obf_assertion_collection implements Countable, IteratorAggregate {
 
         $ret = array();
 
+        // TODO: check number of SQL-queries performed in this loop
         foreach ($assertion->get_recipients() as $recipient) {
+            // try to find the user by email
             if (($user = $this->find_user_by_email($recipient)) !== false) {
                 $ret[] = $user;
             }
+
+            // ... and then try to find the user by backpack email
             else {
-                $ret[] = $recipient;
+                $backpack = obf_backpack::get_instance_by_backpack_email($recipient);
+                $ret[] = $backpack === false ? $recipient : $DB->get_record('user',
+                                array('id' => $backpack->get_user_id()));
             }
         }
 

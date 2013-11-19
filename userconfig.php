@@ -1,4 +1,5 @@
 <?php
+
 require_once(__DIR__ . '/../../config.php');
 require_once(__DIR__ . '/form/userconfig.php');
 require_once(__DIR__ . '/class/backpack.php');
@@ -16,36 +17,36 @@ $PAGE->set_pagelayout('standard');
 
 $content = $OUTPUT->header();
 $backpack = obf_backpack::get_instance($USER);
-$form = new obf_userconfig_form($url, array('backpack' => $backpack));
-
+$form = new obf_userconfig_form($url,
+        array('backpack' => ($backpack === false ? new obf_backpack() : $backpack)));
 
 // Disconnect-button was pressed
 if ($form->is_cancelled()) {
-    $backpack->disconnect();
+    if ($backpack !== false) {
+        $backpack->disconnect();
+    }
+
     redirect($url);
 }
 
 // User configuration was saved.
 else if (($data = $form->get_data())) {
 
-    if (isset($data->backpackgroups)) {
-        $backpack->set_groups(array_keys($data->backpackgroups));
-    }
-
-    $redirecturl = clone $url;
-
-    try {
-        if (isset($data->backpackemail)) {
-            $backpack->connect($data->backpackemail);
+    // If were saving backpack data, we can safely assume that the backpack exists, because it
+    // had to be created before (via verifyemail.php)
+    if ($backpack !== false) {
+        if (isset($data->backpackgroups)) {
+            $backpack->set_groups(array_keys($data->backpackgroups));
         }
-        else {
+
+        $redirecturl = clone $url;
+
+        try {
             $backpack->save();
+        } catch (Exception $e) {
+            $redirecturl->param('error', $e->getMessage());
         }
     }
-    catch (Exception $e) {
-        $redirecturl->param('error', $e->getMessage());
-    }
-
 
     redirect($redirecturl);
 }
