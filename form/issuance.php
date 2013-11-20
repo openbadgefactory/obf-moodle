@@ -119,10 +119,6 @@ class MoodleQuickForm_userselector extends HTML_QuickForm_element {
         if (is_array($attributes) && isset($attributes['exclude'])) {
             $this->userselector->exclude($attributes['exclude']);
         }
-
-//        if (is_array($attributes) && !empty($attributes['courseid'])) {
-//            $this->userselector->set_courseid($attributes['courseid']);
-//        }
     }
 
     public function getName() {

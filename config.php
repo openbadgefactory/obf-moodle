@@ -35,21 +35,22 @@ switch ($action) {
                 try {
                     $client->authenticate($data->obftoken);
 
-                    require_once($CFG->libdir . '/badgeslib.php');
+                    if (file_exists($CFG->libdir . '/badgeslib.php')) {
+                        require_once($CFG->libdir . '/badgeslib.php');
 
-                    $badges = array_merge(badges_get_badges(BADGE_TYPE_COURSE),
-                            badges_get_badges(BADGE_TYPE_SITE));
+                        $badges = array_merge(badges_get_badges(BADGE_TYPE_COURSE),
+                                badges_get_badges(BADGE_TYPE_SITE));
 
-                    // If there are existing (local) badges, redirect to export-page
-                    if (count($badges) > 0) {
-                        redirect(new moodle_url('/local/obf/config.php',
-                                array('action' => 'exportbadges')));
+                        // If there are existing (local) badges, redirect to export-page
+                        if (count($badges) > 0) {
+                            redirect(new moodle_url('/local/obf/config.php',
+                                    array('action' => 'exportbadges')));
+                        }
                     }
+
                     // No local badges, no need to export
-                    else {
-                        redirect(new moodle_url('/local/obf/config.php',
-                                array('msg' => get_string('authenticationsuccess', 'local_obf'))));
-                    }
+                    redirect(new moodle_url('/local/obf/config.php',
+                            array('msg' => get_string('authenticationsuccess', 'local_obf'))));
                 } catch (Exception $e) {
                     $content .= $OUTPUT->notification($e->getMessage());
                 }

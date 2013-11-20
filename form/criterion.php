@@ -4,8 +4,15 @@ defined('MOODLE_INTERNAL') or die();
 
 global $CFG;
 
+if (file_exists($CFG->libdir . '/coursecatlib.php')) {
+    require_once($CFG->libdir . '/coursecatlib.php');
+}
+// Moodle 2.2
+else {
+    require_once($CFG->dirroot . '/course/lib.php');
+}
+
 require_once(__DIR__ . '/obfform.php');
-require_once($CFG->libdir . '/coursecatlib.php');
 require_once($CFG->libdir . '/completionlib.php');
 
 class obf_criterion_form extends obfform implements renderable {
@@ -28,7 +35,17 @@ class obf_criterion_form extends obfform implements renderable {
             $courses = $DB->get_records('course', array('enablecompletion' => COMPLETION_ENABLED));
 
             if (count($courses) > 0) {
-                $categories = coursecat::make_categories_list();
+                $categories = array();
+
+                if (method_exists('coursecat', 'make_categories_list')) {
+                    $categories = coursecat::make_categories_list();
+                }
+                // Moodle 2.2
+                else {
+                    $parents = array();
+                    make_categories_list($categories, $parents);
+                }
+
                 $courselist = $this->initialize_categories($categories);
 
                 foreach ($courses as $course) {
@@ -48,7 +65,7 @@ class obf_criterion_form extends obfform implements renderable {
 
                 $mform->addElement('header', 'header_criterion_fields',
                         get_string('selectcourses', 'local_obf'));
-                $mform->setExpanded('header_criterion_fields');
+                $this->setExpanded($mform, 'header_criterion_fields');
 
                 // There aren't any courses that aren't already in this badge's criteria
                 if ($validcourses === 0) {
@@ -109,14 +126,14 @@ class obf_criterion_form extends obfform implements renderable {
 
                 $mform->addElement('header', 'header_completion_method',
                         get_string('criteriacompletedwhen', 'local_obf'));
-                $mform->setExpanded('header_completion_method');
+                $this->setExpanded($mform, 'header_completion_method');
                 $mform->addGroup($radiobuttons, 'radioar', '', '<br />', false);
                 $mform->setDefault('completion_method', $this->criterion->get_completion_method());
             }
 
             $mform->addElement('header', 'header_review_criterion_after_save',
                     get_string('reviewcriterionaftersave', 'local_obf'));
-            $mform->setExpanded('header_review_criterion_after_save');
+            $this->setExpanded($mform, 'header_review_criterion_after_save');
             $mform->addElement('html',
                     $OUTPUT->notification(get_string('warningcannoteditafterreview', 'local_obf')));
             $mform->addElement('advcheckbox', 'reviewaftersave', get_string('reviewcriterionaftersave', 'local_obf'));

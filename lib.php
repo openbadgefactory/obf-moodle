@@ -70,22 +70,40 @@ function local_obf_course_deleted(stdClass $course) {
     return true;
 }
 
+/**
+ * Adds the OBF-links to Moodle's navigation, Moodle 2.2 -style.
+ *
+ * @global type $COURSE The current course
+ * @global moodle_page $PAGE
+ * @param settings_navigation $navigation
+ */
+function obf_extends_navigation(global_navigation $navigation) {
+    global $COURSE, $PAGE;
+
+    if ($COURSE->id > 1 && $branch = $navigation->find($COURSE->id, navigation_node::TYPE_COURSE)) {
+        local_obf_add_course_participant_badges_link($branch);
+    }
+
+    if (@$PAGE->settingsnav) {
+        if (($branch = $PAGE->settingsnav->get('courseadmin'))) {
+            local_obf_add_course_admin_link($branch);
+        }
+
+        if (($branch = $PAGE->settingsnav->get('usercurrentsettings'))) {
+            local_obf_add_backpack_settings_link($branch);
+        }
+    }
+}
+
 function local_obf_extends_settings_navigation(settings_navigation $navigation) {
     global $COURSE;
 
     if (($branch = $navigation->get('courseadmin'))) {
-        if (has_capability('local/obf:issuebadge', context_course::instance($COURSE->id))) {
-            $obfnode = navigation_node::create(get_string('obf', 'local_obf'),
-                            new moodle_url('/local/obf/badge.php',
-                            array('action' => 'list', 'courseid' => $COURSE->id)));
-            $branch->add_node($obfnode, 'backup');
-        }
+        local_obf_add_course_admin_link($branch);
     }
 
     if (($branch = $navigation->get('usercurrentsettings'))) {
-        $node = navigation_node::create(get_string('backpacksettings', 'local_obf'),
-                        new moodle_url('/local/obf/userconfig.php'));
-        $branch->add_node($node);
+        local_obf_add_backpack_settings_link($branch);
     }
 }
 
@@ -93,15 +111,38 @@ function local_obf_extends_navigation(global_navigation $navigation) {
     global $PAGE, $COURSE;
 
     // Course id 1 is Moodle
-    if ($COURSE->id > 1 && $coursenode = $PAGE->navigation->find($COURSE->id,
+    if ($COURSE->id > 1 && $branch = $PAGE->navigation->find($COURSE->id,
             navigation_node::TYPE_COURSE)) {
-        if (has_capability('local/obf:seeparticipantbadges', context_course::instance($COURSE->id))) {
-            $node = navigation_node::create(get_string('courseuserbadges', 'local_obf'),
-                            new moodle_url('/local/obf/courseuserbadges.php',
-                            array('courseid' => $COURSE->id)));
-            $coursenode->add_node($node);
-        }
+        local_obf_add_course_participant_badges_link($branch);
     }
+}
+
+function local_obf_add_course_participant_badges_link(&$branch) {
+    global $COURSE;
+
+    if (has_capability('local/obf:seeparticipantbadges', context_course::instance($COURSE->id))) {
+        $node = navigation_node::create(get_string('courseuserbadges', 'local_obf'),
+                        new moodle_url('/local/obf/courseuserbadges.php',
+                        array('courseid' => $COURSE->id)));
+        $branch->add_node($node);
+    }
+}
+
+function local_obf_add_course_admin_link(&$branch) {
+    global $COURSE;
+
+    if (has_capability('local/obf:issuebadge', context_course::instance($COURSE->id))) {
+        $obfnode = navigation_node::create(get_string('obf', 'local_obf'),
+                        new moodle_url('/local/obf/badge.php',
+                        array('action' => 'list', 'courseid' => $COURSE->id)));
+        $branch->add_node($obfnode, 'backup');
+    }
+}
+
+function local_obf_add_backpack_settings_link(&$branch) {
+    $node = navigation_node::create(get_string('backpacksettings', 'local_obf'),
+                    new moodle_url('/local/obf/userconfig.php'));
+    $branch->add_node($node);
 }
 
 /**
@@ -151,4 +192,57 @@ function local_obf_cron() {
     }
 
     return true;
+}
+
+// Moodle 2.2 -support
+if (!function_exists('users_order_by_sql')) {
+
+    /**
+     * This function generates the standard ORDER BY clause for use when generating
+     * lists of users. If you don't have a reason to use a different order, then
+     * you should use this method to generate the order when displaying lists of users.
+     *
+     * COPIED FROM THE CODE OF MOODLE 2.5
+     */
+    function users_order_by_sql($usertablealias = '', $search = null, context $context = null) {
+        global $DB, $PAGE;
+
+        if ($usertablealias) {
+            $tableprefix = $usertablealias . '.';
+        } else {
+            $tableprefix = '';
+        }
+
+        $sort = "{$tableprefix}lastname, {$tableprefix}firstname, {$tableprefix}id";
+        $params = array();
+
+        if (!$search) {
+            return array($sort, $params);
+        }
+
+        if (!$context) {
+            $context = $PAGE->context;
+        }
+
+        $exactconditions = array();
+        $paramkey = 'usersortexact1';
+
+        $exactconditions[] = $DB->sql_fullname($tableprefix . 'firstname', $tableprefix . 'lastname') .
+                ' = :' . $paramkey;
+        $params[$paramkey] = $search;
+        $paramkey++;
+
+        $fieldstocheck = array_merge(array('firstname', 'lastname'), get_extra_user_fields($context));
+        foreach ($fieldstocheck as $key => $field) {
+            $exactconditions[] = 'LOWER(' . $tableprefix . $field . ') = LOWER(:' . $paramkey . ')';
+            $params[$paramkey] = $search;
+            $paramkey++;
+        }
+
+        $sort = 'CASE WHEN ' . implode(' OR ', $exactconditions) .
+                ' THEN 0 ELSE 1 END, ' . $sort;
+
+        return array($sort, $params);
+    }
+
 }

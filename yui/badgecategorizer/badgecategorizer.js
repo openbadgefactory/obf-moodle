@@ -13,26 +13,31 @@ YUI.add('moodle-local_obf-badgecategorizer', function(Y) {
         initializer: function(config) {
             Y.one('ul.obf-categories').delegate('click', this.toggle_class, 'button', this);
         },
-
-        toggle_class: function (e) {
+        toggle_class: function(e) {
             e.preventDefault();
 
             var node = e.currentTarget;
             node.toggleClass('active');
             var categories = Y.all('ul.obf-categories button.active').get('text');
 
-            Y.all('ul.badgelist li').each(function (badge, index, list) {
-               var badge_categories = JSON.parse(badge.getAttribute('data-categories'));
-               var show_badge = badge_categories.length === 0; // always show badges without categories
+            Y.all('ul.badgelist li').each(function(badge, index, list) {
+                var badge_categories = JSON.parse(badge.getAttribute('data-categories'));
+                var show_badge = false;
 
-               Y.Array.some(badge_categories, function (cat) {
-                   if (Y.Array.indexOf(categories, cat) > -1) {
-                       show_badge = true;
-                       return true;
-                   }
-               });
+                // Show all badges if none of the categories is selected
+                if (categories.length === 0) {
+                    show_badge = true;
+                }
+                else {
+                    Y.Array.some(badge_categories, function(cat) {
+                        if (Y.Array.indexOf(categories, cat) > -1) {
+                            show_badge = true;
+                            return true;
+                        }
+                    });
+                }
 
-               badge[show_badge ? 'show' : 'hide'](true);
+                badge[show_badge ? 'show' : 'hide'](true);
             }, this);
         }
     }, {
@@ -46,4 +51,4 @@ YUI.add('moodle-local_obf-badgecategorizer', function(Y) {
     M.local_obf.init_badgecategorizer = function(config) {
         return new BADGECATEGORIZER(config);
     };
-}, '@VERSION@', { requires: ['base','json-parse','transition'] });
+}, '@VERSION@', {requires: ['base', 'json-parse', 'transition']});

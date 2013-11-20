@@ -153,21 +153,11 @@ class obf_badge {
             $this->set_expires(strtotime('+ ' . $expires . ' months'));
         }
 
-        if (isset($arr['category'])) {
-            $this->set_categories($arr['category']);
-        }
-
-        if (isset($arr['tags'])) {
-            $this->set_tags($arr['tags']);
-        }
-
-        if (isset($arr['css'])) {
-            $this->set_criteria_css($arr['css']);
-        }
-
-        if (isset($arr['criteria_html'])) {
-            $this->set_criteria_html($arr['criteria_html']);
-        }
+        isset($arr['criteria_url']) and $this->set_criteria_url($arr['criteria_url']);
+        isset($arr['category']) and $this->set_categories($arr['category']);
+        isset($arr['tags']) and $this->set_tags($arr['tags']);
+        isset($arr['css']) and $this->set_criteria_css($arr['css']);
+        isset($arr['criteria_html']) and $this->set_criteria_html($arr['criteria_html']);
 
         // Try to get the email template from the local database first.
         $email = obf_email::get_by_badge($this);
@@ -179,24 +169,14 @@ class obf_badge {
             $email = new obf_email();
             $email->set_badge_id($this->get_id());
 
-            if (isset($arr['email_subject'])) {
-                $email->set_subject($arr['email_subject']);
-            }
-
-            if (isset($arr['email_footer'])) {
-                $email->set_footer($arr['email_footer']);
-            }
-
-            if (isset($arr['email_body'])) {
-                $email->set_body($arr['email_body']);
-            }
+            isset($arr['email_subject']) and $email->set_subject($arr['email_subject']);
+            isset($arr['email_footer']) and $email->set_footer($arr['email_footer']);
+            isset($arr['email_body']) and $email->set_body($arr['email_body']);
 
             $email->save();
         }
 
-        if (!is_null($email)) {
-            $this->set_email($email);
-        }
+        !is_null($email) and $this->set_email($email);
 
         return $this;
     }
@@ -472,6 +452,10 @@ class obf_badge {
     public function set_criteria_url($criteria_url) {
         $this->criteria_url = $criteria_url;
         return $this;
+    }
+
+    public function has_criteria_url() {
+        return !empty($this->criteria_url);
     }
 
     public static function get_badges_in_course($courseid) {

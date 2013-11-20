@@ -11,4 +11,11 @@ abstract class obfform extends moodleform {
         return $out;
     }
 
+    public function setExpanded(&$mform, $header) {
+        // Moodle 2.2 doesn't have setExpanded
+        if (method_exists($mform, 'setExpanded')) {
+            $mform->setExpanded($header);
+        }
+    }
+
 }

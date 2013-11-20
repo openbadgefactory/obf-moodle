@@ -2,8 +2,6 @@
 
 global $CFG;
 
-//require_once($CFG->libdir . '/coursecatlib.php');
-//require_once($CFG->libdir . '/completionlib.php');
 require_once(__DIR__ . '/criterionbase.php');
 require_once(__DIR__ . '/criterion.php');
 
@@ -208,7 +206,7 @@ class obf_criterion_course extends obf_criterion_base {
 
         if ($this->has_completion_date()) {
             $html .= ' ' . get_string('completedbycriterion', 'local_obf', userdate($this->completedby,
-                    get_string('strftimedate')));
+                    get_string('dateformatdate', 'local_obf')));
         }
 
         if ($this->has_grade()) {
@@ -228,7 +226,7 @@ class obf_criterion_course extends obf_criterion_base {
 
         if ($this->has_completion_date()) {
             $html .= ' ' . get_string('completedbycriterion', 'local_obf', userdate($this->completedby,
-                    get_string('strftimedate')));
+                    get_string('dateformatdate', 'local_obf')));
         }
 
         if ($this->has_grade()) {
