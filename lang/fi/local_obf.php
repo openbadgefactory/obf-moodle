@@ -56,6 +56,7 @@ $string['cancel'] = 'Peruuta';
 $string['cannoteditcriterion'] = 'Tämän säännön muokkaus ei ole mahdollista, sillä valittu '
         . 'osaamismerkkiä on jo myönnetty tämän säännön perusteella.';
 $string['certrequestfailed'] = 'Sertifikaatin haku OBF-palvelusta epäonnistui.';
+$string['closepopup'] = 'Sulje';
 $string['completedbycriterion'] = '<strong>{$a}</strong> mennessä';
 $string['configurecriteria'] = 'Muokkaa';
 $string['confirmcriteriondeletion'] = 'Haluatko varmasti poistaa tämän säännön?';
@@ -154,6 +155,7 @@ $string['recipientcandidates'] = 'Hakuun täsmäävät käyttäjät';
 $string['requesttoken'] = 'Valtuutusavain';
 $string['requesttoken_help'] = 'Liitä kenttään Open Badge Factory API:in yhdistämiseen käytettävä '
         . 'valtuutusavain.';
+$string['resetfilter'] = 'Näytä kaikki';
 $string['reviewcriterionaftersave'] = 'Tarkista sääntö tallennettaessa';
 $string['reviewcriterionaftersave_help'] = 'Jos automaattinen tarkistus on valittu, tämä sääntö '
         . 'tarkistetaan tallennuksen yhteydessä ja valittu merkki myönnetään kaikille käyttäjille, '

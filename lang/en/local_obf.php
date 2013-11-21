@@ -50,6 +50,7 @@ $string['cancel'] = 'Cancel';
 $string['cannoteditcriterion'] = 'This rule cannot be edited, because the badge has already '
         . 'been awarded automatically based on this rule.';
 $string['certrequestfailed'] = 'There was an error while requesting the certificate from the API';
+$string['closepopup'] = 'Close';
 $string['completedbycriterion'] = 'by <strong>{$a}</strong>';
 $string['configurecriteria'] = 'Configure';
 $string['confirmcriteriondeletion'] = 'Are you sure you want to delete this awarding rule?';
@@ -146,6 +147,7 @@ $string['recipientcandidates'] = 'Users matching the search';
 $string['requesttoken'] = 'OBF request token';
 $string['requesttoken_help'] = 'Paste here the token that is used to connect to Open Badge Factory ' .
         'API.';
+$string['resetfilter'] = 'Reset filter';
 $string['reviewcriterionaftersave'] = 'Review rule after saving';
 $string['reviewcriterionaftersave_help'] = 'If this checkbox is checked, the rule will be '
         . 'reviewed after saving and if someone has already met this rule earlier, this badge '

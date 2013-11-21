@@ -106,7 +106,11 @@ class local_obf_renderer extends plugin_renderer_base {
 
         if (count($items) > 0) {
             $html .= obf_html::div(
-                            html_writer::tag('p', get_string('showcategories', 'local_obf')) .
+                            obf_html::div(
+                                    html_writer::tag('p', get_string('showcategories', 'local_obf')) .
+                                    html_writer::tag('button',
+                                            get_string('resetfilter', 'local_obf'),
+                                            array('class' => 'obf-reset-filter')), 'obf-category-reset-wrapper') .
                             html_writer::alist($items, array('class' => 'obf-categories')),
                             'obf-category-wrapper');
             $this->page->requires->yui_module('moodle-local_obf-badgecategorizer',
@@ -161,7 +165,8 @@ class local_obf_renderer extends plugin_renderer_base {
         $html = '';
         $badge = $assertion->get_badge();
         $issuedon = $assertion->get_issuedon();
-        $issuedon = is_numeric($issuedon) ? userdate($issuedon, get_string('dateformatdate', 'local_obf')) : $issuedon;
+        $issuedon = is_numeric($issuedon) ? userdate($issuedon,
+                        get_string('dateformatdate', 'local_obf')) : $issuedon;
 
         $assertionitems = array(
             get_string('badgename', 'local_obf') => $badge->get_name(),
@@ -647,7 +652,7 @@ class local_obf_renderer extends plugin_renderer_base {
 
             if (!$singlebadgehistory) {
                 $headingrow[] = new obf_table_header('badgename');
-                $historytable->headspan = array(2, 1, 1, 2);
+                $historytable->headspan = array(2, 1, 1, 1, 1);
             } else {
                 $historytable->headspan = array(1, 1, 2);
             }
@@ -655,6 +660,7 @@ class local_obf_renderer extends plugin_renderer_base {
             $headingrow[] = new obf_table_header('recipients');
             $headingrow[] = new obf_table_header('issuedon');
             $headingrow[] = new obf_table_header('expiresby');
+            $headingrow[] = new html_table_cell();
             $historytable->head = $headingrow;
 
             // add history rows
@@ -709,7 +715,8 @@ class local_obf_renderer extends plugin_renderer_base {
         $userlist = $this->render_userlist($users);
 
         $row->cells[] = obf_html::div(implode(', ', $userlist), 'recipientlist');
-        $row->cells[] = userdate($assertion->get_issuedon(), get_string('dateformatdate', 'local_obf'));
+        $row->cells[] = userdate($assertion->get_issuedon(),
+                get_string('dateformatdate', 'local_obf'));
         $row->cells[] = $expirationdate;
         $row->cells[] = html_writer::link(new moodle_url('/local/obf/event.php',
                         array('id' => $assertion->get_id())),

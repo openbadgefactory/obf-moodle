@@ -12,33 +12,42 @@ YUI.add('moodle-local_obf-badgecategorizer', function(Y) {
          */
         initializer: function(config) {
             Y.one('ul.obf-categories').delegate('click', this.toggle_class, 'button', this);
+            Y.one('button.obf-reset-filter').on('click', this.reset_filter, this);
         },
         toggle_class: function(e) {
             e.preventDefault();
 
             var node = e.currentTarget;
             node.toggleClass('active');
+            this.toggle_badges();
+        },
+        toggle_badges: function() {
             var categories = Y.all('ul.obf-categories button.active').get('text');
 
             Y.all('ul.badgelist li').each(function(badge, index, list) {
                 var badge_categories = JSON.parse(badge.getAttribute('data-categories'));
-                var show_badge = false;
+                var show_badge = true;
 
                 // Show all badges if none of the categories is selected
                 if (categories.length === 0) {
                     show_badge = true;
                 }
                 else {
-                    Y.Array.some(badge_categories, function(cat) {
-                        if (Y.Array.indexOf(categories, cat) > -1) {
-                            show_badge = true;
-                            return true;
+                    Y.Array.each(categories, function(cat) {
+                        if (Y.Array.indexOf(badge_categories, cat) === -1) {
+                            show_badge = false;
                         }
                     });
                 }
 
                 badge[show_badge ? 'show' : 'hide'](true);
             }, this);
+        },
+        reset_filter: function(e) {
+            e.preventDefault();
+
+            Y.all('ul.obf-categories button').removeClass('active');
+            this.toggle_badges();
         }
     }, {
         NAME: BADGECATEGORIZERNAME,

@@ -30,7 +30,7 @@ class obf_backpack {
     protected static function get_instance_by_fields(array $fields) {
         global $DB;
 
-        $backpackobj = $DB->get_record('obf_backpack_emails', $fields);
+        $backpackobj = $DB->get_record('obf_backpack_emails', $fields, '*', IGNORE_MULTIPLE);
 
         if ($backpackobj === false) {
             return false;

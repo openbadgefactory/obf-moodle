@@ -118,7 +118,8 @@ class obf_criterion {
 
         $subquery = 'SELECT obf_criterion_id FROM {obf_criterion_courses}';
         $DB->delete_records_select('obf_criterion', 'id NOT IN (' . $subquery . ')');
-        $DB->delete_records_select('obf_criterion_met', 'obf_criterion_id NOT IN (' . $subquery . ')');
+        $DB->delete_records_select('obf_criterion_met',
+                'obf_criterion_id NOT IN (' . $subquery . ')');
     }
 
     public function delete_met() {
@@ -207,8 +208,7 @@ class obf_criterion {
             }
 
             $sql .= ' WHERE ' . implode(' AND ', $cols);
-        }
-        else if (is_string($conditions) && !empty($conditions)) {
+        } else if (is_string($conditions) && !empty($conditions)) {
             $sql .= ' WHERE ' . $conditions;
         }
 
@@ -323,6 +323,7 @@ class obf_criterion {
         $courses = $this->get_related_courses();
         $recipientids = array();
         $recipients = array();
+        $recipientemails = array();
 
         foreach ($courses as $course) {
             $context = context_course::instance($course->id);
@@ -349,7 +350,6 @@ class obf_criterion {
             }
 
             $backpackemails = obf_backpack::get_emails_by_userids($recipientids);
-            $recipientemails = array();
 
             foreach ($recipients as $user) {
                 $recipientemails[] = isset($backpackemails[$user->id]) ? $backpackemails[$user->id] : $user->email;
