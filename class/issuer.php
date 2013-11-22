@@ -38,7 +38,7 @@ class obf_issuer {
 
         return $issuer;
     }
-    
+
     public function get_organization() {
         return $this->organization;
     }
@@ -117,5 +117,3 @@ class obf_issuer {
     }
 
 }
-
-?>

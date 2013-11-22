@@ -1,23 +1,23 @@
 <?php
 
-$string['addcourses'] = 'Jatka';
+$string['addcourses'] = 'Lisää valitut kurssit';
 $string['addcriteria'] = 'Luo uusi myöntämissääntö';
 $string['addnewcriterion'] = 'Lisää kurssi';
-$string['apierror0'] = 'Yhteys OBF-palveluun epäonnistui. Katso palvelimen virhelokista lisätietoa '
-        . 'virheestä.';
+$string['apierror0'] = 'Yhteys Open Badge Factoryyn epäonnistui. Sivuston ylläpidon tulee tarkistaa'
+        . ' Open Badge Factory -lisäosan asetukset.';
 $string['apierror400'] = 'Yhteys OBF-palveluun epäonnistui virheellisen tai puuttuvan parametrin vuoksi.';
 $string['apierror403'] = 'Yhteys Open Badge Factoryyn epäonnistui virheellisen valtuutusavaimen vuoksi.';
 $string['apierror404'] = 'Yhteys OBF-palveluun epäonnistui virheellisen osoitteen vuoksi.';
-$string['apierror405'] = 'TODO: Method not allowed';
-$string['apierror411'] = 'TODO: Length required';
-$string['apierror413'] = 'TODO: Request entity too large';
-$string['apierror429'] = 'TODO: Too many requests';
-$string['apierror495'] = 'TODO: Cert error';
+$string['apierror405'] = '405 Method not allowed';
+$string['apierror411'] = '411 Length required';
+$string['apierror413'] = '413 Request entity too large';
+$string['apierror429'] = '429 Too many requests';
+$string['apierror495'] = '495 Cert error';
 $string['apierror496'] = 'Open Badge Factoryn käyttö ei ole mahdollista ennen sertifikaatin luontia.'
         . ' Kirjaudu Open Badge Factoryyn luodaksesi valtuutusavaimen ja liitä se oheiseen '
         . 'tekstikenttään.';
-$string['apierror500'] = 'TODO: Internal server error';
-$string['apierror502'] = 'TODO: Bad gateway';
+$string['apierror500'] = 'Palvelinvirhe';
+$string['apierror502'] = '502 Bad gateway';
 $string['apierror503'] = 'OBF-palvelu on väliaikaisesti tavoittamattomissa. Ole hyvä ja yritä'
         . ' hetken kuluttua uudelleen.';
 $string['authenticationsuccess'] = 'Valtuutus onnistui.';
@@ -30,18 +30,17 @@ $string['backpackemailnotfound'] = 'Sähköpostiosoitteella \'{$a}\' ei löytyny
 $string['backpackemail_help'] = 'Omaan Mozilla OpenBadges Backpack -tiliin liitetty '
         . 'sähköpostiosoitteesi';
 $string['backpackgroups'] = 'Näytettävät ryhmät';
-$string['backpackgroups_help'] = 'Valitse ryhmät, joiden osaamismerkit haluat näkyvän Moodlen '
-        . 'merkkinäkymässä.';
+$string['backpackgroups_help'] = 'Valitse ryhmät, joiden osaamismerkit näytetään toisille kurssilaisille.';
 $string['backpacksettings'] = 'Backpack-asetukset';
 $string['badgeactions'] = 'Toiminnot';
 $string['badgecategories'] = 'Kategoriat';
 $string['badgecreated'] = 'Luotu';
 $string['badgecriteria'] = 'Myöntämissäännöt';
-$string['badgecriteriaurl'] = 'Kriteerin osoite';
+$string['badgecriteriaurl'] = 'Kriteerisivu';
 $string['badgedescription'] = 'Kuvaus';
 $string['badgedetails'] = 'Osaamismerkin tiedot';
-$string['badgeemail'] = 'Sähköpostimalli';
-$string['badgeexport'] = 'Vie Moodlen omat merkit';
+$string['badgeemail'] = 'Sähköpostiviesti';
+$string['badgeexport'] = 'Moodlen vanhat merkit';
 $string['badgehistory'] = 'Myöntämishistoria';
 $string['badgeimage'] = 'Osaamismerkki';
 $string['badgeissued'] = 'Osaamismerkin myöntäminen onnistui.';
@@ -53,8 +52,7 @@ $string['badgename'] = 'Nimi';
 $string['badgetags'] = 'Tagit';
 $string['badgewasautomaticallyissued'] = 'Osaamismerkki myönnettiin {$a}:lle henkilölle.';
 $string['cancel'] = 'Peruuta';
-$string['cannoteditcriterion'] = 'Tämän säännön muokkaus ei ole mahdollista, sillä valittu '
-        . 'osaamismerkkiä on jo myönnetty tämän säännön perusteella.';
+$string['cannoteditcriterion'] = 'Tämän säännön muokkaus ei ole mahdollista, sillä valittu osaamismerkki on jo myönnetty tämän säännön perusteella.';
 $string['certrequestfailed'] = 'Sertifikaatin haku OBF-palvelusta epäonnistui.';
 $string['closepopup'] = 'Sulje';
 $string['completedbycriterion'] = '<strong>{$a}</strong> mennessä';
@@ -63,11 +61,9 @@ $string['confirmcriteriondeletion'] = 'Haluatko varmasti poistaa tämän säänn
 $string['connect'] = 'Yhdistä';
 $string['connectionisworking'] = 'Yhteys Open Badge Factoryyn muodostettu.';
 $string['connectionstatus'] = 'Backpack-yhteyden tila';
-$string['coursealreadyincriterion'] = 'Tämän merkin myöntämissääntöä tällä kurssilla ei voi muokata,'
-        . ' sillä tällä kurssilla on jo myöntämissääntö valittuun merkkiin liittyen ja sääntö'
-        . ' sisältää muitakin kursseja.';
+$string['coursealreadyincriterion'] = 'Myöntämissääntöä ei voi muokata, sillä tällä kurssilla on jo myöntämissääntö valittuun merkkiin liittyen ja sääntö sisältää muitakin kursseja.';
 $string['coursebadgelisttitle'] = 'Tähän kurssiin liittyvät osaamismerkit';
-$string['coursecompletedby'] = 'Suoritettu viimeistään';
+$string['coursecompletedby'] = 'Suoritettava viimeistään';
 $string['courserequired'] = 'Valitse ainakin yksi kurssi';
 $string['courseuserbadges'] = 'Osaamismerkit';
 $string['criteriacompletedwhen'] = 'Tämä sääntö täyttyy, kun...';
@@ -79,18 +75,18 @@ $string['criteriacourses'] = 'Tähän sääntöön liittyvät kurssit';
 $string['criteriapreview'] = 'Osaamismerkin myöntämiskriteeri';
 $string['criteriatypecourseset'] = 'Suoritusmerkintä kursseista';
 $string['criteriondeleted'] = 'Myöntämissääntö poistettu.';
-$string['criterionsaved'] = 'Sääntö tallennettu.';
+$string['criterionsaved'] = 'Myöntämissääntö tallennettu';
 $string['csrexportfailed'] = 'Sertifikaatin valtuutuksessa tapahtui virhe';
 $string['dateformatdate'] = '%d.%m.%Y';
 $string['deletecriterion'] = 'Poista sääntö';
-$string['disablemoodlebadges'] = 'Poista Moodlen oma merkkijärjestelmä käytöstä.';
+$string['disablemoodlebadges'] = 'Piilota Moodlen vanhat merkit.';
 $string['disconnect'] = 'Katkaise yhteys';
-$string['editemailmessage'] = 'Muokkaa sähköpostimallia';
-$string['emailbody'] = 'Viestin sisältö';
-$string['emailfooter'] = 'Viestin alatunniste';
+$string['editemailmessage'] = 'Muokkaa sähköpostiviestiä';
+$string['emailbody'] = 'Viestin alkuosa';
+$string['emailfooter'] = 'Viestin loppuosa';
 $string['emailmessage'] = 'Sähköpostiviesti';
 $string['emailsubject'] = 'Viestin otsikko';
-$string['emailtemplatesaved'] = 'Sähköpostimalli tallennettu.';
+$string['emailtemplatesaved'] = 'Sähköpostiviesti tallennettu.';
 $string['emailtemplatedescription'] = 'Voit asettaa tälle osaamismerkille sähköpostiviestin, joka '
         . 'lähetetään osaamismerkin saajalle myöntämishetkellä. Viestiä voi muokata vielä ennen merkin'
         . ' myöntämistä.';
@@ -105,6 +101,7 @@ $string['expiringcertificatesubject'] = 'Open Badge Factoryn sertifikaatti on va
 $string['exportextrasettings'] = 'Vientiasetukset';
 $string['gradecriterion'] = 'vähintään <strong>arvosanalla {$a}</strong>';
 $string['history'] = 'Myöntämishistoria';
+$string['historyrecipients'] = '{$a} vastaanottajaa';
 $string['invalidtab'] = 'Sivua ei löytynyt';
 $string['issue'] = 'Myönnä osaamismerkki';
 $string['issuancedetails'] = 'Myöntämistiedot';
@@ -117,23 +114,21 @@ $string['issueremail'] = 'Sähköpostiosoite';
 $string['issuername'] = 'Nimi';
 $string['issuerurl'] = 'Osoite';
 $string['issuethisbadge'] = 'Myönnä tämä merkki';
-$string['makeexportedvisible'] = 'Aseta viedyt merkit julkisiksi';
+$string['makeexporteddrafts'] = 'Viedyt merkit ovat luonnoksia';
 $string['minimumgrade'] = 'Arvosana vähintään';
-$string['missingapiurl'] = 'Open Badge Factory API:n osoitetta ei ole määritelty.';
-$string['showmorerecipients'] = 'lisää';
+$string['nobadgehistory'] = 'Tätä merkkiä ei ole vielä myönnetty.';
 $string['nobackpackgroups'] = 'Luo vähintään yksi julkinen osaamismerkkiryhmä Backpackiisi.';
 $string['nobadges'] = 'Ei osaamismerkkejä.';
-$string['nobadgesincourse'] = 'Kurssiin liittyviä osaamismerkkejä ei löytynyt.';
+$string['nobadgesincourse'] = 'Kurssiin ei ole  liitetty osaamismerkkejä.';
 $string['nocourseswithcompletionenabled'] = 'Jotta osaamismerkkien automaattinen myöntäminen '
         . 'olisi mahdollista, kurssista täytyy olla mahdollista saada suoritusmerkintä. Tarkista '
         . 'kurssien asetukset.';
 $string['nocriteriayet'] = 'Ei vielä myöntämissääntöjä.';
-$string['nobadgehistory'] = 'Tätä merkkiä ei ole vielä myönnetty.';
-$string['nofolder'] = 'Ei kansiota';
 $string['nohistory'] = 'Yhtään osaamismerkkiä ei ole vielä myönnetty.';
+$string['noparticipants'] = 'Ei osallistujia.';
+$string['nouserbadges'] = 'Ei ansaittuja osaamismerkkejä.';
 $string['novalidcourses'] = 'Kaikilla valittavissa olevilla kursseilla on jo myöntämissääntö tähän'
         . ' merkkiin liittyen.';
-$string['nouserbadges'] = 'Ei ansaittuja osaamismerkkejä.';
 $string['numberofbadgessingle'] = ' merkki';
 $string['numberofbadgesmany'] = ' merkkiä';
 $string['obf'] = 'Osaamismerkit';
@@ -172,11 +167,9 @@ $string['selectrecipients'] = 'Vastaanottajat';
 $string['settings'] = 'Asetukset';
 $string['showassertion'] = 'Tiedot';
 $string['showbadges'] = 'Näytä osaamismerkit';
-$string['showcategories'] = 'Näytettävät kategoriat:';
+$string['showcategories'] = 'Suodata merkkejä:';
 $string['showconnectionconfig'] = 'Haluan päivittää valtuutusavaimen siitä huolimatta.';
-$string['toearnthisbadge'] = 'Tämä kurssi on suoritettava valitun osaamismerkin ansaitakseen';
-$string['tokendecryptionfailed'] = 'Valtuutusavaimen purkaminen epäonnistui. Tarkista, että olet '
-        . 'kopioinut ja liittänyt koko valtuutusavaimen.';
-$string['warningcannoteditafterreview'] = 'Mikäli merkki myönnetään vähintään yhdelle henkilölle '
-        . ' säännön automaattisen tarkistuksen perusteella, säännön muokkaus ei ole enää '
-        . 'myöhemmin mahdollista. Tarkista siis sääntö huolellisesti ennen tallennusta.';
+$string['showmorerecipients'] = 'lisää';
+$string['toearnthisbadge'] = 'Osaamismerkin ansaitseminen edellyttää tämän kurssin suorittamista';
+$string['tokendecryptionfailed'] = 'Valtuutusavain on virheellinen. Tarkista, että olet kopioinut ja liittänyt koko valtuutusavaimen.';
+$string['warningcannoteditafterreview'] = 'Sääntöä ei voi muokata, jos merkki on myönnetty automaattisen myöntämissäännön perusteella. Tarkista siis sääntö huolellisesti ennen tallennusta.';

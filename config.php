@@ -104,7 +104,7 @@ switch ($action) {
                                     'image' => base64_encode(file_get_contents(moodle_url::make_pluginfile_url($badge->get_context()->id,
                                                             'badges', 'badgeimage', $badge->id, '/',
                                                             'f1', false))),
-                                    'draft' => !$data->makevisible
+                                    'draft' => $data->makedrafts
                         ));
                         $obfbadge->set_email($email);
                         $success = $obfbadge->export();
@@ -121,8 +121,6 @@ switch ($action) {
             if ($data->disablemoodlebadges) {
                 set_config('enablebadges', 0);
             }
-
-            $url->param('msg', get_string('authenticationsuccess', 'local_obf'));
 
             redirect($url);
         }

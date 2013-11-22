@@ -1,4 +1,5 @@
 <?php
+
 require_once(__DIR__ . '/../../config.php');
 require_once(__DIR__ . '/class/badge.php');
 require_once($CFG->libdir . '/adminlib.php');
@@ -42,8 +43,13 @@ switch ($action) {
         require_capability('local/obf:viewhistory', $context);
 
         $page = optional_param('page', 0, PARAM_INT);
-        $content .= $PAGE->get_renderer('local_obf')->print_badge_info_history($badge, $context,
-                $page);
+
+        try {
+            $content .= $PAGE->get_renderer('local_obf')->print_badge_info_history($badge, $context,
+                    $page);
+        } catch (Exception $e) {
+            $content .= $OUTPUT->notification($e->getMessage());
+        }
         break;
 
     // Show the list of badges.
@@ -51,14 +57,12 @@ switch ($action) {
         require_capability('local/obf:viewallbadges', $context);
 
         try {
-//            $tree = obf_badge_tree::get_instance();
             $badges = obf_badge::get_badges();
 
             if ($context instanceof context_system) {
                 $content .= $PAGE->get_renderer('local_obf')->render_badgelist($badges,
-                    $hasissuecapability, $context, $message);
-            }
-            else {
+                        $hasissuecapability, $context, $message);
+            } else {
                 $content .= $PAGE->get_renderer('local_obf')->render_badgelist_course($badges,
                         $hasissuecapability, $context, $message);
             }
@@ -81,8 +85,7 @@ switch ($action) {
             navigation_node::override_active_url(new moodle_url('/local/obf/badge.php',
                     array('action' => 'list')));
             $PAGE->navbar->add($badge->get_name(), $baseurl);
-        }
-        else {
+        } else {
             navigation_node::override_active_url(new moodle_url('/local/obf/badge.php',
                     array('action' => 'list', 'courseid' => $courseid)));
             $coursebadgeurl = clone $baseurl;

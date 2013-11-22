@@ -55,7 +55,7 @@ YUI.add('moodle-local_obf-courseuserbadgedisplayer', function(Y) {
                 centered: true,
                 modal: true,
                 visible: false,
-                width: 600,
+                width: 800,
                 render: true,
                 zIndex: 10,
                 buttons: [

@@ -7,7 +7,6 @@ defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->libdir . '/tablelib.php');
 require_once(__DIR__ . '/form/issuance.php');
-require_once(__DIR__ . '/class/tree.php');
 require_once(__DIR__ . '/class/criterion/criterion.php');
 require_once(__DIR__ . '/form/emailtemplate.php');
 require_once(__DIR__ . '/form/coursecriterion.php');
@@ -110,7 +109,8 @@ class local_obf_renderer extends plugin_renderer_base {
                                     html_writer::tag('p', get_string('showcategories', 'local_obf')) .
                                     html_writer::tag('button',
                                             get_string('resetfilter', 'local_obf'),
-                                            array('class' => 'obf-reset-filter')), 'obf-category-reset-wrapper') .
+                                            array('class' => 'obf-reset-filter')),
+                                    'obf-category-reset-wrapper') .
                             html_writer::alist($items, array('class' => 'obf-categories')),
                             'obf-category-wrapper');
             $this->page->requires->yui_module('moodle-local_obf-badgecategorizer',
@@ -164,16 +164,26 @@ class local_obf_renderer extends plugin_renderer_base {
     public function render_assertion(obf_assertion $assertion, $printheading = true) {
         $html = '';
         $badge = $assertion->get_badge();
+        $collection = new obf_assertion_collection(array($assertion));
         $issuedon = $assertion->get_issuedon();
         $issuedon = is_numeric($issuedon) ? userdate($issuedon,
                         get_string('dateformatdate', 'local_obf')) : $issuedon;
+        $users = $collection->get_assertion_users($assertion);
 
         $assertionitems = array(
             get_string('badgename', 'local_obf') => $badge->get_name(),
             get_string('badgedescription', 'local_obf') => $badge->get_description(),
             get_string('issuedon', 'local_obf') => $issuedon);
-        $issueritems = array(
-            get_string('issuername', 'local_obf') => $badge->get_issuer()->get_name());
+
+        if (count($assertion->get_recipients()) > 0) {
+            $assertionitems[get_string('recipients', 'local_obf')] = html_writer::alist(array_map(function ($user) {
+                if ($user instanceof stdClass) {
+                    return fullname($user);
+                }
+
+                return $user;
+            }, $users));
+        }
 
         if ($printheading) {
             $html .= $this->print_heading('issuancedetails', 2);
@@ -190,7 +200,7 @@ class local_obf_renderer extends plugin_renderer_base {
                                         'badge-details') .
                                 obf_html::div(
                                         $this->print_heading('issuerdetails') .
-                                        $this->render_definition_list($issueritems),
+                                        $this->render_issuer_details($badge->get_issuer()),
                                         'issuer-details'), 'assertion-details'), 'obf-assertion');
 
         return $html;
@@ -287,7 +297,7 @@ class local_obf_renderer extends plugin_renderer_base {
     }
 
     /**
-     * Renders the OBF-badge tree with badges categorized into folders.
+     * Renders the OBF-badges.
      *
      * @param obf_badge[] $badges
      * @param type $hasissuecapability
@@ -388,21 +398,28 @@ class local_obf_renderer extends plugin_renderer_base {
 
         $badgedetails .= $this->render_definition_list($definitions);
         $issuer = $badge->get_issuer();
-        $url = $issuer->get_url();
-        $issuerurl = empty($url) ? '' : html_writer::link($url, $url);
+
 
         // issuer details table
         $badgedetails .= $this->print_heading('issuerdetails');
+        $badgedetails .= $this->render_issuer_details($issuer);
+
+        $boxes .= obf_html::div($badgedetails, 'obf-badgedetails');
+        $html .= obf_html::div($boxes, 'obf-badgewrapper');
+
+        return $html;
+    }
+
+    public function render_issuer_details(obf_issuer $issuer) {
+        $url = $issuer->get_url();
         $description = $issuer->get_description();
-        $badgedetails .= $this->render_definition_list(array(
+        $issuerurl = empty($url) ? '' : html_writer::link($url, $url);
+        $html = $this->render_definition_list(array(
             get_string('issuername', 'local_obf') => $issuer->get_name(),
             get_string('issuerurl', 'local_obf') => $issuerurl,
             get_string('issuerdescription', 'local_obf') => empty($description) ? '-' : $description,
             get_string('issueremail', 'local_obf') => $issuer->get_email()
         ));
-
-        $boxes .= obf_html::div($badgedetails, 'obf-badgedetails');
-        $html .= obf_html::div($boxes, 'obf-badgewrapper');
 
         return $html;
     }
@@ -673,10 +690,6 @@ class local_obf_renderer extends plugin_renderer_base {
             $html .= $htmlpager;
             $html .= html_writer::table($historytable);
             $html .= $htmlpager;
-
-            $this->page->requires->yui_module('moodle-local_obf-historyenhancer',
-                    'M.local_obf.init_historyenhancer');
-            $this->page->requires->string_for_js('showmorerecipients', 'local_obf');
         }
 
         return $html;
@@ -700,21 +713,32 @@ class local_obf_renderer extends plugin_renderer_base {
         // If we're watching the whole history (not just a single badge),
         // show the badge details in the table.
         if (!$singlebadgehistory) {
-            $b = $assertion->get_badge();
+            $badge = $assertion->get_badge();
 
-            if (!is_null($b)) {
-                $url = new moodle_url($path, array('action' => 'show', 'id' => $b->get_id()));
-                $row->cells[] = $this->print_badge_image($b, self::BADGE_IMAGE_SIZE_TINY);
-                $row->cells[] = html_writer::link($url, s($b->get_name()));
+            if (!is_null($badge)) {
+                $url = new moodle_url($path, array('action' => 'show', 'id' => $badge->get_id()));
+                $row->cells[] = $this->print_badge_image($badge, self::BADGE_IMAGE_SIZE_TINY);
+                $row->cells[] = html_writer::link($url, s($badge->get_name()));
             } else {
                 $row->cells[] = '&nbsp;';
                 $row->cells[] = s($assertion->get_name());
             }
         }
 
-        $userlist = $this->render_userlist($users);
+        $recipienthtml = '';
 
-        $row->cells[] = obf_html::div(implode(', ', $userlist), 'recipientlist');
+        if (count($users) > 3) {
+            $recipienthtml .= html_writer::tag('p', get_string('historyrecipients', 'local_obf', count($users)),
+                    array('title' => $this->render_userlist($users, false)));
+        }
+        else {
+           $recipienthtml .= $this->render_userlist($users);
+        }
+
+//        $userlist = $this->render_userlist($users);
+
+//        $row->cells[] = obf_html::div(implode(', ', $userlist), 'recipientlist');
+        $row->cells[] = $recipienthtml;
         $row->cells[] = userdate($assertion->get_issuedon(),
                 get_string('dateformatdate', 'local_obf'));
         $row->cells[] = $expirationdate;
@@ -731,20 +755,25 @@ class local_obf_renderer extends plugin_renderer_base {
      * @param array $users
      * @return type
      */
-    private function render_userlist(array $users) {
+    private function render_userlist(array $users, $addlinks = true) {
         $userlist = array();
 
         foreach ($users as $user) {
             if (is_string($user)) {
                 $userlist[] = $user;
             } else {
-                $url = new moodle_url('/user/view.php', array('id' => $user->id));
-                $userlist[] = html_writer::link($url, fullname($user),
-                                array('title' => $user->email));
+                if ($addlinks) {
+                    $url = new moodle_url('/user/view.php', array('id' => $user->id));
+                    $userlist[] = html_writer::link($url, fullname($user),
+                                    array('title' => $user->email));
+                }
+                else {
+                    $userlist[] = fullname($user);
+                }
             }
         }
 
-        return $userlist;
+        return implode(', ', $userlist);
     }
 
     /**
@@ -851,62 +880,68 @@ class local_obf_renderer extends plugin_renderer_base {
     public function render_course_participants($courseid, array $participants) {
         $html = '';
         $html .= $this->print_heading('courseuserbadges');
-        $table = new html_table();
-        $userpicparams = array('size' => 16, 'courseid' => $courseid);
-        $userswithbackpack = obf_backpack::get_user_ids_with_backpack();
 
-        $table->id = 'obf-participants';
-
-        // some of the formatting taken from user/index.php
-        $datestring = new stdClass();
-        $datestring->year = get_string('year');
-        $datestring->years = get_string('years');
-        $datestring->day = get_string('day');
-        $datestring->days = get_string('days');
-        $datestring->hour = get_string('hour');
-        $datestring->hours = get_string('hours');
-        $datestring->min = get_string('min');
-        $datestring->mins = get_string('mins');
-        $datestring->sec = get_string('sec');
-        $datestring->secs = get_string('secs');
-
-        $strnever = get_string('never');
-
-        $table->head = array(get_string('userpic'), get_string('fullnameuser'),
-            get_string('city'), get_string('lastaccess'));
-        $table->headspan = array(1, 1, 1, 2);
-
-        foreach ($participants as $user) {
-            $lastaccess = $user->lastaccess ? format_time(time() - $user->lastaccess, $datestring) : $strnever;
-            $row = new html_table_row();
-            $row->id = 'participant-' . $user->id;
-            $link = in_array($user->id, $userswithbackpack) ? html_writer::link('#',
-                            get_string('showbadges', 'local_obf')) : '&nbsp;';
-            $linkcell = new html_table_cell($link);
-
-            $linkcell->attributes = array('class' => 'show-badges');
-
-            $row->cells = array(
-                $this->output->user_picture($user, $userpicparams),
-                html_writer::link(new moodle_url('/user/view.php',
-                        array('id' => $user->id, 'course' =>
-                    $courseid)), fullname($user)),
-                $user->city,
-                $lastaccess,
-                $linkcell
-            );
-
-            $table->data[] = $row;
+        if (count($participants) === 0) {
+            $html .= $this->output->notification(get_string('noparticipants', 'local_obf'));
         }
+        else {
+            $table = new html_table();
+            $userpicparams = array('size' => 16, 'courseid' => $courseid);
+            $userswithbackpack = obf_backpack::get_user_ids_with_backpack();
 
-        $html .= html_writer::table($table);
-        $url = new moodle_url('/local/obf/backpack.php');
-        $params = $this->get_displayer_params();
-        $params['url'] = $url->out();
+            $table->id = 'obf-participants';
 
-        $this->page->requires->yui_module('moodle-local_obf-courseuserbadgedisplayer',
-                'M.local_obf.init_courseuserbadgedisplayer', array($params));
-        $this->page->requires->string_for_js('closepopup', 'local_obf');
+            // some of the formatting taken from user/index.php
+            $datestring = new stdClass();
+            $datestring->year = get_string('year');
+            $datestring->years = get_string('years');
+            $datestring->day = get_string('day');
+            $datestring->days = get_string('days');
+            $datestring->hour = get_string('hour');
+            $datestring->hours = get_string('hours');
+            $datestring->min = get_string('min');
+            $datestring->mins = get_string('mins');
+            $datestring->sec = get_string('sec');
+            $datestring->secs = get_string('secs');
+
+            $strnever = get_string('never');
+
+            $table->head = array(get_string('userpic'), get_string('fullnameuser'),
+                get_string('city'), get_string('lastaccess'));
+            $table->headspan = array(1, 1, 1, 2);
+
+            foreach ($participants as $user) {
+                $lastaccess = $user->lastaccess ? format_time(time() - $user->lastaccess, $datestring) : $strnever;
+                $row = new html_table_row();
+                $row->id = 'participant-' . $user->id;
+                $link = in_array($user->id, $userswithbackpack) ? html_writer::link('#',
+                                get_string('showbadges', 'local_obf')) : '&nbsp;';
+                $linkcell = new html_table_cell($link);
+
+                $linkcell->attributes = array('class' => 'show-badges');
+
+                $row->cells = array(
+                    $this->output->user_picture($user, $userpicparams),
+                    html_writer::link(new moodle_url('/user/view.php',
+                            array('id' => $user->id, 'course' =>
+                        $courseid)), fullname($user)),
+                    $user->city,
+                    $lastaccess,
+                    $linkcell
+                );
+
+                $table->data[] = $row;
+            }
+
+            $html .= html_writer::table($table);
+            $url = new moodle_url('/local/obf/backpack.php');
+            $params = $this->get_displayer_params();
+            $params['url'] = $url->out();
+
+            $this->page->requires->yui_module('moodle-local_obf-courseuserbadgedisplayer',
+                    'M.local_obf.init_courseuserbadgedisplayer', array($params));
+            $this->page->requires->string_for_js('closepopup', 'local_obf');
+        }
 
         return $html;
     }
@@ -930,8 +965,8 @@ class local_obf_renderer extends plugin_renderer_base {
     }
 
     private function get_template_assertion() {
-        $issuer = obf_issuer::get_instance_from_arr(array('id' => '', 'description' => '',
-                    'email' => '', 'url' => '', 'name' => '{{ this.badge.issuer.name }}'));
+        $issuer = obf_issuer::get_instance_from_arr(array('id' => '', 'description' => '{{ this.badge.issuer.description }}',
+                    'email' => '', 'url' => '{{ this.badge.issuer.url }}', 'name' => '{{ this.badge.issuer.name }}'));
         $badge = new obf_badge();
         $badge->set_name('{{ this.badge.name }}');
         $badge->set_description('{{ this.badge.description }}');

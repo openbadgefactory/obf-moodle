@@ -1,6 +1,4 @@
 <?php
-
-require_once __DIR__ . '/tree.php';
 require_once __DIR__ . '/issuer.php';
 require_once __DIR__ . '/issuance.php';
 require_once __DIR__ . '/client.php';
@@ -40,10 +38,6 @@ class obf_badge {
      */
     private $image = null;
 
-    /**
-     * @var string The name of badge's folder
-     */
-    private $folder = '';
     private $isdraft = true;
 
     /**
@@ -359,15 +353,6 @@ class obf_badge {
 
     public function set_image($ımage) {
         $this->image = $ımage;
-        return $this;
-    }
-
-    public function get_folder() {
-        return $this->folder;
-    }
-
-    public function set_folder($folder) {
-        $this->folder = $folder;
         return $this;
     }
 

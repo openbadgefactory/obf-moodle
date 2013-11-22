@@ -46,11 +46,6 @@ class obf_client {
         unset($curlopts['SSLCERT']);
         unset($curlopts['SSLKEY']);
 
-        // API url isn't set
-        if ($apiurl === false) {
-            throw new Exception(get_string('missingapiurl', 'local_obf'));
-        }
-
         $pubkey = $curl->get($apiurl . '/client/OBF.rsa.pub', array(), $curlopts);
 
         // CURL-request failed
@@ -167,17 +162,6 @@ class obf_client {
      */
     public function get_issuer() {
         return $this->curl('/client/' . self::get_client_id());
-    }
-
-    /**
-     * Get badge tree from the API.
-     *
-     * @deprecated
-     * @throws Exception If the request fails
-     * @return type
-     */
-    public function get_tree() {
-        return $this->curl('/tree/' . self::get_client_id() . '/badge');
     }
 
     /**
@@ -311,18 +295,13 @@ class obf_client {
 
         include_once $CFG->libdir . '/filelib.php';
 
-        $apiurl = self::get_api_url();
-
-        if (!isset($apiurl)) {
-            throw new Exception(get_string('missingapiurl', 'local_obf'));
-        }
-
-        $curl = $this->get_curl();
-        $options = $this->get_curl_options();
-        $url = $apiurl . $path;
-        $output = $method == 'get' ? $curl->get($url, $params, $options) : $curl->post($url,
+        $apiurl     = self::get_api_url();
+        $curl       = $this->get_curl();
+        $options    = $this->get_curl_options();
+        $url        = $apiurl . $path;
+        $output     = $method == 'get' ? $curl->get($url, $params, $options) : $curl->post($url,
                         json_encode($params), $options);
-        $code = $curl->info['http_code'];
+        $code       = $curl->info['http_code'];
 
         if (!is_null($preformatter)) {
             $output = $preformatter($output);
@@ -332,7 +311,6 @@ class obf_client {
 
         // Codes 2xx should be ok
         if ($code < 200 || $code >= 300) {
-//            throw new Exception(get_string('apierror' . $code, 'local_obf', $response[0]['error']));
             throw new Exception(get_string('apierror' . $code, 'local_obf', $response['error']));
         }
 

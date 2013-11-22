@@ -14,7 +14,7 @@ YUI.add('moodle-local_obf-backpackconfigurator', function(Y) {
          */
         initializer: function(config) {
             this.config = config;
-            Y.one('input.verifyemail').on('click', this.connect, this);
+            Y.all('input.verifyemail').on('click', this.connect, this);
         },
 
         connect: function (evt) {

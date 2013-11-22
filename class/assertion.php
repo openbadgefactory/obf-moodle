@@ -33,6 +33,7 @@ class obf_assertion extends obf_issuance {
                 ->set_issuedon($arr['issued_on'])
                 ->set_id($arr['id'])
                 ->set_name($arr['name'])
+                ->set_recipients($arr['recipient'])
                 ->set_badge(obf_badge::get_instance($arr['badge_id'], $client));
 
         return $obj;

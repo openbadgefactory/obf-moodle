@@ -1,6 +1,8 @@
 /** Path: plugins local_obf **/
 /** Path: plugins local_obf **/
 /** Path: plugins local_obf **/
+/** Path: plugins local_obf **/
+/** Path: plugins local_obf **/
 span.backpackconnected { color: #6a6; }
 span.backpackdisconnected { color: #a66; }
 
@@ -23,15 +25,15 @@ ul.badgelist li,
        color-stop(1, #CCCCCC)
        );background-image:-o-linear-gradient(bottom, #EEE 0%, #CCC 100%);background-image:-moz-linear-gradient(bottom, #EEE 0%, #CCC 100%);background-image:-webkit-linear-gradient(bottom, #EEE 0%, #CCC 100%);background-image:-ms-linear-gradient(bottom, #EEE 0%, #CCC 100%);background-image:linear-gradient(to bottom, #EEE 0%, #CCC 100%);
 }
-ul.badgelist li:hover { border-color: #aaa; cursor: pointer; }
+ul.badgelist li:hover { border-color: #aaa; }
 ul.badgelist li p { background: #fff; margin: 0; padding: 5px 10px; border-radius: 0 0 8px 8px; width: 100px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
 ul.badgelist li img { max-height: 90px; margin: 15px 0; }
-ul.badgelist li a { color: inherit; text-decoration: none; }
+ul.badgelist li a { color: inherit; text-decoration: none; display: block; }
 
 .obf-userconfig-group ul.badgelist li:hover { cursor: inherit; border-color: #ccc; }
 
 .block ul.badgelist { text-align: center; padding: 1em 0 0 0; }
-.block ul.badgelist li { margin-left: auto; margin-right: auto; float: none; }
+.block ul.badgelist li { }
 
 dl.obf-definition-list { overflow: hidden; margin-left: 0; }
 dl.obf-definition-list dt { width: 100px; float: left; clear: left; padding-bottom: 5px;}
