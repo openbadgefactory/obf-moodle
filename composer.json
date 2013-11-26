@@ -1,6 +1,6 @@
 {
     "require": {
-        "phing/phing": "2.5.0",
+        "phing/phing": "2.6.*",
         "phpunit/phpunit": "3.7.*"
     }
 }
