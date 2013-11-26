@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="OBF-Moodle" default="build" basedir="." description="OBF plugin for Moodle">
+
+    <property name="builddir" value="build"/>
+    <property name="srcdir" value="src"/>
+    <property name="moodledir" value="/var/www/moodle"/>
+    <property name="testdir" value="tests"/>
+
+    <fileset dir="${srcdir}" id="srcfiles">
+        <include name="**"/>
+        <exclude name="pki/*"/>
+    </fileset>
+
+    <target name="build">
+        <echo msg="Compressing the source files into a zip-archive..."/>
+        <zip destfile="${builddir}/obf.zip" prefix="obf/" includeemptydirs="true">
+            <fileset refid="srcfiles"/>
+        </zip>
+    </target>
+
+    <target name="test">
+        <phpunit bootstrap="${moodledir}/lib/phpunit/bootstrap.php" printsummary="true" haltonfailure="true">
+            <formatter type="plain" usefile="false"/>
+            <batchtest>
+                <fileset dir="${testdir}">
+                    <include name="**/*_test.php"/>
+                </fileset>
+            </batchtest>
+        </phpunit>
+    </target>
+
+</project>

@@ -33,7 +33,8 @@ function local_obf_course_completed(stdClass $eventdata) {
     }
 
     // Get all criteria related to course completion
-    $criteria = obf_criterion::get_criteria();
+//    $criteria = obf_criterion::get_criteria();
+    $criteria = obf_criterion::get_course_criterion($eventdata->course);
 
     foreach ($criteria as $criterionid => $criterion) {
         // User has already met this criterion

@@ -1,3 +1,4 @@
 /nbproject/private/
-/pki/obf.key
-/pki/obf.pem
+/src/pki/obf.key
+/src/pki/obf.pem
+/vendor/

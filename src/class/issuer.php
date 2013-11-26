@@ -1,5 +1,4 @@
 <?php
-
 class obf_issuer {
 
     private $id = null;

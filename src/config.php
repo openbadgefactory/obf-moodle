@@ -59,9 +59,9 @@ switch ($action) {
             }
         } else {
             // Connection hasn't been made yet. Let's tell the user that, shall we?
-            if (!get_config('local_obf', 'connectionestablished')) {
-                $content .= $OUTPUT->notification(get_string('apierror496', 'local_obf'));
-            }
+//            if (!get_config('local_obf', 'connectionestablished')) {
+//                $content .= $OUTPUT->notification(get_string('apierror496', 'local_obf'));
+//            }
         }
 
         if (!empty($msg)) {

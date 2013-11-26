@@ -1,4 +1,5 @@
 <?php
+
 require_once(__DIR__ . '/../lib.php');
 
 class obf_client {
@@ -29,9 +30,9 @@ class obf_client {
         try {
             // TODO: does ping check certificate validity?
             $this->curl('/ping');
-            return true;
+            return -1;
         } catch (Exception $exc) {
-            return false;
+            return $exc->getCode();
         }
     }
 
@@ -112,7 +113,6 @@ class obf_client {
 
         // Everything's ok, store the certificate into a file for later use.
         file_put_contents($this->get_cert_filename(), $cert);
-        set_config('connectionestablished', true, 'local_obf');
 
         return true;
     }
@@ -222,6 +222,9 @@ class obf_client {
         return $this->curl('/event/' . self::get_client_id() . '/' . $eventid, 'get');
     }
 
+    /**
+     * Deletes all client badges. Use with caution.
+     */
     public function delete_badges() {
         $this->curl('/badge/' . self::get_client_id(), 'delete');
     }
@@ -279,7 +282,7 @@ class obf_client {
     }
 
     /**
-     * Makes a CURL-request.
+     * Makes a CURL-request to OBF API.
      *
      * @global type $CFG
      * @param type $path
@@ -295,13 +298,15 @@ class obf_client {
 
         include_once $CFG->libdir . '/filelib.php';
 
-        $apiurl     = self::get_api_url();
-        $curl       = $this->get_curl();
-        $options    = $this->get_curl_options();
-        $url        = $apiurl . $path;
-        $output     = $method == 'get' ? $curl->get($url, $params, $options) : $curl->post($url,
-                        json_encode($params), $options);
-        $code       = $curl->info['http_code'];
+        $apiurl = self::get_api_url();
+        $curl = $this->get_curl();
+        $options = $this->get_curl_options();
+        $url = $apiurl . $path;
+
+        $output = $method == 'get' ? $curl->get($url, $params, $options) : ($method == 'delete' ? $curl->delete($url,
+                                $params, $options) : $curl->post($url, json_encode($params),
+                                $options));
+        $code = $curl->info['http_code'];
 
         if (!is_null($preformatter)) {
             $output = $preformatter($output);
@@ -311,17 +316,23 @@ class obf_client {
 
         // Codes 2xx should be ok
         if ($code < 200 || $code >= 300) {
-            throw new Exception(get_string('apierror' . $code, 'local_obf', $response['error']));
+            throw new Exception(get_string('apierror' . $code, 'local_obf', $response['error']), $code);
         }
 
         return $response;
     }
 
+    /**
+     * Returns a new curl-instance.
+     *
+     * @return \curl
+     */
     protected function get_curl() {
         return new curl();
     }
 
     /**
+     * Returns the default CURL-settings for a request.
      *
      * @return type
      */

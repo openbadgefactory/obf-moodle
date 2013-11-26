@@ -10,15 +10,21 @@ class obf_config_form extends obfform implements renderable {
         global $OUTPUT;
 
         $mform = $this->_form;
-        $connectionestablished = obf_client::get_instance()->test_connection();
+        $errorcode = obf_client::get_instance()->test_connection();
 
-        if ($connectionestablished) {
+        // Connection to API is working
+        if ($errorcode === -1) {
             $mform->addElement('html', $OUTPUT->notification(get_string('connectionisworking', 'local_obf'), 'notifysuccess'));
             $mform->addElement('header', 'config', get_string('showconnectionconfig', 'local_obf'));
-
-            if (method_exists($mform, 'setExpanded')) {
-                $mform->setExpanded('config', false);
-            }
+            $this->setExpanded($mform, 'config', false);
+        }
+        // Connection is not working
+        else {
+            // We get error code 0 if pinging the API fails (like if the keyfiles are missing).
+            // In plugin config we should show a more spesific error to admin, so let's do that by
+            // changing the error code.
+            $errorcode = $errorcode == 0 ? 496 : $errorcode;
+            $mform->addElement('html', $OUTPUT->notification(get_string('apierror' . $errorcode, 'local_obf')));
         }
 
         $mform->addElement('textarea', 'obftoken', get_string('requesttoken', 'local_obf'),

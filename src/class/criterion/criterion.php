@@ -7,9 +7,7 @@ require_once($CFG->libdir . '/gradelib.php');
 require_once($CFG->libdir . '/completionlib.php');
 
 /**
- * Description of criteria_base
  *
- * @author olli
  */
 class obf_criterion {
 
@@ -21,12 +19,14 @@ class obf_criterion {
     private $completion_method = null;
     private $items = null;
     private $badgeid = null;
+    private static $coursecache = array();
 
     /**
+     * Returns the criterion instance identified by $id
      *
      * @global moodle_database $DB
-     * @param type $id
-     * @return boolean
+     * @param type $id The id of the criterion
+     * @return obf_criterion|boolean Returns the criterion instance and false if it doesn't exist.
      */
     public static function get_instance($id) {
         global $DB;
@@ -36,11 +36,8 @@ class obf_criterion {
             return false;
         }
 
-//        $badge = obf_badge::get_instance($record->badge_id);
-
         $obj = new self();
         $obj->set_badgeid($record->badge_id);
-//        $obj->set_badge($badge);
         $obj->set_id($record->id);
         $obj->set_completion_method($record->completion_method);
 
@@ -48,6 +45,7 @@ class obf_criterion {
     }
 
     /**
+     * Updates this criterion object in database.
      *
      * @global moodle_database $DB
      */
@@ -63,9 +61,10 @@ class obf_criterion {
     }
 
     /**
+     * Saves this criterion object to database.
      *
      * @global moodle_database $DB
-     * @return boolean
+     * @return boolean Returns true on success, false otherwise.
      */
     public function save() {
         global $DB;
@@ -85,10 +84,21 @@ class obf_criterion {
         return true;
     }
 
+    /**
+     * Checks, whether this instance exists in database.
+     *
+     * @return boolean Returns true on success, false otherwise.
+     */
     public function exists() {
         return $this->id > 0;
     }
 
+    /**
+     * Checks, whether this criterion has already been met at least once.
+     *
+     * @global moodle_database $DB
+     * @return boolean Returns true if the criterion has been met, false otherwise.
+     */
     public function is_met() {
         global $DB;
 
@@ -96,9 +106,10 @@ class obf_criterion {
     }
 
     /**
+     * Deletes this criterion from the database.
      *
      * @global moodle_database $DB
-     * @return boolean
+     * @return boolean Returns true if the criterion was successfully deleted, false otherwise.
      */
     public function delete() {
         global $DB;
@@ -113,6 +124,11 @@ class obf_criterion {
         return false;
     }
 
+    /**
+     * Deletes all criteria from the database that don't have any related courses.
+     *
+     * @global moodle_database $DB
+     */
     public static function delete_empty() {
         global $DB;
 
@@ -122,6 +138,11 @@ class obf_criterion {
                 'obf_criterion_id NOT IN (' . $subquery . ')');
     }
 
+    /**
+     * Deletes all history about meeting this criterion.
+     *
+     * @global moodle_database $DB
+     */
     public function delete_met() {
         global $DB;
 
@@ -131,6 +152,7 @@ class obf_criterion {
     }
 
     /**
+     * Deletes all related courses from the database.
      *
      * @global moodle_database $DB
      */
@@ -141,9 +163,10 @@ class obf_criterion {
     }
 
     /**
+     * Returns all criteria related to $badge.
      *
      * @param obf_badge $badge
-     * @return obf_criterion_base[]
+     * @return obf_criterion[] An array of criteria.
      */
     public static function get_badge_criteria(obf_badge $badge) {
         $conditions = array('c.badge_id' => $badge->get_id());
@@ -151,6 +174,12 @@ class obf_criterion {
         return self::get_criteria($conditions, $badge);
     }
 
+    /**
+     * Returns all course criterions related to this criterion.
+     *
+     * @param type $force Get from the database bypassing the cache.
+     * @return type obf_criterion_course[] The related course criterions.
+     */
     public function get_items($force = false) {
         if (is_null($this->items) || $force) {
             $this->items = obf_criterion_course::get_criterion_courses($this);
@@ -159,6 +188,12 @@ class obf_criterion {
         return $this->items;
     }
 
+    /**
+     * Returns all related Moodle courses.
+     *
+     * @global moodle_database $DB
+     * @return type stdClass[] The related Moodle courses
+     */
     public function get_related_courses() {
         global $DB;
 
@@ -174,16 +209,24 @@ class obf_criterion {
 
         foreach ($records as $record) {
             $ret[$record->id] = $record;
+            self::$coursecache[$record->id] = $record;
         }
 
         return $ret;
+    }
+
+    public function get_course($courseid) {
+        if (!isset(self::$coursecache[$courseid])) {
+            self::$coursecache[$courseid] = $DB->get_record('course', array('id' => $courseid));
+        }
+
+        return self::$coursecache[$courseid];
     }
 
     public static function get_course_criterion($courseid) {
         $where = 'c.id IN (SELECT obf_criterion_id FROM {obf_criterion_courses} WHERE courseid = ' .
                 intval($courseid) . ')';
         return self::get_criteria($where);
-//        return self::get_criteria(array('cc.courseid' => $courseid));
     }
 
     /**
@@ -212,9 +255,6 @@ class obf_criterion {
             $sql .= ' WHERE ' . $conditions;
         }
 
-//        var_dump($sql);
-//        var_dump($params);
-
         $records = $DB->get_records_sql($sql, $params);
         $ret = array();
 
@@ -223,7 +263,6 @@ class obf_criterion {
             if (!isset($ret[$record->criterionid])) {
                 $obj = new self();
                 $obj->set_badgeid($record->badge_id);
-//                $obj->set_badge($badge);
                 $obj->set_id($record->criterionid);
                 $obj->set_completion_method($record->completion_method);
 
@@ -261,7 +300,7 @@ class obf_criterion {
         $obj->obf_criterion_id = $this->id;
         $obj->user_id = $userid;
         $obj->met_at = time();
-        $DB->insert_record('obf_criterion_met', $obj);
+        $DB->insert_record('obf_criterion_met', $obj, true);
     }
 
     /**
@@ -320,6 +359,7 @@ class obf_criterion {
         set_time_limit(0);
         raise_memory_limit(MEMORY_EXTRA);
 
+        $criterioncourses = $this->get_items();
         $courses = $this->get_related_courses();
         $recipientids = array();
         $recipients = array();
@@ -333,7 +373,7 @@ class obf_criterion {
 
             // Review all enrolled users of this course separately
             foreach ($users as $user) {
-                if ($this->review($user->id, $course->id)) {
+                if ($this->review($user->id, $course->id, $criterioncourses)) {
                     $recipients[] = $user;
                     $recipientids[] = $user->id;
                 }
@@ -373,8 +413,12 @@ class obf_criterion {
      * @param type $courseid
      * @return boolean
      */
-    public function review($userid, $courseid) {
-        $criterioncourses = $this->get_items(true);
+    public function review($userid, $courseid, $criterioncourses = null) {
+
+        if (is_null($criterioncourses)) {
+            $criterioncourses = $this->get_items(true);
+        }
+
         $requireall = $this->get_completion_method() == obf_criterion::CRITERIA_COMPLETION_ALL;
 
         // The completed course doesn't exist in this criterion, no need to continue
@@ -413,7 +457,7 @@ class obf_criterion {
         global $DB;
 
         $courseid = $criterioncourse->get_courseid();
-        $course = $DB->get_record('course', array('id' => $courseid));
+        $course = $this->get_course($courseid);
         $completioninfo = new completion_info($course);
 
         if (!$completioninfo->is_course_complete($userid)) {

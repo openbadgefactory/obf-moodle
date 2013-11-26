@@ -1,7 +1,7 @@
 <?php
 defined('MOODLE_INTERNAL') || die();
 
-require_once __DIR__ . '/../class/issuer.php';
+require_once __DIR__ . '/../src/class/issuer.php';
 
 /**
  * @group obf
