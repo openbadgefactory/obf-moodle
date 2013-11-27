@@ -24,10 +24,10 @@ Testing
 The plugin has a few unit tests (there should be more and the current ones should cover more).
 To test the plugin, you need to have Moodle installed and it's test environment initialized.
 To initialize Moodle's test environment, set the PHPUnit-related configuration values (mainly
-`$CFG->phpunit_prefix` and `$CFG->phpunit_dataroot` in `/<moodledir/config.php` and run the
+`$CFG->phpunit_prefix` and `$CFG->phpunit_dataroot` in `/[MoodleDir]/config.php` and run the
 following command:
 
-    $ cd /<moodledir>
+    $ cd /[MoodleDir]
     $ php admin/tool/phpunit/cli/init.php
 
 When the test environment is initialized, the tests are run using command
@@ -38,3 +38,18 @@ When the test environment is initialized, the tests are run using command
 
 There are also a few acceptance tests in tests-directory created using Behat, but running them
 doesn't serve any purpose. They are done mostly to test Behat and Selenium.
+
+How to install
+--------------
+
+Moodle 2.5:
+
+1. Install the zip via Moodle's plugin page. Select "local" as the type of the plugin.
+2. Update the database using the notifications page
+
+Moodle 2.2:
+
+1. Unzip the archive to /[MoodleDir]/local/
+2. Give write permissions to web server user on /[MoodleDir]/local/obf/pki directory, for example
+   `sudo chown www-data:www-data /[MoodleDir]/local/obf/pki`
+3. Update the database using the notifications page
