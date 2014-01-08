@@ -1,8 +1,12 @@
 <?php
-require_once(__DIR__ . '/../../config.php');
-require_once(__DIR__ . '/class/badge.php');
-require_once(__DIR__ . '/form/issuance.php');
-require_once($CFG->dirroot . '/user/lib.php');
+/**
+ * Page for issuing a badge.
+ */
+
+require_once __DIR__ . '/../../config.php';
+require_once __DIR__ . '/class/badge.php';
+require_once __DIR__ . '/form/issuance.php';
+require_once $CFG->dirroot . '/user/lib.php';
 
 $badgeid = required_param('id', PARAM_ALPHANUM);
 $courseid = optional_param('courseid', null, PARAM_INT);
@@ -81,7 +85,7 @@ else if (!is_null($data = $issuerform->get_data())) {
     }
 
     $badge->set_expires($data->expiresby);
-    $issuance = obf_issuance::get_instance()
+    $assertion = obf_assertion::get_instance()
             ->set_badge($badge)
             ->set_emailbody($data->emailbody)
             ->set_emailsubject($data->emailsubject)
@@ -89,7 +93,7 @@ else if (!is_null($data = $issuerform->get_data())) {
             ->set_issuedon($data->issuedon)
             ->set_recipients($recipients);
 
-    $success = $issuance->process();
+    $success = $assertion->process();
 
     // Badage was successfully issued.
     if ($success) {
@@ -109,7 +113,7 @@ else if (!is_null($data = $issuerform->get_data())) {
     }
     // Oh noes, issuance failed.
     else {
-        $content .= $OUTPUT->notification('Badge issuance failed. Reason: ' . $issuance->get_error());
+        $content .= $OUTPUT->notification('Badge issuance failed. Reason: ' . $assertion->get_error());
     }
 }
 

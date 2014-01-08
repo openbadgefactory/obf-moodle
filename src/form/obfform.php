@@ -1,6 +1,9 @@
 <?php
 require_once($CFG->libdir . '/formslib.php');
 
+/**
+ * This class is just to add support for older versions of Moodle.
+ */
 abstract class obfform extends moodleform {
 
     public function render() {

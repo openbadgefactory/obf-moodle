@@ -1,6 +1,6 @@
 <?php
-require_once(__DIR__ . '/../../config.php');
-require_once(__DIR__ . '/class/badge.php');
+require_once __DIR__ . '/../../config.php';
+require_once __DIR__ . '/class/badge.php';
 
 $badgeid = required_param('badge_id', PARAM_ALPHANUM);
 $badge = obf_badge::get_instance($badgeid);

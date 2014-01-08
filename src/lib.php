@@ -20,7 +20,7 @@ function local_obf_course_completed(stdClass $eventdata) {
     global $DB;
 
     $user = $DB->get_record('user', array('id' => $eventdata->userid));
-    $backpack = obf_backpack::get_instance_by_userid($eventdata->userid);
+    $backpack = obf_backpack::get_instance($user);
 
     // If the user has configured the backpack settings, use the backpack email instead of the
     // default email.
@@ -33,7 +33,6 @@ function local_obf_course_completed(stdClass $eventdata) {
     }
 
     // Get all criteria related to course completion
-//    $criteria = obf_criterion::get_criteria();
     $criteria = obf_criterion::get_course_criterion($eventdata->course);
 
     foreach ($criteria as $criterionid => $criterion) {
@@ -67,7 +66,9 @@ function local_obf_course_completed(stdClass $eventdata) {
  * @return boolean
  */
 function local_obf_course_deleted(stdClass $course) {
-    obf_criterion_course::delete_by_course($course);
+    global $DB;
+    
+    obf_criterion_course::delete_by_course($course, $DB);
     return true;
 }
 

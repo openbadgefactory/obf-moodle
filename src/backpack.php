@@ -1,11 +1,15 @@
 <?php
+/**
+ * Script for fetching user's badges via Ajax.
+ */
+
 define('AJAX_SCRIPT', true);
 
 require_once(__DIR__ . '/../../config.php');
 require_once(__DIR__ . '/class/backpack.php');
 
 $userid = required_param('userid', PARAM_INT);
-$backpack = obf_backpack::get_instance_by_userid($userid);
+$backpack = obf_backpack::get_instance_by_userid($userid, $DB);
 
 if ($backpack === false || count($backpack->get_group_ids()) == 0) {
     die(json_encode(array('error' => 'nogroups')));

@@ -48,6 +48,11 @@ YUI.add('moodle-local_obf-courseuserbadgedisplayer', function(Y) {
                 this.process();
             }
         },
+        /**
+         * Initializes the panel that displays the badges.
+         * 
+         * @returns {undefined}
+         */
         init_panel: function() {
             this.panel = new Y.Panel({
                 id: 'obf-assertion-panel',
@@ -61,16 +66,29 @@ YUI.add('moodle-local_obf-courseuserbadgedisplayer', function(Y) {
                 buttons: [
                     {
                         value: M.util.get_string('closepopup', 'local_obf'),
-                        action: function (e) { e.preventDefault(); this.hide(); },
+                        action: function(e) {
+                            e.preventDefault();
+                            this.hide();
+                        },
                         section: Y.WidgetStdMod.FOOTER
                     }
                 ]
             });
         },
+        /**
+         * Adds click observers for a single list of badges.
+         * 
+         * @returns {undefined}
+         */
         process_single: function() {
             this.init_panel();
             Y.one('ul.badgelist').delegate('click', this.display_badge, 'li', this);
         },
+        /**
+         * Adds click observers for a whole table of badges.
+         * 
+         * @returns {undefined}
+         */
         process: function() {
             var table = Y.one('table#obf-participants');
 
@@ -93,6 +111,12 @@ YUI.add('moodle-local_obf-courseuserbadgedisplayer', function(Y) {
             // Display a single badge
             table.delegate('click', this.display_badge, 'ul.badgelist li', this);
         },
+        /**
+         * Displays the information of a single badge.
+         * 
+         * @param {type} e
+         * @returns {undefined}
+         */
         display_badge: function(e) {
             e.preventDefault();
 
@@ -103,6 +127,12 @@ YUI.add('moodle-local_obf-courseuserbadgedisplayer', function(Y) {
             this.panel.set('headerContent', data.badge.name);
             this.panel.show();
         },
+        /**
+         * Shows or hides a row of badges.
+         * 
+         * @param {type} row
+         * @returns {undefined}
+         */
         toggle_badge_row: function(row) {
             var badgerow = row.next();
 
@@ -118,14 +148,14 @@ YUI.add('moodle-local_obf-courseuserbadgedisplayer', function(Y) {
                 row.insert(badgerow, 'after');
 
                 if (spinner !== false) {
-                spinner.show();
+                    spinner.show();
                 }
 
-                this.insert_badges(userid, badgecell, function() {
+                this.get_badges(userid, badgecell, function() {
                     badgerow.toggleView();
 
                     if (spinner !== false) {
-                    spinner.hide();
+                        spinner.hide();
                     }
                 });
 
@@ -135,14 +165,32 @@ YUI.add('moodle-local_obf-courseuserbadgedisplayer', function(Y) {
             }
 
         },
-        insert_badges: function(userid, cell, callback) {
+        /**
+         * Gets the badges of a user and calls this.show_badges to display
+         * them.
+         * 
+         * @param {type} userid
+         * @param {type} cell
+         * @param {type} callback
+         * @returns {undefined}
+         */
+        get_badges: function(userid, cell, callback) {
             Y.io(this.config.url, {
                 data: {userid: userid},
-                on: {complete: Y.bind(this.receive_badges, this)},
+                on: {complete: Y.bind(this.show_badges, this)},
                 arguments: {cell: cell, callback: callback, userid: userid}
             });
         },
-        receive_badges: function(transactionid, xhr, args) {
+        
+        /**
+         * Displays the badges of a single user.
+         * 
+         * @param {type} transactionid
+         * @param {type} xhr
+         * @param {type} args
+         * @returns {undefined}
+         */
+        show_badges: function(transactionid, xhr, args) {
             var assertions = JSON.parse(xhr.responseText);
             var cell = args.cell;
             var html = '';
@@ -156,7 +204,10 @@ YUI.add('moodle-local_obf-courseuserbadgedisplayer', function(Y) {
             cell.setContent(this.templates.list({content: html}));
             args.callback();
         },
-        // Copied from YUI 3.8.0 templates to work with Moodle 2.2
+        
+        /**
+         * Copied from YUI 3.8.0 templates to work with Moodle 2.2
+         */
         compile_template: function(text, options) {
 
             var blocks = [],
@@ -177,7 +228,7 @@ YUI.add('moodle-local_obf-courseuserbadgedisplayer', function(Y) {
                     '\t': '\\t',
                     '\u2028': '\\u2028',
                     '\u2029': '\\u2029'
-        }
+                }
             }, options);
 
             source = "var $b='', $v=function (v){return v || v === 0 ? v : $b;}, $t='" +
@@ -207,8 +258,9 @@ YUI.add('moodle-local_obf-courseuserbadgedisplayer', function(Y) {
             // Otherwise, return an executable function.
             return this.revive_template(new Function('Y', '$e', 'data', source));
         },
-
-        // Copied from YUI 3.8.0
+        /**
+         * Copied from YUI 3.8.0
+         */
         revive_template: function(precompiled) {
             return function(data) {
                 data || (data = {});

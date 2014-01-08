@@ -1,10 +1,14 @@
 <?php
+/**
+ * Displays the details of a single event from OBF.
+ */
 
-require_once(__DIR__ . '/../../config.php');
-require_once($CFG->dirroot . '/local/obf/class/assertion.php');
+require_once __DIR__ . '/../../config.php';
+require_once $CFG->dirroot . '/local/obf/class/assertion.php';
 
+$client = obf_client::get_instance();
 $eventid = required_param('id', PARAM_ALPHANUM);
-$assertion = obf_assertion::get_instance_by_id($eventid);
+$assertion = obf_assertion::get_instance_by_id($eventid, $client);
 $badge = $assertion->get_badge();
 
 $PAGE->set_url(new moodle_url('/blocks/obf/view.php', array('id' => $eventid)));

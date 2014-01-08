@@ -1,15 +1,19 @@
 <?php
+/**
+ * Plugin configuration page.
+ */
 
-// HACK: change this when we're not symlinking the plugin anymore
-require_once(__DIR__ . '/../../config.php');
-require_once($CFG->libdir . '/adminlib.php');
-require_once(__DIR__ . '/form/config.php');
-require_once(__DIR__ . '/form/badgeexport.php');
+require_once __DIR__ . '/../../config.php';
+require_once $CFG->libdir . '/adminlib.php';
+require_once __DIR__ . '/form/config.php';
+require_once __DIR__ . '/form/badgeexport.php';
+require_once __DIR__ . '/class/client.php';
 
 $context = context_system::instance();
 $url = new moodle_url('/local/obf/config.php');
 $msg = optional_param('msg', '', PARAM_TEXT);
 $action = optional_param('action', 'authenticate', PARAM_TEXT);
+$client = obf_client::get_instance();
 
 require_login();
 require_capability('local/obf:configure', $context);
@@ -24,13 +28,12 @@ switch ($action) {
 
     // Handle authentication.
     case 'authenticate':
-        $form = new obf_config_form($FULLME);
+        $form = new obf_config_form($FULLME, array('client' => $client));
 
         if (!is_null($data = $form->get_data())) {
 
             // OBF request token is set, (re)do authentication.
             if (!empty($data->obftoken)) {
-                $client = obf_client::get_instance();
 
                 try {
                     $client->authenticate($data->obftoken);
@@ -57,11 +60,6 @@ switch ($action) {
             } else {
                 redirect(new moodle_url('/local/obf/config.php'));
             }
-        } else {
-            // Connection hasn't been made yet. Let's tell the user that, shall we?
-//            if (!get_config('local_obf', 'connectionestablished')) {
-//                $content .= $OUTPUT->notification(get_string('apierror496', 'local_obf'));
-//            }
         }
 
         if (!empty($msg)) {
@@ -81,6 +79,7 @@ switch ($action) {
         if (!is_null($data = $exportform->get_data())) {
             // At least one badge has been selected to be included in exporting.
             if (isset($data->toexport)) {
+                
                 // Export each selected badge separately.
                 foreach ($data->toexport as $badgeid => $doexport) {
                     // Just to be sure the value of the checkbox is "1" and not "0", although
@@ -107,7 +106,7 @@ switch ($action) {
                                     'draft' => $data->makedrafts
                         ));
                         $obfbadge->set_email($email);
-                        $success = $obfbadge->export();
+                        $success = $obfbadge->export($client);
 
                         if (!$success) {
                             debugging('Exporting badge ' . $badge->name . ' failed.');

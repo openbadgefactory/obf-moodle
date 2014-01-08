@@ -1,30 +1,100 @@
 <?php
 
-require_once(__DIR__ . '/issuance.php');
-require_once(__DIR__ . '/client.php');
-require_once(__DIR__ . '/badge.php');
-require_once(__DIR__ . '/collection.php');
+require_once __DIR__ . '/client.php';
+require_once __DIR__ . '/badge.php';
+require_once __DIR__ . '/collection.php';
+require_once __DIR__ . '/assertion_collection.php';
 
 /**
- * Description of assertion
+ * Represents a single event in OBF.
  *
  * @author olli
  */
-class obf_assertion extends obf_issuance {
+class obf_assertion {
 
+    /**
+     * @var obf_badge The related badge.
+     */
+    private $badge = null;
+    
+    /**
+     * @var string The email subject.
+     */
+    private $emailsubject = '';
+    
+    /**
+     * @var string The bottom part of the email message. 
+     */
+    private $emailfooter = '';
+    
+    /**
+     * @var string The top part of the email message. 
+     */
+    private $emailbody = '';
+    
+    /**
+     * @var int When the badge was issued, Unix timestamp. 
+     */
+    private $issuedon = null;
+    
+    /**
+     * @var string[] An array of recipient emails. 
+     */
+    private $recipients = array();
+    
+    /**
+     * @var string Possible error message. 
+     */
+    private $error = '';
+    
+    /**
+     * @var string The name of the event.
+     */
+    private $name = '';
+
+    /**
+     * @var int The expiration date as an Unix timestamp.
+     */
     private $expires = null;
+
+    /**
+     * @var string The id of the event. 
+     */
     private $id = null;
 
-    public function badge_has_expired() {
-        return (!empty($this->expires) && $this->expires < time());
+    /**
+     * Returns an empty instance of this class.
+     * 
+     * @return obf_assertion
+     */
+    public static function get_instance() {
+        return new self();
     }
 
-    public function has_expiration_date() {
-        return !empty($this->expires);
+    /**
+     * Issues the badge.
+     * 
+     * @return True on success, false otherwise.
+     */
+    public function process() {
+        try {
+            $this->badge->issue($this->recipients, $this->issuedon,
+                    $this->emailsubject, $this->emailbody, $this->emailfooter);
+            return true;
+        } catch (Exception $e) {
+            $this->error = $e->getMessage();
+            return false;
+        }
     }
 
-    public static function get_instance_by_id($id) {
-        $client = obf_client::get_instance();
+    /**
+     * Gets and returns the assertion instance from OBF.
+     * 
+     * @param string $id The id of the event.
+     * @param obf_client $client The client instance.
+     * @return obf_assertion The assertion instance.
+     */
+    public static function get_instance_by_id($id, obf_client $client) {
         $arr = $client->get_event($id);
         $obj = self::get_instance()
                 ->set_emailbody($arr['email_body'])
@@ -39,6 +109,11 @@ class obf_assertion extends obf_issuance {
         return $obj;
     }
 
+    /**
+     * Returns this instance as an associative array.
+     * 
+     * @return array The array.
+     */
     public function toArray() {
         return array(
             'badge' => $this->badge->toArray(),
@@ -46,15 +121,21 @@ class obf_assertion extends obf_issuance {
     }
 
     /**
-     *
-     * @param obf_badge $badge
-     * @return \obf_assertion_collection
+     * Returns all assertions matching the search criteria.
+     * 
+     * @param obf_client $client The client instance.
+     * @param obf_badge $badge Get only the assertions containing this badge.
+     * @param type $email Get only the assertions related to this email.
+     * @param type $limit Limit the amount of results.
+     * @return \obf_assertion_collection The assertions.
      */
-    public static function get_assertions(obf_badge $badge = null, $email = null, $limit = -1) {
+    public static function get_assertions(obf_client $client,
+            obf_badge $badge = null, $email = null, $limit = -1) {
         $badgeid = is_null($badge) ? null : $badge->get_id();
-        $arr = obf_client::get_instance()->get_assertions($badgeid, $email);
+        $arr = $client->get_assertions($badgeid, $email);
         $assertions = array();
-        $collection = new obf_badge_collection();
+        $collection = new obf_badge_collection($client);
+        $collection->populate();
 
         foreach ($arr as $item) {
             $b = is_null($badge) ? $collection->get_badge($item['badge_id']) : $badge;
@@ -67,11 +148,13 @@ class obf_assertion extends obf_issuance {
                     ->set_issuedon($item['issued_on']);
         }
 
+        // Sort the assertions by date...
         usort($assertions,
                 function (obf_assertion $a1, obf_assertion $a2) {
             return $a1->get_issuedon() <= $a2->get_issuedon();
         });
 
+        // ... And limit the result set if that's what we want.
         if ($limit > 0) {
             $assertions = array_slice($assertions, 0, $limit);
         }
@@ -79,18 +162,39 @@ class obf_assertion extends obf_issuance {
         return new obf_assertion_collection($assertions);
     }
 
+    /**
+     * Checks whether two assertions are equal.
+     * 
+     * @param obf_assertion $another
+     * @return boolean True on success, false otherwise.
+     */
     public function equals(obf_assertion $another) {
         // PENDING: Is this comparison enough?
         return ($this->get_badge()->get_image() == $another->get_badge()->get_image());
     }
 
     /**
-     *
-     * @param obf_badge $badge
-     * @return obf_assertion_collection
+     * Returns all assertions related to $badge.
+     * 
+     * @param obf_badge $badge The badge.
+     * @return obf_assertion_collection The related assertions.
      */
-    public static function get_badge_assertions(obf_badge $badge) {
-        return self::get_assertions($badge);
+    public static function get_badge_assertions(obf_badge $badge,
+            obf_client $client) {
+        return self::get_assertions($client, $badge);
+    }
+
+    /**
+     * Checks whether the badge has expired.
+     * 
+     * @return boolean True, if the badge has expired and false otherwise.
+     */
+    public function badge_has_expired() {
+        return ($this->has_expiration_date() && $this->expires < time());
+    }
+
+    public function has_expiration_date() {
+        return !empty($this->expires);
     }
 
     public function get_expires() {
@@ -111,130 +215,71 @@ class obf_assertion extends obf_issuance {
         return $this;
     }
 
-}
-
-class obf_assertion_collection implements Countable, IteratorAggregate {
-
-    /**
-     * @var obf_assertion[]
-     */
-    private $assertions = array();
-
-    /**
-     * Assertion recipients mapped as Moodle users
-     *
-     * @var array
-     */
-    private $users = array();
-
-    public function __construct(array $assertions = array()) {
-        $this->assertions = $assertions;
+    public function get_error() {
+        return $this->error;
     }
 
-    public function add_assertion(obf_assertion $assertion) {
-        $this->assertions[] = $assertion;
+    public function get_badge() {
+        return $this->badge;
     }
 
-    public function toArray() {
-        $ret = array();
-
-        foreach ($this->assertions as $assertion) {
-            $ret[] = $assertion->toArray();
-        }
-
-        return $ret;
+    public function set_badge($badge) {
+        $this->badge = $badge;
+        return $this;
     }
 
-    /**
-     *
-     * @param obf_assertion_collection $collection
-     */
-    public function add_collection(obf_assertion_collection $collection) {
-        for ($i = 0; $i < count($collection); $i++) {
-            $assertion = $collection->get_assertion($i);
-
-            // Skip duplicates.
-            if (!$this->has_assertion($assertion)) {
-                $this->add_assertion($assertion);
-            }
-        }
+    public function get_emailsubject() {
+        return $this->emailsubject;
     }
 
-    public function has_assertion(obf_assertion $assertion) {
-        for ($i = 0; $i < count($this->assertions); $i++) {
-            if ($this->get_assertion($i)->equals($assertion)) {
-                return true;
-            }
-        }
-
-        return false;
+    public function set_emailsubject($emailsubject) {
+        $this->emailsubject = $emailsubject;
+        return $this;
     }
 
-    /**
-     *
-     * @param int $index
-     * @return obf_assertion
-     */
-    public function get_assertion($index) {
-        return $this->assertions[$index];
+    public function get_emailfooter() {
+        return $this->emailfooter;
     }
 
-    /**
-     * Returns an array of Moodle-users that are related to selected assertion.
-     *
-     * @global type $DB
-     * @param obf_assertion $assertion
-     * @return type
-     */
-    public function get_assertion_users(obf_assertion $assertion) {
-        global $DB;
-
-        if (count($this->users) === 0) {
-            $emails = array();
-
-            foreach ($this->assertions as $a) {
-                $emails = array_merge($emails, $a->get_recipients());
-            }
-
-            $this->users = $DB->get_records_list('user', 'email', $emails);
-        }
-
-        $ret = array();
-
-        // TODO: check number of SQL-queries performed in this loop
-        foreach ($assertion->get_recipients() as $recipient) {
-            // try to find the user by email
-            if (($user = $this->find_user_by_email($recipient)) !== false) {
-                $ret[] = $user;
-            }
-
-            // ... and then try to find the user by backpack email
-            else {
-                $backpack = obf_backpack::get_instance_by_backpack_email($recipient);
-                $ret[] = $backpack === false ? $recipient : $DB->get_record('user',
-                                array('id' => $backpack->get_user_id()));
-            }
-        }
-
-        return $ret;
+    public function set_emailfooter($emailfooter) {
+        $this->emailfooter = $emailfooter;
+        return $this;
     }
 
-    private function find_user_by_email($email) {
-        foreach ($this->users as $user) {
-            if ($user->email == $email) {
-                return $user;
-            }
-        }
-
-        return false;
+    public function get_emailbody() {
+        return $this->emailbody;
     }
 
-    public function count() {
-        return count($this->assertions);
+    public function set_emailbody($emailbody) {
+        $this->emailbody = $emailbody;
+        return $this;
     }
 
-    public function getIterator() {
-        return new ArrayIterator($this->assertions);
+    public function get_issuedon() {
+        return $this->issuedon;
+    }
+
+    public function set_issuedon($issuedon) {
+        $this->issuedon = $issuedon;
+        return $this;
+    }
+
+    public function get_recipients() {
+        return $this->recipients;
+    }
+
+    public function set_recipients($recipients) {
+        $this->recipients = $recipients;
+        return $this;
+    }
+
+    public function get_name() {
+        return $this->name;
+    }
+
+    public function set_name($name) {
+        $this->name = $name;
+        return $this;
     }
 
 }

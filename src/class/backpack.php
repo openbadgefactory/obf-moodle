@@ -1,7 +1,10 @@
 <?php
+require_once __DIR__ . '/assertion.php';
+require_once __DIR__ . '/assertion_collection.php';
 
-require_once(__DIR__ . '/assertion.php');
-
+/**
+ * Class for handling the communication between the plugin and Mozilla Backpack.
+ */
 class obf_backpack {
 
     const BACKPACK_URL = 'http://beta.openbadges.org/displayer/';
@@ -56,13 +59,11 @@ class obf_backpack {
 
     /**
      *
-     * @global moodle_database $DB
      * @param type $userid
      * @return type
      */
-    public static function get_instance_by_userid($userid) {
-        global $DB;
-        return self::get_instance($DB->get_record('user', array('id' => $userid)));
+    public static function get_instance_by_userid($userid, moodle_database $db) {
+        return self::get_instance($db->get_record('user', array('id' => $userid)));
     }
 
     /**
@@ -127,16 +128,23 @@ class obf_backpack {
         return false;
     }
 
-    public function verify($assertion) {
+    /**
+     * Tries to verify the assertion and returns the associated email address
+     * if verification was successful. Return false otherwise.
+     * 
+     * @global type $CFG
+     * @param string $assertion The assertion from Mozilla Persona.
+     * @param curl $curl The curl-object.
+     * @return boolean|string Returns the users email or false if verification
+     *      fails.
+     */
+    public function verify($assertion, curl $curl) {
         global $CFG;
-
-        require_once($CFG->libdir . '/filelib.php');
 
         $urlparts = parse_url($CFG->wwwroot);
         $port = isset($urlparts['port']) ? $urlparts['port'] : 80;
-        $url = $urlparts['scheme'] . '://' . $urlparts['host'] . ':' . $port; // . $urlparts['path'];
+        $url = $urlparts['scheme'] . '://' . $urlparts['host'] . ':' . $port;
         $params = array('assertion' => $assertion, 'audience' => $url);
-        $curl = new curl();
 
         $curl->setHeader('Content-Type: application/json');
         $output = $curl->post(self::PERSONA_VERIFIER_URL, json_encode($params));

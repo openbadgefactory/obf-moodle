@@ -1,5 +1,8 @@
 <?php
-require_once(__DIR__ . '/../../config.php');
+/**
+ * Page for displaying the badges of course participants.
+ */
+require_once __DIR__ . '/../../config.php';
 
 $courseid = required_param('courseid', PARAM_INT);
 $url = new moodle_url('/local/obf/courseuserbadges.php');

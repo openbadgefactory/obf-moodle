@@ -1,8 +1,12 @@
 <?php
-require_once(__DIR__ . '/../../config.php');
-require_once(__DIR__ . '/class/criterion/criterionbase.php');
-require_once(__DIR__ . '/class/criterion/course.php');
-require_once(__DIR__ . "/class/badge.php");
+/**
+ * Page for handling the CRUD of a badge criterion.
+ */
+
+require_once __DIR__ . '/../../config.php';
+require_once __DIR__ . '/class/criterion/criterionbase.php';
+require_once __DIR__ . '/class/criterion/course.php';
+require_once __DIR__ . "/class/badge.php";
 
 $id = optional_param('id', null, PARAM_INT);
 $action = optional_param('action', 'new', PARAM_ALPHANUM);

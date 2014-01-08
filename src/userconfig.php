@@ -1,8 +1,11 @@
 <?php
+/**
+ * Page for handling user's backpack settings.
+ */
 
-require_once(__DIR__ . '/../../config.php');
-require_once(__DIR__ . '/form/userconfig.php');
-require_once(__DIR__ . '/class/backpack.php');
+require_once __DIR__ . '/../../config.php';
+require_once __DIR__ . '/form/userconfig.php';
+require_once __DIR__ . '/class/backpack.php';
 
 $error = optional_param('error', '', PARAM_TEXT);
 $context = context_system::instance();

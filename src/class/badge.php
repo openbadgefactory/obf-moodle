@@ -1,10 +1,11 @@
 <?php
+
 require_once __DIR__ . '/issuer.php';
-require_once __DIR__ . '/issuance.php';
 require_once __DIR__ . '/client.php';
 require_once __DIR__ . '/email.php';
 require_once __DIR__ . '/criterion/criterion.php';
 require_once __DIR__ . '/assertion.php';
+require_once __DIR__ . '/assertion_collection.php';
 
 /**
  * Class for a single Open Badge Factory -badge
@@ -14,12 +15,17 @@ class obf_badge {
     private static $badgecache = array();
 
     /**
-     * @var obf_issuer
+     * @var obf_client The client instance.
+     */
+    private $client = null;
+
+    /**
+     * @var obf_issuer The issuer of the badge.
      */
     private $issuer = null;
 
     /**
-     * @var obf_email
+     * @var obf_email The email template.
      */
     private $email = null;
 
@@ -38,16 +44,35 @@ class obf_badge {
      */
     private $image = null;
 
+    /**
+     * @var boolean Whether the badge is a draft only. 
+     */
     private $isdraft = true;
 
     /**
      * @var string The badge description
      */
     private $description = '';
+
+    /**
+     * @var string The HTML-markup of badge criteria. 
+     */
     private $criteria_html = '';
+
+    /**
+     * @var string The CSS of the badge criteria page. 
+     */
     private $criteria_css = '';
+
+    /**
+     * @var string The URL of the badge criteria. 
+     */
     private $criteria_url = '';
     private $expiresby = null;
+
+    /**
+     * @var string[] The tags of the badge. 
+     */
     private $tags = array();
 
     /**
@@ -55,6 +80,9 @@ class obf_badge {
      */
     private $created = null;
 
+    /**
+     * @var string[] The categories of the badge.
+     */
     private $categories = array();
 
     /**
@@ -89,13 +117,14 @@ class obf_badge {
     }
 
     /**
-     *
-     * @param obf_client $client
-     * @return obf_badge[]
+     * Gets and returns the badges from OBF.
+     * 
+     * @param obf_client $client The client instance.
+     * @return obf_badge[] The badges.
      */
-    public static function get_badges(obf_client $client = null, $drafts = false) {
+    public static function get_badges(obf_client $client = null) {
         $client = is_null($client) ? obf_client::get_instance() : $client;
-        $badgearr = $client->get_badges($drafts);
+        $badgearr = $client->get_badges();
 
         foreach ($badgearr as $badgedata) {
             $badge = self::get_instance_from_array($badgedata);
@@ -134,6 +163,9 @@ class obf_badge {
      * @return obf_badge
      */
     public function populate_from_array($arr) {
+        global $DB;
+
+        // These should always exist.
         $this->set_description($arr['description'])
                 ->set_id($arr['id'])
                 ->set_isdraft((bool) $arr['draft'])
@@ -154,7 +186,7 @@ class obf_badge {
         isset($arr['criteria_html']) and $this->set_criteria_html($arr['criteria_html']);
 
         // Try to get the email template from the local database first.
-        $email = obf_email::get_by_badge($this);
+        $email = obf_email::get_by_badge($this, $DB);
 
         // No email template in the local database yet, try to get from the array.
         $hasemail = isset($arr['email_subject']) || isset($arr['email_footer']) || isset($arr['email_body']);
@@ -169,15 +201,20 @@ class obf_badge {
 
             $email->save();
         }
-
         !is_null($email) and $this->set_email($email);
 
         return $this;
     }
 
-    public function export() {
+    /**
+     * Exports this badge to OBF.
+     * 
+     * @param obf_client $client The client instance.
+     * @return boolean Returns true on success, false otherwise.
+     */
+    public function export(obf_client $client) {
         try {
-            obf_client::get_instance()->export_badge($this);
+            $client->export_badge($this);
         } catch (Exception $e) {
             debugging('Exporting badge ' . $this->get_name() . ' failed: ' . $e->getMessage());
             return false;
@@ -187,8 +224,9 @@ class obf_badge {
     }
 
     /**
-     *
-     * @return type
+     * Returns the issuer of the badge.
+     * 
+     * @return obf_issuer The issuer.
      */
     public function get_issuer() {
         if (is_null($this->issuer)) {
@@ -198,30 +236,35 @@ class obf_badge {
         return $this->issuer;
     }
 
-    public function set_issuer(obf_issuer $issuer) {
-        $this->issuer = $issuer;
-        return $this;
-    }
-
-        /**
-     *
-     * @param array $recipients
-     * @param type $issuedon
-     * @param type $emailsubject
-     * @param type $emailbody
-     * @param type $emailfooter
+    /**
+     * Issues this badge to $recipients.
+     * 
+     * @param string[] $recipients The email addresses of the recipients.
+     * @param int $issuedon When the badge was issued, Unix timestamp. 
+     * @param string $emailsubject The subject of the email sent to user.
+     * @param string $emailbody The body of the email sent to user.
+     * @param string $emailfooter The footer of the email sent to user.
      */
-    public function issue(array $recipients, $issuedon, $emailsubject, $emailbody, $emailfooter) {
-        if (empty($this->id))
+    public function issue(array $recipients, $issuedon, $emailsubject,
+            $emailbody, $emailfooter) {
+        if (empty($this->id)) {
             throw new Exception('Invalid or missing badge id');
+        }
 
-        $this->get_client()->issue_badge($this, $recipients, $issuedon, $emailsubject, $emailbody,
-                $emailfooter);
+        $this->get_client()->issue_badge($this, $recipients, $issuedon,
+                $emailsubject, $emailbody, $emailfooter);
     }
 
-    public static function get_by_user($user) {
+    /**
+     * Returns the badges issued to $user.
+     * 
+     * @param type $user The Moodle's user object.
+     * @param obf_client $client The client instance.
+     * @return obf_badge[] The badges.
+     */
+    public static function get_by_user($user, obf_client $client) {
         $email = $user->email;
-        $assertions = obf_assertion::get_assertions(null, $email);
+        $assertions = obf_assertion::get_assertions($client, null, $email);
         $badges = array();
 
         for ($i = 0; $i < $assertions->count(); $i++) {
@@ -237,16 +280,18 @@ class obf_badge {
     }
 
     /**
-     *
-     * @return obf_assertion_collection
+     * Get assertions related to this badge.
+     * 
+     * @return obf_assertion_collection The assertions.
      */
     public function get_assertions() {
-        return obf_assertion::get_badge_assertions($this);
+        return obf_assertion::get_badge_assertions($this, $this->get_client());
     }
 
     /**
-     *
-     * @return obf_issuance
+     * Get assertions related to this badge that haven't been expired.
+     * 
+     * @return obf_assertion[] The non-expired assertions.
      */
     public function get_non_expired_assertions() {
         $assertions = $this->get_assertions();
@@ -265,7 +310,7 @@ class obf_badge {
      * Gets the object's data from the OBF API and populates the properties
      * from the returned array.
      *
-     * @return obf_badge
+     * @return obf_badge|boolean Returns the badge on success, false otherwise.
      */
     public function populate() {
         try {
@@ -274,28 +319,42 @@ class obf_badge {
         } catch (Exception $exc) {
             return false;
         }
-
-
-
-//        return $this->populate_from_array($this->get_client()->get_badge($this->id));
     }
 
+    /**
+     * Checks whether the badge has an expiration date set or not.
+     * 
+     * @return boolean True if there's an expiration date, false otherwise.
+     */
     public function has_expiration_date() {
         return !empty($this->expiresby);
     }
 
+    /**
+     * Returns the default (set in OBF) expiration date of the badge.
+     * 
+     * @return int The expiration date as a Unix timestamp.
+     */
     public function get_default_expiration_date() {
         return (strtotime('+ ' . $this->expiresby . ' months'));
     }
 
     /**
-     *
-     * @return obf_criterion_base[]
+     * Returns all the completion criteria related to this badge.
+     * 
+     * @return obf_criterion[] The criteria.
      */
     public function get_completion_criteria() {
         return obf_criterion::get_badge_criteria($this);
     }
 
+    /**
+     * Checks whether there is completion criteria related to this badge and
+     * $course.
+     * 
+     * @param stdClass $course The Moodle's course object.
+     * @return boolean True, if criteria is found, false otherwise.
+     */
     public function has_completion_criteria_with_course(stdClass $course) {
         $criteria = $this->get_completion_criteria();
 
@@ -312,12 +371,56 @@ class obf_badge {
         return false;
     }
 
+    /**
+     * Returns the email template associated with this badge.
+     * 
+     * @global type $DB
+     * @return obf_email The email template.
+     */
     public function get_email() {
+        global $DB;
+
         if (is_null($this->email)) {
-            $this->email = obf_email::get_by_badge($this);
+            $this->email = obf_email::get_by_badge($this, $DB);
         }
 
         return $this->email;
+    }
+
+    /**
+     * Returns the badges associated with course identified by $courseid.
+     * 
+     * @param int $courseid
+     * @return obf_badge[] The badges.
+     */
+    public static function get_badges_in_course($courseid) {
+        $criteria = obf_criterion::get_course_criterion($courseid);
+        $badges = array();
+
+        foreach ($criteria as $criterion) {
+            $badges[] = $criterion->get_badge();
+        }
+
+        return $badges;
+    }
+
+    /**
+     * Returns this badge as an associative array.
+     * 
+     * @return array The badge data as an array.
+     */
+    public function toArray() {
+        return array(
+            'issuer' => $this->get_issuer()->toArray(),
+            'name' => $this->get_name(),
+            'image' => $this->get_image(),
+            'description' => $this->get_description(),
+            'criteria_url' => $this->get_criteria_url());
+    }
+
+    public function set_issuer(obf_issuer $issuer) {
+        $this->issuer = $issuer;
+        return $this;
     }
 
     public function set_email(obf_email $email) {
@@ -414,7 +517,11 @@ class obf_badge {
     }
 
     public function get_client() {
-        return obf_client::get_instance();
+        if (!$this->client instanceof obf_client) {
+            $this->client = obf_client::get_instance();
+        }
+
+        return $this->client;
     }
 
     public function set_client(obf_client $client) {
@@ -443,26 +550,6 @@ class obf_badge {
         return !empty($this->criteria_url);
     }
 
-    public static function get_badges_in_course($courseid) {
-        $criteria = obf_criterion::get_course_criterion($courseid);
-        $badges = array();
-
-        foreach ($criteria as $criterion) {
-            $badges[] = $criterion->get_badge();
-        }
-
-        return $badges;
-    }
-
-    public function toArray() {
-        return array(
-            'issuer' => $this->get_issuer()->toArray(),
-            'name' => $this->get_name(),
-            'image' => $this->get_image(),
-            'description' => $this->get_description(),
-            'criteria_url' => $this->get_criteria_url());
-    }
-
     public function has_name() {
         return !empty($this->name);
     }
@@ -475,6 +562,5 @@ class obf_badge {
         $this->categories = $categories;
         return $this;
     }
-
 
 }

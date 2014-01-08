@@ -8,10 +8,16 @@ class obf_email {
     private $body = '';
     private $footer = '';
 
-    public static function get_by_badge(obf_badge $badge) {
-        global $DB;
-
-        $record = $DB->get_record('obf_email_templates', array('badge_id' => $badge->get_id()));
+    /**
+     * Returns the email instance related to a badge.
+     * 
+     * @param obf_badge $badge The related badge.
+     * @param moodle_database $db The db instance.
+     * @return \self|null Returns this object on success, null otherwise.
+     */
+    public static function get_by_badge(obf_badge $badge, moodle_database $db) {
+        $record = $db->get_record('obf_email_templates',
+                array('badge_id' => $badge->get_id()));
 
         if ($record !== false) {
             $obj = new self();
@@ -22,8 +28,28 @@ class obf_email {
                     ->set_footer($record->footer);
             return $obj;
         }
-        
+
         return null;
+    }
+    
+    /**
+     * Saves this email instance.
+     * 
+     * @param moodle_database $db
+     */
+    public function save(moodle_database $db) {
+        $obj = new stdClass();
+        $obj->subject = $this->subject;
+        $obj->body = $this->body;
+        $obj->footer = $this->footer;
+        $obj->badge_id = $this->badge_id;
+
+        if ($this->id > 0) {
+            $obj->id = $this->id;
+            $db->update_record('obf_email_templates', $obj);
+        } else {
+            $db->insert_record('obf_email_templates', $obj);
+        }
     }
 
     public function get_id() {
@@ -71,27 +97,4 @@ class obf_email {
         return $this;
     }
 
-    /**
-     *
-     * @global moodle_database $DB
-     */
-    public function save() {
-        global $DB;
-
-        $obj = new stdClass();
-        $obj->subject = $this->subject;
-        $obj->body = $this->body;
-        $obj->footer = $this->footer;
-        $obj->badge_id = $this->badge_id;
-
-        if ($this->id > 0) {
-            $obj->id = $this->id;
-            $DB->update_record('obf_email_templates', $obj);
-        } else {
-            $DB->insert_record('obf_email_templates', $obj);
-        }
-    }
-
 }
-
-?>

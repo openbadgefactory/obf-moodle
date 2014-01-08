@@ -9,7 +9,8 @@ ul.badgelist li { background-image: -webkit-gradient(linear, left top, left bott
                   background-image: -webkit-linear-gradient(bottom, #eee 0%, #ccc 100%);
                   background-image: -ms-linear-gradient(bottom, #eee 0%, #ccc 100%);
                   background-image: linear-gradient(to bottom, #eee 0%, #ccc 100%);
-                  border-radius: 8px; text-align: center; float: left; margin: 0 15px 15px 0; width: 120px; border: solid #ccc 1px; box-shadow: 0 0 10px -2px #888; }
+}
+ul.badgelist li { border-radius: 8px; text-align: center; float: left; margin: 0 15px 15px 0; width: 120px; border: solid #ccc 1px; box-shadow: 0 0 10px -2px #888; }
 ul.badgelist li:hover   { border-color: #aaa; }
 ul.badgelist li p       { background: #fff; margin: 0; padding: 5px 10px; border-radius: 0 0 8px 8px; width: 100px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
 ul.badgelist li img     { max-height: 90px; margin: 15px 0; }

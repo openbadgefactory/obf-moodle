@@ -17,6 +17,13 @@ YUI.add('moodle-local_obf-backpackconfigurator', function(Y) {
             Y.all('input.verifyemail').on('click', this.connect, this);
         },
 
+        /**
+         * Performs authentication using Persona, sends returned assertion to
+         * server and validates the email via backpack.
+         * 
+         * @param {type} evt
+         * @returns {undefined}
+         */
         connect: function (evt) {
             evt.preventDefault();
 
@@ -33,6 +40,15 @@ YUI.add('moodle-local_obf-backpackconfigurator', function(Y) {
             }, this));
         },
 
+        /**
+         * Called when the assertion is successfully validated. Reloads the page
+         * on success and displays an error message on failure.
+         * 
+         * @param {type} transactionid
+         * @param {type} xhr
+         * @param {type} args
+         * @returns {undefined}
+         */
         assertion_validated: function (transactionid, xhr, args) {
             var response = JSON.parse(xhr.responseText);
 

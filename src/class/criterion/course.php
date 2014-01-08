@@ -1,11 +1,11 @@
 <?php
+require_once __DIR__ . '/criterion.php';
+require_once __DIR__ . '/../badge.php';
 
-global $CFG;
-
-require_once(__DIR__ . '/criterionbase.php');
-require_once(__DIR__ . '/criterion.php');
-
-class obf_criterion_course extends obf_criterion_base {
+/**
+ * Class representing a single course criterion.
+ */
+class obf_criterion_course {
 
     /**
      * @var int The course id
@@ -31,6 +31,8 @@ class obf_criterion_course extends obf_criterion_base {
      * @var obf_criterion The criterion this course belongs to.
      */
     protected $criterion = null;
+    protected $id = -1;
+    protected $criterionid = -1;
 
     /**
      * Get the instance of this class by id.
@@ -118,8 +120,8 @@ class obf_criterion_course extends obf_criterion_base {
     }
 
     /**
-     * Saves this course criterion to database. If it exists already, the existing record will be
-     * updated.
+     * Saves this course criterion to database. If it exists already, the
+     * existing record will be updated.
      *
      * @global moodle_database $DB
      * @return mixed Returns this object if everything went ok, false otherwise.
@@ -153,6 +155,128 @@ class obf_criterion_course extends obf_criterion_base {
         return $this;
     }
 
+    /**
+     * Returns the name of the course this criterion is related to.
+     *
+     * @global moodle_database $DB
+     * @return string The full name of the course.
+     */
+    public function get_coursename() {
+        global $DB;
+
+        if (empty($this->coursename)) {
+            $this->coursename = $DB->get_field('course', 'fullname',
+                    array('id' => $this->courseid));
+        }
+
+        return $this->coursename;
+    }
+
+    /**
+     * Returns this criterion as text, including the name of the course.
+     *
+     * @return string
+     */
+    public function get_text() {
+        $html = html_writer::tag('strong', $this->get_coursename());
+
+        if ($this->has_completion_date()) {
+            $html .= ' ' . get_string('completedbycriterion', 'local_obf',
+                            userdate($this->completedby,
+                                    get_string('dateformatdate', 'local_obf')));
+        }
+
+        if ($this->has_grade()) {
+            $html .= ' ' . get_string('gradecriterion', 'local_obf',
+                            $this->grade);
+        }
+
+        return $html;
+    }
+
+    /**
+     * Returns this criterion as text without the course name.
+     *
+     * @return string
+     */
+    public function get_text_for_single_course() {
+        $html = get_string('toearnthisbadge', 'local_obf');
+
+        if ($this->has_completion_date()) {
+            $html .= ' ' . get_string('completedbycriterion', 'local_obf',
+                            userdate($this->completedby,
+                                    get_string('dateformatdate', 'local_obf')));
+        }
+
+        if ($this->has_grade()) {
+            $html .= ' ' . get_string('gradecriterion', 'local_obf',
+                            $this->grade);
+        }
+
+        $html .= '.';
+
+        return $html;
+    }
+
+    /**
+     * Deletes this record from the database. Also deletes the related criterion if it doesn't have
+     * any courses.
+     *
+     * @global moodle_database $DB
+     */
+    public function delete() {
+        global $DB;
+
+        $DB->delete_records('obf_criterion_courses', array('id' => $this->id));
+        obf_criterion::delete_empty($DB);
+    }
+
+    /**
+     * Deletes all course criterion records from the database that are related
+     * to $course. Also deletes all the related criteria with no related courses
+     * in them.
+     *
+     * @param stdClass $course The Moodle's course object
+     * @param moodle_database $db The database instance
+     */
+    public static function delete_by_course(stdClass $course,
+            moodle_database $db) {
+        // First delete criterion courses
+        $db->delete_records('obf_criterion_courses',
+                array('courseid' => $course->id));
+
+        // Then delete "empty" criteria (= criteria that don't have any related courses
+        obf_criterion::delete_empty($db);
+    }
+
+    /**
+     * Checks whether this instance exists in the database.
+     * 
+     * @return boolean Returns true if the instance exists in the database
+     *      and false otherwise.
+     */
+    public function exists() {
+        return $this->id > 0;
+    }
+
+    public function get_id() {
+        return $this->id;
+    }
+
+    public function set_id($id) {
+        $this->id = $id;
+        return $this;
+    }
+
+    public function get_criterionid() {
+        return $this->criterionid;
+    }
+
+    public function set_criterionid($criterionid) {
+        $this->criterionid = $criterionid;
+        return $this;
+    }
+
     public function get_courseid() {
         return $this->courseid;
     }
@@ -178,94 +302,6 @@ class obf_criterion_course extends obf_criterion_base {
     public function set_completedby($completedby) {
         $this->completedby = $completedby;
         return $this;
-    }
-
-    /**
-     * Returns the name of the course this criterion is related to.
-     *
-     * @global moodle_database $DB
-     * @return string The full name of the course.
-     */
-    public function get_coursename() {
-        global $DB;
-
-        if (empty($this->coursename)) {
-            $this->coursename = $DB->get_field('course', 'fullname', array('id' => $this->courseid));
-        }
-
-        return $this->coursename;
-    }
-
-    /**
-     * Returns this criterion as text, including the name of the course.
-     *
-     * @return string
-     */
-    public function get_text() {
-        $html = html_writer::tag('strong', $this->get_coursename());
-
-        if ($this->has_completion_date()) {
-            $html .= ' ' . get_string('completedbycriterion', 'local_obf', userdate($this->completedby,
-                    get_string('dateformatdate', 'local_obf')));
-        }
-
-        if ($this->has_grade()) {
-            $html .= ' ' . get_string('gradecriterion', 'local_obf', $this->grade);
-        }
-
-        return $html;
-    }
-
-    /**
-     * Returns this criterion as text without the course name.
-     *
-     * @return string
-     */
-    public function get_text_for_single_course() {
-        $html = get_string('toearnthisbadge', 'local_obf');
-
-        if ($this->has_completion_date()) {
-            $html .= ' ' . get_string('completedbycriterion', 'local_obf', userdate($this->completedby,
-                    get_string('dateformatdate', 'local_obf')));
-        }
-
-        if ($this->has_grade()) {
-            $html .= ' ' . get_string('gradecriterion', 'local_obf', $this->grade);
-        }
-
-        $html .= '.';
-
-        return $html;
-    }
-
-    /**
-     * Deletes this record from the database. Also deletes the related criterion if it doesn't have
-     * any courses.
-     *
-     * @global moodle_database $DB
-     */
-    public function delete() {
-        global $DB;
-
-        $DB->delete_records('obf_criterion_courses', array('id' => $this->id));
-        obf_criterion::delete_empty();
-    }
-
-    /**
-     * Deletes all course criterion records from the database that are related to $course. Also
-     * deletes all the related criteria with no related courses in them.
-     *
-     * @global moodle_database $DB
-     * @param stdClass $course
-     */
-    public static function delete_by_course(stdClass $course) {
-        global $DB;
-
-        // First delete criterion courses
-        $DB->delete_records('obf_criterion_courses', array('courseid' => $course->id));
-
-        // Then delete "empty" criteria (= criteria that don't have any related courses
-        obf_criterion::delete_empty();
     }
 
 }

@@ -10,7 +10,8 @@ class obf_config_form extends obfform implements renderable {
         global $OUTPUT;
 
         $mform = $this->_form;
-        $errorcode = obf_client::get_instance()->test_connection();
+        $client = $this->_customdata['client'];
+        $errorcode = $client->test_connection();
 
         // Connection to API is working
         if ($errorcode === -1) {
