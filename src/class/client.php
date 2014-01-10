@@ -8,6 +8,7 @@ require_once __DIR__ . '/../lib.php';
 class obf_client {
 
     private static $client = null;
+    private $transport = null;
 
     /**
      * Returns the id of the client stored in Moodle's config.
@@ -32,12 +33,20 @@ class obf_client {
      * 
      * @return obf_client The client.
      */
-    public static function get_instance() {
+    public static function get_instance($transport = null) {
         if (is_null(self::$client)) {
             self::$client = new self();
+
+            if (!is_null($transport)) {
+                self::$client->set_transport($transport);
+            }
         }
 
         return self::$client;
+    }
+
+    public function set_transport($transport) {
+        $this->transport = $transport;
     }
 
     /**
@@ -48,7 +57,7 @@ class obf_client {
     public function test_connection() {
         try {
             // TODO: does ping check certificate validity?
-            $this->curl('/ping');
+            $this->api_request('/ping');
             return -1;
         } catch (Exception $exc) {
             return $exc->getCode();
@@ -65,7 +74,7 @@ class obf_client {
     public function authenticate($signature) {
         $signature = trim($signature);
         $token = base64_decode($signature);
-        $curl = $this->get_curl();
+        $curl = $this->get_transport();
         $curlopts = $this->get_curl_options();
         $apiurl = self::get_api_url();
 
@@ -77,7 +86,8 @@ class obf_client {
 
         // CURL-request failed
         if ($pubkey === false) {
-            throw new Exception(get_string('pubkeyrequestfailed', 'local_obf') . ': ' . $curl->error);
+            throw new Exception(get_string('pubkeyrequestfailed', 'local_obf') .
+                    ': ' . $curl->error);
         }
 
         // Server gave us an error
@@ -180,7 +190,7 @@ class obf_client {
      * @return array The badge data.
      */
     public function get_badge($badgeid) {
-        return $this->curl('/badge/' . self::get_client_id() . '/' . $badgeid);
+        return $this->api_request('/badge/' . self::get_client_id() . '/' . $badgeid);
     }
 
     /**
@@ -190,7 +200,7 @@ class obf_client {
      * @return array The issuer data.
      */
     public function get_issuer() {
-        return $this->curl('/client/' . self::get_client_id());
+        return $this->api_request('/client/' . self::get_client_id());
     }
 
     /**
@@ -199,7 +209,7 @@ class obf_client {
      * @return array The category data.
      */
     public function get_categories() {
-        return $this->curl('/badge/' . self::get_client_id() . '/_/categorylist');
+        return $this->api_request('/badge/' . self::get_client_id() . '/_/categorylist');
     }
 
     /**
@@ -208,7 +218,7 @@ class obf_client {
      * @return array The badges data.
      */
     public function get_badges() {
-        return $this->curl('/badge/' . self::get_client_id(), 'get',
+        return $this->api_request('/badge/' . self::get_client_id(), 'get',
                         array('draft' => 0),
                         function ($output) {
                     return '[' . implode(',',
@@ -237,7 +247,8 @@ class obf_client {
         // When getting assertions via OBF API the returned JSON isn't valid.
         // Let's use a closure that converts the returned string into valid JSON
         // before calling json_decode in $this->curl.
-        return $this->curl('/event/' . self::get_client_id(), 'get', $params,
+        return $this->api_request('/event/' . self::get_client_id(), 'get',
+                        $params,
                         function ($output) {
                     return '[' . implode(',',
                                     array_filter(explode("\n", $output))) . ']';
@@ -251,7 +262,7 @@ class obf_client {
      * @return array The event data.
      */
     public function get_event($eventid) {
-        return $this->curl('/event/' . self::get_client_id() . '/' . $eventid,
+        return $this->api_request('/event/' . self::get_client_id() . '/' . $eventid,
                         'get');
     }
 
@@ -259,7 +270,7 @@ class obf_client {
      * Deletes all client badges. Use with caution.
      */
     public function delete_badges() {
-        $this->curl('/badge/' . self::get_client_id(), 'delete');
+        $this->api_request('/badge/' . self::get_client_id(), 'delete');
     }
 
     /**
@@ -282,7 +293,7 @@ class obf_client {
             'draft' => $badge->is_draft()
         );
 
-        $this->curl('/badge/' . self::get_client_id(), 'post', $params);
+        $this->api_request('/badge/' . self::get_client_id(), 'post', $params);
     }
 
     /**
@@ -296,7 +307,7 @@ class obf_client {
      * @param string $emailfooter The footer of the email.
      */
     public function issue_badge(obf_badge $badge, $recipients, $issuedon,
-            $emailsubject, $emailbody, $emailfooter) {
+                                $emailsubject, $emailbody, $emailfooter) {
         $params = array(
             'recipient' => $recipients,
             'issued_on' => $issuedon,
@@ -311,15 +322,22 @@ class obf_client {
             $params['expires'] = $badge->get_expires();
         }
 
-        $this->curl('/badge/' . self::get_client_id() . '/' . $badge->get_id(),
+        $this->api_request('/badge/' . self::get_client_id() . '/' . $badge->get_id(),
                 'post', $params);
+    }
+
+    // A wrapper for obf_client::request, prefixing $path with the API url.
+    protected function api_request($path, $method = 'get',
+                                   array $params = array(),
+                                   Closure $preformatter = null) {
+        return $this->api_request(self::get_api_url() . $path, $method, $params,
+                        $preformatter);
     }
 
     /**
      * Makes a CURL-request to OBF API.
      *
-     * @global type $CFG
-     * @param string $path The API path.
+     * @param string $url The API path.
      * @param string $method The HTTP method.
      * @param array $params The params of the request.
      * @param Closure $preformatter In some cases the returned string isn't
@@ -328,32 +346,30 @@ class obf_client {
      * @return array The json-decoded response.
      * @throws Exception In case something goes wrong.
      */
-    public function curl($path, $method = 'get', array $params = array(),
-            Closure $preformatter = null) {
-        global $CFG;
-
-        include_once $CFG->libdir . '/filelib.php';
-
-        $apiurl = self::get_api_url();
-        $curl = $this->get_curl();
+    public function request($url, $method = 'get', array $params = array(),
+                            Closure $preformatter = null) {
+        $curl = $this->get_transport();
         $options = $this->get_curl_options();
-        $url = $apiurl . $path;
-
         $output = $method == 'get' ? $curl->get($url, $params, $options) : ($method
                 == 'delete' ? $curl->delete($url, $params, $options) : $curl->post($url,
                                 json_encode($params), $options));
-        $code = $curl->info['http_code'];
 
-        if (!is_null($preformatter)) {
-            $output = $preformatter($output);
+        if ($output !== false) {
+            if (!is_null($preformatter)) {
+                $output = $preformatter($output);
+            }
+
+            $response = json_decode($output, true);
         }
 
-        $response = json_decode($output, true);
+        $info = $curl->get_info();
+        $code = $info['http_code'];
 
         // Codes 2xx should be ok
-        if ($code < 200 || $code >= 300) {
+        if (is_numeric($code) && ($code < 200 || $code >= 300)) {
+            $error = isset($response['error']) ? $response['error'] : '';
             throw new Exception(get_string('apierror' . $code, 'local_obf',
-                    $response['error']), $code);
+                    $error), $code);
         }
 
         return $response;
@@ -364,7 +380,16 @@ class obf_client {
      *
      * @return \curl
      */
-    protected function get_curl() {
+    protected function get_transport() {
+        if (!is_null($this->transport)) {
+            return $this->transport;
+        }
+
+        // Use Moodle's curl-object if no transport is defined.
+        global $CFG;
+
+        include_once $CFG->libdir . '/filelib.php';
+
         return new curl();
     }
 

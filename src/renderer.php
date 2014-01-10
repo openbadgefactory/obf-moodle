@@ -1,8 +1,8 @@
 <?php
+
 /**
  * Renderer for Open Badge Factory -plugin
  */
-
 defined('MOODLE_INTERNAL') || die();
 
 require_once $CFG->libdir . '/tablelib.php';
@@ -31,7 +31,7 @@ class local_obf_renderer extends plugin_renderer_base {
      * @return type
      */
     public function render_badgelist_course($badges, $hasissuecapability,
-            context $context, $message = '') {
+                                            context $context, $message = '') {
         $html = '';
 
         if (!empty($message)) {
@@ -51,8 +51,9 @@ class local_obf_renderer extends plugin_renderer_base {
             $validbadges = array();
 
             foreach ($badgesincourse as $badge) {
-                // Badge is deleted from OBF, but there are still rules in the database. It shouldn't
-                // happen in practice, but in theory it's possible. We should handle it better.
+                // Badge is deleted from OBF, but there are still rules in the
+                // database. It shouldn't happen in practice, but in theory
+                // it's possible. We should handle it better.
                 if ($badge->has_name()) {
                     $validbadges[] = $badge;
                 }
@@ -62,7 +63,6 @@ class local_obf_renderer extends plugin_renderer_base {
                             $hasissuecapability, $context) : $errormsg;
         }
 
-//        $html .= $this->render_badgelist($badges, $hasissuecapability, $context);
         $html .= $this->print_heading('badgelisttitle', 2);
         $html .= $this->render_badges($badges, $hasissuecapability, $context);
 
@@ -79,7 +79,7 @@ class local_obf_renderer extends plugin_renderer_base {
      * @return type
      */
     public function render_badgelist($badges, $hasissuecapability,
-            context $context, $message = '') {
+                                     context $context, $message = '') {
         $html = $this->print_heading('badgelisttitle', 2);
 
         if (!empty($message)) {
@@ -92,6 +92,11 @@ class local_obf_renderer extends plugin_renderer_base {
         return $html;
     }
 
+    /**
+     * 
+     * @param type $badges
+     * @return type
+     */
     public function render_badge_categories($badges) {
         $html = '';
         $categories = array();
@@ -171,7 +176,7 @@ class local_obf_renderer extends plugin_renderer_base {
      * @return type
      */
     public function render_assertion(obf_assertion $assertion,
-            $printheading = true) {
+                                     $printheading = true) {
         $html = '';
         $badge = $assertion->get_badge();
         $collection = new obf_assertion_collection(array($assertion));
@@ -247,7 +252,8 @@ class local_obf_renderer extends plugin_renderer_base {
      * @return type
      */
     public function page_badgedetails(obf_client $client, obf_badge $badge,
-            context $context, $tab = 'details', $page = 0, $message = '') {
+                                      context $context, $tab = 'details',
+                                      $page = 0, $message = '') {
         $methodprefix = 'print_badge_info_';
         $rendererfunction = $methodprefix . $tab;
         $html = '';
@@ -323,7 +329,7 @@ class local_obf_renderer extends plugin_renderer_base {
      * @return type
      */
     protected function render_badges($badges, $hasissuecapability,
-            context $context) {
+                                     context $context) {
         $html = '';
 
         if (count($badges) === 0) {
@@ -365,7 +371,7 @@ class local_obf_renderer extends plugin_renderer_base {
      * @return string The img-tag
      */
     public function print_badge_image(obf_badge $badge,
-            $width = self::BADGE_IMAGE_SIZE_SMALL) {
+                                      $width = self::BADGE_IMAGE_SIZE_SMALL) {
         $params = array("src" => $badge->get_image(), "alt" => $badge->get_name());
 
         if ($width > 0) {
@@ -394,7 +400,7 @@ class local_obf_renderer extends plugin_renderer_base {
      * @return type
      */
     public function print_badge_info_details(obf_client $client,
-            obf_badge $badge, context $context) {
+                                             obf_badge $badge, context $context) {
         $html = '';
         $badgeimage = $this->print_badge_image($badge,
                 self::BADGE_IMAGE_SIZE_NORMAL);
@@ -458,7 +464,7 @@ class local_obf_renderer extends plugin_renderer_base {
      * @return type
      */
     public function print_badge_info_criteria(obf_client $client,
-            obf_badge $badge, context $context) {
+                                              obf_badge $badge, context $context) {
         $html = '';
 
         if ($context instanceof context_course) {
@@ -679,7 +685,8 @@ class local_obf_renderer extends plugin_renderer_base {
      * @return type
      */
     public function print_badge_info_history(obf_client $client,
-            obf_badge $badge = null, context $context, $currentpage = 0) {        
+                                             obf_badge $badge = null,
+                                             context $context, $currentpage = 0) {
         $singlebadgehistory = !is_null($badge);
         $history = $singlebadgehistory ? $badge->get_assertions() : obf_assertion::get_assertions($client);
         $historytable = new html_table();
@@ -749,7 +756,8 @@ class local_obf_renderer extends plugin_renderer_base {
      * @return \html_table_row
      */
     private function render_historytable_row(obf_assertion $assertion,
-            $singlebadgehistory, $path, array $users) {
+                                             $singlebadgehistory, $path,
+                                             array $users) {
         $expirationdate = $assertion->has_expiration_date() ? userdate($assertion->get_expires(),
                         get_string('dateformatdate', 'local_obf')) : '-';
         $row = new html_table_row();
@@ -836,7 +844,7 @@ class local_obf_renderer extends plugin_renderer_base {
      * @return type
      */
     public function print_badge_tabs($badgeid, context $context,
-            $selectedtab = 'details') {
+                                     $selectedtab = 'details') {
         $tabdata = array('details', 'criteria');
         $tabs = array();
 
@@ -1075,7 +1083,7 @@ class local_obf_badge_renderer extends plugin_renderer_base {
      * @return string The img-tag
      */
     public function badge_image(obf_badge $badge,
-            $width = local_obf_renderer::BADGE_IMAGE_SIZE_SMALL) {
+                                $width = local_obf_renderer::BADGE_IMAGE_SIZE_SMALL) {
         return html_writer::empty_tag("img",
                         array("src" => $badge->get_image(), "width" => $width, "alt" => $badge->get_name()));
     }

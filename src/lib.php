@@ -2,15 +2,27 @@
 
 defined('MOODLE_INTERNAL') || die();
 
+/**
+ * OBF_DEFAULT_ADDRESS - The URL of Open Badge Factory.
+ */
 define('OBF_DEFAULT_ADDRESS', 'https://elvis.discendum.com/obf/');
+
+/**
+ * OBF_API_URL - The URL of Open Badge Factory API.
+ */
 define('OBF_API_URL', OBF_DEFAULT_ADDRESS . 'v1');
+
+/**
+ * OBF_API_CONSUMER_ID - The consumer id used in API requests.
+ */
 define('OBF_API_CONSUMER_ID', 'Moodle');
 
 require_once(__DIR__ . '/class/criterion/criterion.php');
 require_once(__DIR__ . '/class/criterion/course.php');
 
 /**
- * Reviews the badge criteria and issues the badges (if necessary) when a course is completed.
+ * Reviews the badge criteria and issues the badges (if necessary) when
+ * a course is completed.
  *
  * @global moodle_database $DB
  * @param stdClass $eventdata
@@ -27,7 +39,8 @@ function local_obf_course_completed(stdClass $eventdata) {
     $recipients = array($backpack === false ? $user->email : $backpack->get_email());
 
     // No capability -> no badge.
-    if (!has_capability('local/obf:earnbadge', context_course::instance($eventdata->course),
+    if (!has_capability('local/obf:earnbadge',
+                    context_course::instance($eventdata->course),
                     $eventdata->userid)) {
         return true;
     }
@@ -43,15 +56,16 @@ function local_obf_course_completed(stdClass $eventdata) {
 
         // Has the user completed all the required criteria (completion/grade/date)
         // in this criterion?
-        $criterionmet = $criterion->review($eventdata->userid, $eventdata->course);
+        $criterionmet = $criterion->review($eventdata->userid,
+                $eventdata->course);
 
         // Criterion was met, issue the badge
         if ($criterionmet) {
             $badge = $criterion->get_badge();
             $email = is_null($badge->get_email()) ? new obf_email() : $badge->get_email();
 
-            $badge->issue($recipients, time(), $email->get_subject(), $email->get_body(),
-                    $email->get_footer());
+            $badge->issue($recipients, time(), $email->get_subject(),
+                    $email->get_body(), $email->get_footer());
             $criterion->set_met_by_user($user->id);
         }
     }
@@ -60,14 +74,15 @@ function local_obf_course_completed(stdClass $eventdata) {
 }
 
 /**
- * When the course is deleted, this function deletes also the related badge issuance criteria.
+ * When the course is deleted, this function deletes also the related badge
+ * issuance criteria.
  *
  * @param stdClass $course
  * @return boolean
  */
 function local_obf_course_deleted(stdClass $course) {
     global $DB;
-    
+
     obf_criterion_course::delete_by_course($course, $DB);
     return true;
 }
@@ -82,7 +97,8 @@ function local_obf_course_deleted(stdClass $course) {
 function obf_extends_navigation(global_navigation $navigation) {
     global $COURSE, $PAGE;
 
-    if ($COURSE->id > 1 && $branch = $navigation->find($COURSE->id, navigation_node::TYPE_COURSE)) {
+    if ($COURSE->id > 1 && $branch = $navigation->find($COURSE->id,
+            navigation_node::TYPE_COURSE)) {
         local_obf_add_course_participant_badges_link($branch);
     }
 
@@ -97,6 +113,12 @@ function obf_extends_navigation(global_navigation $navigation) {
     }
 }
 
+/**
+ * Adds the OBF-links to Moodle's settings navigation.
+ * 
+ * @global type $COURSE
+ * @param settings_navigation $navigation
+ */
 function local_obf_extends_settings_navigation(settings_navigation $navigation) {
     global $COURSE;
 
@@ -109,6 +131,13 @@ function local_obf_extends_settings_navigation(settings_navigation $navigation) 
     }
 }
 
+/**
+ * Adds the OBF-links to Moodle's navigation.
+ * 
+ * @global moodle_page $PAGE
+ * @global type $COURSE
+ * @param global_navigation $navigation
+ */
 function local_obf_extends_navigation(global_navigation $navigation) {
     global $PAGE, $COURSE;
 
@@ -119,21 +148,36 @@ function local_obf_extends_navigation(global_navigation $navigation) {
     }
 }
 
+/**
+ * Adds the link to course navigation to see the badges of course participants.
+ * 
+ * @global type $COURSE
+ * @param type $branch
+ */
 function local_obf_add_course_participant_badges_link(&$branch) {
     global $COURSE;
 
-    if (has_capability('local/obf:seeparticipantbadges', context_course::instance($COURSE->id))) {
-        $node = navigation_node::create(get_string('courseuserbadges', 'local_obf'),
+    if (has_capability('local/obf:seeparticipantbadges',
+                    context_course::instance($COURSE->id))) {
+        $node = navigation_node::create(get_string('courseuserbadges',
+                                'local_obf'),
                         new moodle_url('/local/obf/courseuserbadges.php',
                         array('courseid' => $COURSE->id)));
         $branch->add_node($node);
     }
 }
 
+/**
+ * Adds the OBF-links to course management navigation.
+ * 
+ * @global type $COURSE
+ * @param type $branch
+ */
 function local_obf_add_course_admin_link(&$branch) {
     global $COURSE;
 
-    if (has_capability('local/obf:issuebadge', context_course::instance($COURSE->id))) {
+    if (has_capability('local/obf:issuebadge',
+                    context_course::instance($COURSE->id))) {
         $obfnode = navigation_node::create(get_string('obf', 'local_obf'),
                         new moodle_url('/local/obf/badge.php',
                         array('action' => 'list', 'courseid' => $COURSE->id)));
@@ -141,6 +185,11 @@ function local_obf_add_course_admin_link(&$branch) {
     }
 }
 
+/**
+ * Adds the backpack configuration link to navigation.
+ * 
+ * @param type $branch
+ */
 function local_obf_add_backpack_settings_link(&$branch) {
     $node = navigation_node::create(get_string('backpacksettings', 'local_obf'),
                     new moodle_url('/local/obf/userconfig.php'));
@@ -184,11 +233,15 @@ function local_obf_cron() {
         $eventdata->name = $severity;
         $eventdata->userfrom = $admin;
         $eventdata->userto = $admin;
-        $eventdata->subject = get_string('expiringcertificatesubject', 'local_obf');
-        $eventdata->fullmessage = get_string('expiringcertificate', 'local_obf', $textparams);
+        $eventdata->subject = get_string('expiringcertificatesubject',
+                'local_obf');
+        $eventdata->fullmessage = get_string('expiringcertificate', 'local_obf',
+                $textparams);
         $eventdata->fullmessageformat = FORMAT_PLAIN;
-        $eventdata->fullmessagehtml = get_string('expiringcertificate', 'local_obf', $textparams);
-        $eventdata->smallmessage = get_string('expiringcertificatesubject', 'local_obf');
+        $eventdata->fullmessagehtml = get_string('expiringcertificate',
+                'local_obf', $textparams);
+        $eventdata->smallmessage = get_string('expiringcertificatesubject',
+                'local_obf');
 
         $result = message_send($eventdata);
     }
@@ -206,12 +259,14 @@ if (!function_exists('users_order_by_sql')) {
      *
      * COPIED FROM THE CODE OF MOODLE 2.5
      */
-    function users_order_by_sql($usertablealias = '', $search = null, context $context = null) {
+    function users_order_by_sql($usertablealias = '', $search = null,
+                                context $context = null) {
         global $DB, $PAGE;
 
         if ($usertablealias) {
             $tableprefix = $usertablealias . '.';
-        } else {
+        }
+        else {
             $tableprefix = '';
         }
 
@@ -229,12 +284,14 @@ if (!function_exists('users_order_by_sql')) {
         $exactconditions = array();
         $paramkey = 'usersortexact1';
 
-        $exactconditions[] = $DB->sql_fullname($tableprefix . 'firstname', $tableprefix . 'lastname') .
+        $exactconditions[] = $DB->sql_fullname($tableprefix . 'firstname',
+                        $tableprefix . 'lastname') .
                 ' = :' . $paramkey;
         $params[$paramkey] = $search;
         $paramkey++;
 
-        $fieldstocheck = array_merge(array('firstname', 'lastname'), get_extra_user_fields($context));
+        $fieldstocheck = array_merge(array('firstname', 'lastname'),
+                get_extra_user_fields($context));
         foreach ($fieldstocheck as $key => $field) {
             $exactconditions[] = 'LOWER(' . $tableprefix . $field . ') = LOWER(:' . $paramkey . ')';
             $params[$paramkey] = $search;

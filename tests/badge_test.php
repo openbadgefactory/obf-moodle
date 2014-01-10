@@ -57,7 +57,8 @@ class local_obf_badge_testcase extends advanced_testcase {
         $this->assertFalse($badges['MVSLXUiDGCi1']->is_draft());
         $this->assertFalse($badges['MVFJL5wET2w1']->has_expiration_date());
 
-        // Check month difference, cannot do comparison with seconds because of inaccuracies.
+        // Check month difference, cannot do comparison with seconds because of
+        // possible inaccuracies.
         $d1 = new DateTime();
         $d2 = new DateTime(date('Y-m-d', $badges['MVSLXUiDGCi1']->get_expires()));
         $months = $d2->diff($d1)->m;
