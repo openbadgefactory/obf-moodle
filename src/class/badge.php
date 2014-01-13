@@ -95,25 +95,29 @@ class obf_badge {
     public static function get_instance($id = null, $client = null) {
         $obj = null;
 
-        if (!isset(self::$badgecache[$id])) {
+        if (is_null($id)) {
+            $obj = new self();
+        }
+        else if (!isset(self::$badgecache[$id])) {
             $obj = new self();
 
-            if (!is_null($client)) {
-                $obj->set_client($client);
-            }
-
-            if (!is_null($id)) {
-
-                if ($obj->set_id($id)->populate() !== false) {
-                    self::$badgecache[$id] = $obj;
-                }
+            if ($obj->set_id($id)->populate() !== false) {
+                self::$badgecache[$id] = $obj;
             }
         }
         else {
             $obj = self::$badgecache[$id];
         }
 
+        if (!is_null($client)) {
+            $obj->set_client($client);
+        }
+
         return $obj;
+    }
+
+    public function equals(obf_badge $another) {
+        return $this->get_image() == $another->get_image();
     }
 
     /**
@@ -246,7 +250,7 @@ class obf_badge {
      * @param string $emailfooter The footer of the email sent to user.
      */
     public function issue(array $recipients, $issuedon, $emailsubject,
-            $emailbody, $emailfooter) {
+                          $emailbody, $emailfooter) {
         if (empty($this->id)) {
             throw new Exception('Invalid or missing badge id');
         }
@@ -469,9 +473,9 @@ class obf_badge {
     }
 
     public function get_description() {
-        if (is_null($this->description)) {
-            $this->populate();
-        }
+//        if (is_null($this->description)) {
+//            $this->populate();
+//        }
         return $this->description;
     }
 

@@ -114,9 +114,11 @@ class obf_assertion {
      * 
      * @return array The array.
      */
-    public function toArray() {
+    public function toArray() {        
+        $badgearr = $this->badge instanceof obf_badge ? $this->badge->toArray() : array();
+        
         return array(
-            'badge' => $this->badge->toArray(),
+            'badge' => $badgearr,
             'issued_on' => $this->get_issuedon() == '' ? '-' : $this->get_issuedon());
     }
 
@@ -170,7 +172,7 @@ class obf_assertion {
      */
     public function equals(obf_assertion $another) {
         // PENDING: Is this comparison enough?
-        return ($this->get_badge()->get_image() == $another->get_badge()->get_image());
+        return ($this->get_badge()->equals($another->get_badge()));
     }
 
     /**

@@ -1,4 +1,5 @@
 <?php
+
 require_once __DIR__ . '/assertion.php';
 require_once __DIR__ . '/assertion_collection.php';
 
@@ -15,7 +16,14 @@ class obf_backpack {
     private $email = '';
     private $backpack_id = -1;
     private $groups = array();
+    private $transport = null;
 
+    public function __construct($transport = null) {
+        if (!is_null($transport)) {
+            $this->set_transport($transport);
+        }
+    }
+    
     /**
      *
      * @param type $user
@@ -33,7 +41,8 @@ class obf_backpack {
     protected static function get_instance_by_fields(array $fields) {
         global $DB;
 
-        $backpackobj = $DB->get_record('obf_backpack_emails', $fields, '*', IGNORE_MULTIPLE);
+        $backpackobj = $DB->get_record('obf_backpack_emails', $fields, '*',
+                IGNORE_MULTIPLE);
 
         if ($backpackobj === false) {
             return false;
@@ -76,8 +85,8 @@ class obf_backpack {
     public static function get_emails_by_userids(array $userids) {
         global $DB;
 
-        $records = $DB->get_records_list('obf_backpack_emails', 'user_id', $userids, '',
-                'user_id,email');
+        $records = $DB->get_records_list('obf_backpack_emails', 'user_id',
+                $userids, '', 'user_id,email');
         $ret = array();
 
         foreach ($records as $record) {
@@ -96,7 +105,8 @@ class obf_backpack {
         global $DB;
 
         $ret = array();
-        $records = $DB->get_records_select('obf_backpack_emails', 'backpack_id > 0');
+        $records = $DB->get_records_select('obf_backpack_emails',
+                'backpack_id > 0');
 
         foreach ($records as $record) {
             $ret[] = $record->user_id;
@@ -107,17 +117,13 @@ class obf_backpack {
 
     /**
      *
-     * @global type $CFG
      * @param type $email
      * @return boolean
      */
-    private static function connect_to_backpack($email) {
-        global $CFG;
-
-        require_once($CFG->libdir . '/filelib.php');
-
-        $curl = new curl();
-        $output = $curl->post(self::BACKPACK_URL . 'convert/email', array('email' => $email));
+    protected function connect_to_backpack($email) {
+        $curl = $this->get_transport();
+        $output = $curl->post(self::BACKPACK_URL . 'convert/email',
+                array('email' => $email));
         $json = json_decode($output);
         $code = $curl->info['http_code'];
 
@@ -128,28 +134,41 @@ class obf_backpack {
         return false;
     }
 
+    protected function get_transport() {
+        if (!is_null($this->transport)) {
+            return $this->transport;
+        }
+        
+        global $CFG;
+        require_once($CFG->libdir . '/filelib.php');
+        $curl = new curl();
+
+        return $curl;
+    }
+
     /**
      * Tries to verify the assertion and returns the associated email address
      * if verification was successful. Return false otherwise.
      * 
      * @global type $CFG
      * @param string $assertion The assertion from Mozilla Persona.
-     * @param curl $curl The curl-object.
      * @return boolean|string Returns the users email or false if verification
      *      fails.
      */
-    public function verify($assertion, curl $curl) {
+    public function verify($assertion) {
         global $CFG;
-
+        
         $urlparts = parse_url($CFG->wwwroot);
         $port = isset($urlparts['port']) ? $urlparts['port'] : 80;
         $url = $urlparts['scheme'] . '://' . $urlparts['host'] . ':' . $port;
         $params = array('assertion' => $assertion, 'audience' => $url);
-
+        
+        $curl = $this->get_transport();
         $curl->setHeader('Content-Type: application/json');
         $output = $curl->post(self::PERSONA_VERIFIER_URL, json_encode($params));
+                
         $ret = json_decode($output);
-
+        
         if ($ret->status == 'failure') {
             return false;
         }
@@ -171,23 +190,21 @@ class obf_backpack {
      */
     public function connect($email) {
         $this->set_email($email);
-        $backpackid = self::connect_to_backpack($email);
+        $backpackid = $this->connect_to_backpack($email);
 
         if ($backpackid !== false) {
             $this->set_backpack_id($backpackid);
             $this->save();
-        } else {
+        }
+        else {
             $this->disconnect();
-            throw new Exception(get_string('backpackemailnotfound', 'local_obf', s($email)));
+            throw new Exception(get_string('backpackemailnotfound', 'local_obf',
+                    s($email)));
         }
     }
 
     public function get_groups() {
-        global $CFG;
-
-        require_once($CFG->libdir . '/filelib.php');
-
-        $curl = new curl();
+        $curl = $this->get_transport();
         $output = $curl->get(self::BACKPACK_URL . $this->get_backpack_id() . '/groups.json');
         $json = json_decode($output);
 
@@ -195,15 +212,11 @@ class obf_backpack {
     }
 
     public function get_group_assertions($groupid, $limit = -1) {
-        global $CFG;
-
-        require_once($CFG->libdir . '/filelib.php');
-
         if ($this->backpack_id < 0) {
             throw new Exception('Backpack connection isn\'t set.');
         }
 
-        $curl = new curl();
+        $curl = $this->get_transport();
         $output = $curl->get(self::BACKPACK_URL . $this->get_backpack_id() . '/group/' . $groupid . '.json');
         $json = json_decode($output);
         $assertions = new obf_assertion_collection();
@@ -280,7 +293,8 @@ class obf_backpack {
         if ($this->id > 0) {
             $obj->id = $this->id;
             $DB->update_record('obf_backpack_emails', $obj);
-        } else {
+        }
+        else {
             $id = $DB->insert_record('obf_backpack_emails', $obj);
             $this->set_id($id);
         }
@@ -341,6 +355,10 @@ class obf_backpack {
     public function set_groups($groups) {
         $this->groups = is_array($groups) ? $groups : array();
         return $this;
+    }
+    
+    public function set_transport($transport) {
+        $this->transport = $transport;
     }
 
 }

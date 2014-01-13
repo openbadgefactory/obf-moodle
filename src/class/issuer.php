@@ -62,11 +62,11 @@ class obf_issuer {
         $issuer->set_name($obj->name);
         $issuer->set_url($obj->origin);
 
-        if ($obj->contact) {
+        if (isset($obj->contact)) {
             $issuer->set_email($obj->contact);
         }
 
-        if ($obj->org) {
+        if (isset($obj->org)) {
             $issuer->set_organization($obj->org);
         }
 

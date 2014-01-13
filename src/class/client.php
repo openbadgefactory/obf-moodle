@@ -330,7 +330,7 @@ class obf_client {
     protected function api_request($path, $method = 'get',
                                    array $params = array(),
                                    Closure $preformatter = null) {
-        return $this->api_request(self::get_api_url() . $path, $method, $params,
+        return $this->request(self::get_api_url() . $path, $method, $params,
                         $preformatter);
     }
 
