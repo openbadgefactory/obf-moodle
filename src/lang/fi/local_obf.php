@@ -120,6 +120,7 @@ $string['nobadgehistory'] = 'Tätä merkkiä ei ole vielä myönnetty.';
 $string['nobackpackgroups'] = 'Luo vähintään yksi julkinen osaamismerkkiryhmä Backpackiisi.';
 $string['nobadges'] = 'Ei osaamismerkkejä.';
 $string['nobadgesincourse'] = 'Kurssiin ei ole  liitetty osaamismerkkejä.';
+$string['nobadgestoexport'] = 'Järjestelmässä ei ole luotu aiempia osaamismerkkejä.';
 $string['nocourseswithcompletionenabled'] = 'Jotta osaamismerkkien automaattinen myöntäminen '
         . 'olisi mahdollista, kurssista täytyy olla mahdollista saada suoritusmerkintä. Tarkista '
         . 'kurssien asetukset.';

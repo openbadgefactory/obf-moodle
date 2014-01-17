@@ -14,6 +14,7 @@ $url = new moodle_url('/local/obf/config.php');
 $msg = optional_param('msg', '', PARAM_TEXT);
 $action = optional_param('action', 'authenticate', PARAM_TEXT);
 $client = obf_client::get_instance();
+$badgesupport = file_exists($CFG->libdir . '/badgeslib.php');
 
 require_login();
 require_capability('local/obf:configure', $context);
@@ -38,17 +39,20 @@ switch ($action) {
                 try {
                     $client->authenticate($data->obftoken);
 
-                    if (file_exists($CFG->libdir . '/badgeslib.php')) {
+                    if ($badgesupport) {
                         require_once($CFG->libdir . '/badgeslib.php');
 
                         $badges = array_merge(badges_get_badges(BADGE_TYPE_COURSE),
                                 badges_get_badges(BADGE_TYPE_SITE));
 
                         // If there are existing (local) badges, redirect to export-page
-                        if (count($badges) > 0) {
+//                        if (count($badges) > 0) {
+                        
+                        // Redirect to page where the user can export existing
+                        // badges to OBF and change some settings.
                             redirect(new moodle_url('/local/obf/config.php',
                                     array('action' => 'exportbadges')));
-                        }
+//                        }
                     }
 
                     // No local badges, no need to export

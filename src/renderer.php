@@ -191,13 +191,14 @@ class local_obf_renderer extends plugin_renderer_base {
             get_string('issuedon', 'local_obf') => $issuedon);
 
         if (count($assertion->get_recipients()) > 0) {
-            $assertionitems[get_string('recipients', 'local_obf')] = html_writer::alist(array_map(function ($user) {
+            $list = html_writer::alist(array_map(function ($user) {
                                 if ($user instanceof stdClass) {
                                     return fullname($user);
                                 }
 
                                 return $user;
                             }, $users));
+            $assertionitems[get_string('recipients', 'local_obf')] = $list;
         }
 
         if ($printheading) {
@@ -441,6 +442,11 @@ class local_obf_renderer extends plugin_renderer_base {
         return $html;
     }
 
+    /**
+     * 
+     * @param obf_issuer $issuer
+     * @return type
+     */
     public function render_issuer_details(obf_issuer $issuer) {
         $url = $issuer->get_url();
         $description = $issuer->get_description();
@@ -487,7 +493,6 @@ class local_obf_renderer extends plugin_renderer_base {
      */
     public function render_badge_criteria_course(obf_badge $badge, $courseid) {
         $html = '';
-//        $course = get_course($courseid);
         $criteria = $badge->get_completion_criteria();
         $coursewithcriterion = null;
         $criterioncourseid = null;
@@ -497,8 +502,8 @@ class local_obf_renderer extends plugin_renderer_base {
                 array('id' => $badge->get_id(), 'action' =>
             'show', 'show' => 'criteria', 'courseid' => $courseid));
 
-        // Show edit form if there aren't any criteria related to this badge or there is only one
-        // which hasn't been met yet by any user.
+        // Show edit form if there aren't any criteria related to this badge or
+        // there is only one which hasn't been met yet by any user.
         foreach ($criteria as $criterion) {
             $courses = $criterion->get_items();
             $courseincriterion = $criterion->has_course($courseid);

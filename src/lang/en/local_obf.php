@@ -119,6 +119,7 @@ $string['nobackpackgroups'] = 'No public badge groups in your backpack. Create a
 $string['nobadgehistory'] = 'This badge hasn\'t been issued yet.';
 $string['nobadges'] = 'No badges yet.';
 $string['nobadgesincourse'] = 'No related badges yet.';
+$string['nobadgestoexport'] = 'No badges to export.';
 $string['nocourseswithcompletionenabled'] = 'There are no courses with completion enabled.';
 $string['nocriteriayet'] = 'No automatic awarding rules created yet.';
 $string['nohistory'] = 'No badges issued yet.';
