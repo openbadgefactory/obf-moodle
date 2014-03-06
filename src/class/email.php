@@ -43,7 +43,7 @@ class obf_email {
         $obj->body = $this->body;
         $obj->footer = $this->footer;
         $obj->badge_id = $this->badge_id;
-
+        
         if ($this->id > 0) {
             $obj->id = $this->id;
             $db->update_record('obf_email_templates', $obj);

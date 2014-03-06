@@ -198,12 +198,12 @@ class obf_badge {
         if (is_null($email) && $hasemail) {
             $email = new obf_email();
             $email->set_badge_id($this->get_id());
-
+            
             isset($arr['email_subject']) and $email->set_subject($arr['email_subject']);
             isset($arr['email_footer']) and $email->set_footer($arr['email_footer']);
             isset($arr['email_body']) and $email->set_body($arr['email_body']);
-
-            $email->save();
+            
+            $email->save($DB);
         }
         !is_null($email) and $this->set_email($email);
 

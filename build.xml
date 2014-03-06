@@ -29,4 +29,10 @@
         </phpunit>
     </target>
 
+    <target name="deploy-local">
+        <copy todir="${moodledir}/local/obf/" overwrite="true">
+            <fileset refid="srcfiles" />
+        </copy>
+    </target>
+
 </project>
