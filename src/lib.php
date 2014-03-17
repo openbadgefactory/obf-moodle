@@ -5,7 +5,7 @@ defined('MOODLE_INTERNAL') || die();
 /**
  * OBF_DEFAULT_ADDRESS - The URL of Open Badge Factory.
  */
-define('OBF_DEFAULT_ADDRESS', 'https://elvis.discendum.com/obf/');
+define('OBF_DEFAULT_ADDRESS', 'https://openbadgefactory.com/');
 
 /**
  * OBF_API_URL - The URL of Open Badge Factory API.

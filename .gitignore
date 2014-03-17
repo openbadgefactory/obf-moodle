@@ -1,4 +1,5 @@
-/nbproject/private/
-/src/pki/obf.key
-/src/pki/obf.pem
+/build/obf.zip
+/src/pki/*
 /vendor/
+composer.lock
+composer.phar
