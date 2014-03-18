@@ -2,7 +2,6 @@
 /**
  * Plugin configuration page.
  */
-
 require_once __DIR__ . '/../../config.php';
 require_once $CFG->libdir . '/adminlib.php';
 require_once __DIR__ . '/form/config.php';
@@ -23,7 +22,8 @@ $PAGE->set_context($context);
 $PAGE->set_url($url);
 $PAGE->set_pagelayout('admin');
 
-$content = $OUTPUT->header();
+//$content = $OUTPUT->header();
+$content = '';
 
 switch ($action) {
 
@@ -33,8 +33,15 @@ switch ($action) {
 
         if (!is_null($data = $form->get_data())) {
 
+            // Deauthentication
+            if (isset($data->deauthenticate) && $data->deauthenticate == 1) {
+                $client->deauthenticate();
+                redirect(new moodle_url('/local/obf/config.php'),
+                        get_string('deauthenticationsuccess', 'local_obf'));
+            }
+
             // OBF request token is set, (re)do authentication.
-            if (!empty($data->obftoken)) {
+            else if (!empty($data->obftoken)) {
 
                 try {
                     $client->authenticate($data->obftoken);
@@ -45,23 +52,21 @@ switch ($action) {
                         $badges = array_merge(badges_get_badges(BADGE_TYPE_COURSE),
                                 badges_get_badges(BADGE_TYPE_SITE));
 
-                        // If there are existing (local) badges, redirect to export-page
-//                        if (count($badges) > 0) {
-                        
                         // Redirect to page where the user can export existing
                         // badges to OBF and change some settings.
-                            redirect(new moodle_url('/local/obf/config.php',
-                                    array('action' => 'exportbadges')));
-//                        }
+                        redirect(new moodle_url('/local/obf/config.php',
+                                array('action' => 'exportbadges')));
                     }
 
                     // No local badges, no need to export
                     redirect(new moodle_url('/local/obf/config.php',
-                            array('msg' => get_string('authenticationsuccess', 'local_obf'))));
+                            array('msg' => get_string('authenticationsuccess',
+                                'local_obf'))));
                 } catch (Exception $e) {
                     $content .= $OUTPUT->notification($e->getMessage());
                 }
-            } else {
+            }
+            else {
                 redirect(new moodle_url('/local/obf/config.php'));
             }
         }
@@ -76,14 +81,17 @@ switch ($action) {
     // Let the user select the badges that can be exported to OBF
     case 'exportbadges':
 
+        require_once($CFG->libdir . '/badgeslib.php');
+        
         $badges = array_merge(badges_get_badges(BADGE_TYPE_COURSE),
                 badges_get_badges(BADGE_TYPE_SITE));
-        $exportform = new obf_badge_export_form($FULLME, array('badges' => $badges));
+        $exportform = new obf_badge_export_form($FULLME,
+                array('badges' => $badges));
 
         if (!is_null($data = $exportform->get_data())) {
             // At least one badge has been selected to be included in exporting.
             if (isset($data->toexport)) {
-                
+
                 // Export each selected badge separately.
                 foreach ($data->toexport as $badgeid => $doexport) {
                     // Just to be sure the value of the checkbox is "1" and not "0", although
@@ -105,7 +113,9 @@ switch ($action) {
                                     'ctime' => null,
                                     'description' => $badge->description,
                                     'image' => base64_encode(file_get_contents(moodle_url::make_pluginfile_url($badge->get_context()->id,
-                                                            'badges', 'badgeimage', $badge->id, '/',
+                                                            'badges',
+                                                            'badgeimage',
+                                                            $badge->id, '/',
                                                             'f1', false))),
                                     'draft' => $data->makedrafts
                         ));
@@ -132,5 +142,6 @@ switch ($action) {
         break;
 }
 
-$content .= $OUTPUT->footer();
+echo $OUTPUT->header();
 echo $content;
+echo $OUTPUT->footer();

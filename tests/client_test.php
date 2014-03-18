@@ -5,6 +5,7 @@
 class local_obf_client_testcase extends advanced_testcase {
 
     public function test_request() {
+        $this->resetAfterTest();
 
         // Create the mock object.
         $curl = $this->getMock('curl', array('post', 'get', 'delete'));
@@ -20,17 +21,17 @@ class local_obf_client_testcase extends advanced_testcase {
         $curl->expects($this->any())
                 ->method('get')
                 ->with($this->logicalOr(
-                        $this->stringEndsWith('/test/'),
-                        $this->stringEndsWith('/doesnotexist/')),
+                                $this->stringEndsWith('/test/'),
+                                $this->stringEndsWith('/doesnotexist/')),
                         $this->anything(), $this->anything())
                 ->will($this->returnCallback(function ($path, $arg1, $arg2) {
-                    // This url exists, return a success message.
-                    if ($path == "/test/") {
-                        return json_encode(array('get' => 'works!'));
-                    }
-                    
-                    return false; // Return false on failure (invalid url).
-                }));
+                            // This url exists, return a success message.
+                            if ($path == "/test/") {
+                                return json_encode(array('get' => 'works!'));
+                            }
+
+                            return false; // Return false on failure (invalid url).
+                        }));
 
         // Mock HTTP DELETE
         $curl->expects($this->once())
@@ -64,13 +65,35 @@ class local_obf_client_testcase extends advanced_testcase {
         $curl->info = array('http_code' => 404);
 
         try {
-            $client->request('/doesnotexist/'); 
+            $client->request('/doesnotexist/');
             $this->fail('An expected exception has not been raised.');
-        }
-        catch (Exception $e) {
+        } catch (Exception $e) {
             // We should end up here.
         }
-        
     }
-    
+
+    public function test_deauthentication() {
+        $this->resetAfterTest();
+        
+        $client = obf_client::get_instance();
+        $certfile = $client->get_cert_filename();
+        $pkeyfile = $client->get_pkey_filename();
+
+        if (!file_exists($certfile)) {
+            touch($certfile);
+        }
+
+        if (!file_exists($pkeyfile)) {
+            touch($pkeyfile);
+        }
+
+        set_config('obfclientid', 'test', 'local_obf');
+
+        $client->deauthenticate();
+
+        $this->assertFileNotExists($certfile);
+        $this->assertFileNotExists($pkeyfile);
+        $this->assertFalse(get_config('local_obf', 'obfclientid'));
+    }
+
 }

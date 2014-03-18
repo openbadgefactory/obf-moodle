@@ -20,6 +20,7 @@ $string['apierror500'] = 'Palvelinvirhe';
 $string['apierror502'] = '502 Bad gateway';
 $string['apierror503'] = 'OBF-palvelu on väliaikaisesti tavoittamattomissa. Ole hyvä ja yritä'
         . ' hetken kuluttua uudelleen.';
+$string['authenticate'] = 'Yhdistä';
 $string['authenticationsuccess'] = 'Valtuutus onnistui.';
 $string['back'] = 'Takaisin';
 $string['backpackconnected'] = 'Yhteys muodostettu';
@@ -78,6 +79,8 @@ $string['criteriondeleted'] = 'Myöntämissääntö poistettu.';
 $string['criterionsaved'] = 'Myöntämissääntö tallennettu';
 $string['csrexportfailed'] = 'Sertifikaatin valtuutuksessa tapahtui virhe';
 $string['dateformatdate'] = '%d.%m.%Y';
+$string['deauthenticate'] = 'Katkaise yhteys';
+$string['deauthenticationsuccess'] = 'Yhteys Open Badge Factoryyn katkaistu.';
 $string['deletecriterion'] = 'Poista sääntö';
 $string['disablemoodlebadges'] = 'Piilota Moodlen vanhat merkit.';
 $string['disconnect'] = 'Katkaise yhteys';

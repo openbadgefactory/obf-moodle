@@ -1,5 +1,5 @@
 OBF Moodle plugin
-==================================
+=================
 
 This project user Composer to manage dependencies. If you don't have Composer
 installed, run the following command to install it:

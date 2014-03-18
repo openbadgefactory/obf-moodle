@@ -17,6 +17,12 @@ define('OBF_API_URL', OBF_DEFAULT_ADDRESS . 'v1');
  */
 define('OBF_API_CONSUMER_ID', 'Moodle');
 
+/**
+ * OBF API error codes.
+ */
+define('OBF_API_CODE_CERT_ERROR', 495);
+define('OBF_API_CODE_NO_CERT', 496);
+
 require_once(__DIR__ . '/class/criterion/criterion.php');
 require_once(__DIR__ . '/class/criterion/course.php');
 

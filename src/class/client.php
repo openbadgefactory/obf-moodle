@@ -65,6 +65,16 @@ class obf_client {
     }
 
     /**
+     * Deauthenticates the plugin.
+     */
+    public function deauthenticate() {
+        @unlink($this->get_cert_filename());
+        @unlink($this->get_pkey_filename());
+        
+        unset_config('obfclientid', 'local_obf');
+    }
+    
+    /**
      * Tries to authenticate the plugin against OBF API.
      * 
      * @param string $signature The request token from OBF.
@@ -174,11 +184,11 @@ class obf_client {
         return $ssl['validTo_time_t'];
     }
 
-    private function get_pkey_filename() {
+    public function get_pkey_filename() {
         return __DIR__ . '/../pki/obf.key';
     }
 
-    private function get_cert_filename() {
+    public function get_cert_filename() {
         return __DIR__ . '/../pki/obf.pem';
     }
 
@@ -396,7 +406,7 @@ class obf_client {
     /**
      * Returns the default CURL-settings for a request.
      *
-     * @return type
+     * @return array
      */
     public function get_curl_options() {
         return array(
