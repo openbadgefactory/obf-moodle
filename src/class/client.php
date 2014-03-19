@@ -225,11 +225,18 @@ class obf_client {
     /**
      * Get all the badges from the API.
      *
+     * @param string[] $categories Filter badges by these categories.
      * @return array The badges data.
      */
-    public function get_badges() {
+    public function get_badges(array $categories = array()) {
+        $params = array('draft' => 0);
+        
+        if (count($categories) > 0) {
+            $params['category'] = implode('|', $categories);
+        }
+        
         return $this->api_request('/badge/' . self::get_client_id(), 'get',
-                        array('draft' => 0),
+                        $params,
                         function ($output) {
                     return '[' . implode(',',
                                     array_filter(explode("\n", $output))) . ']';

@@ -22,6 +22,10 @@ $string['apierror503'] = 'OBF-palvelu on väliaikaisesti tavoittamattomissa. Ole
         . ' hetken kuluttua uudelleen.';
 $string['authenticate'] = 'Yhdistä';
 $string['authenticationsuccess'] = 'Valtuutus onnistui.';
+$string['availablecategories'] = 'Sallitut kategoriat';
+$string['availablecategorieshelp'] = 'Valitse merkkikategoriat, joiden osaamismerkkejä '
+        . 'instituutiossa voidaan myöntää. Mikäli yhtään kategoriaa ei ole valittu, '
+        . 'merkkejä voidaan myöntää kaikista kategorioista.';
 $string['back'] = 'Takaisin';
 $string['backpackconnected'] = 'Yhteys muodostettu';
 $string['backpackdisconnected'] = 'Yhteyttä ei ole muodostettu';
@@ -54,6 +58,7 @@ $string['badgetags'] = 'Tagit';
 $string['badgewasautomaticallyissued'] = 'Osaamismerkki myönnettiin {$a}:lle henkilölle.';
 $string['cancel'] = 'Peruuta';
 $string['cannoteditcriterion'] = 'Tämän säännön muokkaus ei ole mahdollista, sillä valittu osaamismerkki on jo myönnetty tämän säännön perusteella.';
+$string['categorysettings'] = 'Merkkikategoriat';
 $string['certrequestfailed'] = 'Sertifikaatin haku OBF-palvelusta epäonnistui.';
 $string['closepopup'] = 'Sulje';
 $string['completedbycriterion'] = '<strong>{$a}</strong> mennessä';

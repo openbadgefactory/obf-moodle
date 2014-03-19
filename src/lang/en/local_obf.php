@@ -19,6 +19,10 @@ $string['apierror502'] = '502 Bad gateway';
 $string['apierror503'] = 'OBF service is temporarily unavailable. Please try again later.';
 $string['authenticate'] = 'Authenticate';
 $string['authenticationsuccess'] = 'Authentication successful.';
+$string['availablecategories'] = 'Available categories';
+$string['availablecategorieshelp'] = 'Select the badge categories of which badges '
+        . 'can be used in issuance events of this institution. If none of the categories '
+        . 'is selected, the badges from every category can be issued.';
 $string['back'] = 'Back';
 $string['backpackconnected'] = 'Connected';
 $string['backpackdisconnected'] = 'Disconnected';
@@ -50,6 +54,7 @@ $string['badgewasautomaticallyissued'] = 'After reviewing the badge was awarded 
 $string['cancel'] = 'Cancel';
 $string['cannoteditcriterion'] = 'This rule cannot be edited, because the badge has already '
         . 'been awarded automatically based on this rule.';
+$string['categorysettings'] = 'Category settings';
 $string['certrequestfailed'] = 'There was an error while requesting the certificate from the API';
 $string['closepopup'] = 'Close';
 $string['completedbycriterion'] = 'by <strong>{$a}</strong>';

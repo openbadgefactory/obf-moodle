@@ -121,6 +121,18 @@ class obf_badge {
     }
 
     /**
+     * Returns the badge categories that are set as issuable in the system.
+     * 
+     * @return string[] The available categories.
+     */
+    public static function get_available_categories() {
+        $categorystr = get_config('local_obf', 'availablecategories');
+        $categories = !empty($categorystr) ? explode(',', trim($categorystr)) : array();
+        
+        return $categories;
+    }
+    
+    /**
      * Gets and returns the badges from OBF.
      * 
      * @param obf_client $client The client instance.
@@ -128,7 +140,7 @@ class obf_badge {
      */
     public static function get_badges(obf_client $client = null) {
         $client = is_null($client) ? obf_client::get_instance() : $client;
-        $badgearr = $client->get_badges();
+        $badgearr = $client->get_badges(self::get_available_categories());
 
         foreach ($badgearr as $badgedata) {
             $badge = self::get_instance_from_array($badgedata);

@@ -31,7 +31,7 @@ class obf_config_form extends obfform implements renderable {
             // We get error code 0 if pinging the API fails (like if the keyfiles
             // are missing). In plugin config we should show a more spesific
             // error to admin, so let's do that by changing the error code.
-            $errorcode = $errorcode == 0 ? OBF_API_CODE_NO_CERT : $errorcode;
+            $errorcode = $errorcode == 0 ? OBF_API_CODE_NO_CERT : $errorcode;            
             $mform->addElement('html',
                     $OUTPUT->notification(get_string('apierror' . $errorcode,
                                     'local_obf'), 'redirectmessage'));

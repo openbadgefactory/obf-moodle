@@ -22,7 +22,6 @@ $PAGE->set_context($context);
 $PAGE->set_url($url);
 $PAGE->set_pagelayout('admin');
 
-//$content = $OUTPUT->header();
 $content = '';
 
 switch ($action) {
@@ -77,7 +76,7 @@ switch ($action) {
 
         $content .= $PAGE->get_renderer('local_obf')->render($form);
         break;
-
+        
     // Let the user select the badges that can be exported to OBF
     case 'exportbadges':
 

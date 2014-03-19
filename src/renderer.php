@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Renderer for Open Badge Factory -plugin
  */
@@ -101,10 +100,13 @@ class local_obf_renderer extends plugin_renderer_base {
         $html = '';
         $categories = array();
         $items = array();
+        $availablecategories = obf_badge::get_available_categories();
+        $filtercategories = count($availablecategories) > 0;
 
         foreach ($badges as $badge) {
             foreach ($badge->get_categories() as $category) {
-                if (!in_array($category, $categories)) {
+                if (!in_array($category, $categories) && (!$filtercategories || in_array($category,
+                                $availablecategories))) {
                     $items[] = html_writer::tag('button', s($category),
                                     array('class' => ''));
                     $categories[] = $category;

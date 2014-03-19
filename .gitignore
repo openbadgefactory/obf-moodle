@@ -1,5 +1,6 @@
 /build/obf.zip
-/src/pki/*
+/src/pki/*.key
+/src/pki/*.pem
 /vendor/
 composer.lock
 composer.phar
