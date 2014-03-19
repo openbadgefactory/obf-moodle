@@ -65,7 +65,8 @@ $string['completedbycriterion'] = '<strong>{$a}</strong> mennessä';
 $string['configurecriteria'] = 'Muokkaa';
 $string['confirmcriteriondeletion'] = 'Haluatko varmasti poistaa tämän säännön?';
 $string['connect'] = 'Yhdistä';
-$string['connectionisworking'] = 'Yhteys Open Badge Factoryyn muodostettu.';
+$string['connectionisworking'] = 'Yhteys Open Badge Factoryyn muodostettu. Sertifikaatti '
+        . 'vanhentuu <strong>{$a}</strong>.';
 $string['connectionstatus'] = 'Backpack-yhteyden tila';
 $string['coursealreadyincriterion'] = 'Myöntämissääntöä ei voi muokata, sillä tällä kurssilla on jo myöntämissääntö valittuun merkkiin liittyen ja sääntö sisältää muitakin kursseja.';
 $string['coursebadgelisttitle'] = 'Tähän kurssiin liittyvät osaamismerkit';

@@ -17,9 +17,11 @@ class obf_config_form extends obfform implements renderable {
 
         // Connection to API is working
         if ($errorcode === -1) {
+            $expires = userdate($client->get_certificate_expiration_date(),
+                    get_string('dateformatdate', 'local_obf'));
             $mform->addElement('html',
                     $OUTPUT->notification(get_string('connectionisworking',
-                                    'local_obf'), 'notifysuccess'));
+                                    'local_obf', $expires), 'notifysuccess'));
             $mform->addElement('hidden', 'deauthenticate', 1);
             $mform->setType('deauthenticate', PARAM_INT);
             $mform->addElement('submit', 'submitbutton',
@@ -31,7 +33,7 @@ class obf_config_form extends obfform implements renderable {
             // We get error code 0 if pinging the API fails (like if the keyfiles
             // are missing). In plugin config we should show a more spesific
             // error to admin, so let's do that by changing the error code.
-            $errorcode = $errorcode == 0 ? OBF_API_CODE_NO_CERT : $errorcode;            
+            $errorcode = $errorcode == 0 ? OBF_API_CODE_NO_CERT : $errorcode;
             $mform->addElement('html',
                     $OUTPUT->notification(get_string('apierror' . $errorcode,
                                     'local_obf'), 'redirectmessage'));

@@ -173,7 +173,7 @@ class obf_client {
      */
     public function get_certificate_expiration_date() {
         $certfile = $this->get_cert_filename();
-
+        
         if (!file_exists($certfile)) {
             return false;
         }

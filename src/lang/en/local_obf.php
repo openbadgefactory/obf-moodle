@@ -61,7 +61,8 @@ $string['completedbycriterion'] = 'by <strong>{$a}</strong>';
 $string['configurecriteria'] = 'Configure';
 $string['confirmcriteriondeletion'] = 'Are you sure you want to delete this awarding rule?';
 $string['connect'] = 'Connect';
-$string['connectionisworking'] = 'OBF connection is up and working.';
+$string['connectionisworking'] = 'OBF connection is up and working. The client '
+        . 'certificate expires in <strong>{$a}</strong>.';
 $string['connectionstatus'] = 'Backpack connection status';
 $string['coursealreadyincriterion'] = 'The rule of automatic awarding of this badge in this '
         . 'course cannot be edited, because this course/badge -combination already exists in another '
