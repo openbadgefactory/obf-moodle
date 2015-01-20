@@ -74,7 +74,7 @@ class local_obf_client_testcase extends advanced_testcase {
 
     public function test_deauthentication() {
         $this->resetAfterTest();
-        
+
         $client = obf_client::get_instance();
         $certfile = $client->get_cert_filename();
         $pkeyfile = $client->get_pkey_filename();
@@ -96,4 +96,27 @@ class local_obf_client_testcase extends advanced_testcase {
         $this->assertFalse(get_config('local_obf', 'obfclientid'));
     }
 
+
+    public function test_missing_api_key() {
+        $this->resetAfterTest();
+
+        set_config('obfclientid', 'test', 'local_obf');
+
+        $client = obf_client::get_instance();
+
+        try {
+            $client->require_client_id();
+        } catch (Exception $ex) {
+            $this->fail('Client id required but not found.');
+        }
+
+        unset_config('obfclientid', 'local_obf');
+
+        try {
+            $client->require_client_id();
+            $this->fail('Missing client id should throw an exception.');
+        } catch (Exception $ex) {
+            // We should end up here.
+        }
+    }
 }

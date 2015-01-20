@@ -121,7 +121,7 @@ function obf_extends_navigation(global_navigation $navigation) {
 
 /**
  * Adds the OBF-links to Moodle's settings navigation.
- * 
+ *
  * @global type $COURSE
  * @param settings_navigation $navigation
  */
@@ -139,7 +139,7 @@ function local_obf_extends_settings_navigation(settings_navigation $navigation) 
 
 /**
  * Adds the OBF-links to Moodle's navigation.
- * 
+ *
  * @global moodle_page $PAGE
  * @global type $COURSE
  * @param global_navigation $navigation
@@ -156,7 +156,7 @@ function local_obf_extends_navigation(global_navigation $navigation) {
 
 /**
  * Adds the link to course navigation to see the badges of course participants.
- * 
+ *
  * @global type $COURSE
  * @param type $branch
  */
@@ -175,7 +175,7 @@ function local_obf_add_course_participant_badges_link(&$branch) {
 
 /**
  * Adds the OBF-links to course management navigation.
- * 
+ *
  * @global type $COURSE
  * @param type $branch
  */
@@ -193,7 +193,7 @@ function local_obf_add_course_admin_link(&$branch) {
 
 /**
  * Adds the backpack configuration link to navigation.
- * 
+ *
  * @param type $branch
  */
 function local_obf_add_backpack_settings_link(&$branch) {

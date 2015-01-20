@@ -12,7 +12,7 @@ class obf_client {
 
     /**
      * Returns the id of the client stored in Moodle's config.
-     * 
+     *
      * @return string The client id.
      */
     public static function get_client_id() {
@@ -21,7 +21,7 @@ class obf_client {
 
     /**
      * Returns the url of the OBF API.
-     * 
+     *
      * @return string The url.
      */
     public static function get_api_url() {
@@ -30,7 +30,7 @@ class obf_client {
 
     /**
      * Returns the client instance.
-     * 
+     *
      * @return obf_client The client.
      */
     public static function get_instance($transport = null) {
@@ -50,14 +50,29 @@ class obf_client {
     }
 
     /**
+     * Checks that the OBF client id is stored to plugin settings.
+     *
+     * @throws Exception If the client id is missing.
+     */
+    public function require_client_id() {
+        $clientid = self::get_client_id();
+
+        if (empty($clientid)) {
+            throw new Exception(get_string('apierror0', 'local_obf'), 0);
+        }
+    }
+
+    /**
      * Tests the connection to OBF API.
-     * 
+     *
      * @return int Returns the error code on failure and -1 on success.
      */
     public function test_connection() {
         try {
+            $this->require_client_id();
+
             // TODO: does ping check certificate validity?
-            $this->api_request('/ping');
+            $this->api_request('/ping/' . self::get_client_id());
             return -1;
         } catch (Exception $exc) {
             return $exc->getCode();
@@ -70,13 +85,13 @@ class obf_client {
     public function deauthenticate() {
         @unlink($this->get_cert_filename());
         @unlink($this->get_pkey_filename());
-        
+
         unset_config('obfclientid', 'local_obf');
     }
-    
+
     /**
      * Tries to authenticate the plugin against OBF API.
-     * 
+     *
      * @param string $signature The request token from OBF.
      * @return boolean Returns true on success.
      * @throws Exception If something goes wrong.
@@ -173,7 +188,7 @@ class obf_client {
      */
     public function get_certificate_expiration_date() {
         $certfile = $this->get_cert_filename();
-        
+
         if (!file_exists($certfile)) {
             return false;
         }
@@ -185,10 +200,12 @@ class obf_client {
     }
 
     public function get_pkey_filename() {
+        // TODO: Save under dataroot.
         return __DIR__ . '/../pki/obf.key';
     }
 
     public function get_cert_filename() {
+        // TODO: Save under dataroot.
         return __DIR__ . '/../pki/obf.pem';
     }
 
@@ -200,6 +217,7 @@ class obf_client {
      * @return array The badge data.
      */
     public function get_badge($badgeid) {
+        $this->require_client_id();
         return $this->api_request('/badge/' . self::get_client_id() . '/' . $badgeid);
     }
 
@@ -210,6 +228,7 @@ class obf_client {
      * @return array The issuer data.
      */
     public function get_issuer() {
+        $this->require_client_id();
         return $this->api_request('/client/' . self::get_client_id());
     }
 
@@ -219,6 +238,7 @@ class obf_client {
      * @return array The category data.
      */
     public function get_categories() {
+        $this->require_client_id();
         return $this->api_request('/badge/' . self::get_client_id() . '/_/categorylist');
     }
 
@@ -230,11 +250,13 @@ class obf_client {
      */
     public function get_badges(array $categories = array()) {
         $params = array('draft' => 0);
-        
+
+        $this->require_client_id();
+
         if (count($categories) > 0) {
             $params['category'] = implode('|', $categories);
         }
-        
+
         return $this->api_request('/badge/' . self::get_client_id(), 'get',
                         $params,
                         function ($output) {
@@ -252,6 +274,8 @@ class obf_client {
      */
     public function get_assertions($badgeid = null, $email = null) {
         $params = array('api_consumer_id' => OBF_API_CONSUMER_ID);
+
+        $this->require_client_id();
 
         if (!is_null($badgeid)) {
             $params['badge_id'] = $badgeid;
@@ -279,6 +303,7 @@ class obf_client {
      * @return array The event data.
      */
     public function get_event($eventid) {
+        $this->require_client_id();
         return $this->api_request('/event/' . self::get_client_id() . '/' . $eventid,
                         'get');
     }
@@ -287,6 +312,7 @@ class obf_client {
      * Deletes all client badges. Use with caution.
      */
     public function delete_badges() {
+        $this->require_client_id();
         $this->api_request('/badge/' . self::get_client_id(), 'delete');
     }
 
@@ -296,6 +322,8 @@ class obf_client {
      * @param obf_badge $badge The badge.
      */
     public function export_badge(obf_badge $badge) {
+        $this->require_client_id();
+
         $params = array(
             'name' => $badge->get_name(),
             'description' => $badge->get_description(),
@@ -325,6 +353,7 @@ class obf_client {
      */
     public function issue_badge(obf_badge $badge, $recipients, $issuedon,
                                 $emailsubject, $emailbody, $emailfooter) {
+        $this->require_client_id();
         $params = array(
             'recipient' => $recipients,
             'issued_on' => $issuedon,
