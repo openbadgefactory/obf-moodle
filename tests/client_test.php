@@ -97,7 +97,7 @@ class local_obf_client_testcase extends advanced_testcase {
     }
 
 
-    public function test_missing_api_key() {
+    public function test_missing_client_id() {
         $this->resetAfterTest();
 
         set_config('obfclientid', 'test', 'local_obf');
