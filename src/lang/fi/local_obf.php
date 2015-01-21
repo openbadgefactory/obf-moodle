@@ -154,6 +154,7 @@ $string['pluginname'] = 'Open Badge Factory';
 $string['previewbadge'] = 'Merkin esikatselu';
 $string['previewcriteria'] = 'Esikatselu';
 $string['previewemail'] = 'Esikatselu';
+$string['pubkeyextractionfailed'] = 'Julkisen avaimen purkaminen sertifikaatista epäonnistui.';
 $string['pubkeyrequestfailed'] = 'Julkisen avaimen haku Open Badge Factory API:sta epäonnistui.';
 $string['recipients'] = 'Vastaanottajat';
 $string['recipientcandidates'] = 'Hakuun täsmäävät käyttäjät';

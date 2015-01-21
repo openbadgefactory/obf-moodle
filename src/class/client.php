@@ -123,13 +123,20 @@ class obf_client {
 
         $decrypted = '';
 
-        // Get the public key
+        // Get the public key...
         $key = openssl_pkey_get_public($pubkey);
+
+        // ... That didn't go too well.
+        if ($key === false) {
+            throw new Exception(get_string('pubkeyextractionfailed', 'local_obf') .
+                    ': ' . openssl_error_string());
+        }
 
         // Couldn't decrypt data with provided key
         if (openssl_public_decrypt($token, $decrypted, $key,
                         OPENSSL_PKCS1_PADDING) === false) {
-            throw new Exception(get_string('tokendecryptionfailed', 'local_obf'));
+            throw new Exception(get_string('tokendecryptionfailed', 'local_obf') .
+                    ': ' . openssl_error_string());
         }
 
         $json = json_decode($decrypted);
@@ -138,7 +145,7 @@ class obf_client {
         set_config('obfclientid', $json->id, 'local_obf');
 
         // Create a new private key
-        $config = array('private_key_bits' => 2048, 'private_key_type', OPENSSL_KEYTYPE_RSA);
+        $config = array('private_key_bits' => 2048, 'private_key_type' => OPENSSL_KEYTYPE_RSA);
         $privkey = openssl_pkey_new($config);
 
         // Export the new private key to a file for later use
