@@ -150,6 +150,7 @@ $string['obf:seeparticipantbadges'] = 'Voi nähdä kurssin osallistujien merkit'
 $string['obf:viewallbadges'] = 'Voin nähdä kaikki osaamismerkit';
 $string['obf:viewdetails'] = 'Voi nähdä osaamismerkin tiedot';
 $string['obf:viewhistory'] = 'Voi nähdä osaamismerkkien myöntämishistorian';
+$string['pkidirnotwritable'] = 'WWW-palvelimen käyttäjän (yleensä "www-data") tulee pystyä kirjoittamaan sertifikaatin tallennushakemistoon <i>{$a}</i>.';
 $string['pluginname'] = 'Open Badge Factory';
 $string['previewbadge'] = 'Merkin esikatselu';
 $string['previewcriteria'] = 'Esikatselu';

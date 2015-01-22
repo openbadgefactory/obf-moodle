@@ -146,6 +146,7 @@ $string['obf:seeparticipantbadges'] = 'See the badges of course participants';
 $string['obf:viewallbadges'] = 'View available badges';
 $string['obf:viewdetails'] = 'View badge details';
 $string['obf:viewhistory'] = 'View badge issuance history';
+$string['pkidirnotwritable'] = 'Certificate directory <i>{$a}</i> should be writable for web server user.';
 $string['pluginname'] = 'Open Badge Factory';
 $string['previewbadge'] = 'Preview badge';
 $string['previewcriteria'] = 'Preview';

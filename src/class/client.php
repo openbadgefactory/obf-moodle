@@ -1,5 +1,4 @@
 <?php
-
 require_once __DIR__ . '/../lib.php';
 
 /**
@@ -97,6 +96,14 @@ class obf_client {
      * @throws Exception If something goes wrong.
      */
     public function authenticate($signature) {
+        $pkidir = realpath($this->get_pki_dir());
+
+        // Certificate directory not writable.
+        if (!is_writable($pkidir)) {
+            throw new Exception(get_string('pkidirnotwritable', 'local_obf',
+                    $pkidir));
+        }
+
         $signature = trim($signature);
         $token = base64_decode($signature);
         $curl = $this->get_transport();
@@ -112,7 +119,7 @@ class obf_client {
         // CURL-request failed
         if ($pubkey === false) {
             throw new Exception(get_string('pubkeyrequestfailed', 'local_obf') .
-                    ': ' . $curl->error);
+            ': ' . $curl->error);
         }
 
         // Server gave us an error
@@ -129,14 +136,14 @@ class obf_client {
         // ... That didn't go too well.
         if ($key === false) {
             throw new Exception(get_string('pubkeyextractionfailed', 'local_obf') .
-                    ': ' . openssl_error_string());
+            ': ' . openssl_error_string());
         }
 
         // Couldn't decrypt data with provided key
         if (openssl_public_decrypt($token, $decrypted, $key,
                         OPENSSL_PKCS1_PADDING) === false) {
             throw new Exception(get_string('tokendecryptionfailed', 'local_obf') .
-                    ': ' . openssl_error_string());
+            ': ' . openssl_error_string());
         }
 
         $json = json_decode($decrypted);
@@ -207,13 +214,16 @@ class obf_client {
     }
 
     public function get_pkey_filename() {
-        // TODO: Save under dataroot.
-        return __DIR__ . '/../pki/obf.key';
+        return $this->get_pki_dir() . 'obf.key';
     }
 
     public function get_cert_filename() {
+        return $this->get_pki_dir() . 'obf.pem';
+    }
+
+    public function get_pki_dir() {
         // TODO: Save under dataroot.
-        return __DIR__ . '/../pki/obf.pem';
+        return __DIR__ . '/../pki/';
     }
 
     /**
@@ -455,8 +465,8 @@ class obf_client {
         return array(
             'RETURNTRANSFER' => true,
             'FOLLOWLOCATION' => false,
-            'SSL_VERIFYHOST' => false, // for testing
-            'SSL_VERIFYPEER' => false, // for testing
+            'SSL_VERIFYHOST' => true,
+            'SSL_VERIFYPEER' => true,
             'SSLCERT' => $this->get_cert_filename(),
             'SSLKEY' => $this->get_pkey_filename()
         );
