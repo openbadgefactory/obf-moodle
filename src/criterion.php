@@ -4,7 +4,6 @@
  */
 
 require_once __DIR__ . '/../../config.php';
-require_once __DIR__ . '/class/criterion/criterionbase.php';
 require_once __DIR__ . '/class/criterion/course.php';
 require_once __DIR__ . "/class/badge.php";
 
