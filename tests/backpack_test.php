@@ -17,7 +17,7 @@ class local_obf_backpack_testcase extends advanced_testcase {
 
     public function test_valid_connection() {
         $this->resetAfterTest();
-        
+
         $email = 'existing@example.com';
         $stub = $this->getMock('obf_backpack', array('connect_to_backpack'));
         $stub->expects($this->any())
@@ -27,7 +27,7 @@ class local_obf_backpack_testcase extends advanced_testcase {
 
         $stub->connect($email);
         $this->assertTrue($stub->is_connected());
-        
+
         $stub->disconnect();
         $this->assertFalse(obf_backpack::get_instance_by_backpack_email($email));
     }
@@ -38,7 +38,7 @@ class local_obf_backpack_testcase extends advanced_testcase {
         $stub->expects($this->any())
                 ->method($this->equalTo('connect_to_backpack'))
                 ->will($this->returnValue(false));
-        
+
         try {
             $email = 'doesnotexist@example.com';
             $stub->connect($email);
@@ -47,7 +47,7 @@ class local_obf_backpack_testcase extends advanced_testcase {
         catch (Exception $e) {
             // We should end up here
         }
-        
+
         $this->assertFalse($stub->is_connected());
     }
 
@@ -55,23 +55,30 @@ class local_obf_backpack_testcase extends advanced_testcase {
         $assertion = 'valid_assertion';
         $invalidassertion = 'invalid_assertion';
         $email = 'existing@example.com';
-        
+
         $mock = $this->getMock('curl', array('post'));
         $mock->expects($this->any())
                 ->method('post')
                 ->will($this->returnCallback(function ($url, $params) use ($email, $assertion) {
                     $obj = json_decode($params);
-                    
+
                     if ($obj->assertion == $assertion) {
                         return json_encode(array('email' => $email, 'status' => 'okay'));
                     }
-                    
-                    return json_encode(array('status' => 'failure'));
+
+                    return json_encode(array('status' => 'failure', 'reason' => 'You failed.'));
                 }));
-        
+
         $backpack = new obf_backpack($mock);
         $this->assertEquals($email, $backpack->verify($assertion));
-        $this->assertFalse($backpack->verify($invalidassertion));
+
+        try {
+            $backpack->verify($invalidassertion);
+            $this->fail('Verification should have failed.');
+        }
+        catch (Exception $e) {
+            // We should end up here
+        }
     }
-    
+
 }

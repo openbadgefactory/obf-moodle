@@ -1,5 +1,4 @@
 <?php
-
 require_once __DIR__ . '/assertion.php';
 require_once __DIR__ . '/assertion_collection.php';
 
@@ -23,7 +22,7 @@ class obf_backpack {
             $this->set_transport($transport);
         }
     }
-    
+
     /**
      *
      * @param type $user
@@ -138,7 +137,7 @@ class obf_backpack {
         if (!is_null($this->transport)) {
             return $this->transport;
         }
-        
+
         global $CFG;
         require_once($CFG->libdir . '/filelib.php');
         $curl = new curl();
@@ -149,28 +148,39 @@ class obf_backpack {
     /**
      * Tries to verify the assertion and returns the associated email address
      * if verification was successful. Return false otherwise.
-     * 
+     *
      * @global type $CFG
      * @param string $assertion The assertion from Mozilla Persona.
-     * @return boolean|string Returns the users email or false if verification
+     * @return string Returns the users email or false if verification
      *      fails.
      */
     public function verify($assertion) {
         global $CFG;
-        
+
         $urlparts = parse_url($CFG->wwwroot);
         $port = isset($urlparts['port']) ? $urlparts['port'] : 80;
         $url = $urlparts['scheme'] . '://' . $urlparts['host'] . ':' . $port;
         $params = array('assertion' => $assertion, 'audience' => $url);
-        
+
         $curl = $this->get_transport();
+        $curlopts = array(
+            'CURLOPT_RETURNTRANSFER' => true,
+            'CURLOPT_SSL_VERIFYPEER' => 0,
+            'CURLOPT_SSL_VERIFYHOST' => 2
+        );
+
         $curl->setHeader('Content-Type: application/json');
-        $output = $curl->post(self::PERSONA_VERIFIER_URL, json_encode($params));
-                
+        $output = $curl->post(self::PERSONA_VERIFIER_URL, json_encode($params),
+                $curlopts);
+
         $ret = json_decode($output);
-        
+
         if ($ret->status == 'failure') {
-            return false;
+            $error = get_string('verification_failed', 'local_obf', $ret->reason);
+            debugging($error . '. Assertion: ' . var_export($assertion, true),
+                    DEBUG_DEVELOPER);
+
+            throw new Exception($error);
         }
 
         return $ret->email;
@@ -356,7 +366,7 @@ class obf_backpack {
         $this->groups = is_array($groups) ? $groups : array();
         return $this;
     }
-    
+
     public function set_transport($transport) {
         $this->transport = $transport;
     }

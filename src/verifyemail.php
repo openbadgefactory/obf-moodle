@@ -17,13 +17,8 @@ if ($backpack === false) {
     $backpack->set_user_id($USER->id);
 }
 
-$email = $backpack->verify($assertion);
-
-if ($email === false) {
-    die(json_encode(array('error' => get_string('verification_failed', 'local_obf'))));
-}
-
 try {
+    $email = $backpack->verify($assertion);
     $backpack->connect($email);
 }
 catch (Exception $e) {

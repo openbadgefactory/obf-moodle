@@ -181,6 +181,7 @@ $string['showmorerecipients'] = 'more';
 $string['toearnthisbadge'] = 'To earn this badge this course has to be completed';
 $string['tokendecryptionfailed'] = 'Decrypting the request token failed. Be sure to paste the '
         . 'certificate signing request token fully.';
+$string['verification_failed'] = 'Backpack verification failed. Reason: {$a}';
 $string['warningcannoteditafterreview'] = 'Note that if the badge is awarded when these rules are ' .
         'being reviewed, the rule(s) cannot be edited anymore. Once the badge has been automatically ' .
         'awarded to at least one person, editing of the rules is prohibited. So make sure the rules ' .

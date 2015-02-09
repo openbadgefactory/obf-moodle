@@ -463,12 +463,12 @@ class obf_client {
      */
     public function get_curl_options() {
         return array(
-            'RETURNTRANSFER' => true,
-            'FOLLOWLOCATION' => false,
-            'SSL_VERIFYHOST' => true,
-            'SSL_VERIFYPEER' => true,
-            'SSLCERT' => $this->get_cert_filename(),
-            'SSLKEY' => $this->get_pkey_filename()
+            'RETURNTRANSFER'    => true,
+            'FOLLOWLOCATION'    => false,
+            'SSL_VERIFYHOST'    => 2,
+            'SSL_VERIFYPEER'    => 1,
+            'SSLCERT'           => $this->get_cert_filename(),
+            'SSLKEY'            => $this->get_pkey_filename()
         );
     }
 

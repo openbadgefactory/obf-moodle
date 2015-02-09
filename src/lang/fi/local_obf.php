@@ -184,4 +184,5 @@ $string['showconnectionconfig'] = 'Haluan päivittää valtuutusavaimen siitä h
 $string['showmorerecipients'] = 'lisää';
 $string['toearnthisbadge'] = 'Osaamismerkin ansaitseminen edellyttää tämän kurssin suorittamista';
 $string['tokendecryptionfailed'] = 'Valtuutusavain on virheellinen. Tarkista, että olet kopioinut ja liittänyt koko valtuutusavaimen.';
+$string['verification_failed'] = 'Sähköpostiosoitteen tarkistus epäonnistui. Virheviesti: {$a}';
 $string['warningcannoteditafterreview'] = 'Sääntöä ei voi muokata, jos merkki on myönnetty automaattisen myöntämissäännön perusteella. Tarkista siis sääntö huolellisesti ennen tallennusta.';
