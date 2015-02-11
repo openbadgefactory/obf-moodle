@@ -158,15 +158,15 @@ class obf_backpack {
         global $CFG;
 
         $urlparts = parse_url($CFG->wwwroot);
-        $port = isset($urlparts['port']) ? $urlparts['port'] : 80;
-        $url = $urlparts['scheme'] . '://' . $urlparts['host'] . ':' . $port;
+        $port = isset($urlparts['port']) ? ':' . $urlparts['port'] : '';
+        $url = $urlparts['scheme'] . '://' . $urlparts['host'] . $port;
         $params = array('assertion' => $assertion, 'audience' => $url);
 
         $curl = $this->get_transport();
         $curlopts = array(
-            'CURLOPT_RETURNTRANSFER' => true,
-            'CURLOPT_SSL_VERIFYPEER' => 0,
-            'CURLOPT_SSL_VERIFYHOST' => 2
+            'RETURNTRANSFER' => true,
+            'SSL_VERIFYPEER' => 0,
+            'SSL_VERIFYHOST' => 2
         );
 
         $curl->setHeader('Content-Type: application/json');
@@ -177,8 +177,12 @@ class obf_backpack {
 
         if ($ret->status == 'failure') {
             $error = get_string('verification_failed', 'local_obf', $ret->reason);
-            debugging($error . '. Assertion: ' . var_export($assertion, true),
-                    DEBUG_DEVELOPER);
+
+            // No need for debug messages when running tests.
+            if (!PHPUNIT_TEST) {
+                debugging($error . '. Assertion: ' . var_export($assertion, true),
+                        DEBUG_DEVELOPER);
+            }
 
             throw new Exception($error);
         }
