@@ -79,6 +79,13 @@ class local_obf_client_testcase extends advanced_testcase {
         $certfile = $client->get_cert_filename();
         $pkeyfile = $client->get_pkey_filename();
 
+        $pkidir = $client->get_pki_dir();
+
+        if (!is_dir($pkidir)) {
+            global $CFG;
+            mkdir($pkidir,$CFG->directorypermissions,true);
+        }
+
         if (!file_exists($certfile)) {
             touch($certfile);
         }

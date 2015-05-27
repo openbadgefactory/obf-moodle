@@ -342,6 +342,47 @@ function xmldb_local_obf_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2013110500, 'local', 'obf');
     }
 
+    if ($oldversion < 2015052700) {
+        $oldpkidir = realpath(__DIR__ . '/../pki/');
+        global $CFG;
+        $newpkidir = $CFG->dataroot . '/local_obf/pki/';
+
+        if (!is_dir($newpkidir)) {
+            mkdir($newpkidir,$CFG->directorypermissions,true);
+        }
+        $newpkidir = realpath($newpkidir);
+
+        $pkey_filename = '/obf.key';
+        $cert_filename = '/obf.pem';
+
+        if (!is_writable($newpkidir)) {
+            throw new Exception(get_string('pkidirnotwritable', 'local_obf',
+                    $newpkidir));
+        }
+        $oldpkeyfile = $oldpkidir . $pkey_filename;
+        $oldcertfile = $oldpkidir . $cert_filename;
+
+        $newpkeyfile = $newpkidir . $pkey_filename;
+        $newcertfile = $newpkidir . $cert_filename;
+
+        if (is_file($oldpkeyfile) ) {
+            copy($oldpkeyfile, $newpkeyfile);
+        }
+        if (is_file($oldcertfile) ) {
+            copy($oldcertfile, $newcertfile);
+        }
+
+        if (is_writable($oldpkeyfile) && is_file($newpkeyfile)) {
+            @unlink($oldpkeyfile);
+        }
+        if (is_writable($oldcertfile) && is_file($newcertfile)) {
+            @unlink($oldcertfile);
+        }
+
+        // Obf savepoint reached
+        upgrade_plugin_savepoint(true, 2015052700, 'local', 'obf');
+    }
+
 
     return true;
 }

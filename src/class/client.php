@@ -98,6 +98,7 @@ class obf_client {
     public function authenticate($signature) {
         $pkidir = realpath($this->get_pki_dir());
 
+
         // Certificate directory not writable.
         if (!is_writable($pkidir)) {
             throw new Exception(get_string('pkidirnotwritable', 'local_obf',
@@ -222,8 +223,8 @@ class obf_client {
     }
 
     public function get_pki_dir() {
-        // TODO: Save under dataroot.
-        return __DIR__ . '/../pki/';
+        global $CFG;
+        return $CFG->dataroot . '/local_obf/pki/';
     }
 
     /**
