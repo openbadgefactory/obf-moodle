@@ -1,5 +1,7 @@
 <?php
 
+defined('MOODLE_INTERNAL') or die();
+
 require_once($CFG->libdir . '/formslib.php');
 
 class obf_badge_export_form extends moodleform {

@@ -1,5 +1,7 @@
 <?php
 
+defined('MOODLE_INTERNAL') or die();
+
 require_once(__DIR__ . '/obfform.php');
 
 class obf_coursecriterion_form extends obfform {

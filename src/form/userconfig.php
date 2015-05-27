@@ -1,5 +1,7 @@
 <?php
 
+defined('MOODLE_INTERNAL') or die();
+
 require_once(__DIR__ . '/obfform.php');
 require_once(__DIR__ . '/../renderer.php');
 

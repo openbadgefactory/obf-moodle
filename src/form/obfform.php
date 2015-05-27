@@ -1,4 +1,7 @@
 <?php
+
+defined('MOODLE_INTERNAL') or die();
+
 require_once($CFG->libdir . '/formslib.php');
 
 /**
