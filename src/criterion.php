@@ -42,6 +42,7 @@ switch ($action) {
 
     // Save the criterion
     case 'save':
+        require_capability('local/obf:editcriterion', $context);
         require_once(__DIR__ . '/form/criterion.php');
 
         $url = new moodle_url('/local/obf/criterion.php',
@@ -94,6 +95,7 @@ switch ($action) {
 
     // Creating a new criterion
     case 'new':
+        require_capability('local/obf:editcriterion', $context);
         require_once(__DIR__ . '/form/criterion.php');
 
         $url = new moodle_url('/local/obf/criterion.php',
@@ -109,6 +111,7 @@ switch ($action) {
 
     // Editing an existing criterion
     case 'edit':
+        require_capability('local/obf:editcriterion', $context);
         require_once(__DIR__ . '/form/criterion.php');
 
         $url = new moodle_url('/local/obf/criterion.php',
@@ -125,6 +128,7 @@ switch ($action) {
 
     // Updating an existing criterion
     case 'update':
+        require_capability('local/obf:editcriterion', $context);
         require_once(__DIR__ . '/form/criterion.php');
 
         $criterion = obf_criterion::get_instance($id);
@@ -175,6 +179,7 @@ switch ($action) {
 
     // Deleting a criterion
     case 'delete':
+        require_capability('local/obf:editcriterion', $context);
         require_once __DIR__ . '/form/criteriondeletion.php';
 
         $criterion = obf_criterion::get_instance($id);

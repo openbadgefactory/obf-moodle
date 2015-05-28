@@ -6,6 +6,9 @@
 require_once __DIR__ . '/../../config.php';
 require_once $CFG->dirroot . '/local/obf/class/assertion.php';
 
+require_login();
+require_capability('local/obf:viewallevents', context_system::instance()); // TODO: more specific capabilities?
+
 $client = obf_client::get_instance();
 $eventid = required_param('id', PARAM_ALPHANUM);
 $assertion = obf_assertion::get_instance_by_id($eventid, $client);
