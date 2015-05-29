@@ -382,7 +382,7 @@ class obf_client {
             'log_entry' => array('foo' => 'Just testing')
         );
 
-        if (!is_null($badge->get_expires() && $badge->get_expires() > 0)) {
+        if (!is_null($badge->get_expires()) && $badge->get_expires() > 0) {
             $params['expires'] = $badge->get_expires();
         }
 
