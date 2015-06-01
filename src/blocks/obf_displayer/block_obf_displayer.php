@@ -21,7 +21,7 @@ class block_obf_displayer extends block_base {
 
         $userid = $context->instanceid;
 
-        $cache = cache::make_from_params(cache_store::MODE_APPLICATION, 'block_obf_displayer', 'assertions');
+        $cache = cache::make('block_obf_displayer', 'obf_assertions');
         $assertions = $cache->get($userid);
 
         if (!$assertions) {
@@ -34,7 +34,7 @@ class block_obf_displayer extends block_base {
             if ($backpack !== false && count($backpack->get_group_ids()) > 0) {
                 $assertions->add_collection( $backpack->get_assertions() );
             }
-
+            $assertions->toArray(); // This makes sure issuer objects are populated and cached
             $cache->set($userid, $assertions );
         }
 

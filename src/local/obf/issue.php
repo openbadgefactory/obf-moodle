@@ -95,6 +95,8 @@ else if (!is_null($data = $issuerform->get_data())) {
 
     $success = $assertion->process();
 
+    cache_helper::invalidate_by_event('new_obf_assertion', $userids);
+
     // Badage was successfully issued.
     if ($success) {
         // Course context
