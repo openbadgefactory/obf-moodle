@@ -41,6 +41,11 @@ There are also a few acceptance tests in tests-directory created using Behat,
 but running them doesn't serve any purpose. They are done mostly to test Behat
 and Selenium.
 
+OBF Displayer plugin
+--------------------
+
+[OBF Displayer plugin README](src/blocks/obf_displayer/README.md)
+
 How to install
 --------------
 
@@ -55,3 +60,4 @@ Moodle 2.2:
 2. Give write permissions to web server user on /[MoodleDir]/local/obf/pki
    directory, for example `sudo chown www-data:www-data /[MoodleDir]/local/obf/pki`
 3. Update the database using the notifications page
+
