@@ -45,7 +45,7 @@ class obf_badge {
     private $image = null;
 
     /**
-     * @var boolean Whether the badge is a draft only. 
+     * @var boolean Whether the badge is a draft only.
      */
     private $isdraft = true;
 
@@ -55,23 +55,23 @@ class obf_badge {
     private $description = '';
 
     /**
-     * @var string The HTML-markup of badge criteria. 
+     * @var string The HTML-markup of badge criteria.
      */
     private $criteria_html = '';
 
     /**
-     * @var string The CSS of the badge criteria page. 
+     * @var string The CSS of the badge criteria page.
      */
     private $criteria_css = '';
 
     /**
-     * @var string The URL of the badge criteria. 
+     * @var string The URL of the badge criteria.
      */
     private $criteria_url = '';
     private $expiresby = null;
 
     /**
-     * @var string[] The tags of the badge. 
+     * @var string[] The tags of the badge.
      */
     private $tags = array();
 
@@ -117,24 +117,29 @@ class obf_badge {
     }
 
     public function equals(obf_badge $another) {
+        return (strcmp($this->get_name(), $another->get_name()) === 0 &&
+                strcmp($this->get_description(), $another->get_description()) === 0);
+    }
+
+    public function image_equals(obf_badge $another) {
         return $this->get_image() == $another->get_image();
     }
 
     /**
      * Returns the badge categories that are set as issuable in the system.
-     * 
+     *
      * @return string[] The available categories.
      */
     public static function get_available_categories() {
         $categorystr = get_config('local_obf', 'availablecategories');
         $categories = !empty($categorystr) ? explode(',', trim($categorystr)) : array();
-        
+
         return $categories;
     }
-    
+
     /**
      * Gets and returns the badges from OBF.
-     * 
+     *
      * @param obf_client $client The client instance.
      * @return obf_badge[] The badges.
      */
@@ -210,11 +215,11 @@ class obf_badge {
         if (is_null($email) && $hasemail) {
             $email = new obf_email();
             $email->set_badge_id($this->get_id());
-            
+
             isset($arr['email_subject']) and $email->set_subject($arr['email_subject']);
             isset($arr['email_footer']) and $email->set_footer($arr['email_footer']);
             isset($arr['email_body']) and $email->set_body($arr['email_body']);
-            
+
             $email->save($DB);
         }
         !is_null($email) and $this->set_email($email);
@@ -224,7 +229,7 @@ class obf_badge {
 
     /**
      * Exports this badge to OBF.
-     * 
+     *
      * @param obf_client $client The client instance.
      * @return boolean Returns true on success, false otherwise.
      */
@@ -241,7 +246,7 @@ class obf_badge {
 
     /**
      * Returns the issuer of the badge.
-     * 
+     *
      * @return obf_issuer The issuer.
      */
     public function get_issuer() {
@@ -254,9 +259,9 @@ class obf_badge {
 
     /**
      * Issues this badge to $recipients.
-     * 
+     *
      * @param string[] $recipients The email addresses of the recipients.
-     * @param int $issuedon When the badge was issued, Unix timestamp. 
+     * @param int $issuedon When the badge was issued, Unix timestamp.
      * @param string $emailsubject The subject of the email sent to user.
      * @param string $emailbody The body of the email sent to user.
      * @param string $emailfooter The footer of the email sent to user.
@@ -273,7 +278,7 @@ class obf_badge {
 
     /**
      * Returns the badges issued to $user.
-     * 
+     *
      * @param type $user The Moodle's user object.
      * @param obf_client $client The client instance.
      * @return obf_badge[] The badges.
@@ -297,7 +302,7 @@ class obf_badge {
 
     /**
      * Get assertions related to this badge.
-     * 
+     *
      * @return obf_assertion_collection The assertions.
      */
     public function get_assertions() {
@@ -306,7 +311,7 @@ class obf_badge {
 
     /**
      * Get assertions related to this badge that haven't been expired.
-     * 
+     *
      * @return obf_assertion[] The non-expired assertions.
      */
     public function get_non_expired_assertions() {
@@ -339,7 +344,7 @@ class obf_badge {
 
     /**
      * Checks whether the badge has an expiration date set or not.
-     * 
+     *
      * @return boolean True if there's an expiration date, false otherwise.
      */
     public function has_expiration_date() {
@@ -348,7 +353,7 @@ class obf_badge {
 
     /**
      * Returns the default (set in OBF) expiration date of the badge.
-     * 
+     *
      * @return int The expiration date as a Unix timestamp.
      */
     public function get_default_expiration_date() {
@@ -357,7 +362,7 @@ class obf_badge {
 
     /**
      * Returns all the completion criteria related to this badge.
-     * 
+     *
      * @return obf_criterion[] The criteria.
      */
     public function get_completion_criteria() {
@@ -367,7 +372,7 @@ class obf_badge {
     /**
      * Checks whether there is completion criteria related to this badge and
      * $course.
-     * 
+     *
      * @param stdClass $course The Moodle's course object.
      * @return boolean True, if criteria is found, false otherwise.
      */
@@ -389,7 +394,7 @@ class obf_badge {
 
     /**
      * Returns the email template associated with this badge.
-     * 
+     *
      * @global type $DB
      * @return obf_email The email template.
      */
@@ -405,7 +410,7 @@ class obf_badge {
 
     /**
      * Returns the badges associated with course identified by $courseid.
-     * 
+     *
      * @param int $courseid
      * @return obf_badge[] The badges.
      */
@@ -422,7 +427,7 @@ class obf_badge {
 
     /**
      * Returns this badge as an associative array.
-     * 
+     *
      * @return array The badge data as an array.
      */
     public function toArray() {

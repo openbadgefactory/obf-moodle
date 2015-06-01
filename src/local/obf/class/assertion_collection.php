@@ -23,7 +23,7 @@ class obf_assertion_collection implements Countable, IteratorAggregate {
 
     /**
      * Class constructor.
-     * 
+     *
      * @param obf_assertion[] $assertions The assertions.
      */
     public function __construct(array $assertions = array()) {
@@ -32,7 +32,7 @@ class obf_assertion_collection implements Countable, IteratorAggregate {
 
     /**
      * Adds an assertion to this collection.
-     * 
+     *
      * @param obf_assertion $assertion The assertion.
      */
     public function add_assertion(obf_assertion $assertion) {
@@ -41,7 +41,7 @@ class obf_assertion_collection implements Countable, IteratorAggregate {
 
     /**
      * Returns an array representing this collection.
-     * 
+     *
      * @return array The array.
      */
     public function toArray() {
@@ -56,7 +56,7 @@ class obf_assertion_collection implements Countable, IteratorAggregate {
 
     /**
      * Merges two collections.
-     * 
+     *
      * @param obf_assertion_collection $collection The other collection.
      */
     public function add_collection(obf_assertion_collection $collection) {
@@ -72,7 +72,7 @@ class obf_assertion_collection implements Countable, IteratorAggregate {
 
     /**
      * Checks whether this collection contains $assertion.
-     * 
+     *
      * @param obf_assertion $assertion The assertion to search for.
      * @return boolean Returns true if found, false otherwise.
      */
@@ -88,7 +88,7 @@ class obf_assertion_collection implements Countable, IteratorAggregate {
 
     /**
      * Returns an assertion from index $index.
-     * 
+     *
      * @param int $index
      * @return obf_assertion
      */
@@ -96,7 +96,7 @@ class obf_assertion_collection implements Countable, IteratorAggregate {
         if (!isset($this->assertions[$index])) {
             throw new Exception("Invalid array index.");
         }
-        
+
         return $this->assertions[$index];
     }
 
@@ -142,7 +142,7 @@ class obf_assertion_collection implements Countable, IteratorAggregate {
 
     /**
      * Tries to find the Moodle user by email from collection's cache.
-     * 
+     *
      * @param string $email The email of the user.
      * @return stdClass|boolean Returns the user object if found, false
      *      otherwise.
@@ -163,6 +163,12 @@ class obf_assertion_collection implements Countable, IteratorAggregate {
 
     public function getIterator() {
         return new ArrayIterator($this->assertions);
+    }
+
+    public function get_unique() {
+        $ret = new obf_assertion_collection();
+        $ret->add_collection($this);
+        return $ret;
     }
 
 }

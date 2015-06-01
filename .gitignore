@@ -1,4 +1,5 @@
 /build/obf.zip
+/build/obf_displayer.zip
 /src/pki/*.key
 /src/pki/*.pem
 /vendor/
