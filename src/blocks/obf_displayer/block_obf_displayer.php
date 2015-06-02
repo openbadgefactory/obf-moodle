@@ -21,30 +21,49 @@ class block_obf_displayer extends block_base {
 
         $userid = $context->instanceid;
 
-        $cache = cache::make('block_obf_displayer', 'obf_assertions');
-        $assertions = $cache->get($userid);
+        $assertions = $this->get_assertions($userid, $DB);
 
-        if (!$assertions) {
-            // Get user's badges in OBF
-            $client = obf_client::get_instance();
-            $assertions = obf_assertion::get_assertions($client, null, $DB->get_record('user', array('id' => $userid))->email );
-
-            // Also get user's badges in Backpack, if user has backpack settings
-            $backpack = obf_backpack::get_instance_by_userid($userid, $DB);
-            if ($backpack !== false && count($backpack->get_group_ids()) > 0) {
-                $assertions->add_collection( $backpack->get_assertions() );
-            }
-            $assertions->toArray(); // This makes sure issuer objects are populated and cached
-            $cache->set($userid, $assertions );
-        }
 
         $this->content =  new stdClass;
         $this->content->text = '';
         $renderer = $PAGE->get_renderer('local_obf');
         if ($assertions !== false && count($assertions) > 0) {
-            $this->content->text = $renderer->render_user_assertions($assertions->get_unique());
+            $this->content->text = $renderer->render_user_assertions($assertions);
         }
 
         return $this->content;
+    }
+    private function get_assertions($userid, $db) {
+        $cache = cache::make('block_obf_displayer', 'obf_assertions');
+        $assertions = $cache->get($userid);
+
+        if (!$assertions) {
+            // Get user's badges in OBF
+            $assertions = new obf_assertion_collection();
+            if ($this->config->showobf) {
+                try {
+                    $client = obf_client::get_instance();
+                    $assertions->add_collection(obf_assertion::get_assertions($client, null, $db->get_record('user', array('id' => $userid))->email ));
+                } catch(Exception $e) {
+                    debugging('Getting OBF assertions for user id: ' . $userid . ' failed: ' . $e->getMessage());
+                }
+            }
+
+            if ($this->config->showbackpack) {
+                try {
+                    // Also get user's badges in Backpack, if user has backpack settings
+                    $backpack = obf_backpack::get_instance_by_userid($userid, $db);
+                    if ($backpack !== false && count($backpack->get_group_ids()) > 0) {
+                        $assertions->add_collection( $backpack->get_assertions() );
+                    }
+                } catch(Exception $e) {
+                    debugging('Getting backpack assertions for user id: ' . $userid . ' failed: ' . $e->getMessage());
+                }
+            }
+
+            $assertions->toArray(); // This makes sure issuer objects are populated and cached
+            $cache->set($userid, $assertions );
+        }
+        return $assertions;
     }
 }

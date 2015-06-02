@@ -164,11 +164,4 @@ class obf_assertion_collection implements Countable, IteratorAggregate {
     public function getIterator() {
         return new ArrayIterator($this->assertions);
     }
-
-    public function get_unique() {
-        $ret = new obf_assertion_collection();
-        $ret->add_collection($this);
-        return $ret;
-    }
-
 }
