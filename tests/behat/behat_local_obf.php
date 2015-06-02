@@ -6,7 +6,7 @@ use Behat\Gherkin\Node\TableNode;
 use Behat\Mink\Driver\Selenium2Driver;
 use Behat\Mink\Session;
 
-class behat_obf extends behat_base {
+class behat_local_obf extends behat_base {
 
     /**
      * @AfterFeature
@@ -16,10 +16,19 @@ class behat_obf extends behat_base {
         obf_client::get_instance()->delete_badges();
     }
 
+    private static function iCreatePkiDir() {
+        global $CFG;
+        $newpkidir = $CFG->behat_dataroot . '/local_obf/pki/';
+
+        if (!is_dir($newpkidir)) {
+            mkdir($newpkidir,$CFG->directorypermissions,true);
+        }
+    }
     /**
      * @Given /^I enter a valid request token to "([^"]*)"$/
      */
     public function iEnterAValidRequestTokenTo($fieldname) {
+        self::iCreatePkiDir();
         $session = $this->getSession();
         $seleniumsession = new Session(new Selenium2Driver());
         $seleniumsession->start();
@@ -30,9 +39,7 @@ class behat_obf extends behat_base {
         $seleniumsession->getPage()->pressButton('Login');
         $seleniumsession->getPage()->clickLink('Admin tools');
         $seleniumsession->wait(1000);
-        $seleniumsession->getPage()->clickLink('Edit Organisation Details');
-        $seleniumsession->wait(1000);
-        $seleniumsession->getPage()->clickLink('More settings');
+        $seleniumsession->getPage()->clickLink('API key');
         $seleniumsession->wait(1000);
         $seleniumsession->getPage()->clickLink('Generate certificate signing request token');
 
@@ -91,9 +98,10 @@ TABLE
      *
      * @Given /^I trigger cron$/
      */
+     /**
     public function iTriggerCron() {
         $this->getSession()->visit($this->locate_path('/admin/cron.php'));
-    }
+    }*/
 
     /**
      * @Given /^I go to badge list$/

@@ -8,6 +8,7 @@ Feature: Admin can modify the OBF client settings
     Given I am on homepage
       And I log in as "admin"
 
+  @javascript
   Scenario: Display OBF settings page
     Given I expand "Site administration" node
      Then I should see "Open Badges"
@@ -16,6 +17,5 @@ Feature: Admin can modify the OBF client settings
      Then I should see "OBF request token"
       And I should not see "I know it's working"
       And I enter a valid request token to "obftoken"
-      And I press "Save changes"
+      And I press "Authenticate"
      Then I should see "Authentication successful"
-      And I should see "I know it's working"
