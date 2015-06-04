@@ -71,6 +71,7 @@ $string['coursebadgelisttitle'] = 'Badges related to this course';
 $string['coursecompletedby'] = 'Completed by';
 $string['courserequired'] = 'At least one course has to be selected';
 $string['courseuserbadges'] = 'Participants badges';
+$string['criteriaaddcourse'] = 'Add course';
 $string['criteriacompletedwhen'] = 'This rule is met when...';
 $string['criteriacompletedwhenall'] = 'All of the following courses have to be completed:';
 $string['criteriacompletedwhenany'] = 'Any of the following courses has to be completed:';

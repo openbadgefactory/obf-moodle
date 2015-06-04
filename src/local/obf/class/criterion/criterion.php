@@ -30,7 +30,7 @@ class obf_criterion {
     private $badge = null;
 
     /**
-     * @var int The id of this criterion. 
+     * @var int The id of this criterion.
      */
     private $id = -1;
 
@@ -224,6 +224,37 @@ class obf_criterion {
 
         return $this->items;
     }
+    /**
+     * Set course criterions for this criterion.
+     *
+     * @param array $courseids.
+     * @return obf_criterion
+     */
+    public function set_items_by_courseids($courseids) {
+        $this->items = $this->get_items(true);
+        if (is_null($courseids) || count($courseids) <= 0) {
+            throw new Exception("Invalid or missing course ids.");
+        }
+        if ($this->is_met()) {
+            throw new Exception("Cannot edit met criterion.");
+        }
+        foreach ($courseids as $courseid) {
+            if (!$this->has_course($courseid)) {
+                $courseobj = new obf_criterion_course();
+                $courseobj->set_courseid($courseid)
+                    ->set_criterionid($this->get_id())
+                    ->save();
+            }
+        }
+        foreach ($this->items as $criterioncourse) {
+            $courseid = $criterioncourse->get_courseid();
+            if (!in_array($courseid,$courseids)) {
+                $criterioncourse->delete();
+            }
+        }
+
+        return $this;
+    }
 
     /**
      * Returns all related Moodle courses.
@@ -254,11 +285,13 @@ class obf_criterion {
 
     /**
      * Returns the Moodle course object matching $courseid.
-     * 
+     *
      * @param int $courseid
+     * @global moodle_database $DB
      * @return stdClass The Moodle's course object.
      */
     public function get_course($courseid) {
+        global $DB;
         if (!isset(self::$coursecache[$courseid])) {
             $params = array('id' => $courseid);
             self::$coursecache[$courseid] = $DB->get_record('course', $params);
@@ -269,7 +302,7 @@ class obf_criterion {
 
     /**
      * Returns all criteria containing course identified by $courseid.
-     * 
+     *
      * @param int $courseid The id of the course.
      * @return obf_criterion[] The matching criteria.
      */
@@ -282,7 +315,7 @@ class obf_criterion {
 
     /**
      * Returns all criteria matching $conditions.
-     * 
+     *
      * @global moodle_database $DB
      * @param array|string $conditions The conditions after WHERE clause in SQL.
      * @return obf_criterion[] The matching criteria.
@@ -331,7 +364,7 @@ class obf_criterion {
 
     /**
      * Whether the user $user has already met this criterion.
-     * 
+     *
      * @global moodle_database $DB
      * @param stdClass $user The Moodle's user
      * @return boolean Returns true if the user has met this criterion and
@@ -347,7 +380,7 @@ class obf_criterion {
 
     /**
      * Set this criterion met by user identified by $userid.
-     * 
+     *
      * @global moodle_database $DB
      * @param type $userid The id of the user
      */
@@ -358,24 +391,24 @@ class obf_criterion {
         $obj->obf_criterion_id = $this->id;
         $obj->user_id = $userid;
         $obj->met_at = time();
-        
+
         $DB->insert_record('obf_criterion_met', $obj, true);
     }
 
     /**
      * Returns the badge related to this criterion.
-     * 
+     *
      * @return obf_badge The badge.
      */
     public function get_badge() {
         return (!empty($this->badge) ? $this->badge : (!empty($this->badgeid) ? obf_badge::get_instance($this->badgeid)
                                     : null));
     }
-    
+
     /**
      * Checks whether this criterion contains the course identified
      * by $courseid.
-     * 
+     *
      * @param int $courseid
      * @return boolean True if this criterion contains the course and false
      *      otherwise.
@@ -457,7 +490,7 @@ class obf_criterion {
 
     /**
      * Reviews this criterion to check whether if has been completed.
-     * 
+     *
      * @param int $userid The id of the user.
      * @param int $courseid The course the user has completed.
      * @param obf_criterion_course[] The course criteria in this criterion to
@@ -509,7 +542,7 @@ class obf_criterion {
 
     /**
      * Reviews a single course.
-     * 
+     *
      * @global moodle_database $DB
      * @param obf_criterion_course $criterioncourse The course criterion.
      * @param int $userid The id of the user.
@@ -559,7 +592,7 @@ class obf_criterion {
 
     /**
      * Sets the badge related to this criterion.
-     * 
+     *
      * @param obf_badge $badge The badge.
      * @return \obf_criterion
      */
@@ -585,12 +618,12 @@ class obf_criterion {
     public function add_criterion_item(obf_criterion_course $item) {
         $this->items[] = $item;
     }
-    
+
     public function set_completion_method($completion_method) {
         $this->completion_method = $completion_method;
         return $this;
     }
-    
+
     public function get_badgeid() {
         return (empty($this->badgeid) ? $this->get_badge()->get_id() : $this->badgeid);
     }

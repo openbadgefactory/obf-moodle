@@ -73,6 +73,7 @@ $string['coursebadgelisttitle'] = 'Tähän kurssiin liittyvät osaamismerkit';
 $string['coursecompletedby'] = 'Suoritettava viimeistään';
 $string['courserequired'] = 'Valitse ainakin yksi kurssi';
 $string['courseuserbadges'] = 'Osaamismerkit';
+$string['criteriaaddcourse'] = 'Lisää kurssi';
 $string['criteriacompletedwhen'] = 'Tämä sääntö täyttyy, kun...';
 $string['criteriacompletedwhenall'] = 'Kaikki seuraavat kurssit on suoritettu:';
 $string['criteriacompletedwhenany'] = 'Mikä tahansa seuraavista kursseista on suoritettu:';

@@ -27,76 +27,14 @@ class obf_criterion_form extends obfform implements renderable {
 
         $mform = $this->_form;
         $this->criterion = $this->_customdata['criterion'];
+        $addcourse = $this->_customdata['addcourse'];
 
         // creating a new criterion
         if (!$this->criterion->exists()) {
-
-            // Get only courses with course completion enabled (= can be completed somehow)
-            $courses = $DB->get_records('course', array('enablecompletion' => COMPLETION_ENABLED));
-
-            if (count($courses) > 0) {
-                $categories = array();
-
-                if (method_exists('coursecat', 'make_categories_list')) {
-                    $categories = coursecat::make_categories_list();
-                }
-                // Moodle 2.2
-                else {
-                    $parents = array();
-                    make_categories_list($categories, $parents);
-                }
-
-                $courselist = $this->initialize_categories($categories);
-
-                foreach ($courses as $course) {
-                    if (!$this->criterion->get_badge()->has_completion_criteria_with_course($course)) {
-                        $categoryname = $categories[$course->category];
-                        $courselist[$categoryname][$course->id] = format_string($course->fullname,
-                                true);
-                    }
-                }
-
-                $validcourses = 0;
-
-                // Check each course category, are there any courses
-                foreach ($courselist as $name => $courses) {
-                    $validcourses += count($courses);
-                }
-
-                $mform->addElement('header', 'header_criterion_fields',
-                        get_string('selectcourses', 'local_obf'));
-                $this->setExpanded($mform, 'header_criterion_fields');
-
-                // There aren't any courses that aren't already in this badge's criteria
-                if ($validcourses === 0) {
-                    $mform->addElement('html',
-                            $OUTPUT->notification(get_string('novalidcourses', 'local_obf')));
-                }
-
-                // There are courses that can be selected -> show course selection
-                else {
-                    $mform->addElement('html',
-                            html_writer::tag('p', get_string('selectcourses_help', 'local_obf')));
-                    $mform->addElement('selectgroups', 'course',
-                            get_string('selectcourses', 'local_obf'), $courselist,
-                            array('multiple' => true));
-                    $mform->addRule('course', get_string('courserequired', 'local_obf'), 'required');
-
-                    $buttons[] = $mform->createElement('submit', 'savecriteria',
-                            get_string('addcourses', 'local_obf'));
-                }
-            }
-
-            // No courses found with completion enabled
-            else {
-                $mform->addElement('html',
-                        $OUTPUT->notification(get_string('nocourseswithcompletionenabled',
-                                        'local_obf')));
-            }
-
-            $buttons[] = $mform->createElement('cancel', 'cancelbutton',
-                    get_string('back', 'local_obf'));
-            $mform->addGroup($buttons, 'buttonar', '', null, false);
+            $this->get_courses($mform);
+        }
+        else if ($addcourse) {
+            $this->get_courses($mform);
         }
 
         // editing an existing criterion
@@ -112,6 +50,7 @@ class obf_criterion_form extends obfform implements renderable {
                 $mform->addElement('html', $OUTPUT->heading($coursename, 3));
                 self::add_coursefields($mform, $course);
             }
+            $mform->addElement('submit','addcourse',get_string('criteriaaddcourse','local_obf'), array('class' => 'addcourse'));
 
             // Radiobuttons to select whether this criterion is completed
             // when any of the courses are completed or all of them
@@ -141,6 +80,83 @@ class obf_criterion_form extends obfform implements renderable {
 
             $this->add_action_buttons();
         }
+    }
+    private function get_courses($mform) {
+        global $DB, $OUTPUT;
+        // Get only courses with course completion enabled (= can be completed somehow)
+        $courses = $DB->get_records('course', array('enablecompletion' => COMPLETION_ENABLED));
+
+        if (count($courses) > 0) {
+            $categories = array();
+
+            if (method_exists('coursecat', 'make_categories_list')) {
+                $categories = coursecat::make_categories_list();
+            }
+            // Moodle 2.2
+            else {
+                $parents = array();
+                make_categories_list($categories, $parents);
+            }
+
+            $courselist = $this->initialize_categories($categories);
+            $existingcourselist = $this->criterion->exists() ? $this->criterion->get_items() : array();
+            $existingcourseids = array_map(function($c) {
+                return $c->get_courseid();
+            }, $existingcourselist);
+
+            foreach ($courses as $course) {
+                $hascourse = $this->criterion->exists() ? $this->criterion->has_course($course->id) : false;
+                if ($hascourse || !$this->criterion->get_badge()->has_completion_criteria_with_course($course)) {
+                    $categoryname = $categories[$course->category];
+                    $courselist[$categoryname][$course->id] = format_string($course->fullname,
+                            true);
+                }
+            }
+
+            $validcourses = 0;
+
+            // Check each course category, are there any courses
+            foreach ($courselist as $name => $courses) {
+                $validcourses += count($courses);
+            }
+
+            $mform->addElement('header', 'header_criterion_fields',
+                    get_string('selectcourses', 'local_obf'));
+            $this->setExpanded($mform, 'header_criterion_fields');
+
+            // There aren't any courses that aren't already in this badge's criteria
+            if ($validcourses === 0) {
+                $mform->addElement('html',
+                        $OUTPUT->notification(get_string('novalidcourses', 'local_obf')));
+            }
+
+            // There are courses that can be selected -> show course selection
+            else {
+                $mform->addElement('html',
+                        html_writer::tag('p', get_string('selectcourses_help', 'local_obf')));
+                $select = $mform->addElement('selectgroups', 'course',
+                        get_string('selectcourses', 'local_obf'), $courselist,
+                        array('multiple' => true));
+                $select->setSelected($existingcourseids);
+                $mform->addRule('course', get_string('courserequired', 'local_obf'), 'required');
+
+                $buttons[] = $mform->createElement('submit', 'savecriteria',
+                        get_string('addcourses', 'local_obf'));
+                $mform->addElement('hidden', 'addcourse', 'addcourse');
+                $mform->setType('addcourse', PARAM_TEXT);
+            }
+        }
+
+        // No courses found with completion enabled
+        else {
+            $mform->addElement('html',
+                    $OUTPUT->notification(get_string('nocourseswithcompletionenabled',
+                                    'local_obf')));
+        }
+
+        $buttons[] = $mform->createElement('cancel', 'cancelbutton',
+                get_string('back', 'local_obf'));
+        $mform->addGroup($buttons, 'buttonar', '', null, false);
     }
 
     public static function add_coursefields(&$mform, obf_criterion_course $course) {
