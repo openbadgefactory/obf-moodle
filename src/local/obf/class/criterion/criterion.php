@@ -483,6 +483,7 @@ class obf_criterion {
             foreach ($recipientids as $userid) {
                 $this->set_met_by_user($userid);
             }
+            cache_helper::invalidate_by_event('new_obf_assertion', $recipientids);
         }
 
         return count($recipientemails);

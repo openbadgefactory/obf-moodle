@@ -105,7 +105,7 @@ switch ($action) {
         $criterion = new obf_criterion();
         $criterion->set_badge($badge);
 
-        $criterionform = new obf_criterion_form($url, array('criterion' => $criterion));
+        $criterionform = new obf_criterion_form($url, array('criterion' => $criterion, 'addcourse' => $addcourse));
         $content = $PAGE->get_renderer('local_obf')->render($criterionform);
 
         break;
@@ -134,7 +134,7 @@ switch ($action) {
 
         $criterion = obf_criterion::get_instance($id);
 
-        if (!is_null($addcourse)) {
+        if (!empty($addcourse)) {
             $url = new moodle_url('/local/obf/criterion.php',
                     array('badgeid' => $badge->get_id(), 'id' => $id, 'action' => 'update'));
         } else {

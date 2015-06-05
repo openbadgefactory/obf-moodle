@@ -125,7 +125,7 @@ function obf_extends_navigation(global_navigation $navigation) {
  * @global type $COURSE
  * @param settings_navigation $navigation
  */
-function local_obf_extends_settings_navigation(settings_navigation $navigation) {
+function local_obf_extend_settings_navigation(settings_navigation $navigation) {
     global $COURSE;
 
     if (($branch = $navigation->get('courseadmin'))) {
@@ -136,6 +136,10 @@ function local_obf_extends_settings_navigation(settings_navigation $navigation) 
         local_obf_add_backpack_settings_link($branch);
     }
 }
+// Support Moodle 2.8 and older
+function local_obf_extends_settings_navigation(settings_navigation $navigation) {
+    local_obf_extend_settings_navigation($navigation);
+}
 
 /**
  * Adds the OBF-links to Moodle's navigation.
@@ -144,7 +148,7 @@ function local_obf_extends_settings_navigation(settings_navigation $navigation) 
  * @global type $COURSE
  * @param global_navigation $navigation
  */
-function local_obf_extends_navigation(global_navigation $navigation) {
+function local_obf_extend_navigation(global_navigation $navigation) {
     global $PAGE, $COURSE;
 
     // Course id 1 is Moodle
@@ -152,6 +156,10 @@ function local_obf_extends_navigation(global_navigation $navigation) {
             navigation_node::TYPE_COURSE)) {
         local_obf_add_course_participant_badges_link($branch);
     }
+}
+// Support Moodle 2.8 and older
+function local_obf_extends_navigation(global_navigation $navigation) {
+    local_obf_extend_navigation($navigation);
 }
 
 /**
@@ -202,6 +210,51 @@ function local_obf_add_backpack_settings_link(&$branch) {
     $branch->add_node($node);
 }
 
+/**
+ * Adds OBF badges to profile pages.
+ * @param \core_user\output\myprofile\tree $tree
+ * @param type $user
+ * @param type $iscurrentuser
+ * @param type $course
+ * @global moodle_page $PAGE
+ * @global moodle_database $DB
+ */
+function local_obf_myprofile_navigation(\core_user\output\myprofile\tree $tree, $user, $iscurrentuser, $course) {
+    global $PAGE, $DB;
+    $assertions = local_obf_myprofile_get_assertions($user->id, $DB);
+    if ($assertions !== false && count($assertions) > 0) {
+        $title = get_string('profilebadgelist', 'local_obf');
+        $renderer = $PAGE->get_renderer('local_obf');
+        $content = $renderer->render_user_assertions($assertions);
+        $localnode = $mybadges = new core_user\output\myprofile\node('badges', 'obfbadges', $title, null, null, $content);
+        $tree->add_node($localnode);
+    }
+}
+/**
+ * Returns cached assertions for user
+ * @param type $userid
+ * @param moodle_database $db
+ * @return obf_assertion_collection
+ */
+function local_obf_myprofile_get_assertions($userid, $db) {
+    $cache = cache::make('local_obf', 'obf_assertions');
+    $assertions = $cache->get($userid);
+
+    if (!$assertions) {
+        // Get user's badges in OBF
+        $assertions = new obf_assertion_collection();
+        try {
+            $client = obf_client::get_instance();
+            $assertions->add_collection(obf_assertion::get_assertions($client, null, $db->get_record('user', array('id' => $userid))->email ));
+        } catch(Exception $e) {
+            debugging('Getting OBF assertions for user id: ' . $userid . ' failed: ' . $e->getMessage());
+        }
+
+        $assertions->toArray(); // This makes sure issuer objects are populated and cached
+        $cache->set($userid, $assertions );
+    }
+    return $assertions;
+}
 /**
  * Checks the certificate expiration of the OBF-client and sends a message to admin if the
  * certificate is expiring. This function is called periodically when Moodle's cron job is run.

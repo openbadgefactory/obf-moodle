@@ -156,6 +156,7 @@ $string['pluginname'] = 'Open Badge Factory';
 $string['previewbadge'] = 'Preview badge';
 $string['previewcriteria'] = 'Preview';
 $string['previewemail'] = 'Preview';
+$string['profilebadgelist'] = 'Open Badge Factory badges';
 $string['pubkeyextractionfailed'] = 'There was an error while extracting public key from certificate.';
 $string['pubkeyrequestfailed'] = 'There was an error while requesting the public key from the API';
 $string['recipients'] = 'Recipients';

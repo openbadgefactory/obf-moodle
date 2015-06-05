@@ -33,7 +33,7 @@ class obf_criterion_form extends obfform implements renderable {
         if (!$this->criterion->exists()) {
             $this->get_courses($mform);
         }
-        else if ($addcourse) {
+        else if (!empty($addcourse)) {
             $this->get_courses($mform);
         }
 
