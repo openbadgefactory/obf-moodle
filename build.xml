@@ -5,7 +5,7 @@
     <property name="srcdir" value="src/local/obf"/>
     <property name="block_srcdir" value="src/blocks/obf_displayer"/>
     <property name="moodledir" value="/var/www/moodle"/>
-    <property name="testdir" value="tests"/>
+    <property name="testdir" value="src/local/obf/tests"/>
 
     <fileset dir="${srcdir}" id="srcfiles">
         <include name="**"/>

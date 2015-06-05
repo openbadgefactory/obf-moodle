@@ -27,4 +27,4 @@ Feature: Admin can modify the OBF client settings
      Then I should not see "Open Badge Factory service request failed."
       And I should not see "Open Badge Factory denied the request."
       And I follow "Settings"
-     Then I should see "OBF connection is up and working"
+     Then I should see "OBF connection is up and working" 

@@ -13,7 +13,12 @@ class behat_local_obf extends behat_base {
      */
     public static function teardownFeature(FeatureEvent $event) {
         require_once(__DIR__ . '/../../class/client.php');
-        obf_client::get_instance()->delete_badges();
+        try {
+            obf_client::get_instance()->delete_badges();
+        } catch(Exception $e) {
+            // TODO: Do something?
+        }
+
     }
 
     private static function iCreatePkiDir() {
@@ -34,7 +39,7 @@ class behat_local_obf extends behat_base {
         $seleniumsession->start();
 
         $seleniumsession->visit('https://elvis.discendum.com/obf/');
-        $seleniumsession->getPage()->fillField('username', 'behat');
+        $seleniumsession->getPage()->fillField('username', 'behat@example.com');
         $seleniumsession->getPage()->fillField('password', 'behat');
         $seleniumsession->getPage()->pressButton('Login');
         $seleniumsession->getPage()->clickLink('Admin tools');

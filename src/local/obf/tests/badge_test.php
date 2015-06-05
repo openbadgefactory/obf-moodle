@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../src/class/badge.php';
+require_once __DIR__ . '/../class/badge.php';
 
 /**
  * @group obf
