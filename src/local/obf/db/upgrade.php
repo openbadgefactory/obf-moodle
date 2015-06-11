@@ -382,36 +382,7 @@ function xmldb_local_obf_upgrade($oldversion) {
         // Obf savepoint reached
         upgrade_plugin_savepoint(true, 2015052700, 'local', 'obf');
     }
-
-    if ($oldversion < 2015060800) {
-        $categorytable = 'user_info_category';
-        $fieldstable = 'user_info_field';
-        $fieldname = 'local_obf_badgesonprofile';
-        $categoryname = 'local_obf';
-        // Add OBF category
-        if (!$DB->record_exists($categorytable,array('name' => $categoryname))) {
-            $category = new stdClass();
-            $category->name = $categoryname;
-            $category->sortorder = 1;
-            $categoryid = $DB->insert_record($categorytable, $category, false);
-        } else {
-            $record = $DB->get_record($categorytable,
-                    array('name' => $categoryname), 'id');
-            $categoryid = $record->id;
-        }
-        // Add OBF fields
-        if (!$DB->record_exists($fieldstable, array('shortname' => $fieldname))) {
-            $badgesonprofile = new stdClass();
-            $badgesonprofile->shortname = $fieldname;
-            $badgesonprofile->name = get_string('showbadgesonmyprofile', 'local_obf');
-            $badgesonprofile->datatype = 'checkbox';
-            $badgesonprofile->categoryid = $categoryid;
-            $badgesonprofile->visible = 0;
-            $badgesonprofile->defaultdata = 1;
-            $DB->insert_record($fieldstable, $badgesonprofile, false);
-        }
-        upgrade_plugin_savepoint(true, 2015060800, 'local', 'obf');
-    }
+    
     if ($oldversion < 2015061000) {
 
         // Define field completion_method to be added to obf_criterion_courses.

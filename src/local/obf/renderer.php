@@ -9,7 +9,6 @@ require_once __DIR__ . '/form/issuance.php';
 require_once __DIR__ . '/class/criterion/criterion.php';
 require_once __DIR__ . '/form/emailtemplate.php';
 require_once __DIR__ . '/form/coursecriterion.php';
-require_once __DIR__ . '/form/activitycriterion.php';
 require_once __DIR__ . '/class/backpack.php';
 
 /**
