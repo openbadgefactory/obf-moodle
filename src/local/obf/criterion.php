@@ -79,7 +79,9 @@ switch ($action) {
                             array('id' => $courseid, 'enablecompletion' => COMPLETION_ENABLED));
 
                     if ($course !== false) {
-                        $courseobj = new obf_criterion_course();
+                        // If multiple courses selected, set criteriatype to course since multi-course activities are not supported
+                        $objtype = (count($courseids) == 1 ? obf_criterion_item::CRITERIA_TYPE_UNKNOWN : obf_criterion_item::CRITERIA_TYPE_COURSE);
+                        $courseobj = obf_criterion_item::build_type($objtype);
                         $courseobj->set_courseid($courseid);
                         $courseobj->set_criterionid($criterion->get_id());
                         $courseobj->save();
@@ -162,30 +164,58 @@ switch ($action) {
                             array('id' => $courseid, 'enablecompletion' => COMPLETION_ENABLED)) !== false);
                 });
 
-                $criterion->set_items_by_courseids($courseids);
+                $criterion->set_items_by_courseids($courseids, obf_criterion_item::CRITERIA_TYPE_COURSE);
 
                 $tourl = new moodle_url('/local/obf/criterion.php',
                         array('badgeid' => $badge->get_id(), 'action' => 'edit',
                     'id' => $id));
             } else {
-                $completion_method = isset($data->completion_method) ? $data->completion_method : obf_criterion::CRITERIA_COMPLETION_ALL;
+                $criterion_completion_method = isset($data->completion_method) ? $data->completion_method : obf_criterion::CRITERIA_COMPLETION_ALL;
 
-                if ($completion_method != $criterion->get_completion_method()) {
-                    $criterion->set_completion_method($completion_method);
+                if ($criterion_completion_method != $criterion->get_completion_method()) {
+                    $criterion->set_completion_method($criterion_completion_method);
                     $criterion->update();
                 }
 
-                // ... and then add the criterion attributes
-                foreach ($data->mingrade as $criterioncourseid => $grade) {
-                    $criterioncourse = obf_criterion_course::get_instance($criterioncourseid);
-                    $criterioncourse->set_grade((int) $grade);
-                    $criterioncourse->set_completedby($data->{'completedby_' . $criterioncourseid});
+                // TODO: Test
+                $courses = $criterion->get_items(true);
+                $criterioncourseid = $courses[0]->get_id();
+
+                $pickingtype = property_exists($data, 'picktype') && $data->picktype == 'yes';
+                if ($pickingtype) {
+                    $criterioncourse = obf_criterion_item::get_instance($criterioncourseid);
+                    $criterioncourse->set_criteriatype($data->criteriatype);
                     $criterioncourse->save();
+
+                    $tourl = new moodle_url('/local/obf/criterion.php',
+                            array('badgeid' => $badge->get_id(),
+                            'action' => 'edit', 'id' => $criterion->get_id()
+                            )
+                         );
+                } else if ($data->criteriatype == obf_criterion_item::CRITERIA_TYPE_ACTIVITY && !$pickingtype) {
+                    // TODO: TEST THIS --- http://192.168.1.18/moodle/local/obf/criterion.php
+                    $criterioncourse = obf_criterion_item::get_instance($criterioncourseid);
+                    if (!$criterioncourse->exists()) {
+                        $criterioncourse->set_criterionid($criterion->get_id());
+                    }
+                    $criterioncourse->save_params($data);
+                    // TODO: TEST THIS
+                } else if ($data->criteriatype == obf_criterion_item::CRITERIA_TYPE_COURSE && !$pickingtype) {
+                    // ... and then add the criterion attributes
+                    foreach ($data->mingrade as $criterioncourseid => $grade) {
+                        $criterioncourse = obf_criterion_item::get_instance($criterioncourseid);
+                        $criterioncourse->set_grade((int) $grade);
+                        $criterioncourse->set_completedby($data->{'completedby_' . $criterioncourseid});
+                        $criterioncourse->set_criteriatype($data->criteriatype);
+                        $criterioncourse->save();
+                    }
                 }
 
-                $tourl = new moodle_url('/local/obf/badge.php',
-                        array('id' => $badge->get_id(), 'action' => 'show',
-                    'show' => 'criteria'));
+                if (empty($tourl)) {
+                    $tourl = new moodle_url('/local/obf/badge.php',
+                            array('id' => $badge->get_id(), 'action' => 'show',
+                        'show' => 'criteria'));
+                }
 
                 // If the review-checkbox was selected, let's review the criterion and check whether
                 // the badge can be issued right now.

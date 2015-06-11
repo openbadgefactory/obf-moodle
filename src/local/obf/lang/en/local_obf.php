@@ -1,4 +1,5 @@
 <?php
+$string['activitycompletedby'] = 'Completed by';
 $string['addcourses'] = 'Add selected courses';
 $string['addcriteria'] = 'Create new awarding rule';
 $string['addnewcriterion'] = 'Add course';
@@ -79,7 +80,10 @@ $string['criteriacompletionmethodall'] = 'All of these courses are completed';
 $string['criteriacompletionmethodany'] = 'Any of these courses is completed';
 $string['criteriacourses'] = 'Courses in this rule';
 $string['criteriapreview'] = 'Badge criteria preview';
+$string['criteriatypeactivity'] = 'Completing a set of activities';
+$string['criteriatypecourse'] = 'Completing a set of courses';
 $string['criteriatypecourseset'] = 'Completing a set of courses';
+$string['criteriatypeunknown'] = 'Incomplete criteria';
 $string['criteriondeleted'] = 'Awarding rule was deleted.';
 $string['criterionsaved'] = 'Awarding rule was saved.';
 $string['csrexportfailed'] = 'There was an error while trying to export the certificate signing request';
@@ -172,21 +176,28 @@ $string['reviewcriterionaftersave_help'] = 'If this checkbox is checked, the rul
 $string['saveconfiguration'] = 'Continue';
 $string['savecriteria'] = 'Save';
 $string['selectatleastonerecipient'] = 'Select at least one recipient';
+$string['selectactivity'] = 'Select activity';
 $string['selectbadge'] = 'Select badge';
 $string['selectbadgestoexport'] = 'Select badges you want to export to Open Badge Factory';
 $string['selectcourses'] = 'Select courses';
 $string['selectcourses_help'] = 'Select courses that need to be completed to in order to receive '
         . 'this badge automatically.';
+$string['selectcriteriatype'] = 'Select...';
+$string['selectcriteriatype_help'] = 'Select the method, by which the badge is earned.';
+$string['selectcompletionmethod'] = 'Select completion method';
+$string['selectcompletionmethod_help'] = 'Select the method, by which the badge is earned.';
 $string['selectrecipients'] = 'Select recipients';
 $string['settings'] = 'Settings';
 $string['showassertion'] = 'Details';
 $string['showbadges'] = 'Show badges';
+$string['showbadgesonmyprofile'] = 'Show badges on profile page';
 $string['showcategories'] = 'Display badges from these categories:';
 $string['showconnectionconfig'] = 'I know it\'s working, let me change the token anyway.';
 $string['showmorerecipients'] = 'more';
 $string['toearnthisbadge'] = 'To earn this badge this course has to be completed';
 $string['tokendecryptionfailed'] = 'Decrypting the request token failed. Be sure to paste the '
         . 'certificate signing request token fully.';
+$string['unknowncriterion'] = 'Incomplete criterion';
 $string['verification_failed'] = 'Backpack verification failed. Reason: {$a}';
 $string['warningcannoteditafterreview'] = 'Note that if the badge is awarded when these rules are ' .
         'being reviewed, the rule(s) cannot be edited anymore. Once the badge has been automatically ' .

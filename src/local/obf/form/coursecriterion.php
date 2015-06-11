@@ -5,31 +5,27 @@ defined('MOODLE_INTERNAL') or die();
 require_once(__DIR__ . '/obfform.php');
 
 class obf_coursecriterion_form extends obfform {
+    private $criteriatype;
+    private $courseid;
+    private $course;
+    private $criterioncourse;
 
     protected function definition() {
         global $OUTPUT;
 
         $mform = $this->_form;
-        $criterioncourse = $this->_customdata['criterioncourse'];
-
-        // Minimum grade -field
-        $mform->addElement('text', 'mingrade',
-                get_string('minimumgrade', 'local_obf'));
-        $mform->addRule('mingrade', null, 'numeric', null, 'client');
-        $mform->setType('mingrade', PARAM_INT);
-
-        if ($criterioncourse->has_grade()) {
-            $mform->setDefault('mingrade', $criterioncourse->get_grade());
+        $this->criterioncourse = $this->_customdata['criterioncourse'];
+        if ($this->criterioncourse->exists()) {
+            $this->criteriatype = $this->criterioncourse->get_criteriatype();
+        } else {
+            $this->criteriatype = array_key_exists('criteriatype', $this->_customdata) ?
+                    $this->_customdata['criteriatype'] : $this->criterioncourse->get_criteriatype();
         }
 
-        $mform->addElement('date_selector', 'completedby',
-                get_string('coursecompletedby', 'local_obf'),
-                array('optional' => true, 'startyear' => date('Y')));
 
-        if ($criterioncourse->has_completion_date()) {
-            $mform->setDefault('completedby',
-                    $criterioncourse->get_completedby());
-        }
+        $this->criterioncourse->get_options($mform);
+        $this->criterioncourse->get_form_config($mform);
+
 
         $mform->addElement('html',
                 $OUTPUT->notification(get_string('warningcannoteditafterreview',
@@ -44,7 +40,7 @@ class obf_coursecriterion_form extends obfform {
         $buttonarray[] = &$mform->createElement('submit', 'submitbutton',
                         get_string('savechanges'));
 
-        if ($criterioncourse->exists()) {
+        if ($this->criterioncourse->exists()) {
             $buttonarray[] = &$mform->createElement('cancel', 'cancelbutton',
                             get_string('deletecriterion', 'local_obf'));
         }

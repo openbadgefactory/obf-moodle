@@ -383,6 +383,69 @@ function xmldb_local_obf_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2015052700, 'local', 'obf');
     }
 
+    if ($oldversion < 2015060800) {
+        $categorytable = 'user_info_category';
+        $fieldstable = 'user_info_field';
+        $fieldname = 'local_obf_badgesonprofile';
+        $categoryname = 'local_obf';
+        // Add OBF category
+        if (!$DB->record_exists($categorytable,array('name' => $categoryname))) {
+            $category = new stdClass();
+            $category->name = $categoryname;
+            $category->sortorder = 1;
+            $categoryid = $DB->insert_record($categorytable, $category, false);
+        } else {
+            $record = $DB->get_record($categorytable,
+                    array('name' => $categoryname), 'id');
+            $categoryid = $record->id;
+        }
+        // Add OBF fields
+        if (!$DB->record_exists($fieldstable, array('shortname' => $fieldname))) {
+            $badgesonprofile = new stdClass();
+            $badgesonprofile->shortname = $fieldname;
+            $badgesonprofile->name = get_string('showbadgesonmyprofile', 'local_obf');
+            $badgesonprofile->datatype = 'checkbox';
+            $badgesonprofile->categoryid = $categoryid;
+            $badgesonprofile->visible = 0;
+            $badgesonprofile->defaultdata = 1;
+            $DB->insert_record($fieldstable, $badgesonprofile, false);
+        }
+        upgrade_plugin_savepoint(true, 2015060800, 'local', 'obf');
+    }
+    if ($oldversion < 2015061000) {
+
+        // Define field completion_method to be added to obf_criterion_courses.
+        $table = new xmldb_table('obf_criterion_courses');
+        $field = new xmldb_field('criteria_type', XMLDB_TYPE_INTEGER, '2', null, XMLDB_NOTNULL, null, '0', 'completed_by');
+
+        // Conditionally launch add field completion_method.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+            //TODO: Set all old completion methods to 1
+        }
+        // And a new table:
+
+        // Define table obf_criterion_params to be created.
+        $table = new xmldb_table('obf_criterion_params');
+
+        // Adding fields to table obf_criterion_params.
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('obf_criterion_id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('name', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('value', XMLDB_TYPE_CHAR, '255', null, null, null, null);
+
+        // Adding keys to table obf_criterion_params.
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
+        $table->add_key('fk_obf_criterion_id', XMLDB_KEY_FOREIGN, array('obf_criterion_id'), 'obf_criterion', array('id'));
+
+        // Conditionally launch create table for obf_criterion_params.
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        // Obf savepoint reached.
+        upgrade_plugin_savepoint(true, 2015061000, 'local', 'obf');
+    }
 
     return true;
 }

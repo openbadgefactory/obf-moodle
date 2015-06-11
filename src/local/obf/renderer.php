@@ -9,6 +9,7 @@ require_once __DIR__ . '/form/issuance.php';
 require_once __DIR__ . '/class/criterion/criterion.php';
 require_once __DIR__ . '/form/emailtemplate.php';
 require_once __DIR__ . '/form/coursecriterion.php';
+require_once __DIR__ . '/form/activitycriterion.php';
 require_once __DIR__ . '/class/backpack.php';
 
 /**
@@ -92,7 +93,7 @@ class local_obf_renderer extends plugin_renderer_base {
     }
 
     /**
-     * 
+     *
      * @param type $badges
      * @return type
      */
@@ -445,7 +446,7 @@ class local_obf_renderer extends plugin_renderer_base {
     }
 
     /**
-     * 
+     *
      * @param obf_issuer $issuer
      * @return type
      */
@@ -507,8 +508,9 @@ class local_obf_renderer extends plugin_renderer_base {
         // Show edit form if there aren't any criteria related to this badge or
         // there is only one which hasn't been met yet by any user.
         foreach ($criteria as $criterion) {
-            $courses = $criterion->get_items();
+            $courses = $criterion->get_items(true);
             $courseincriterion = $criterion->has_course($courseid);
+
 
             // If the course is already related to a criterion containing other courses also,
             // the criterion cannot be modified in course context.
@@ -544,8 +546,15 @@ class local_obf_renderer extends plugin_renderer_base {
 
         // Show the course criteria form
         else {
-            $criterioncourse = is_null($criterioncourseid) ? new obf_criterion_course
-                        : obf_criterion_course::get_instance($criterioncourseid);
+            $params = array(
+                    'criteriatype' => optional_param('criteriatype', obf_criterion_item::CRITERIA_TYPE_UNKNOWN, PARAM_INT),
+                    'courseid' => optional_param('courseid', null, PARAM_INT));
+
+            if (!is_null($coursewithcriterion)) {
+                $params = array_merge($params, array('obf_criterion_id' => $coursewithcriterion->get_id()));
+            }
+            $criterioncourse = is_null($criterioncourseid) ? obf_criterion_item::build($params)
+                        : obf_criterion_item::get_instance($criterioncourseid);
             $criterionform = new obf_coursecriterion_form($url,
                     array('criterioncourse' => $criterioncourse));
 
@@ -558,47 +567,85 @@ class local_obf_renderer extends plugin_renderer_base {
                     'msg' => get_string('criteriondeleted', 'local_obf'))));
             }
 
-            // Saving the rule
-            else if (!is_null($data = $criterionform->get_data())) {
-                $grade = (int) $data->mingrade;
-                $completedby = (int) $data->completedby;
+            if (!is_null($data = $criterionform->get_data())) {
+                $pickingtype = (!$criterioncourse->exists() || $criterioncourse->get_criteriatype() == obf_criterion_item::CRITERIA_TYPE_UNKNOWN ||
+                        property_exists($data, 'picktype') && $data->picktype === 'yes');
+                if ($pickingtype) {
+                    if (!is_null($courseid)) {
+                        if (!$criterioncourse->exists()) {
+                            $criterion = new obf_criterion();
+                            $criterion->set_badge($badge);
+                            $criterion->set_completion_method(obf_criterion::CRITERIA_COMPLETION_ALL);
+                            $criterion->save();
 
-                // Both fields are empty -> remove criterion
-//                if ($criterioncourse->exists() && $grade === 0 && $completedby === 0) {
-//                    $criterioncourse->delete();
-//                }
-                // Update or insert criterion course
-//                else {
-                // Object doesn't exist yet, let's create the criterion.
-                if (!$criterioncourse->exists()) {
-                    $criterion = new obf_criterion();
-                    $criterion->set_badge($badge);
-                    $criterion->set_completion_method(obf_criterion::CRITERIA_COMPLETION_ALL);
-                    $criterion->save();
+                            $criterioncourse->set_criterionid($criterion->get_id());
+                        }
+                        $criterioncourse->set_courseid($courseid);
+                        $criterioncourse->set_criteriatype($data->criteriatype);
+                        $criterioncourse->save();
 
-                    $criterioncourse->set_criterionid($criterion->get_id());
+                        $redirecturl = new moodle_url('/local/obf/badge.php',
+                                array('id' => $badge->get_id(),
+                            'action' => 'show', 'show' => 'criteria', 'courseid' => $courseid
+                            ));
+                        redirect($redirecturl);
+                    }
+                } else { // Saving the rule
+                    if ($data->criteriatype === obf_criterion_item::CRITERIA_TYPE_ACTIVITY) {
+                        if (!$criterioncourse->exists()) {
+                            $criterion = new obf_criterion();
+                            $criterion->set_badge($badge);
+                            $criterion->set_completion_method(obf_criterion::CRITERIA_COMPLETION_ALL);
+                            $criterion->save();
+
+                            $criterioncourse->set_criterionid($criterion->get_id());
+                        }
+                        $criterioncourse->set_courseid($courseid);
+                        $criterioncourse->save_params($data);
+                    } else if ($data->criteriatype === obf_criterion_item::CRITERIA_TYPE_COURSE) {
+                        foreach ($data->mingrade as $key => $value) {
+                            $grade = (int) $data->mingrade[$key];
+                            $completedby = (int) $data->{'completedby_'.$key};
+                        }
+
+                        // Both fields are empty -> remove criterion
+                        // if ($criterioncourse->exists() && $grade === 0 && $completedby === 0) {
+                        //     $criterioncourse->delete();
+                        // }
+                        // Update or insert criterion course
+                        // else {
+                        // Object doesn't exist yet, let's create the criterion.
+                        if (!$criterioncourse->exists()) {
+                            $criterion = new obf_criterion();
+                            $criterion->set_badge($badge);
+                            $criterion->set_completion_method(obf_criterion::CRITERIA_COMPLETION_ALL);
+                            $criterion->save();
+
+                            $criterioncourse->set_criterionid($criterion->get_id());
+                        }
+
+                        $criterioncourse->set_courseid($courseid);
+                        $criterioncourse->set_grade($grade);
+                        $criterioncourse->set_completedby($completedby);
+                        $criterioncourse->save();
+
+                        $redirecturl = new moodle_url('/local/obf/badge.php',
+                                array('id' => $badge->get_id(),
+                            'action' => 'show', 'show' => 'criteria', 'courseid' => $courseid,
+                            'msg' => get_string('criterionsaved', 'local_obf')));
+
+                        if ($data->reviewaftersave) {
+                            $crit = $criterioncourse->get_criterion();
+                            $recipientcount = $crit->review_previous_completions();
+                            $redirecturl->param('msg',
+                                    get_string('badgewasautomaticallyissued',
+                                            'local_obf', $recipientcount));
+                        }
+
+                        redirect($redirecturl);
+
+                    }
                 }
-
-                $criterioncourse->set_courseid($courseid);
-                $criterioncourse->set_grade($grade);
-                $criterioncourse->set_completedby($completedby);
-                $criterioncourse->save();
-
-                $redirecturl = new moodle_url('/local/obf/badge.php',
-                        array('id' => $badge->get_id(),
-                    'action' => 'show', 'show' => 'criteria', 'courseid' => $courseid,
-                    'msg' => get_string('criterionsaved', 'local_obf')));
-
-                if ($data->reviewaftersave) {
-                    $crit = $criterioncourse->get_criterion();
-                    $recipientcount = $crit->review_previous_completions();
-                    $redirecturl->param('msg',
-                            get_string('badgewasautomaticallyissued',
-                                    'local_obf', $recipientcount));
-                }
-
-                redirect($redirecturl);
-//                }
             }
 
             $html .= $criterionform->render();
@@ -635,11 +682,14 @@ class local_obf_renderer extends plugin_renderer_base {
             $criterionhtml = '';
             $attributelist = array();
             $criteriontype = 'courseset';
-            $groupname = get_string('criteriatype' . $criteriontype, 'local_obf');
             $criterionitems = $criterion->get_items();
+            if (count($criterionitems) == 1) {
+                $criteriontype = obf_criterion_item::get_criterion_type_text($criterionitems[0]->get_criteriatype());
+            }
+            $groupname = get_string('criteriatype' . $criteriontype, 'local_obf');
 
             foreach ($criterionitems as $item) {
-                $attributelist[] = $item->get_text();
+                $attributelist = array_merge($attributelist, $item->get_text_array());
             }
 
             // The criterion can be edited if the criterion hasn't already been met

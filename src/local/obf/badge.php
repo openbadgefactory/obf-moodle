@@ -11,6 +11,7 @@ require_once $CFG->libdir . '/adminlib.php';
 $badgeid = optional_param('id', '', PARAM_ALPHANUM);
 $action = optional_param('action', 'list', PARAM_ALPHANUM);
 $courseid = optional_param('courseid', null, PARAM_INT);
+$criteriatype = optional_param('criteriatype', null, PARAM_INT);
 $message = optional_param('msg', '', PARAM_TEXT);
 $context = empty($courseid) ? context_system::instance() : context_course::instance($courseid);
 

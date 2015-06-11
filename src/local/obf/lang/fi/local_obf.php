@@ -1,5 +1,5 @@
 <?php
-
+$string['activitycompletedby'] = 'Suoritettava viimeistään';
 $string['addcourses'] = 'Lisää valitut kurssit';
 $string['addcriteria'] = 'Luo uusi myöntämissääntö';
 $string['addnewcriterion'] = 'Lisää kurssi';
@@ -81,7 +81,10 @@ $string['criteriacompletionmethodall'] = 'Kaikki valitut kurssit on suoritettu';
 $string['criteriacompletionmethodany'] = 'Mikä tahansa valituista kursseista on suoritettu';
 $string['criteriacourses'] = 'Tähän sääntöön liittyvät kurssit';
 $string['criteriapreview'] = 'Osaamismerkin myöntämiskriteeri';
+$string['criteriatypeactivity'] = 'Suoritusmerkintä aktiviteeteista';
+$string['criteriatypecourse'] = 'Suoritusmerkintä kursseista';
 $string['criteriatypecourseset'] = 'Suoritusmerkintä kursseista';
+$string['criteriatypeunknown'] = 'Keskeneräinen kriteeri';
 $string['criteriondeleted'] = 'Myöntämissääntö poistettu.';
 $string['criterionsaved'] = 'Myöntämissääntö tallennettu';
 $string['csrexportfailed'] = 'Sertifikaatin valtuutuksessa tapahtui virhe';
@@ -175,20 +178,27 @@ $string['reviewcriterionaftersave_help'] = 'Jos automaattinen tarkistus on valit
         . 'jotka ovat säännön kurssit suorittaneet.';
 $string['saveconfiguration'] = 'Jatka';
 $string['savecriteria'] = 'Tallenna';
+$string['selectactivity'] = 'Valitse aktiviteetti';
 $string['selectatleastonerecipient'] = 'Valitse ainakin yksi vastaanottaja';
 $string['selectbadge'] = 'Valitse osaamismerkki';
 $string['selectbadgestoexport'] = 'Valitse Open Badge Factoryyn vietävät osaamismerkit';
 $string['selectcourses'] = 'Valitse kurssit';
 $string['selectcourses_help'] = 'Valitse kurssit, jotka käyttäjän on suoritettava tämän osaamismerkin '
         . 'ansaitakseen.';
+$string['selectcriteriatype'] = 'Valitse...';
+$string['selectcriteriatype_help'] = 'Valitse tapa, jola osaamismerkki ansaitaan.';
+$string['selectcompletionmethod'] = 'Valitse suoritustapa';
+$string['selectcompletionmethod_help'] = 'Valitse tapa, jolla osaamismerkki ansaitaan.';
 $string['selectrecipients'] = 'Vastaanottajat';
 $string['settings'] = 'Asetukset';
 $string['showassertion'] = 'Tiedot';
 $string['showbadges'] = 'Näytä osaamismerkit';
+$string['showbadgesonmyprofile'] = 'Näytä osaamismerkit profiilisivulla';
 $string['showcategories'] = 'Suodata merkkejä:';
 $string['showconnectionconfig'] = 'Haluan päivittää valtuutusavaimen siitä huolimatta.';
 $string['showmorerecipients'] = 'lisää';
 $string['toearnthisbadge'] = 'Osaamismerkin ansaitseminen edellyttää tämän kurssin suorittamista';
 $string['tokendecryptionfailed'] = 'Valtuutusavain on virheellinen. Tarkista, että olet kopioinut ja liittänyt koko valtuutusavaimen.';
+$string['unknowncriterion'] = 'Keskeneräinen kriteeri';
 $string['verification_failed'] = 'Sähköpostiosoitteen tarkistus epäonnistui. Virheviesti: {$a}';
 $string['warningcannoteditafterreview'] = 'Sääntöä ei voi muokata, jos merkki on myönnetty automaattisen myöntämissäännön perusteella. Tarkista siis sääntö huolellisesti ennen tallennusta.';

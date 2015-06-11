@@ -3,7 +3,10 @@
 global $CFG;
 
 require_once __DIR__ . '/../badge.php';
+require_once __DIR__ . '/item_base.php';
 require_once __DIR__ . '/course.php';
+
+
 require_once $CFG->dirroot . '/grade/querylib.php';
 require_once $CFG->libdir . '/gradelib.php';
 require_once $CFG->libdir . '/completionlib.php';
@@ -41,7 +44,7 @@ class obf_criterion {
     private $completion_method = null;
 
     /**
-     * @var obf_criterion_course[] The courses in this criterion
+     * @var obf_criterion_item[] The courses/activities in this criterion
      */
     private $items = null;
 
@@ -169,6 +172,8 @@ class obf_criterion {
         $subquery = 'SELECT obf_criterion_id FROM {obf_criterion_courses}';
         $db->delete_records_select('obf_criterion',
                 'id NOT IN (' . $subquery . ')');
+        $db->delete_records_select('obf_criterion_params',
+                'obf_criterion_id NOT IN (' . $subquery .')');
         $db->delete_records_select('obf_criterion_met',
                 'obf_criterion_id NOT IN (' . $subquery . ')');
     }
@@ -196,6 +201,8 @@ class obf_criterion {
         global $DB;
         $DB->delete_records('obf_criterion_courses',
                 array('obf_criterion_id' => $this->id));
+        $DB->delete_records('obf_criterion_params',
+                array('obf_criterion_id' => $this->id));
         $this->items = array();
     }
 
@@ -217,9 +224,17 @@ class obf_criterion {
      * @param type $force Get from the database bypassing the cache.
      * @return type obf_criterion_course[] The related course criterions.
      */
-    public function get_items($force = false) {
+    public function get_items($force = false, $criteriatype = obf_criterion_item::CRITERIA_TYPE_ANY) {
         if (is_null($this->items) || $force) {
-            $this->items = obf_criterion_course::get_criterion_courses($this);
+            $this->items = obf_criterion_item::get_criterion_items($this);
+        }
+        // Filter by criteriatype
+
+        if ($criteriatype != obf_criterion_item::CRITERIA_TYPE_ANY) {
+            return array_filter($this->items,
+                    function (obf_criterion_item $i) use ($criteriatype) {
+                        return ($i->get_criteriatype() == $criteriatype);
+                    });
         }
 
         return $this->items;
@@ -228,10 +243,11 @@ class obf_criterion {
      * Set course criterions for this criterion.
      *
      * @param array $courseids.
+     * @param type $criteriatype Type of criteria to add
      * @return obf_criterion
      */
-    public function set_items_by_courseids($courseids) {
-        $this->items = $this->get_items(true);
+    public function set_items_by_courseids($courseids, $criteriatype = obf_criterion_item::CRITERIA_TYPE_COURSE) {
+        $courses = $this->get_items(true);
         if (is_null($courseids) || count($courseids) <= 0) {
             throw new Exception("Invalid or missing course ids.");
         }
@@ -240,18 +256,24 @@ class obf_criterion {
         }
         foreach ($courseids as $courseid) {
             if (!$this->has_course($courseid)) {
-                $courseobj = new obf_criterion_course();
-                $courseobj->set_courseid($courseid)
-                    ->set_criterionid($this->get_id())
-                    ->save();
+                $courseobj = obf_criterion_item::build_type($criteriatype);
+                $courseobj->set_courseid($courseid);
+                $courseobj->set_criterionid($this->get_id());
+                $courseobj->save();
             }
         }
-        foreach ($this->items as $criterioncourse) {
-            $courseid = $criterioncourse->get_courseid();
-            if (!in_array($courseid,$courseids)) {
+        foreach ($courses as $criterioncourse) {
+            if ($criterioncourse->get_criteriatype() == obf_criterion_item::CRITERIA_TYPE_COURSE) {
+                $courseid = $criterioncourse->get_courseid();
+                if (!in_array($courseid,$courseids)) {
+                    $criterioncourse->delete();
+                }
+            } else {
                 $criterioncourse->delete();
             }
+
         }
+
 
         return $this;
     }
@@ -323,8 +345,8 @@ class obf_criterion {
     public static function get_criteria($conditions = '') {
         global $DB;
 
-        $sql = 'SELECT cc.*, c.id AS criterionid, c.badge_id, c.completion_method ' .
-                'FROM {obf_criterion_courses} cc ' .
+        $sql = 'SELECT cc.*, c.id AS criterionid, ' .
+                'c.badge_id, c.completion_method AS crit_completion_method FROM {obf_criterion_courses} cc ' .
                 'LEFT JOIN {obf_criterion} c ON cc.obf_criterion_id = c.id';
         $params = array();
         $cols = array();
@@ -350,12 +372,12 @@ class obf_criterion {
                 $obj = new self();
                 $obj->set_badgeid($record->badge_id);
                 $obj->set_id($record->criterionid);
-                $obj->set_completion_method($record->completion_method);
+                $obj->set_completion_method($record->crit_completion_method);
 
                 $ret[$record->criterionid] = $obj;
             }
 
-            $courseobj = new obf_criterion_course();
+            $courseobj = obf_criterion_item::build(array('criteriatype' => $record->criteria_type));
             $ret[$record->criterionid]->add_criterion_item($courseobj->populate_from_record($record));
         }
 
@@ -437,7 +459,7 @@ class obf_criterion {
         set_time_limit(0);
         raise_memory_limit(MEMORY_EXTRA);
 
-        $criterioncourses = $this->get_items();
+        $criterioncourses = $this->get_items(false, obf_criterion_item::CRITERIA_TYPE_COURSE);
         $courses = $this->get_related_courses();
         $recipientids = array();
         $recipients = array();
@@ -557,9 +579,36 @@ class obf_criterion {
         $course = $this->get_course($courseid);
         $completioninfo = new completion_info($course);
 
-        if (!$completioninfo->is_course_complete($userid)) {
-            return false;
+        if ($criterioncourse->get_criteriatype() == obf_criterion_item::CRITERIA_TYPE_COURSE) {
+            if (!$completioninfo->is_course_complete($userid)) {
+                return false;
+            }
+        } else if ($criterioncourse->get_criteriatype() == obf_criterion_item::CRITERIA_TYPE_ACTIVITY) {
+            $params = $criterioncourse->get_params();
+            $modules = array();
+            foreach ($params as $param) {
+                if (array_key_exists('module', $param)) {
+                    $modules[] = $param['module'];
+                }
+            }
+            $completedmodulecount=0;
+            $requireall = $this->get_completion_method() == obf_criterion::CRITERIA_COMPLETION_ALL;
+            foreach ($modules as $modid) {
+                $cm = $DB->get_record('course_modules', array('id' => $modid));
+                $completiondata = $completioninfo->get_data($cm, false, $userid);
+                if (in_array($completiondata->completionstate, array(COMPLETION_COMPLETE, COMPLETION_COMPLETE_PASS))) {
+                    $completedmodulecount += 1;
+                } else if ($requireall) {
+                    return false;
+                }
+
+            }
+            if ($completedmodulecount < 1) {
+                return false;
+            }
         }
+
+
 
         $datepassed = false;
         $gradepassed = false;
@@ -616,7 +665,7 @@ class obf_criterion {
         return $this;
     }
 
-    public function add_criterion_item(obf_criterion_course $item) {
+    public function add_criterion_item(obf_criterion_item $item) {
         $this->items[] = $item;
     }
 

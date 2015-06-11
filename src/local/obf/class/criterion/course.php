@@ -1,38 +1,24 @@
 <?php
+require_once __DIR__ . '/item_base.php';
 require_once __DIR__ . '/criterion.php';
 require_once __DIR__ . '/../badge.php';
 
 /**
  * Class representing a single course criterion.
  */
-class obf_criterion_course {
-
-    /**
-     * @var int The course id
-     */
-    protected $courseid = -1;
+class obf_criterion_course extends obf_criterion_item {
 
     /**
      * @var int The minimum grade.
      */
     protected $grade = -1;
 
-    /**
-     * @var int The completed by -field of the course criterion as a unix timestamp
-     */
-    protected $completedby = -1;
 
     /**
      * @var string For caching the name of the course
      */
     protected $coursename = '';
 
-    /**
-     * @var obf_criterion The criterion this course belongs to.
-     */
-    protected $criterion = null;
-    protected $id = -1;
-    protected $criterionid = -1;
 
     /**
      * Get the instance of this class by id.
@@ -41,7 +27,7 @@ class obf_criterion_course {
      * @param int $id The id of the course criterion
      * @return obf_criterion_course
      */
-    public static function get_instance($id) {
+    public static function get_instance($id, $method = null) {
         global $DB;
 
         $record = $DB->get_record('obf_criterion_courses', array('id' => $id));
@@ -82,15 +68,6 @@ class obf_criterion_course {
     }
 
     /**
-     * Is there a completion date in this course criterion?
-     *
-     * @return boolean
-     */
-    public function has_completion_date() {
-        return (!empty($this->completedby) && $this->completedby > 0);
-    }
-
-    /**
      * Initializes this object with values from $record
      *
      * @param \stdClass $record The record from Moodle's database
@@ -101,23 +78,12 @@ class obf_criterion_course {
                 ->set_criterionid($record->obf_criterion_id)
                 ->set_courseid($record->courseid)
                 ->set_grade($record->grade)
+                ->set_criteriatype($record->criteria_type)
                 ->set_completedby($record->completed_by);
 
         return $this;
     }
 
-    /**
-     * Returns the criterion related to this object.
-     *
-     * @return obf_criterion
-     */
-    public function get_criterion() {
-        if (is_null($this->criterion)) {
-            $this->criterion = obf_criterion::get_instance($this->criterionid);
-        }
-
-        return $this->criterion;
-    }
 
     /**
      * Saves this course criterion to database. If it exists already, the
@@ -134,6 +100,7 @@ class obf_criterion_course {
         $obj->courseid = $this->courseid;
         $obj->grade = $this->has_grade() ? $this->grade : null;
         $obj->completed_by = $this->has_completion_date() ? $this->completedby : null;
+        $obj->criteria_type = $this->criteriatype;
 
         // Updating existing record
         if ($this->id > 0) {
@@ -170,6 +137,9 @@ class obf_criterion_course {
         }
 
         return $this->coursename;
+    }
+    public function get_name() {
+        return $this->get_coursename();
     }
 
     /**
@@ -249,49 +219,8 @@ class obf_criterion_course {
         obf_criterion::delete_empty($db);
     }
 
-    /**
-     * Checks whether this instance exists in the database.
-     * 
-     * @return boolean Returns true if the instance exists in the database
-     *      and false otherwise.
-     */
-    public function exists() {
-        return $this->id > 0;
-    }
-
-    public function get_id() {
-        return $this->id;
-    }
-
-    public function set_id($id) {
-        $this->id = $id;
-        return $this;
-    }
-
-    public function get_criterionid() {
-        return $this->criterionid;
-    }
-
-    public function set_criterionid($criterionid) {
-        $this->criterionid = $criterionid;
-        return $this;
-    }
-
-    public function get_courseid() {
-        return $this->courseid;
-    }
-
     public function get_grade() {
         return $this->grade;
-    }
-
-    public function get_completedby() {
-        return $this->completedby;
-    }
-
-    public function set_courseid($courseid) {
-        $this->courseid = $courseid;
-        return $this;
     }
 
     public function set_grade($grade) {
@@ -299,9 +228,76 @@ class obf_criterion_course {
         return $this;
     }
 
-    public function set_completedby($completedby) {
-        $this->completedby = $completedby;
-        return $this;
+    public function get_params() {
+        global $DB;
+        $params = array();
+        if (!$this->exists()) {
+            return $params;
+        }
+        $records = $DB->get_records('obf_criterion_params', array('obf_criterion_id' => $this->get_criterionid()));
+        foreach ($records as $record) {
+            $arr = explode('_', $record->name);
+            $params[$arr[1]][$arr[0]] = $record->value;
+        }
+        return $params;
     }
+    /**
+     * Prints criteria course settings for criteria forms.
+     * @param moodle_form $mform
+     */
+    public function get_options($mform) {
+        $criterioncourseid = $this->get_id();
+        $grade = $this->get_grade();
+        $completedby = $this->get_completedby();
 
+        // Minimum grade -field
+        $mform->addElement('text', 'mingrade[' . $criterioncourseid . ']',
+                get_string('minimumgrade', 'local_obf'));
+
+        // Fun fact: Moodle would like the developer to call $mform->setType()
+        // for every form element just in case and shows a E_NOTICE in logs
+        // if it detects a missing setType-call. But if we call setType,
+        // server-side validation stops working and thus makes $mform->addRule()
+        // completely useless. That's why we don't call setType() here.
+        //
+        // ... EXCEPT that Behat-tests are failing because of the E_NOTICE, so let's add client
+        // side validation + server side cleaning
+        $mform->addRule('mingrade[' . $criterioncourseid . ']', null, 'numeric', null, 'client');
+        $mform->setType('mingrade[' . $criterioncourseid . ']', PARAM_INT);
+
+        if ($this->has_grade()) {
+            $mform->setDefault('mingrade[' . $criterioncourseid . ']', $grade);
+        }
+
+        // Course completion date -selector. We could try naming the element
+        // using array (like above), but it's broken with date_selector.
+        // Instead of returning an array like it should, $form->get_data()
+        // returns something like array["completedby[60]"] which is fun.
+        $mform->addElement('date_selector', 'completedby_' . $criterioncourseid . '',
+                get_string('coursecompletedby', 'local_obf'),
+                array('optional' => true, 'startyear' => date('Y')));
+
+        if ($this->has_completion_date()) {
+            $mform->setDefault('completedby_' . $criterioncourseid, $completedby);
+        }
+    }
+    /**
+     * Prints required config fields for criteria forms.
+     * @param moodle_form $mform
+     */
+    public function get_form_config($mform) {
+        global $OUTPUT;
+        $mform->addElement('hidden','criteriatype', obf_criterion_item::CRITERIA_TYPE_COURSE);
+        $mform->setType('criteriatype', PARAM_INT);
+
+        $mform->createElement('hidden','picktype', 'no');
+        $mform->setType('picktype', PARAM_TEXT);
+    }
+    /**
+     * Course criteria do support multiple courses.
+     * @return boolean false
+     */
+    public function criteria_supports_multiple_courses() {
+        return true;
+    }
 }

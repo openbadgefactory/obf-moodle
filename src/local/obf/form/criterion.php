@@ -41,6 +41,7 @@ class obf_criterion_form extends obfform implements renderable {
         else {
             $criterioncourses = $this->criterion->get_items();
             $courses = $this->criterion->get_related_courses();
+            $showaddcourse = true;
 
             $mform->addElement('header', 'header_criteria_courses',
                     get_string('criteriacourses', 'local_obf'));
@@ -48,9 +49,17 @@ class obf_criterion_form extends obfform implements renderable {
             foreach ($criterioncourses as $course) {
                 $coursename = $courses[$course->get_courseid()]->fullname;
                 $mform->addElement('html', $OUTPUT->heading($coursename, 3));
-                self::add_coursefields($mform, $course);
+                $course->get_options($mform);
+                if (!$course->criteria_supports_multiple_courses()) {
+                    $showaddcourse = false;
+                }
             }
-            $mform->addElement('submit','addcourse',get_string('criteriaaddcourse','local_obf'), array('class' => 'addcourse'));
+            if (count($criterioncourses) > 0) {
+                $criterioncourses[0]->get_form_config($mform);
+            }
+            if ($showaddcourse) {
+                $mform->addElement('submit','addcourse',get_string('criteriaaddcourse','local_obf'), array('class' => 'addcourse'));
+            }
 
             // Radiobuttons to select whether this criterion is completed
             // when any of the courses are completed or all of them
@@ -158,8 +167,7 @@ class obf_criterion_form extends obfform implements renderable {
                 get_string('back', 'local_obf'));
         $mform->addGroup($buttons, 'buttonar', '', null, false);
     }
-
-    public static function add_coursefields(&$mform, obf_criterion_course $course) {
+    public static function add_coursefields(&$mform, obf_criterion_item $course) {
         $criterioncourseid = $course->get_id();
         $grade = $course->get_grade();
         $completedby = $course->get_completedby();

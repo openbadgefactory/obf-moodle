@@ -4,13 +4,14 @@
        xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
 >
     <TABLES>
-        <TABLE NAME="obf_criterion_courses" COMMENT="Criterion courses for the OBF-plugin." NEXT="obf_criterion">
+        <TABLE NAME="obf_criterion_courses" COMMENT="Criterion courses for the OBF-plugin." NEXT="obf_criterion_activities">
             <FIELDS>
                 <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true" NEXT="obf_criterion_id"/>
                 <FIELD NAME="obf_criterion_id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="The id of the criterion type" PREVIOUS="id" NEXT="courseid"/>
                 <FIELD NAME="courseid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" PREVIOUS="obf_criterion_id" NEXT="grade"/>
                 <FIELD NAME="grade" TYPE="int" LENGTH="2" NOTNULL="false" SEQUENCE="false" PREVIOUS="courseid" NEXT="completed_by"/>
-                <FIELD NAME="completed_by" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" PREVIOUS="grade"/>
+                <FIELD NAME="completed_by" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" PREVIOUS="grade" NEXT="completion_method"/>
+                <FIELD NAME="criteria_type" TYPE="int" LENGTH="2" NOTNULL="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="completed_by"/>
             </FIELDS>
             <KEYS>
                 <KEY NAME="primary" TYPE="primary" FIELDS="id" NEXT="fk_obf_criterion_id"/>
@@ -18,6 +19,22 @@
                 <KEY NAME="fk_course_id" TYPE="foreign" FIELDS="courseid" REFTABLE="course" REFFIELDS="id" PREVIOUS="fk_obf_criterion_id"/>
             </KEYS>
         </TABLE>
+
+        <TABLE NAME="obf_criterion_activities" COMMENT="Criterion activities for the OBF-plugin." NEXT="obf_criterion">
+            <FIELDS>
+                <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true" NEXT="obf_criterion_id"/>
+                <FIELD NAME="obf_criterion_id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="The id of the criterion type" PREVIOUS="id" NEXT="courseid"/>
+                <FIELD NAME="moduleid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" PREVIOUS="obf_criterion_id" NEXT="completed_by"/>
+                <FIELD NAME="completed_by" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" PREVIOUS="grade"/>
+            </FIELDS>
+            <KEYS>
+                <KEY NAME="primary" TYPE="primary" FIELDS="id" NEXT="fk_obf_criterion_id"/>
+                <KEY NAME="fk_obf_criterion_id" TYPE="foreign" FIELDS="obf_criterion_id" REFTABLE="obf_criterion" REFFIELDS="id" PREVIOUS="primary" NEXT="fk_module_id"/>
+                <KEY NAME="fk_module_id" TYPE="foreign" FIELDS="moduleid" REFTABLE="module" REFFIELDS="id" PREVIOUS="fk_obf_criterion_id"/>
+            </KEYS>
+        </TABLE>
+
+
         <TABLE NAME="obf_criterion" COMMENT="Default comment for the table, please edit me" PREVIOUS="obf_criterion_courses" NEXT="obf_email_templates">
             <FIELDS>
                 <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true" NEXT="badge_id"/>
@@ -54,7 +71,7 @@
                 <KEY NAME="fk_user_id" TYPE="foreign" FIELDS="user_id" REFTABLE="user" REFFIELDS="id" PREVIOUS="fk_obf_criterion_id"/>
             </KEYS>
         </TABLE>
-        <TABLE NAME="obf_backpack_emails" COMMENT="Default comment for the table, please edit me" PREVIOUS="obf_criterion_met">
+        <TABLE NAME="obf_backpack_emails" COMMENT="Default comment for the table, please edit me" PREVIOUS="obf_criterion_met" NEXT="obf_criterion_params">
             <FIELDS>
                 <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true" NEXT="user_id"/>
                 <FIELD NAME="user_id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" PREVIOUS="id" NEXT="email"/>
@@ -65,6 +82,18 @@
             <KEYS>
                 <KEY NAME="primary" TYPE="primary" FIELDS="id" NEXT="fk_user_id"/>
                 <KEY NAME="fk_user_id" TYPE="foreign" FIELDS="user_id" REFTABLE="user" REFFIELDS="id" PREVIOUS="primary"/>
+            </KEYS>
+        </TABLE>
+        <TABLE NAME="obf_criterion_params" COMMENT="Default comment for the table, please edit me" PREVIOUS="obf_backpack_emails">
+            <FIELDS>
+                <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+                <FIELD NAME="obf_criterion_id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+                <FIELD NAME="name" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false"/>
+                <FIELD NAME="value" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false"/>
+            </FIELDS>
+            <KEYS>
+                <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+                <KEY NAME="fk_obf_criterion_id" TYPE="foreign" FIELDS="obf_criterion_id" REFTABLE="obf_criterion" REFFIELDS="id"/>
             </KEYS>
         </TABLE>
     </TABLES>
