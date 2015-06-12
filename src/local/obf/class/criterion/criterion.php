@@ -459,7 +459,7 @@ class obf_criterion {
         set_time_limit(0);
         raise_memory_limit(MEMORY_EXTRA);
 
-        $criterioncourses = $this->get_items(false, obf_criterion_item::CRITERIA_TYPE_COURSE);
+        $criterioncourses = $this->get_items(false);
         $courses = $this->get_related_courses();
         $recipientids = array();
         $recipients = array();
@@ -474,7 +474,7 @@ class obf_criterion {
 
             // Review all enrolled users of this course separately
             foreach ($users as $user) {
-                if ($this->review($user->id, $course->id, $criterioncourses)) {
+                if (!$this->is_met_by_user($user) && $this->review($user->id, $course->id, $criterioncourses)) {
                     $recipients[] = $user;
                     $recipientids[] = $user->id;
                 }
@@ -486,6 +486,7 @@ class obf_criterion {
         if (count($recipients) > 0) {
             $badge = $this->get_badge();
             $email = $badge->get_email();
+
 
             if (is_null($email)) {
                 $email = new obf_email();
@@ -528,7 +529,6 @@ class obf_criterion {
         }
 
         $requireall = $this->get_completion_method() == obf_criterion::CRITERIA_COMPLETION_ALL;
-
         // The completed course doesn't exist in this criterion, no need to continue
         if (!$this->has_course($courseid)) {
             return false;
@@ -574,6 +574,7 @@ class obf_criterion {
     protected function review_course(obf_criterion_course $criterioncourse,
             $userid) {
         global $DB;
+
 
         $courseid = $criterioncourse->get_courseid();
         $course = $this->get_course($courseid);
