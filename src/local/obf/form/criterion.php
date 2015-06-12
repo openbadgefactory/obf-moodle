@@ -132,6 +132,7 @@ class obf_criterion_form extends obfform implements renderable {
             $mform->addElement('header', 'header_criterion_fields',
                     get_string('selectcourses', 'local_obf'));
             $this->setExpanded($mform, 'header_criterion_fields');
+            $mform->addHelpButton('header_criterion_fields', 'readmeenablecompletion', 'local_obf');
 
             // There aren't any courses that aren't already in this badge's criteria
             if ($validcourses === 0) {

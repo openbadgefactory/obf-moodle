@@ -163,6 +163,21 @@ $string['previewemail'] = 'Preview';
 $string['profilebadgelist'] = 'Open Badge Factory badges';
 $string['pubkeyextractionfailed'] = 'There was an error while extracting public key from certificate.';
 $string['pubkeyrequestfailed'] = 'There was an error while requesting the public key from the API';
+$string['readmeenablecompletion'] = 'Badge earning criteria';
+$string['readmeenablecompletion_help'] = '<p>In order for the automatic badge ' .
+        'earning criteria to function properly, ' .
+        'the completion tracking has to be enabled. </p>' .
+        '<p>Easiest way to enable completion tracking is:</p><ol>' .
+        '<li>Locate the "Settings" -block.</li>' .
+        '<li>Type "enablecompletion" into the search box, and hit search.</li>' .
+        '<li>Enable completion tracking: Yes.</li>' .
+        '<li>Optional, but recommended: Enable completion tracking on course default settings.</li>' .
+        '</ol>' .
+        '<strong>Course settings</strong>' .
+        '<p>If completion tracking is not enabled on course default settings, ' .
+        'or course tracking is disabled on a course, ' .
+        'the completion tracking can be enabled via the ' .
+        '<i>Course administration-&gt;Edit settings</i> -page.</p>';
 $string['recipients'] = 'Recipients';
 $string['recipientcandidates'] = 'Users matching the search';
 $string['requesttoken'] = 'OBF request token';

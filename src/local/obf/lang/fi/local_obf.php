@@ -166,6 +166,21 @@ $string['previewemail'] = 'Esikatselu';
 $string['profilebadgelist'] = 'Open Badge Factory osaamismerkit';
 $string['pubkeyextractionfailed'] = 'Julkisen avaimen purkaminen sertifikaatista epäonnistui.';
 $string['pubkeyrequestfailed'] = 'Julkisen avaimen haku Open Badge Factory API:sta epäonnistui.';
+$string['readmeenablecompletion'] = 'Osaamismerkkien ansaintakriteerit';
+$string['readmeenablecompletion_help'] = '<p>Jotta osaamismerkkien automaattiset ' .
+        'ansaintakriteerit toimivat, ' .
+        'on kurssien suoritusten seurannan oltava käytössä. </p>' .
+        '<p>Helpoin tapa ottaa suoritusten seuranta käyttöön, on seuraava:</p><ol>' .
+        '<li>Paikanna "Asetukset" -lohko.</li>' .
+        '<li>Kirjoita lohkon hakupalkkiin "enablecompletion".</li>' .
+        '<li>Ota opiskelijoiden suoritusten seuranta käyttöön: Kyllä.</li>' .
+        '<li>Valinnainen, mutta suositeltava: Ota suoritusten seuranta käyttöön kurssioletuksissa.</li>' .
+        '</ol>' .
+        '<strong>Kurssiasetusket</strong>' .
+        '<p>Jos suoritusten seuranta ei ole käytössä kurssioletuksissa, ' .
+        'tai suoritusten seuranta on pois käytöstä yksittäisellä kurssilla, ' .
+        'voidaan seuranta ottaa käyttöön kurssin ' .
+        '<i>Kurssin ylläpitö-&gt;Muokkaa asetuksia</i> -sivulla.</p>';
 $string['recipients'] = 'Vastaanottajat';
 $string['recipientcandidates'] = 'Hakuun täsmäävät käyttäjät';
 $string['requesttoken'] = 'Valtuutusavain';
