@@ -9,6 +9,10 @@ class obf_client {
     private static $client = null;
     private $transport = null;
 
+    // http_code for handling errors, such as deleted badges.
+    private $http_code = null;
+    private $error = '';
+
     /**
      * Returns the id of the client stored in Moodle's config.
      *
@@ -427,13 +431,14 @@ class obf_client {
         }
 
         $info = $curl->get_info();
-        $code = $info['http_code'];
+        $this->http_code = $info['http_code'];
+        $this->error = '';
 
         // Codes 2xx should be ok
-        if (is_numeric($code) && ($code < 200 || $code >= 300)) {
-            $error = isset($response['error']) ? $response['error'] : '';
-            throw new Exception(get_string('apierror' . $code, 'local_obf',
-                    $error), $code);
+        if (is_numeric($this->http_code) && ($this->http_code < 200 || $this->http_code >= 300)) {
+            $this->error = isset($response['error']) ? $response['error'] : '';
+            throw new Exception(get_string('apierror' . $this->http_code, 'local_obf',
+                    $this->error), $this->http_code);
         }
 
         return $response;
@@ -455,6 +460,20 @@ class obf_client {
         include_once $CFG->libdir . '/filelib.php';
 
         return new curl();
+    }
+    /**
+     * Get HTTP error code of the last request.
+     * @return integer HTTP code, 200-299 should be good, 404 means item was not found.
+     */
+    public function get_http_code() {
+        return $this->http_code;
+    }
+    /**
+     * Get error message of the last request.
+     * @return string Last error message or an empty string if last request was a success.
+     */
+    public function get_error() {
+        return $this->error;
     }
 
     /**

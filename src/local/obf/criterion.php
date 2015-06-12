@@ -177,7 +177,6 @@ switch ($action) {
                     $criterion->update();
                 }
 
-                // TODO: Test
                 $courses = $criterion->get_items(true);
                 $criterioncourseid = $courses[0]->get_id();
 
@@ -193,13 +192,11 @@ switch ($action) {
                             )
                          );
                 } else if ($data->criteriatype == obf_criterion_item::CRITERIA_TYPE_ACTIVITY && !$pickingtype) {
-                    // TODO: TEST THIS --- http://192.168.1.18/moodle/local/obf/criterion.php
                     $criterioncourse = obf_criterion_item::get_instance($criterioncourseid);
                     if (!$criterioncourse->exists()) {
                         $criterioncourse->set_criterionid($criterion->get_id());
                     }
                     $criterioncourse->save_params($data);
-                    // TODO: TEST THIS
                 } else if ($data->criteriatype == obf_criterion_item::CRITERIA_TYPE_COURSE && !$pickingtype) {
                     // ... and then add the criterion attributes
                     foreach ($data->mingrade as $criterioncourseid => $grade) {

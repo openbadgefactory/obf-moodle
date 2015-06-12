@@ -683,5 +683,40 @@ class obf_criterion {
         $this->badgeid = $badgeid;
         return $this;
     }
+    /**
+     * @return obf_criterion[] Criteria for badges deleted from OBF.
+     */
+    public static function get_criteria_with_deleted_badges() {
+        global $DB;
+        $client = obf_client::get_instance();
+        $ret = array();
+        $okbadges = array();
+        $failbadges = array();
+        $records = $DB->get_records('obf_criterion');
+        foreach ($records as $record) {
+            $obj = new self();
+            $obj->set_id($record->id);
+            $obj->set_badgeid($record->badge_id);
+            $obj->set_completion_method($record->completion_method);
 
+            if (in_array($obj->get_badgeid(),$okbadges) || in_array($obj->get_badgeid(),$failbadges)) {
+                if (in_array($obj->get_badgeid(),$failbadges)) {
+                    $ret[] = $obj;
+                }
+                continue;
+            }
+            try {
+                $badge = $client->get_badge($obj->get_badgeid());
+                $okbadges[] = $obj->get_badgeid();
+            } catch(Exception $e) {
+                if ($client->get_http_code() == 404) {
+                    $failbadges[] = $obj->get_badgeid();
+                    $ret[] = $obj;
+                } else {
+                    debugging('Criteria with badge_id: ' . $obj->get_badgeid() . ' caused an error, possible connection issue. Error code: '. $client->get_http_code());
+                }
+            }
+        }
+        return $ret;
+    }
 }
