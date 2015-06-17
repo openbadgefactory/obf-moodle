@@ -9,11 +9,6 @@ require_once __DIR__ . '/../badge.php';
  */
 class obf_criterion_activity extends obf_criterion_course {
     /**
-     * @var int The completed by -field of the activity criterion as a unix timestamp
-     */
-    protected $completedby = -1;
-
-    /**
      * @var string For caching the name of the activity
      */
     protected $activityname = '';
@@ -125,19 +120,6 @@ class obf_criterion_activity extends obf_criterion_course {
         }
         return $name;
     }
-    /**
-     * @param type $params
-     * @return array ids of activity instances
-     */
-    private static function get_module_instanceids_from_params($params) {
-        $ids = array();
-        foreach ($params as $key => $param) {
-            if (array_key_exists('module',$param)) {
-                $ids[] = $param['module'];
-            }
-        }
-        return $ids;
-    }
 
     /**
      * Get course activities
@@ -207,14 +189,109 @@ class obf_criterion_activity extends obf_criterion_course {
 
         return $html;
     }
+    /**
+     * Prints criteria activity settings for criteria forms.
+     * @param moodle_form $mform
+     */
+    public function get_options(&$mform) {
+        global $OUTPUT;
 
+        $modules = obf_criterion_activity::get_course_activities($this->get_courseid());
+        $params = $this->get_params();
+
+        $this->get_form_activities($mform, $modules, $params);
+    }
+    /**
+     * Prints required config fields for criteria forms.
+     * @param moodle_form $mform
+     */
+    public function get_form_config(&$mform) {
+        global $OUTPUT;
+        $mform->addElement('hidden','criteriatype', obf_criterion_item::CRITERIA_TYPE_ACTIVITY);
+        $mform->setType('criteriatype', PARAM_INT);
+
+        $mform->createElement('hidden','picktype', 'no');
+        $mform->setType('picktype', PARAM_TEXT);
+    }
+    /**
+     * Activities do not support multiple courses.
+     * @return boolean false
+     */
+    public function criteria_supports_multiple_courses() {
+        return false;
+    }
+    /**
+     * Reviews criteria for single user.
+     *
+     * @global moodle_database $DB
+     * @global type $CFG
+     * @param int $userid The id of the user.
+     * @param obf_criterion $criterion The main criterion.
+     * @param obf_criterion_item[] $other_items Other items related to main criterion.
+     * @param type[] $extra Extra options passed to review method.
+     * @return boolean If the course criterion is completed by the user.
+     */
+    protected function review_for_user($user, $criterion = null, $other_items = null, &$extra = null) {
+        global $CFG, $DB;
+        require_once $CFG->dirroot . '/grade/querylib.php';
+        require_once $CFG->libdir . '/gradelib.php';
+        require_once $CFG->libdir . '/completionlib.php';
+
+        $requireall = $criterion->get_completion_method() == obf_criterion::CRITERIA_COMPLETION_ALL;
+
+        $criterioncompleted = false;
+
+        $coursecompleted = true;
+
+
+        $userid = $user->id;
+        $courseid = $this->get_courseid();
+        $course = $criterion->get_course($courseid);
+        $completioninfo = new completion_info($course);
+
+
+        $params = $this->get_params();
+        $modules = array_keys(array_filter($params, function ($v) {
+            return array_key_exists('module', $v) ? true : false;
+        }));
+        $completedmodulecount=0;
+
+        foreach ($modules as $modid) {
+            $cm = $DB->get_record('course_modules', array('id' => $modid));
+            $completiondata = $completioninfo->get_data($cm, false, $userid);
+
+            $modulecomplete = in_array($completiondata->completionstate, array(COMPLETION_COMPLETE, COMPLETION_COMPLETE_PASS));
+            $datepassed = false;
+            $completedby = array_key_exists('completedby', $params[$modid]) ? $params[$modid][completedby] : null;
+            // check completion date
+            if (!is_null($completedby)) {
+                if ($completioninfo->timemodified <= $completedby) {
+                    $datepassed = true;
+                }
+            } else {
+                $datepassed = true;
+            }
+
+            if ($modulecomplete && $datepassed) {
+                $completedmodulecount += 1;
+            } else if ($requireall) {
+                return false;
+            }
+
+        }
+        if ($completedmodulecount < 1) {
+            return false;
+        }
+
+        return true;
+    }
     /**
      * Print activities to form.
      * @param moodle_form $mform
      * @param type $modules modules so the database is not accessed too much
      * @param type $params
      */
-    private function get_form_activities($mform, $modules, $params) {
+    private function get_form_activities(&$mform, $modules, $params) {
         $mform->addElement('html',html_writer::tag('p', get_string('selectactivity', 'local_obf')));
 
         $existing = array();
@@ -245,77 +322,16 @@ class obf_criterion_activity extends obf_criterion_course {
         }
     }
     /**
-     * Prints criteria activity settings for criteria forms.
-     * @param moodle_form $mform
+     * @param type $params
+     * @return array ids of activity instances
      */
-    public function get_options($mform) {
-        global $OUTPUT;
-
-        $modules = obf_criterion_activity::get_course_activities($this->get_courseid());
-        $params = $this->get_params();
-
-        $this->get_form_activities($mform, $modules, $params);
-    }
-    /**
-     * Prints required config fields for criteria forms.
-     * @param moodle_form $mform
-     */
-    public function get_form_config($mform) {
-        global $OUTPUT;
-        $mform->addElement('hidden','criteriatype', obf_criterion_item::CRITERIA_TYPE_ACTIVITY);
-        $mform->setType('criteriatype', PARAM_INT);
-
-        $mform->createElement('hidden','picktype', 'no');
-        $mform->setType('picktype', PARAM_TEXT);
-    }
-    /**
-     * Save params. (activity selections and completedby dates)
-     * @param type $data
-     */
-    public function save_params($data) {
-        global $DB;
-        $this->save();
-
-        $params = (array)$data;
-        // Filter out empty params
-        $params = array_filter($params);
-        // Get params matching required params
-        $match = array_merge($this->optional_params, array($this->required_param));
-        $regex = implode('|', array_map(function($a) { return $a .'_';}, $match));
-        $requiredkeys = preg_grep('/^('.$regex.').*$/', array_keys($params));
-
-        $paramtable = 'obf_criterion_params';
-
-
-        $existing = $DB->get_fieldset_select($paramtable, 'name', 'obf_criterion_id = ?', array($this->get_criterionid()));
-        $todelete = array_diff($existing, $requiredkeys);
-        $todelete = array_unique($todelete);
-        if (!empty($todelete)) {
-            list($insql,$inparams) = $DB->get_in_or_equal($todelete, SQL_PARAMS_NAMED, 'cname', true);
-            $inparams = array_merge($inparams, array('critid' => $this->get_criterionid()));
-            $DB->delete_records_select($paramtable, 'obf_criterion_id = :critid AND name '.$insql, $inparams );
-        }
-        foreach ($requiredkeys as $key) {
-            if (in_array($key, $existing)) {
-                $toupdate = $DB->get_record($paramtable,
-                        array('obf_criterion_id' => $this->get_criterionid(),
-                                'name' => $key) );
-                $toupdate->value = $params[$key];
-                $DB->update_record($paramtable, $toupdate, true);
-            } else {
-                $obj = new stdClass();
-                $obj->obf_criterion_id = $this->get_criterionid();
-                $obj->name = $key;
-                $obj->value = $params[$key];
-                $DB->insert_record($paramtable, $obj);
+    private static function get_module_instanceids_from_params($params) {
+        $ids = array();
+        foreach ($params as $key => $param) {
+            if (array_key_exists('module',$param)) {
+                $ids[] = $param['module'];
             }
         }
-    }
-    /**
-     * Activities do not support multiple courses.
-     * @return boolean false
-     */
-    public function criteria_supports_multiple_courses() {
-        return false;
+        return $ids;
     }
 }

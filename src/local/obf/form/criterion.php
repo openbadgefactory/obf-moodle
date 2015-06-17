@@ -29,11 +29,7 @@ class obf_criterion_form extends obfform implements renderable {
         $this->criterion = $this->_customdata['criterion'];
         $addcourse = $this->_customdata['addcourse'];
 
-        // creating a new criterion
-        if (!$this->criterion->exists()) {
-            $this->get_courses($mform);
-        }
-        else if (!empty($addcourse)) {
+        if (!empty($addcourse)) {
             $this->get_courses($mform);
         }
 
@@ -42,52 +38,51 @@ class obf_criterion_form extends obfform implements renderable {
             $criterioncourses = $this->criterion->get_items();
             $courses = $this->criterion->get_related_courses();
             $showaddcourse = true;
+            $showoptions = true;
+            $showbuttons = true;
+            // Show options
+            if (count($criterioncourses) == 0) {
+                $course = obf_criterion_item::build_type(obf_criterion_item::CRITERIA_TYPE_UNKNOWN);
+                $criterioncourses[] = $course;
+            }
 
             $mform->addElement('header', 'header_criteria_courses',
                     get_string('criteriacourses', 'local_obf'));
 
-            foreach ($criterioncourses as $course) {
-                $coursename = $courses[$course->get_courseid()]->fullname;
-                $mform->addElement('html', $OUTPUT->heading($coursename, 3));
-                $course->get_options($mform);
-                if (!$course->criteria_supports_multiple_courses()) {
-                    $showaddcourse = false;
+            if (count($criterioncourses) == 1 && empty($addcourse) &&
+                    $criterioncourses[0]->get_courseid() == -1 &&
+                    $criterioncourses[0]->requires_field('courseid') &&
+                    $criterioncourses[0]->get_criteriatype() != obf_criterion_item::CRITERIA_TYPE_UNKNOWN) {
+                $this->get_courses($mform);
+                $showoptions = false;
+                $showaddcourse = false;
+                $showbuttons = false;
+            }
+            if ($showoptions) {
+                foreach ($criterioncourses as $course) {
+                    if ($course->get_courseid() != -1) {
+                        $coursename = $courses[$course->get_courseid()]->fullname;
+                        $mform->addElement('html', $OUTPUT->heading($coursename, 3));
+                    }
+                    $course->get_options($mform);
+                    if (!$course->criteria_supports_multiple_courses()) {
+                        $showaddcourse = false;
+                    }
                 }
             }
             if (count($criterioncourses) > 0) {
                 $criterioncourses[0]->get_form_config($mform);
-            }
-            if ($showaddcourse) {
-                $mform->addElement('submit','addcourse',get_string('criteriaaddcourse','local_obf'), array('class' => 'addcourse'));
-            }
-
-            // Radiobuttons to select whether this criterion is completed
-            // when any of the courses are completed or all of them
-            if (count($criterioncourses) > 1) {
-                $radiobuttons = array();
-                $radiobuttons[] = $mform->createElement('radio', 'completion_method', '',
-                        get_string('criteriacompletionmethodall', 'local_obf'),
-                        obf_criterion::CRITERIA_COMPLETION_ALL);
-                $radiobuttons[] = $mform->createElement('radio', 'completion_method', '',
-                        get_string('criteriacompletionmethodany', 'local_obf'),
-                        obf_criterion::CRITERIA_COMPLETION_ANY);
-
-                $mform->addElement('header', 'header_completion_method',
-                        get_string('criteriacompletedwhen', 'local_obf'));
-                $this->setExpanded($mform, 'header_completion_method');
-                $mform->addGroup($radiobuttons, 'radioar', '', '<br />', false);
-                $mform->setDefault('completion_method', $this->criterion->get_completion_method());
+                if ($showaddcourse) {
+                    $mform->addElement('submit','addcourse',get_string('criteriaaddcourse','local_obf'), array('class' => 'addcourse'));
+                }
+                $criterioncourses[0]->get_form_completion_options($mform, $this, $criterioncourses);
+                $criterioncourses[0]->get_form_after_save_options($mform, $this);
             }
 
-            $mform->addElement('header', 'header_review_criterion_after_save',
-                    get_string('reviewcriterionaftersave', 'local_obf'));
-            $this->setExpanded($mform, 'header_review_criterion_after_save');
-            $mform->addElement('html',
-                    $OUTPUT->notification(get_string('warningcannoteditafterreview', 'local_obf')));
-            $mform->addElement('advcheckbox', 'reviewaftersave', get_string('reviewcriterionaftersave', 'local_obf'));
-            $mform->addHelpButton('reviewaftersave', 'reviewcriterionaftersave', 'local_obf');
 
-            $this->add_action_buttons();
+            if ($showbuttons) {
+                $this->add_action_buttons();
+            }
         }
     }
     private function get_courses($mform) {

@@ -18,6 +18,12 @@ abstract class obf_criterion_item {
     const CRITERIA_TYPE_ACTIVITY = 2;
 
     /**
+     * Criteria is associated to a totara program or certificate.
+     */
+    const CRITERIA_TYPE_TOTARA_PROGRAM = 5;
+    const CRITERIA_TYPE_TOTARA_CERTIF = 6;
+
+    /**
      * @var int The completed by -field of the course criterion as a unix timestamp
      */
 
@@ -42,7 +48,9 @@ abstract class obf_criterion_item {
     private static $OBF_BADGE_CRITERIA_TYPE_CLASSES = array(
         obf_criterion_item::CRITERIA_TYPE_UNKNOWN => 'unknown',
         obf_criterion_item::CRITERIA_TYPE_COURSE => 'course',
-        obf_criterion_item::CRITERIA_TYPE_ACTIVITY => 'activity'
+        obf_criterion_item::CRITERIA_TYPE_ACTIVITY => 'activity',
+        obf_criterion_item::CRITERIA_TYPE_TOTARA_PROGRAM => 'totaraprogram',
+        obf_criterion_item::CRITERIA_TYPE_TOTARA_CERTIF => 'totaraprogram'
     );
 
     public function __construct($params = null) {
@@ -130,9 +138,23 @@ abstract class obf_criterion_item {
     public function exists() {
         return $this->id > 0;
     }
-
+    /**
+     * Checks that criteria is reviewable and we should
+     * show review after save settings on forms.
+     */
+    public function is_reviewable() {
+        return $this->courseid != -1 && $this->criterionid != -1 &&
+                $this->criteriatype != obf_criterion_item::CRITERIA_TYPE_UNKNOWN;
+    }
+    public function requires_field($field) {
+        return in_array($field, array('courseid','criterionid'));
+    }
     public function get_id() {
         return $this->id;
+    }
+    //Criteria may override badge expires settings.
+    public function get_issue_expires_override($user = null) {
+        return null;
     }
 
     public function set_id($id) {

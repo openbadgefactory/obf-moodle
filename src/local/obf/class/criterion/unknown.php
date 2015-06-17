@@ -26,8 +26,16 @@ class obf_criterion_unknown extends obf_criterion_item {
 
         return $this->criterion;
     }
+    public function review($criterion = null, $other_items = null, &$extra = array()) {
+        return array();
+    }
     public function save() {
         global $DB;
+
+        if ($this->get_criterionid() == -1) {
+            throw new Exception("Invalid criterion id", $this->get_criterionid());
+        }
+
         $obj = new stdClass();
         $obj->obf_criterion_id = $this->criterionid;
         $obj->courseid = $this->courseid;
@@ -83,19 +91,28 @@ class obf_criterion_unknown extends obf_criterion_item {
         return $this;
     }
     // Unknown has no options. Only form config.
-    public function get_options($mform) {
+    public function get_options(&$mform) {
     }
     /**
      * Prints criteria type select for criteria forms.
      * @param moodle_form $mform
      */
-    public function get_form_config($mform) {
-        global $PAGE, $OUTPUT;
+    public function get_form_config(&$mform) {
+        global $PAGE, $OUTPUT, $CFG;
         $optionlist = array(
             obf_criterion_item::CRITERIA_TYPE_UNKNOWN => get_string('selectcriteriatype', 'local_obf'),
             obf_criterion_item::CRITERIA_TYPE_COURSE => get_string('criteriatypecourseset', 'local_obf'),
             obf_criterion_item::CRITERIA_TYPE_ACTIVITY => get_string('criteriatypeactivity', 'local_obf')
         );
+        if (property_exists($CFG,'totara_build')) {
+            $totaraoptions = array(
+                obf_criterion_item::CRITERIA_TYPE_TOTARA_PROGRAM => get_string('criteriatypetotaraprogram', 'local_obf'),
+                obf_criterion_item::CRITERIA_TYPE_TOTARA_CERTIF => get_string('criteriatypetotaracertif', 'local_obf')
+            );
+            foreach ($totaraoptions as $key => $val) {
+                $optionlist[$key] = $val;
+            }
+        }
 
         if (!empty($this->get_criterionid()) && ($this->get_criterionid() > 0) && !empty($this->get_courseid())) {
             if ($PAGE->pagetype == 'local-obf-badge') {
@@ -121,6 +138,16 @@ class obf_criterion_unknown extends obf_criterion_item {
         $select->setSelected(obf_criterion_item::CRITERIA_TYPE_UNKNOWN);
         $mform->addElement('hidden','picktype', 'yes');
         $mform->setType('picktype', PARAM_TEXT);
+
+        // TODO: TEST
+        $mform->addElement('hidden','course[]', '-1');
+        $mform->setType('course[]', PARAM_RAW);
+    }
+    public function get_form_completion_options(&$mform, $obj = null) {
+
+    }
+    public function get_form_after_save_options(&$mform,&$obj) {
+
     }
     public function criteria_supports_multiple_courses() {
         return false;

@@ -71,20 +71,31 @@ switch ($action) {
 
             // Then add the selected courses.
             else {
+                if (property_exists($data,'criteriatype')) {
+                    $criteriatype =  $data->criteriatype;
+                } else {
+                    $criteriatype = obf_criterion_item::CRITERIA_TYPE_UNKNOWN;
+                }
                 $courseids = $data->course;
 
                 foreach ($courseids as $courseid) {
-                    // Check course id validity
-                    $course = $DB->get_record('course',
-                            array('id' => $courseid, 'enablecompletion' => COMPLETION_ENABLED));
-
-                    if ($course !== false) {
-                        // If multiple courses selected, set criteriatype to course since multi-course activities are not supported
-                        $objtype = (count($courseids) == 1 ? obf_criterion_item::CRITERIA_TYPE_UNKNOWN : obf_criterion_item::CRITERIA_TYPE_COURSE);
-                        $courseobj = obf_criterion_item::build_type($objtype);
-                        $courseobj->set_courseid($courseid);
+                    if ($courseid == -1) {
+                        $courseobj = obf_criterion_item::build_type($data->criteriatype);
                         $courseobj->set_criterionid($criterion->get_id());
                         $courseobj->save();
+                    } else {
+                        // Check course id validity
+                        $course = $DB->get_record('course',
+                                array('id' => $courseid, 'enablecompletion' => COMPLETION_ENABLED));
+
+                        if ($course !== false) {
+                            // If multiple courses selected, set criteriatype to course since multi-course activities are not supported
+                            $objtype = (count($courseids) == 1 ? obf_criterion_item::CRITERIA_TYPE_UNKNOWN : obf_criterion_item::CRITERIA_TYPE_COURSE);
+                            $courseobj = obf_criterion_item::build_type($objtype);
+                            $courseobj->set_courseid($courseid);
+                            $courseobj->set_criterionid($criterion->get_id());
+                            $courseobj->save();
+                        }
                     }
                 }
 
@@ -163,8 +174,13 @@ switch ($action) {
                     return ($DB->get_record('course',
                             array('id' => $courseid, 'enablecompletion' => COMPLETION_ENABLED)) !== false);
                 });
-
-                $criterion->set_items_by_courseids($courseids, obf_criterion_item::CRITERIA_TYPE_COURSE);
+                $courses = $criterion->get_items();
+                if (property_exists($data, 'criteriatype')) {
+                    $criteriatype = $data->criteriatype;
+                } else {
+                    $criteriatype = (count($courses) == 1 ? $courses[0]->get_criteriatype() : obf_criterion_item::CRITERIA_TYPE_COURSE);
+                }
+                $criterion->set_items_by_courseids($courseids, $criteriatype);
 
                 $tourl = new moodle_url('/local/obf/criterion.php',
                         array('badgeid' => $badge->get_id(), 'action' => 'edit',
@@ -178,7 +194,7 @@ switch ($action) {
                 }
 
                 $courses = $criterion->get_items(true);
-                $criterioncourseid = $courses[0]->get_id();
+                $criterioncourseid = count($courses) > 0 ? $courses[0]->get_id() : -1;
 
                 $pickingtype = property_exists($data, 'picktype') && $data->picktype == 'yes';
                 if ($pickingtype) {
@@ -206,7 +222,15 @@ switch ($action) {
                         $criterioncourse->set_criteriatype($data->criteriatype);
                         $criterioncourse->save();
                     }
+                } else if (($data->criteriatype == obf_criterion_item::CRITERIA_TYPE_TOTARA_PROGRAM ||
+                        $data->criteriatype == obf_criterion_item::CRITERIA_TYPE_TOTARA_CERTIF) && !$pickingtype) {
+                    $criterioncourse = obf_criterion_item::get_instance($criterioncourseid);
+                    if (!$criterioncourse->exists()) {
+                        $criterioncourse->set_criterionid($criterion->get_id());
+                    }
+                    $criterioncourse->save_params($data);
                 }
+
 
                 if (empty($tourl)) {
                     $tourl = new moodle_url('/local/obf/badge.php',
@@ -216,7 +240,7 @@ switch ($action) {
 
                 // If the review-checkbox was selected, let's review the criterion and check whether
                 // the badge can be issued right now.
-                if ($data->reviewaftersave) {
+                if (property_exists($data,'reviewaftersave') && $data->reviewaftersave) {
                     $recipientcount = $criterion->review_previous_completions();
                     $tourl->param('msg', get_string('badgewasautomaticallyissued', 'local_obf', $recipientcount));
                 }

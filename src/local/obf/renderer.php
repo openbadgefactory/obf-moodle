@@ -687,6 +687,10 @@ class local_obf_renderer extends plugin_renderer_base {
             }
             $groupname = get_string('criteriatype' . $criteriontype, 'local_obf');
 
+            if ($criterionitems[0]->get_criteriatype() == obf_criterion_item::CRITERIA_TYPE_TOTARA_CERTIF) {
+                $groupname = get_string('criteriatypetotaracertif', 'local_obf');
+            }
+
             foreach ($criterionitems as $item) {
                 $attributelist = array_merge($attributelist, $item->get_text_array());
             }

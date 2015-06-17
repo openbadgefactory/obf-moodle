@@ -465,21 +465,29 @@ class obf_criterion {
         $recipients = array();
         $recipientemails = array();
 
-        foreach ($courses as $course) {
-            $context = context_course::instance($course->id);
-            // The all users that are (and were?) enrolled to this course with
-            // the capability of earning badges.
-            $users = get_enrolled_users($context, 'local/obf:earnbadge', 0,
-                    'u.id, u.email');
+        // Let items check their own completion.
+        $selfreviewextra = array();
+        $selfreviewusers = array();
+        $selfreviewsupported = true;
 
-            // Review all enrolled users of this course separately
-            foreach ($users as $user) {
-                if (!$this->is_met_by_user($user) && $this->review($user->id, $course->id, $criterioncourses)) {
-                    $recipients[] = $user;
-                    $recipientids[] = $user->id;
-                }
+        foreach ($criterioncourses as $crit) {
+            $review_result = $crit->review($this, $criterioncourses,
+                    $selfreviewextra);
+
+            if (count($selfreviewusers) == 0 || !$requireall) {
+                $selfreviewusers = array_merge($selfreviewusers, $review_result);
+            } else { // Require all courses complete
+                $selfreviewusers = array_intersect_key($selfreviewusers,$review_result);
             }
         }
+        foreach ($selfreviewusers as $user) {
+            if (!$this->is_met_by_user($user)) {
+                $recipients[] = $user;
+                $recipientids[] = $user->id;
+            }
+        }
+
+
 
         // We found users that have completed this criterion. Let's issue some
         // badges, then!
@@ -497,6 +505,14 @@ class obf_criterion {
             foreach ($recipients as $user) {
                 $recipientemails[] = isset($backpackemails[$user->id]) ? $backpackemails[$user->id]
                             : $user->email;
+            }
+            // Check if criterion wants to override badges expries settings.
+            $expiresoverride = null;
+            foreach ($criterioncourses as $crit) {
+                $expiresoverride = max(array($crit->get_issue_expires_override(),$expiresoverride));
+            }
+            if (!is_null($expiresoverride)) {
+                $badge->set_expires($expiresoverride);
             }
 
             $badge->issue($recipientemails, time(), $email->get_subject(),
@@ -709,7 +725,7 @@ class obf_criterion {
                 $badge = $client->get_badge($obj->get_badgeid());
                 $okbadges[] = $obj->get_badgeid();
             } catch(Exception $e) {
-                if ($client->get_http_code() == 404) {
+                if ($e->getCode() == 404) {
                     $failbadges[] = $obj->get_badgeid();
                     $ret[] = $obj;
                 } else {
