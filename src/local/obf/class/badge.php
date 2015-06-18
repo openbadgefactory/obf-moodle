@@ -348,7 +348,7 @@ class obf_badge {
      * @return boolean True if there's an expiration date, false otherwise.
      */
     public function has_expiration_date() {
-        return !empty($this->expiresby);
+        return !empty($this->expiresby) && $this->expires != 0;
     }
 
     /**

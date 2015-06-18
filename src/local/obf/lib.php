@@ -114,7 +114,7 @@ function obf_extends_navigation(global_navigation $navigation) {
         }
 
         if (($branch = $PAGE->settingsnav->get('usercurrentsettings'))) {
-            local_obf_add_backpack_settings_link($branch);
+            local_obf_add_obf_user_preferences_link($branch);
         }
     }
 }
@@ -132,8 +132,12 @@ function local_obf_extend_settings_navigation(settings_navigation $navigation) {
         local_obf_add_course_admin_link($branch);
     }
 
-    if (($branch = $navigation->get('usercurrentsettings'))) {
-        local_obf_add_backpack_settings_link($branch);
+    if (($branch = $navigation->get('usercurrentsettings'))) { // This does not work on Moodle 2.9?
+        local_obf_add_obf_user_preferences_link($branch);
+        local_obf_add_obf_user_badge_blacklist_link($branch);
+    } else if (($branch = $navigation->find('usercurrentsettings', navigation_node::TYPE_CONTAINER))) { // This works on Moodle 2.9
+        local_obf_add_obf_user_preferences_link($branch);
+        local_obf_add_obf_user_badge_blacklist_link($branch);
     }
 }
 // Support Moodle 2.8 and older
@@ -200,13 +204,24 @@ function local_obf_add_course_admin_link(&$branch) {
 }
 
 /**
- * Adds the backpack configuration link to navigation.
+ * Adds the user preferences configuration link to navigation.
  *
  * @param type $branch
  */
-function local_obf_add_backpack_settings_link(&$branch) {
-    $node = navigation_node::create(get_string('backpacksettings', 'local_obf'),
+function local_obf_add_obf_user_preferences_link(&$branch) {
+    $node = navigation_node::create(get_string('obfuserpreferences', 'local_obf'),
                     new moodle_url('/local/obf/userconfig.php'));
+    $branch->add_node($node);
+}
+
+/**
+ * Adds the user badge blacklist configuration link to navigation.
+ *
+ * @param type $branch
+ */
+function local_obf_add_obf_user_badge_blacklist_link(&$branch) {
+    $node = navigation_node::create(get_string('badgeblacklist', 'local_obf'),
+                    new moodle_url('/local/obf/blacklist.php'));
     $branch->add_node($node);
 }
 
@@ -220,14 +235,18 @@ function local_obf_add_backpack_settings_link(&$branch) {
  * @global moodle_database $DB
  */
 function local_obf_myprofile_navigation(\core_user\output\myprofile\tree $tree, $user, $iscurrentuser, $course) {
+    require_once(__DIR__ . '/class/user_preferences.php');
     global $PAGE, $DB;
-    $assertions = local_obf_myprofile_get_assertions($user->id, $DB);
-    if ($assertions !== false && count($assertions) > 0) {
-        $title = get_string('profilebadgelist', 'local_obf');
-        $renderer = $PAGE->get_renderer('local_obf');
-        $content = $renderer->render_user_assertions($assertions);
-        $localnode = $mybadges = new core_user\output\myprofile\node('badges', 'obfbadges', $title, null, null, $content);
-        $tree->add_node($localnode);
+    $show = obf_user_preferences::get_user_preference($user->id, 'badgesonprofile') == 1;
+    if ($show) {
+        $assertions = local_obf_myprofile_get_assertions($user->id, $DB);
+        if ($assertions !== false && count($assertions) > 0) {
+            $title = get_string('profilebadgelist', 'local_obf');
+            $renderer = $PAGE->get_renderer('local_obf');
+            $content = $renderer->render_user_assertions($assertions);
+            $localnode = $mybadges = new core_user\output\myprofile\node('badges', 'obfbadges', $title, null, null, $content);
+            $tree->add_node($localnode);
+        }
     }
 }
 /**
@@ -241,11 +260,14 @@ function local_obf_myprofile_get_assertions($userid, $db) {
     $assertions = $cache->get($userid);
 
     if (!$assertions) {
+        require_once(__DIR__ . '/class/blacklist.php');
         // Get user's badges in OBF
         $assertions = new obf_assertion_collection();
         try {
             $client = obf_client::get_instance();
+            $blacklist = new obf_blacklist($userid);
             $assertions->add_collection(obf_assertion::get_assertions($client, null, $db->get_record('user', array('id' => $userid))->email ));
+            $assertions->apply_blacklist($blacklist);
         } catch(Exception $e) {
             debugging('Getting OBF assertions for user id: ' . $userid . ' failed: ' . $e->getMessage());
         }

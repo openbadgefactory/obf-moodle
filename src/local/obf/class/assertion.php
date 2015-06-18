@@ -16,37 +16,37 @@ class obf_assertion {
      * @var obf_badge The related badge.
      */
     private $badge = null;
-    
+
     /**
      * @var string The email subject.
      */
     private $emailsubject = '';
-    
+
     /**
-     * @var string The bottom part of the email message. 
+     * @var string The bottom part of the email message.
      */
     private $emailfooter = '';
-    
+
     /**
-     * @var string The top part of the email message. 
+     * @var string The top part of the email message.
      */
     private $emailbody = '';
-    
+
     /**
-     * @var int When the badge was issued, Unix timestamp. 
+     * @var int When the badge was issued, Unix timestamp.
      */
     private $issuedon = null;
-    
+
     /**
-     * @var string[] An array of recipient emails. 
+     * @var string[] An array of recipient emails.
      */
     private $recipients = array();
-    
+
     /**
-     * @var string Possible error message. 
+     * @var string Possible error message.
      */
     private $error = '';
-    
+
     /**
      * @var string The name of the event.
      */
@@ -58,13 +58,13 @@ class obf_assertion {
     private $expires = null;
 
     /**
-     * @var string The id of the event. 
+     * @var string The id of the event.
      */
     private $id = null;
 
     /**
      * Returns an empty instance of this class.
-     * 
+     *
      * @return obf_assertion
      */
     public static function get_instance() {
@@ -73,7 +73,7 @@ class obf_assertion {
 
     /**
      * Issues the badge.
-     * 
+     *
      * @return True on success, false otherwise.
      */
     public function process() {
@@ -89,7 +89,7 @@ class obf_assertion {
 
     /**
      * Gets and returns the assertion instance from OBF.
-     * 
+     *
      * @param string $id The id of the event.
      * @param obf_client $client The client instance.
      * @return obf_assertion The assertion instance.
@@ -111,20 +111,21 @@ class obf_assertion {
 
     /**
      * Returns this instance as an associative array.
-     * 
+     *
      * @return array The array.
      */
-    public function toArray() {        
+    public function toArray() {
         $badgearr = $this->badge instanceof obf_badge ? $this->badge->toArray() : array();
-        
+
         return array(
             'badge' => $badgearr,
-            'issued_on' => $this->get_issuedon() == '' ? '-' : $this->get_issuedon());
+            'issued_on' => $this->get_issuedon() == '' ? '-' : $this->get_issuedon(),
+            'expires' => $this->get_expires() == '' ? '-' : $this->get_expires());
     }
 
     /**
      * Returns all assertions matching the search criteria.
-     * 
+     *
      * @param obf_client $client The client instance.
      * @param obf_badge $badge Get only the assertions containing this badge.
      * @param type $email Get only the assertions related to this email.
@@ -166,7 +167,7 @@ class obf_assertion {
 
     /**
      * Checks whether two assertions are equal.
-     * 
+     *
      * @param obf_assertion $another
      * @return boolean True on success, false otherwise.
      */
@@ -177,7 +178,7 @@ class obf_assertion {
 
     /**
      * Returns all assertions related to $badge.
-     * 
+     *
      * @param obf_badge $badge The badge.
      * @return obf_assertion_collection The related assertions.
      */
@@ -188,7 +189,7 @@ class obf_assertion {
 
     /**
      * Checks whether the badge has expired.
-     * 
+     *
      * @return boolean True, if the badge has expired and false otherwise.
      */
     public function badge_has_expired() {
@@ -196,7 +197,7 @@ class obf_assertion {
     }
 
     public function has_expiration_date() {
-        return !empty($this->expires);
+        return !empty($this->expires) && $this->expires != 0;
     }
 
     public function get_expires() {

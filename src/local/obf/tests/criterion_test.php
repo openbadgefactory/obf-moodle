@@ -1,6 +1,7 @@
 <?php
 require_once(__DIR__ . '/../class/criterion/criterion.php');
 require_once(__DIR__ . '/../class/badge.php');
+require_once(__DIR__ . '/../class/criterion/activity.php');
 
 /**
  * @group obf

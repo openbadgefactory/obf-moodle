@@ -192,6 +192,13 @@ class local_obf_renderer extends plugin_renderer_base {
             get_string('badgedescription', 'local_obf') => $badge->get_description(),
             get_string('issuedon', 'local_obf') => $issuedon);
 
+
+        $expiresby = $assertion->get_expires();
+        $assertionitems = array_merge($assertionitems,
+                array(get_string('badgeexpiresby', 'local_obf') => $expiresby));
+
+
+
         if (count($assertion->get_recipients()) > 0) {
             $list = html_writer::alist(array_map(function ($user) {
                                 if ($user instanceof stdClass) {
@@ -982,8 +989,8 @@ class local_obf_renderer extends plugin_renderer_base {
      * @return type
      */
     public function render_userconfig(obf_userconfig_form $form, $errormsg = '') {
-        $html = $this->print_heading('backpacksettings', 2);
-
+        $html = $this->print_heading('obfuserpreferences', 2);
+        
         if (!empty($errormsg)) {
             $html .= $this->output->notification($errormsg);
         }
@@ -996,6 +1003,23 @@ class local_obf_renderer extends plugin_renderer_base {
                 'M.local_obf.init_backpackconfigurator',
                 array(array('url' => $url->out())));
 
+        return $html;
+    }
+    /**
+     * Renders the OBF-blacklist form.
+     *
+     * @param obf_blacklist_form $form
+     * @param type $errormsg
+     * @return type
+     */
+    public function render_blacklistconfig(obf_blacklist_form $form, $errormsg = '') {
+        $html = $this->print_heading('badgeblacklist', 2);
+
+        if (!empty($errormsg)) {
+            $html .= $this->output->notification($errormsg);
+        }
+
+        $html .= $form->render();
         return $html;
     }
 
@@ -1100,6 +1124,7 @@ class local_obf_renderer extends plugin_renderer_base {
         $assertion = new obf_assertion();
         $assertion->set_badge($badge);
         $assertion->set_issuedon('{{{ this.issued_on }}}');
+        $assertion->set_expires('{{{ this.expires }}}');
 
         return $assertion;
     }

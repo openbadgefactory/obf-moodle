@@ -12,7 +12,21 @@ class obf_userconfig_form extends obfform {
 
         $mform = $this->_form;
         $backpack = $this->_customdata['backpack'];
+        $userpreferences = $this->_customdata['userpreferences'];
         $langkey = 'backpack' . (!$backpack->is_connected() ? 'dis' : '') . 'connected';
+
+        $mform->addElement('header', 'header_userprefeferences_fields',
+                get_string('userpreferences', 'local_obf'));
+        $this->setExpanded($mform, 'header_userprefeferences_fields');
+
+        $mform->addElement('advcheckbox', 'badgesonprofile', get_string('showbadgesonmyprofile', 'local_obf'));
+        $mform->setDefault('badgesonprofile', $userpreferences->get_preference('badgesonprofile'));
+
+        $mform->addElement('header', 'header_backpack_fields',
+                get_string('backpacksettings', 'local_obf'));
+        $this->setExpanded($mform, 'header_backpack_fields', false);
+
+
         $statustext = html_writer::tag('span', get_string($langkey, 'local_obf'),
                         array('class' => $langkey));
 
@@ -20,16 +34,8 @@ class obf_userconfig_form extends obfform {
                 get_string('connectionstatus', 'local_obf'), $statustext);
         $email = $backpack->get_email();
 
-        // Allow editing the email address only if the connection isn't established yet
-//        if (!$backpack->is_connected()) {
-//            $mform->addElement('text', 'backpackemail', get_string('backpackemail', 'local_obf'));
-//            $mform->addRule('backpackemail', null, 'email');
-//            $mform->setType('backpackemail', PARAM_NOTAGS);
-//            $mform->setDefault('backpackemail', $backpack->get_email());
-//        } else {
-            $mform->addElement('static', 'backpackemail', get_string('backpackemail', 'local_obf'),
+        $mform->addElement('static', 'backpackemail', get_string('backpackemail', 'local_obf'),
                     empty($email) ? '-' : s($email));
-//        }
 
         $mform->addHelpButton('backpackemail', 'backpackemail', 'local_obf');
 
@@ -59,20 +65,25 @@ class obf_userconfig_form extends obfform {
                 }
             }
         }
-
-        $buttonarray = array();
-        $type = $backpack->is_connected() ? 'submit' : 'button';
-        $submittext = $backpack->is_connected() ? get_string('savechanges') : get_string('connect',
-                        'local_obf');
-        $buttonarray[] = $mform->createElement($type, 'submitbutton', $submittext,
-                array('class' => !$backpack->is_connected() ? 'verifyemail' : 'savegroups'));
-
-        if ($backpack->is_connected()) {
-            $buttonarray[] = $mform->createElement('cancel', null,
-                    get_string('disconnect', 'local_obf'));
+        if (!$backpack->is_connected()) {
+            $mform->addElement('button', 'backpack_submitbutton',
+                    get_string('connect', 'local_obf', 'Backpack'), array('class' => 'verifyemail'));
         }
 
+        if ($backpack->is_connected()) {
+            $mform->addElement('cancel', null,
+                    get_string('disconnect', 'local_obf', 'Backpack'));
+        }
+
+        $buttonarray = array();
+
+
+        $buttonarray[] = $mform->createElement('submit', 'submitbutton', get_string('savechanges'),
+                array('class' => 'savegroups'));
+
+
         $mform->addGroup($buttonarray, 'buttonar', '', array(' '), false);
+        //$this->add_action_buttons();
         $mform->closeHeaderBefore('buttonar');
     }
 

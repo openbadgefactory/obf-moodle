@@ -382,7 +382,7 @@ function xmldb_local_obf_upgrade($oldversion) {
         // Obf savepoint reached
         upgrade_plugin_savepoint(true, 2015052700, 'local', 'obf');
     }
-    
+
     if ($oldversion < 2015061000) {
 
         // Define field completion_method to be added to obf_criterion_courses.
@@ -417,6 +417,55 @@ function xmldb_local_obf_upgrade($oldversion) {
         // Obf savepoint reached.
         upgrade_plugin_savepoint(true, 2015061000, 'local', 'obf');
     }
+    if ($oldversion < 2015061700) {
+
+        // Define table obf_user_preferences to be created.
+        $table = new xmldb_table('obf_user_preferences');
+
+        // Adding fields to table obf_user_preferences.
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('user_id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('name', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('value', XMLDB_TYPE_CHAR, '255', null, null, null, null);
+
+        // Adding keys to table obf_user_preferences.
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
+
+        // Conditionally launch create table for obf_user_preferences.
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        // Obf savepoint reached.
+        upgrade_plugin_savepoint(true, 2015061700, 'local', 'obf');
+    }
+    if ($oldversion < 2015061800) {
+
+        // Define table obf_user_badge_blacklist to be created.
+        $table = new xmldb_table('obf_user_badge_blacklist');
+
+        // Adding fields to table obf_user_badge_blacklist.
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('user_id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('badge_id', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null);
+
+        // Adding keys to table obf_user_badge_blacklist.
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
+        $table->add_key('fk_user_id', XMLDB_KEY_FOREIGN, array('user_id'), 'user', array('id'));
+
+        // Adding indexes to table obf_user_badge_blacklist.
+        $table->add_index('idx_badge', XMLDB_INDEX_NOTUNIQUE, array('badge_id'));
+
+        // Conditionally launch create table for obf_user_badge_blacklist.
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+
+        // Obf savepoint reached.
+        upgrade_plugin_savepoint(true, 2015061800, 'local', 'obf');
+    }
+
 
     return true;
 }

@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/assertion.php';
 require_once __DIR__ . '/backpack.php';
+require_once __DIR__ . '/blacklist.php';
 
 /**
  * Represents a collection of events in OBF.
@@ -138,6 +139,22 @@ class obf_assertion_collection implements Countable, IteratorAggregate {
         }
 
         return $ret;
+    }
+    /**
+     * Remove badges from collection, that match those defined in users blacklist.
+     * @param obf_blacklist $blacklist Blacklist object used for filtering.
+     * @return obf_assertion_collection $this
+     */
+    public function apply_blacklist(obf_blacklist $blacklist) {
+        $badgeids = $blacklist->get_blacklist();
+        $assertions = array();
+        foreach ($this->assertions as $assertion) {
+            if (!in_array($assertion->get_badge()->get_id(), $badgeids)) {
+                $assertions[] = $assertion;
+            }
+        }
+        $this->assertions = $assertions;
+        return $this;
     }
 
     /**

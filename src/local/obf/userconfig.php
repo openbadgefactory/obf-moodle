@@ -6,10 +6,12 @@
 require_once __DIR__ . '/../../config.php';
 require_once __DIR__ . '/form/userconfig.php';
 require_once __DIR__ . '/class/backpack.php';
+require_once __DIR__ . '/class/user_preferences.php';
 
 $error = optional_param('error', '', PARAM_TEXT);
+$action = optional_param('action', 'edit', PARAM_TEXT);
 $context = context_system::instance();
-$url = new moodle_url('/local/obf/userconfig.php');
+$url = new moodle_url('/local/obf/userconfig.php', array('action' => $action));
 
 require_login();
 require_capability('local/obf:configureuser', $context);
@@ -20,40 +22,57 @@ $PAGE->set_pagelayout('standard');
 
 $content = $OUTPUT->header();
 $backpack = obf_backpack::get_instance($USER);
-$form = new obf_userconfig_form($url,
-        array('backpack' => ($backpack === false ? new obf_backpack() : $backpack)));
+$obfuserpreferences = new obf_user_preferences($USER->id);
+$formurl = new moodle_url('/local/obf/userconfig.php', array('action' => 'update'));
+$form = new obf_userconfig_form($formurl,
+        array('backpack' => ($backpack === false ? new obf_backpack() : $backpack),
+              'userpreferences' => $obfuserpreferences));
 
-// Disconnect-button was pressed
-if ($form->is_cancelled()) {
-    if ($backpack !== false) {
-        $backpack->disconnect();
-    }
 
-    redirect($url);
-}
+switch ($action) {
+    case 'edit':
+        $content .= $PAGE->get_renderer('local_obf')->render_userconfig($form, $error);
+        break;
 
-// User configuration was saved.
-else if (($data = $form->get_data())) {
+    case 'update':
+        // Disconnect-button was pressed
+        if ($form->is_cancelled()) {
+            if ($backpack !== false) {
+                $backpack->disconnect();
+            }
 
-    // If were saving backpack data, we can safely assume that the backpack exists, because it
-    // had to be created before (via verifyemail.php)
-    if ($backpack !== false) {
-        if (isset($data->backpackgroups)) {
-            $backpack->set_groups(array_keys($data->backpackgroups));
+            redirect($url);
         }
 
-        $redirecturl = clone $url;
+        // User configuration was saved.
+        else if (($data = $form->get_data())) {
+            $obfuserpreferences->save_preferences($data);
+            $redirecturl = new moodle_url('/local/obf/userconfig.php', array('action' => 'edit'));
+            // If were saving backpack data, we can safely assume that the backpack exists, because it
+            // had to be created before (via verifyemail.php)
+            if ($backpack !== false) {
+                if (isset($data->backpackgroups)) {
+                    $backpack->set_groups(array_keys($data->backpackgroups));
+                }
 
-        try {
-            $backpack->save();
-        } catch (Exception $e) {
-            $redirecturl->param('error', $e->getMessage());
+                $redirecturl = new moodle_url('/local/obf/userconfig.php', array('action' => 'edit'));
+
+                try {
+                    $backpack->save();
+                } catch (Exception $e) {
+                    $redirecturl->param('error', $e->getMessage());
+                }
+            }
+
+            redirect($redirecturl);
         }
-    }
+        $content .= $PAGE->get_renderer('local_obf')->render_userconfig($form, $error);
+        break;
+    case 'backpack':
 
-    redirect($redirecturl);
+        break;
+
 }
-$content .= $PAGE->get_renderer('local_obf')->render_userconfig($form, $error);
+
 $content .= $OUTPUT->footer();
-
 echo $content;
