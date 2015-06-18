@@ -42,8 +42,10 @@ class obf_blacklist_form extends obfform {
             $items[] = $mform->createElement('advcheckbox', $badge->get_id(),
                     '', $html);
         }
+        if (count($items) > 0) {
+            $mform->addGroup($items, 'blacklist', '', array(' '), false);
+        }
 
-        $mform->addGroup($items, 'blacklist');
         $badgeids = $this->blacklist->get_blacklist();
         foreach ($badgeids as $badgeid) {
             $mform->setDefault('blacklist['.$badgeid.']', 1);
