@@ -39,7 +39,7 @@ class obf_blacklist_form extends obfform {
             //                html_writer::tag('p', s($badge->get_name())));
             $html = $OUTPUT->box(obf_html::div($renderer->print_badge_image($badge, $size) .
                     html_writer::tag('p', s($badge->get_name()))));
-            $items[] = $mform->createElement('advcheckbox', $badge->get_id(),
+            $items[] = $mform->createElement('advcheckbox', 'blacklist['.$badge->get_id().']',
                     '', $html);
         }
         if (count($items) > 0) {
