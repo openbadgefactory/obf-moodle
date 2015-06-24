@@ -12,6 +12,7 @@ class obf_client {
     // http_code for handling errors, such as deleted badges.
     private $http_code = null;
     private $error = '';
+    private $rawresponse = null;
 
     /**
      * Returns the id of the client stored in Moodle's config.
@@ -331,6 +332,18 @@ class obf_client {
     }
 
     /**
+     * Get revoked for assertion from the API.
+     *
+     * @param string $eventid The id of the event.
+     * @return array The revoked data.
+     */
+    public function get_revoked($eventid) {
+        $this->require_client_id();
+        return $this->api_request('/event/' . self::get_client_id() . '/' . $eventid . '/revoked',
+                        'get');
+    }
+
+    /**
      * Deletes all client badges. Use with caution.
      */
     public function delete_badges() {
@@ -393,6 +406,11 @@ class obf_client {
         $this->api_request('/badge/' . self::get_client_id() . '/' . $badge->get_id(),
                 'post', $params);
     }
+    public function revoke_event($eventid, $emails) {
+        $this->require_client_id();
+        $this->api_request('/event/' . self::get_client_id() . '/' . $eventid . '/?email=' . implode('|', $emails),
+                'delete');
+    }
 
     // A wrapper for obf_client::request, prefixing $path with the API url.
     protected function api_request($path, $method = 'get',
@@ -431,6 +449,8 @@ class obf_client {
         }
 
         $info = $curl->get_info();
+
+        $this->rawresponse = $curl->get_raw_response();
         $this->http_code = $info['http_code'];
         $this->error = '';
 
@@ -475,6 +495,14 @@ class obf_client {
     public function get_error() {
         return $this->error;
     }
+
+    /**
+     * Get raw response.
+     * @return string[] Raw response.
+     */
+     public function get_raw_response() {
+         return $this->rawresponse;
+     }
 
     /**
      * Returns the default CURL-settings for a request.

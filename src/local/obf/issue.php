@@ -7,6 +7,7 @@ require_once __DIR__ . '/../../config.php';
 require_once __DIR__ . '/class/badge.php';
 require_once __DIR__ . '/form/issuance.php';
 require_once $CFG->dirroot . '/user/lib.php';
+require_once __DIR__ . '/class/event.php';
 
 $badgeid = required_param('id', PARAM_ALPHANUM);
 $courseid = optional_param('courseid', null, PARAM_INT);
@@ -99,6 +100,12 @@ else if (!is_null($data = $issuerform->get_data())) {
 
     // Badage was successfully issued.
     if ($success) {
+        if (!is_bool($success)) {
+            $issuevent = new obf_issue_event($success, $DB);
+            $issuevent->set_userid($USER->id);
+            $issuevent->save($DB);
+        }
+
         // Course context
         if (!empty($courseid)) {
             redirect(new moodle_url('/local/obf/badge.php',

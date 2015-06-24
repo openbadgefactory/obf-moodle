@@ -191,6 +191,9 @@ abstract class obf_criterion_item {
     {
         return $this->courseid;
     }
+    public function has_courseid() {
+        return !empty($this->courseid) && $this->courseid > 0;
+    }
     public function get_criteriatype() {
         return $this->criteriatype;
     }

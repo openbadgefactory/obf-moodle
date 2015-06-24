@@ -455,6 +455,8 @@ class obf_criterion {
      *      reviewing.
      */
     public function review_previous_completions() {
+        global $DB;
+        require_once __DIR__ . '/../event.php';
         // Just in case this operation takes ages, raise the limits a bit.
         set_time_limit(0);
         raise_memory_limit(MEMORY_EXTRA);
@@ -515,8 +517,14 @@ class obf_criterion {
                 $badge->set_expires($expiresoverride);
             }
 
-            $badge->issue($recipientemails, time(), $email->get_subject(),
+            $eventid = $badge->issue($recipientemails, time(), $email->get_subject(),
                     $email->get_body(), $email->get_footer());
+
+            if ($eventid && !is_bool($eventid)) {
+                $issuevent = new obf_issue_event($eventid, $DB);
+                $issuevent->set_criterionid($this->get_id());
+                $issuevent->save($DB);
+            }
 
             // Update the database
             foreach ($recipientids as $userid) {

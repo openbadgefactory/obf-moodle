@@ -106,6 +106,7 @@ $string['emailtemplatesaved'] = 'Email template was successfully saved.';
 $string['emailtemplatedescription'] = 'Here you can set the default template for the email that ' .
         'will be sent to the user receiving this badge. The email can be customized before the ' .
         'badge is awarded.';
+$string['eventrevoked'] = 'Event revoked for {$a}.';
 $string['evidence'] = 'Evidence';
 $string['expiresby'] = 'Expires';
 $string['expiringcertificate'] = 'Open Badge Factory client certificate is expiring in <b>{$a->days}</b> '
@@ -152,9 +153,12 @@ $string['obf:configureuser'] = 'Configure own Open Badge settings';
 $string['obf:earnbadge'] = 'Earn an Open Badge';
 $string['obf:editcriterion'] = 'Edit badge criterion';
 $string['obf:issuebadge'] = 'Issue badge to a user';
+$string['obf:revokeallevents'] = 'Revoke event';
+$string['obf:revokecourseevents'] = 'Revoke an event, which was automatically issued based on course criteria.';
 $string['obf:seeparticipantbadges'] = 'See the badges of course participants';
 $string['obf:viewallbadges'] = 'View available badges';
 $string['obf:viewallevents'] = 'View badge issue events';
+$string['obf:viewcourseevents'] = 'View course\'s badge issue events' ;
 $string['obf:viewbackpack'] = 'View backpacks';
 $string['obf:viewdetails'] = 'View badge details';
 $string['obf:viewhistory'] = 'View badge issuance history';
@@ -193,6 +197,7 @@ $string['reviewcriterionaftersave'] = 'Review rule after saving';
 $string['reviewcriterionaftersave_help'] = 'If this checkbox is checked, the rule will be '
         . 'reviewed after saving and if someone has already met this rule earlier, this badge '
         . 'will then be automatically awarded.';
+$string['revoke'] = 'Revoke';
 $string['saveconfiguration'] = 'Continue';
 $string['savecriteria'] = 'Save';
 $string['selectatleastonerecipient'] = 'Select at least one recipient';

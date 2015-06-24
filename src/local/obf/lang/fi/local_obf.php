@@ -107,6 +107,7 @@ $string['emailtemplatesaved'] = 'Sähköpostiviesti tallennettu.';
 $string['emailtemplatedescription'] = 'Voit asettaa tälle osaamismerkille sähköpostiviestin, joka '
         . 'lähetetään osaamismerkin saajalle myöntämishetkellä. Viestiä voi muokata vielä ennen merkin'
         . ' myöntämistä.';
+$string['eventrevoked'] = 'Tapahtuma mitätöity ({$a} osoitteiden osalta.)';
 $string['evidence'] = 'Todiste';
 $string['expiresby'] = 'Vanhenee';
 $string['expiringcertificate'] = 'Open Badge Factoryn sertifikaatti vanhenee <b>{$a->days}</b> '
@@ -155,9 +156,12 @@ $string['obf:configureuser'] = 'Voi muokata omia osaamismerkkiasetuksia';
 $string['obf:earnbadge'] = 'Voi ansaita osaamismerkin';
 $string['obf:editcriterion'] = 'Voi muokata osaamismerkin myöntämissääntöä';
 $string['obf:issuebadge'] = 'Voi myöntää osaamismerkin';
+$string['obf:revokeallevents'] = 'Voi mitätöidä merkin';
+$string['obf:revokecourseevents'] = 'Voi mitätöidä kurssiin littyvän merkin';
 $string['obf:seeparticipantbadges'] = 'Voi nähdä kurssin osallistujien merkit';
 $string['obf:viewallbadges'] = 'Voin nähdä kaikki osaamismerkit';
 $string['obf:viewallevents'] = 'Voin nähdä kaikki osaamismerkin myöntämistapahtumat';
+$string['obf:viewcourseevents'] = 'Voin nähdä kurssin osaamismerkin myöntämistapahtumat';
 $string['obf:viewbackpack'] = 'Voin nähdä Backpackit';
 $string['obf:viewdetails'] = 'Voi nähdä osaamismerkin tiedot';
 $string['obf:viewhistory'] = 'Voi nähdä osaamismerkkien myöntämishistorian';
@@ -196,6 +200,7 @@ $string['reviewcriterionaftersave'] = 'Tarkista sääntö tallennettaessa';
 $string['reviewcriterionaftersave_help'] = 'Jos automaattinen tarkistus on valittu, tämä sääntö '
         . 'tarkistetaan tallennuksen yhteydessä ja valittu merkki myönnetään kaikille käyttäjille, '
         . 'jotka ovat säännön kurssit suorittaneet.';
+$string['revoke'] = 'Mitätöi';
 $string['saveconfiguration'] = 'Jatka';
 $string['savecriteria'] = 'Tallenna';
 $string['selectactivity'] = 'Valitse aktiviteetti';

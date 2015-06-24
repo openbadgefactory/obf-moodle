@@ -178,7 +178,7 @@ class local_obf_renderer extends plugin_renderer_base {
      * @return type
      */
     public function render_assertion(obf_assertion $assertion,
-                                     $printheading = true) {
+                                     $printheading = true, $revokeform = null) {
         $html = '';
         $badge = $assertion->get_badge();
         $collection = new obf_assertion_collection(array($assertion));
@@ -200,13 +200,18 @@ class local_obf_renderer extends plugin_renderer_base {
 
 
         if (count($assertion->get_recipients()) > 0) {
-            $list = html_writer::alist(array_map(function ($user) {
-                                if ($user instanceof stdClass) {
-                                    return fullname($user);
-                                }
+            if (!is_null($revokeform)) {
+                $list = $revokeform->render();
+            } else {
+                $list = html_writer::alist(array_map(function ($user) {
+                                    if ($user instanceof stdClass) {
+                                        return fullname($user);
+                                    }
 
-                                return $user;
-                            }, $users));
+                                    return $user;
+                                }, $users));
+            }
+
             $assertionitems[get_string('recipients', 'local_obf')] = $list;
         }
 
@@ -990,7 +995,7 @@ class local_obf_renderer extends plugin_renderer_base {
      */
     public function render_userconfig(obf_userconfig_form $form, $errormsg = '') {
         $html = $this->print_heading('obfuserpreferences', 2);
-        
+
         if (!empty($errormsg)) {
             $html .= $this->output->notification($errormsg);
         }

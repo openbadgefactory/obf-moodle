@@ -15,6 +15,9 @@ ul.badgelist li:hover   { border-color: #aaa; }
 ul.badgelist li p       { background: #fff; margin: 0; padding: 5px 10px; border-radius: 0 0 8px 8px; width: 100px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
 ul.badgelist li img     { max-height: 90px; margin: 15px 0; }
 ul.badgelist li a       { color: inherit; text-decoration: none; display: block; }
+ul.badgelist li.expired-assertion { opacity: 0.4; filter: alpha(opacity=40); }
+
+#page-user-profile .node_category ul.badgelist li  { display: inline-block; }
 
 /**
  * Backpack config
@@ -68,6 +71,11 @@ table.obf-table th  { width: 120px; }
 .obf-assertion .badge-details { width: 45%; float: left; }
 .obf-assertion .issuer-details { width: 45%; float: right; }
 .obf-assertion h3 { margin-bottom: 1.5em; }
+@media (max-width: 767px) {
+    .obf-assertion .image-wrapper { float: none; }
+    .obf-assertion .assertion-details { margin-left: 0px;}
+}
+
 
 .obf-assertion dl.obf-definition-list { }
 .obf-assertion dl.obf-definition-list dt { width: auto; float: none; clear: none; }
@@ -79,6 +87,12 @@ table.obf-table th  { width: 120px; }
 #obf-assertion-panel .yui3-panel-content { border-color: #ccc; box-shadow: 0 0 50px #333; }
 #obf-assertion-panel .yui3-widget-hd { color: #555; font-weight: bold; border-bottom: solid #ccc 1px; }
 
+/**
+ * Assertion revoke form
+ */
+.obf-definition-list .mform .fitemtitle { display: none; }
+.obf-definition-list .mform .fitem .felement { margin-left: 0px; }
+.obf-definition-list .mform input.revoked + label { text-decoration: line-through; }
 /**
  * Badge categories
  */

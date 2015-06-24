@@ -465,6 +465,31 @@ function xmldb_local_obf_upgrade($oldversion) {
         // Obf savepoint reached.
         upgrade_plugin_savepoint(true, 2015061800, 'local', 'obf');
     }
+    if ($oldversion < 2015062100) {
+
+        // Define table obf_issue_events to be created.
+        $table = new xmldb_table('obf_issue_events');
+
+        // Adding fields to table obf_issue_events.
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('event_id', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('user_id', XMLDB_TYPE_INTEGER, '10', null, null, null, null);
+        $table->add_field('obf_criterion_id', XMLDB_TYPE_INTEGER, '10', null, null, null, null);
+
+        // Adding keys to table obf_issue_events.
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
+        $table->add_key('fk_user_id', XMLDB_KEY_FOREIGN, array('user_id'), 'user', array('id'));
+        $table->add_key('fk_obf_criterion_id', XMLDB_KEY_FOREIGN, array('obf_criterion_id'), 'obf_criterion', array('id'));
+
+        // Conditionally launch create table for obf_issue_events.
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        // Obf savepoint reached.
+        upgrade_plugin_savepoint(true, 2015062100, 'local', 'obf');
+    }
+
 
 
     return true;

@@ -57,6 +57,28 @@ $capabilities = array(
         )
     ),
 
+    // Can revoke a badge issued by an unknown party or another user.
+    'local/obf:revokeallevents' => array(
+        'captype'       => 'write',
+        'contextlevel'  => CONTEXT_SYSTEM,
+        'archetypes'    => array(
+            'coursecreator'     => CAP_ALLOW,
+            'manager'           => CAP_ALLOW
+        )
+    ),
+
+    // Can revoke a badge, which was automatically issued based on course criteria.
+    'local/obf:revokecourseevents' => array(
+        'captype'       => 'write',
+        'contextlevel'  => CONTEXT_COURSE,
+        'archetypes'    => array(
+            'teacher'           => CAP_ALLOW,
+            'editingteacher'    => CAP_ALLOW,
+            'coursecreator'     => CAP_ALLOW,
+            'manager'           => CAP_ALLOW
+        )
+    ),
+
     // Can view issuance history.
     'local/obf:viewhistory' => array(
         'captype'       => 'read',
@@ -98,7 +120,8 @@ $capabilities = array(
             'teacher'           => CAP_ALLOW,
             'editingteacher'    => CAP_ALLOW,
             'coursecreator'     => CAP_ALLOW,
-            'manager'           => CAP_ALLOW
+            'manager'           => CAP_ALLOW,
+            'user'              => CAP_ALLOW
         )
     ),
 
@@ -127,6 +150,19 @@ $capabilities = array(
             'manager'           => CAP_ALLOW
         )
     ),
+
+    // Can revoke a badge, which was automatically issued based on course criteria.
+    'local/obf:viewcourseevents' => array(
+        'captype'       => 'read',
+        'contextlevel'  => CONTEXT_COURSE,
+        'archetypes'    => array(
+            'teacher'           => CAP_ALLOW,
+            'editingteacher'    => CAP_ALLOW,
+            'coursecreator'     => CAP_ALLOW,
+            'manager'           => CAP_ALLOW
+        )
+    ),
+
     // Can edit badge criterion.
     'local/obf:editcriterion' => array(
         'captype'       => 'write',

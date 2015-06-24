@@ -274,6 +274,17 @@ class obf_badge {
 
         $this->get_client()->issue_badge($this, $recipients, $issuedon,
                 $emailsubject, $emailbody, $emailfooter);
+
+        $raw = $this->get_client()->get_raw_response();
+        foreach ($raw as $key => $value) {
+            if ($match = preg_match('/^Location: .*event\/[\w]+\/(.*)$/i', $value, $matches)) {
+                $eventid = trim($matches[$match]);
+                if (!empty($eventid)) {
+                    return $eventid;
+                }
+            }
+        }
+        return true;
     }
 
     /**
@@ -348,7 +359,7 @@ class obf_badge {
      * @return boolean True if there's an expiration date, false otherwise.
      */
     public function has_expiration_date() {
-        return !empty($this->expiresby) && $this->expires != 0;
+        return !empty($this->expiresby) && $this->expiresby != 0;
     }
 
     /**

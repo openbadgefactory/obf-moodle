@@ -36,6 +36,7 @@ require_once(__DIR__ . '/class/criterion/course.php');
  */
 function local_obf_course_completed(stdClass $eventdata) {
     global $DB;
+    require_once __DIR__ . '/class/event.php';
 
     $user = $DB->get_record('user', array('id' => $eventdata->userid));
     $backpack = obf_backpack::get_instance($user);
@@ -70,9 +71,15 @@ function local_obf_course_completed(stdClass $eventdata) {
             $badge = $criterion->get_badge();
             $email = is_null($badge->get_email()) ? new obf_email() : $badge->get_email();
 
-            $badge->issue($recipients, time(), $email->get_subject(),
+            $eventid = $badge->issue($recipients, time(), $email->get_subject(),
                     $email->get_body(), $email->get_footer());
             $criterion->set_met_by_user($user->id);
+
+            if ($eventid && !is_bool($eventid)) {
+                $issuevent = new obf_issue_event($eventid, $DB);
+                $issuevent->set_criterionid($criterionid);
+                $issuevent->save($DB);
+            }
         }
     }
 

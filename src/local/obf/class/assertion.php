@@ -43,6 +43,11 @@ class obf_assertion {
     private $recipients = array();
 
     /**
+     * @var array[] An array of recipient emails and revokation timestamps.
+     */
+    private $revoked = array();
+
+    /**
      * @var string Possible error message.
      */
     private $error = '';
@@ -74,17 +79,32 @@ class obf_assertion {
     /**
      * Issues the badge.
      *
-     * @return True on success, false otherwise.
+     * @return mixed Eventid(string) when event id was successfully parsed from response,
+     *         true on otherwise successful operation, false otherwise.
      */
     public function process() {
         try {
-            $this->badge->issue($this->recipients, $this->issuedon,
+            $eventid = $this->badge->issue($this->recipients, $this->issuedon,
                     $this->emailsubject, $this->emailbody, $this->emailfooter);
+            return $eventid;
+        } catch (Exception $e) {
+            $this->error = $e->getMessage();
+            return false;
+        }
+    }
+    /**
+     * Revoke this assertion for a list of emails.
+     * @return True on success, false otherwise.
+     */
+    public function revoke(obf_client $client, $emails = array()) {
+        try {
+            $client->revoke_event($this->get_id(), $emails);
             return true;
         } catch (Exception $e) {
             $this->error = $e->getMessage();
             return false;
         }
+        return false;
     }
 
     /**
@@ -273,6 +293,27 @@ class obf_assertion {
 
     public function set_recipients($recipients) {
         $this->recipients = $recipients;
+        return $this;
+    }
+
+
+    public function get_revoked(obf_client $client = null) {
+        if (!is_null($client) && count($this->revoked < 1)) {
+            try {
+                $arr = $client->get_revoked($this->id);
+                if (array_key_exists('revoked', $arr)) {
+                    $this->revoked = $arr['revoked'];
+                }
+            } catch (Exception $e) {
+                // API method for revoked may not be published yet
+                $this->revoked = array();
+            }
+        }
+        return $this->revoked;
+    }
+
+    public function set_revoked($revoked) {
+        $this->revoked = $revoked;
         return $this;
     }
 
