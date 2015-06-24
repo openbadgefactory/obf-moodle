@@ -155,9 +155,15 @@ class local_obf_renderer extends plugin_renderer_base {
             $badgename = html_writer::tag('p', s($badge->get_name()));
             $aid = $userid . '-' . $i;
             $js_assertions[$aid] = $assertion->toArray();
+            $attributes = array('id' => $aid);
+            $extra = '';
+            if ($assertion->badge_has_expired()) {
+                $attributes = array_merge($attributes, array('class' => 'expired-assertion'));
+                $extra = html_writer::tag('div', get_string('expired', 'local_obf'), array('class' => 'expired-info'));
+            }
             $items .= html_writer::tag('li',
-                            obf_html::div($badgeimage . $badgename),
-                            array('id' => $aid));
+                            $extra . obf_html::div($badgeimage . $badgename),
+                            $attributes);
         }
 
         $html .= html_writer::tag('ul', $items, array('class' => 'badgelist'));

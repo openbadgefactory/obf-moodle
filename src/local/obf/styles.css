@@ -16,6 +16,7 @@ ul.badgelist li p       { background: #fff; margin: 0; padding: 5px 10px; border
 ul.badgelist li img     { max-height: 90px; margin: 15px 0; }
 ul.badgelist li a       { color: inherit; text-decoration: none; display: block; }
 ul.badgelist li.expired-assertion { opacity: 0.4; filter: alpha(opacity=40); }
+ul.badgelist li .expired-info { position: absolute; height: inherit; text-align: center; width: inherit; margin-top: 48px; font-weight: bold; vertical-align: middle; transform: rotate(15deg); font-size: 1.2em; overflow: hidden; }
 
 #page-user-profile .node_category ul.badgelist li  { display: inline-block; }
 
