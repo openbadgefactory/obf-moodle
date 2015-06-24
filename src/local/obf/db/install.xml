@@ -62,6 +62,7 @@
                 <FIELD NAME="email" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" PREVIOUS="user_id" NEXT="backpack_id"/>
                 <FIELD NAME="backpack_id" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" PREVIOUS="email" NEXT="groups"/>
                 <FIELD NAME="groups" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" PREVIOUS="backpack_id"/>
+                <FIELD NAME="backpack_provider" TYPE="int" LENGTH="2" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
             </FIELDS>
             <KEYS>
                 <KEY NAME="primary" TYPE="primary" FIELDS="id" NEXT="fk_user_id"/>

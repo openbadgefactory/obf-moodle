@@ -7,6 +7,7 @@ defined('MOODLE_INTERNAL') || die();
  */
 define('OBF_DEFAULT_ADDRESS', 'https://openbadgefactory.com/');
 
+
 /**
  * OBF_API_URL - The URL of Open Badge Factory API.
  */
@@ -254,6 +255,18 @@ function local_obf_myprofile_navigation(\core_user\output\myprofile\tree $tree, 
             $localnode = $mybadges = new core_user\output\myprofile\node('badges', 'obfbadges', $title, null, null, $content);
             $tree->add_node($localnode);
         }
+
+        foreach (obf_backpack::get_providers() as $provider) {
+            $bpassertions = local_obf_myprofile_get_backpack_badges($user->id, $provider, $DB);
+            if ($assertions !== false && count($bpassertions) > 0) {
+                $name = obf_backpack::get_providershortname_by_providerid($provider);
+                $title = get_string('profilebadgelist' . $name, 'local_obf');
+                $renderer = $PAGE->get_renderer('local_obf');
+                $content = $renderer->render_user_assertions($bpassertions);
+                $localnode = $mybadges = new core_user\output\myprofile\node('badges', 'obfbadges'.$name, $title, null, null, $content);
+                $tree->add_node($localnode);
+            }
+        }
     }
 }
 /**
@@ -284,6 +297,40 @@ function local_obf_myprofile_get_assertions($userid, $db) {
     }
     return $assertions;
 }
+
+/**
+ * Returns cached backpack badges for user
+ * @param type $userid
+ * @param moodle_database $db
+ * @return obf_assertion_collection
+ */
+function local_obf_myprofile_get_backpack_badges($userid, $provider, $db) {
+    $backpack = obf_backpack::get_instance_by_userid($userid, $db, $provider);
+    if ($backpack === false || count($backpack->get_group_ids()) == 0) {
+        return new obf_assertion_collection();
+    }
+    $cache = cache::make('local_obf', 'obf_assertions_' . $backpack->get_providershortname());
+    $assertions = $cache->get($userid);
+
+    if (!$assertions) {
+        require_once(__DIR__ . '/class/blacklist.php');
+        $assertions = new obf_assertion_collection();
+        try {
+            $client = obf_client::get_instance();
+            $blacklist = new obf_blacklist($userid);
+            $assertions->add_collection( $backpack->get_assertions() );
+            $assertions->apply_blacklist($blacklist);
+        } catch(Exception $e) {
+            debugging('Getting OBF assertions for user id: ' . $userid . ' failed: ' . $e->getMessage());
+        }
+
+        $assertions->toArray(); // This makes sure issuer objects are populated and cached
+        $cache->set($userid, $assertions );
+    }
+
+    return $assertions;
+}
+
 /**
  * Checks the certificate expiration of the OBF-client and sends a message to admin if the
  * certificate is expiring. This function is called periodically when Moodle's cron job is run.

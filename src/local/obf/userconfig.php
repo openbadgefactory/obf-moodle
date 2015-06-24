@@ -22,12 +22,21 @@ $PAGE->set_pagelayout('standard');
 
 $content = $OUTPUT->header();
 $backpack = obf_backpack::get_instance($USER);
+$obpbackpack = obf_backpack::get_instance($USER,obf_backpack::BACKPACK_PROVIDER_OBP);
 $obfuserpreferences = new obf_user_preferences($USER->id);
 $formurl = new moodle_url('/local/obf/userconfig.php', array('action' => 'update'));
+/*
 $form = new obf_userconfig_form($formurl,
         array('backpack' => ($backpack === false ? new obf_backpack() : $backpack),
+            'obpbackpack' => ($obpbackpack === false ? new obf_backpack(null,obf_backpack::BACKPACK_PROVIDER_OBP) : $obpbackpack),
               'userpreferences' => $obfuserpreferences));
-
+*/
+$backpacks = array(
+    $backpack !== false ? $backpack : new obf_backpack(null),
+    $obpbackpack !== false ? $obpbackpack : new obf_backpack(null, obf_backpack::BACKPACK_PROVIDER_OBP));
+$form = new obf_userconfig_form($formurl,
+        array('backpacks' => $backpacks,
+              'userpreferences' => $obfuserpreferences));
 
 switch ($action) {
     case 'edit':
@@ -37,8 +46,10 @@ switch ($action) {
     case 'update':
         // Disconnect-button was pressed
         if ($form->is_cancelled()) {
-            if ($backpack !== false) {
-                $backpack->disconnect();
+            foreach ($backpacks as $backpack) {
+                if ($backpack->exists()) {
+                    $backpack->disconnect();
+                }
             }
 
             redirect($url);
@@ -50,17 +61,20 @@ switch ($action) {
             $redirecturl = new moodle_url('/local/obf/userconfig.php', array('action' => 'edit'));
             // If were saving backpack data, we can safely assume that the backpack exists, because it
             // had to be created before (via verifyemail.php)
-            if ($backpack !== false) {
-                if (isset($data->backpackgroups)) {
-                    $backpack->set_groups(array_keys($data->backpackgroups));
-                }
+            foreach ($backpacks as $backpack) {
+                if ($backpack->exists()) {
+                    $propertyname = $backpack->get_providershortname() . 'backpackgroups';
+                    if (isset($data->{$propertyname})) {
+                        $backpack->set_groups(array_keys($data->{$propertyname}));
+                    }
 
-                $redirecturl = new moodle_url('/local/obf/userconfig.php', array('action' => 'edit'));
+                    $redirecturl = new moodle_url('/local/obf/userconfig.php', array('action' => 'edit'));
 
-                try {
-                    $backpack->save();
-                } catch (Exception $e) {
-                    $redirecturl->param('error', $e->getMessage());
+                    try {
+                        $backpack->save();
+                    } catch (Exception $e) {
+                        $redirecturl->param('error', $e->getMessage());
+                    }
                 }
             }
 

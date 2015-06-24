@@ -8,7 +8,11 @@ require_once __DIR__ . '/assertion_collection.php';
 class obf_backpack {
 
     const BACKPACK_URL = 'http://beta.openbadges.org/displayer/';
+    const OPB_URL = 'https://openbadgepassport.com/displayer/';
     const PERSONA_VERIFIER_URL = 'https://verifier.login.persona.org/verify';
+
+    const BACKPACK_PROVIDER_MOZILLA = 0;
+    const BACKPACK_PROVIDER_OBP = 1;
 
     private $id = -1;
     private $user_id = -1;
@@ -16,19 +20,39 @@ class obf_backpack {
     private $backpack_id = -1;
     private $groups = array();
     private $transport = null;
+    private $provider = 0;
 
-    public function __construct($transport = null) {
+    private static $providers = array(self::BACKPACK_PROVIDER_MOZILLA,
+            self::BACKPACK_PROVIDER_OBP);
+    private static $providershortnames = array(
+        self::BACKPACK_PROVIDER_MOZILLA => 'moz',
+        self::BACKPACK_PROVIDER_OBP => 'obp'
+    );
+    private static $apiurls = array(
+        self::BACKPACK_PROVIDER_MOZILLA => self::BACKPACK_URL,
+        self::BACKPACK_PROVIDER_OBP => self::OPB_URL
+    );
+
+    public function __construct($transport = null, $provider = self::BACKPACK_PROVIDER_MOZILLA) {
+        $this->set_provider($provider);
         if (!is_null($transport)) {
             $this->set_transport($transport);
         }
+    }
+
+    private function get_apiurl() {
+        if (!empty($this->provider)) {
+            return self::$apiurls[$this->provider];
+        }
+        return self::BACKPACK_URL;
     }
 
     /**
      *
      * @param type $user
      */
-    public static function get_instance($user) {
-        return self::get_instance_by_fields(array('user_id' => $user->id));
+    public static function get_instance($user, $provider = self::BACKPACK_PROVIDER_MOZILLA) {
+        return self::get_instance_by_fields(array('user_id' => $user->id), $provider);
     }
 
     /**
@@ -37,9 +61,9 @@ class obf_backpack {
      * @param array $fields
      * @return \self|boolean
      */
-    protected static function get_instance_by_fields(array $fields) {
+    protected static function get_instance_by_fields(array $fields, $provider = self::BACKPACK_PROVIDER_MOZILLA) {
         global $DB;
-
+        $fields = array_merge($fields, array('backpack_provider' => $provider));
         $backpackobj = $DB->get_record('obf_backpack_emails', $fields, '*',
                 IGNORE_MULTIPLE);
 
@@ -53,6 +77,7 @@ class obf_backpack {
         $obj->set_email($backpackobj->email);
         $obj->set_id($backpackobj->id);
         $obj->set_groups(unserialize($backpackobj->groups));
+        $obj->set_provider($provider);
 
         return $obj;
     }
@@ -61,8 +86,8 @@ class obf_backpack {
      *
      * @param type $email
      */
-    public static function get_instance_by_backpack_email($email) {
-        return self::get_instance_by_fields(array('email' => $email));
+    public static function get_instance_by_backpack_email($email, $provider = self::BACKPACK_PROVIDER_MOZILLA) {
+        return self::get_instance_by_fields(array('email' => $email), $provider);
     }
 
     /**
@@ -70,8 +95,8 @@ class obf_backpack {
      * @param type $userid
      * @return type
      */
-    public static function get_instance_by_userid($userid, moodle_database $db) {
-        return self::get_instance($db->get_record('user', array('id' => $userid)));
+    public static function get_instance_by_userid($userid, moodle_database $db, $provider = self::BACKPACK_PROVIDER_MOZILLA) {
+        return self::get_instance($db->get_record('user', array('id' => $userid)), $provider);
     }
 
     /**
@@ -121,7 +146,7 @@ class obf_backpack {
      */
     protected function connect_to_backpack($email) {
         $curl = $this->get_transport();
-        $output = $curl->post(self::BACKPACK_URL . 'convert/email',
+        $output = $curl->post($this->get_apiurl() . 'convert/email',
                 array('email' => $email));
         $json = json_decode($output);
         $code = $curl->info['http_code'];
@@ -219,7 +244,7 @@ class obf_backpack {
 
     public function get_groups() {
         $curl = $this->get_transport();
-        $output = $curl->get(self::BACKPACK_URL . $this->get_backpack_id() . '/groups.json');
+        $output = $curl->get($this->get_apiurl() . $this->get_backpack_id() . '/groups.json');
         $json = json_decode($output);
 
         return $json->groups;
@@ -231,7 +256,7 @@ class obf_backpack {
         }
 
         $curl = $this->get_transport();
-        $output = $curl->get(self::BACKPACK_URL . $this->get_backpack_id() . '/group/' . $groupid . '.json');
+        $output = $curl->get($this->get_apiurl() . $this->get_backpack_id() . '/group/' . $groupid . '.json');
         $json = json_decode($output);
         $assertions = new obf_assertion_collection();
 
@@ -302,6 +327,7 @@ class obf_backpack {
         $obj->user_id = $this->user_id;
         $obj->email = $this->email;
         $obj->backpack_id = $this->backpack_id;
+        $obj->backpack_provider = $this->provider;
         $obj->groups = serialize($this->groups);
 
         if ($this->id > 0) {
@@ -374,5 +400,27 @@ class obf_backpack {
     public function set_transport($transport) {
         $this->transport = $transport;
     }
-
+    public function exists() {
+        return !empty($this->id) && $this->id > 0;
+    }
+    public static function get_providers() {
+        return self::$providers;
+    }
+    public function set_provider($provider = self::BACKPACK_PROVIDER_MOZILLA) {
+        if (in_array($provider, self::$providers)) {
+            $this->provider = $provider;
+        } else {
+            throw new Exception("Invalid backpack provider.", $provider);
+        }
+    }
+    public function get_provider() {
+        return !empty($this->provider) ? $this->provider : self::BACKPACK_PROVIDER_MOZILLA;
+    }
+    public function get_providershortname() {
+        $provider = $this->get_provider();
+        return self::$providershortnames[$provider];
+    }
+    public static function get_providershortname_by_providerid($provider) {
+        return self::$providershortnames[$provider];
+    }
 }

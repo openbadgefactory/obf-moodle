@@ -489,6 +489,20 @@ function xmldb_local_obf_upgrade($oldversion) {
         // Obf savepoint reached.
         upgrade_plugin_savepoint(true, 2015062100, 'local', 'obf');
     }
+    if ($oldversion < 2015062300) {
+
+        // Define field backpack_provider to be added to obf_backpack_emails.
+        $table = new xmldb_table('obf_backpack_emails');
+        $field = new xmldb_field('backpack_provider', XMLDB_TYPE_INTEGER, '2', null, XMLDB_NOTNULL, null, '0', 'groups');
+
+        // Conditionally launch add field id.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Obf savepoint reached.
+        upgrade_plugin_savepoint(true, 2015062300, 'local', 'obf');
+    }
 
 
 

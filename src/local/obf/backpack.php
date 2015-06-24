@@ -11,6 +11,7 @@ require_once(__DIR__ . '/class/backpack.php');
 require_login(); // TODO: Handle login requirement more gracefully for more useful error messages?
 
 $userid = required_param('userid', PARAM_INT);
+$provider = optional_param('provider', 0, PARAM_INT);
 $context = context_user::instance($userid);
 
 if ((int)$USER->id === $userid) {
@@ -20,7 +21,7 @@ if ((int)$USER->id === $userid) {
     require_capability('local/obf:viewbackpack', $context);
 }
 
-$backpack = obf_backpack::get_instance_by_userid($userid, $DB);
+$backpack = obf_backpack::get_instance_by_userid($userid, $DB, $provider);
 
 if ($backpack === false || count($backpack->get_group_ids()) == 0) {
     die(json_encode(array('error' => 'nogroups')));
