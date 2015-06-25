@@ -110,7 +110,8 @@ class obf_backpack {
         global $DB;
 
         $records = $DB->get_records_list('obf_backpack_emails', 'user_id',
-                $userids, '', 'user_id,email');
+                $userids, '', 'id,user_id,email');
+
         $ret = array();
 
         foreach ($records as $record) {
@@ -125,12 +126,18 @@ class obf_backpack {
      * @global moodle_database $DB
      * @return type
      */
-    public static function get_user_ids_with_backpack() {
+    public static function get_user_ids_with_backpack($provider = null) {
         global $DB;
 
         $ret = array();
-        $records = $DB->get_records_select('obf_backpack_emails',
-                'backpack_id > 0');
+        if (is_null($provider)) {
+            $records = $DB->get_records_select('obf_backpack_emails',
+                    'backpack_id > 0');
+        } else {
+            $records = $DB->get_records_sql('SELECT * FROM {obf_backpack_emails} ' .
+                    'WHERE backpack_id > 0 AND backpack_provider = :provider', array('provider' => $provider));
+        }
+
 
         foreach ($records as $record) {
             $ret[] = $record->user_id;

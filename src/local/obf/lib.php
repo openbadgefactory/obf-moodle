@@ -118,11 +118,14 @@ function obf_extends_navigation(global_navigation $navigation) {
 
     if (@$PAGE->settingsnav) {
         if (($branch = $PAGE->settingsnav->get('courseadmin'))) {
+            $branch = local_obf_add_course_admin_container($branch);
             local_obf_add_course_admin_link($branch);
+            local_obf_add_course_event_history_link($branch);
         }
 
         if (($branch = $PAGE->settingsnav->get('usercurrentsettings'))) {
             local_obf_add_obf_user_preferences_link($branch);
+            local_obf_add_obf_user_badge_blacklist_link($branch);
         }
     }
 }
@@ -137,7 +140,9 @@ function local_obf_extend_settings_navigation(settings_navigation $navigation) {
     global $COURSE;
 
     if (($branch = $navigation->get('courseadmin'))) {
+        $branch = local_obf_add_course_admin_container($branch);
         local_obf_add_course_admin_link($branch);
+        local_obf_add_course_event_history_link($branch);
     }
 
     if (($branch = $navigation->get('usercurrentsettings'))) { // This does not work on Moodle 2.9?
@@ -173,7 +178,11 @@ function local_obf_extend_navigation(global_navigation $navigation) {
 function local_obf_extends_navigation(global_navigation $navigation) {
     local_obf_extend_navigation($navigation);
 }
-
+function local_obf_add_course_admin_container(&$branch) {
+    $node = navigation_node::create(get_string('obf', 'local_obf'),
+            null, navigation_node::TYPE_CONTAINER, null, 'obf');
+    return $branch->add_node($node, 'backup');
+}
 /**
  * Adds the link to course navigation to see the badges of course participants.
  *
@@ -188,7 +197,25 @@ function local_obf_add_course_participant_badges_link(&$branch) {
         $node = navigation_node::create(get_string('courseuserbadges',
                                 'local_obf'),
                         new moodle_url('/local/obf/courseuserbadges.php',
-                        array('courseid' => $COURSE->id)));
+                        array('courseid' => $COURSE->id, 'action' => 'badges')));
+        $branch->add_node($node);
+    }
+}
+/**
+ * Adds the link to course navigation to see the event history related to course.
+ *
+ * @global type $COURSE
+ * @param type $branch
+ */
+function local_obf_add_course_event_history_link(&$branch) {
+    global $COURSE;
+
+    if (has_capability('local/obf:viewhistory',
+                    context_course::instance($COURSE->id))) {
+        $node = navigation_node::create(get_string('courseeventhistory',
+                                'local_obf'),
+                        new moodle_url('/local/obf/courseuserbadges.php',
+                        array('courseid' => $COURSE->id, 'action' => 'history')));
         $branch->add_node($node);
     }
 }
@@ -207,7 +234,7 @@ function local_obf_add_course_admin_link(&$branch) {
         $obfnode = navigation_node::create(get_string('obf', 'local_obf'),
                         new moodle_url('/local/obf/badge.php',
                         array('action' => 'list', 'courseid' => $COURSE->id)));
-        $branch->add_node($obfnode, 'backup');
+        $branch->add_node($obfnode);
     }
 }
 

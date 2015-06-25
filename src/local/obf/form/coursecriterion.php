@@ -26,14 +26,7 @@ class obf_coursecriterion_form extends obfform {
         $this->criterioncourse->get_options($mform);
         $this->criterioncourse->get_form_config($mform);
 
-
-        $mform->addElement('html',
-                $OUTPUT->notification(get_string('warningcannoteditafterreview',
-                                'local_obf')));
-        $mform->addElement('advcheckbox', 'reviewaftersave',
-                get_string('reviewcriterionaftersave', 'local_obf'));
-        $mform->addHelpButton('reviewaftersave', 'reviewcriterionaftersave',
-                'local_obf');
+        $this->criterioncourse->get_form_after_save_options($mform, $this);
 
 //        $this->add_action_buttons(false);
         $buttonarray = array();

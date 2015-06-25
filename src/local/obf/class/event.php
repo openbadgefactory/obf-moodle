@@ -14,20 +14,45 @@ class obf_issue_event {
      * @param moodle_database $db The db instance.
      * @return \self|null Returns this object on success, null otherwise.
      */
-    public function __construct($eventid, moodle_database $db) {
-        $record = $db->get_record('obf_issue_events',
-                array('event_id' => $eventid));
+    public function __construct($eventid = null, moodle_database $db = null) {
+        if (!is_null($eventid) && !is_null($db)) {
+            $record = $db->get_record('obf_issue_events',
+                    array('event_id' => $eventid));
 
+            if ($record !== false) {
+                $this->set_id($record->id)
+                        ->set_eventid($record->event_id)
+                        ->set_criterionid($record->obf_criterion_id)
+                        ->set_userid($record->user_id);
+            } else {
+                $this->set_eventid($eventid);
+            }
+        }
+    }
+
+    public function populate_from_record($record) {
         if ($record !== false) {
             $this->set_id($record->id)
                     ->set_eventid($record->event_id)
                     ->set_criterionid($record->obf_criterion_id)
                     ->set_userid($record->user_id);
-        } else {
-            $this->set_eventid($eventid);
         }
+        return $this;
+    }
 
-        return null;
+    public static function get_events_in_course($courseid, moodle_database $db) {
+        $ret = array();
+        $sql = 'SELECT evt.* FROM {obf_issue_events} AS evt ' .
+        'LEFT JOIN {obf_criterion_courses} AS cc ' .
+        'ON (evt.obf_criterion_id=cc.obf_criterion_id) ' .
+        'WHERE cc.courseid = (?) AND evt.obf_criterion_id IS NOT NULL';
+        $params = array($courseid);
+        $records = $db->get_records_sql($sql,$params);
+        foreach ($records as $record) {
+            $obj = new self();
+            $ret[] = $obj->populate_from_record($record);
+        }
+        return $ret;
     }
 
     /**
@@ -59,7 +84,7 @@ class obf_issue_event {
     }
 
     public function get_eventid() {
-        return $this->event_id;
+        return $this->eventid;
     }
 
     public function set_eventid($eventid) {

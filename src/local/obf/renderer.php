@@ -764,9 +764,23 @@ class local_obf_renderer extends plugin_renderer_base {
      */
     public function print_badge_info_history(obf_client $client,
                                              obf_badge $badge = null,
-                                             context $context, $currentpage = 0) {
+                                             context $context, $currentpage = 0,
+                                             $eventfilter = null) {
         $singlebadgehistory = !is_null($badge);
         $history = $singlebadgehistory ? $badge->get_assertions() : obf_assertion::get_assertions($client);
+        if (!is_null($eventfilter)) {
+            $eventidfilter = array();
+            foreach ($eventfilter as $event) {
+                $eventidfilter[] = $event->get_eventid();
+            }
+            $newhistory = new obf_assertion_collection();
+            foreach ($history as $assertion) {
+                if (in_array($assertion->get_id(),$eventidfilter)) {
+                    $newhistory->add_assertion($assertion);
+                }
+            }
+            $history = $newhistory;
+        }
         $historytable = new html_table();
         $historytable->attributes = array('class' => 'generaltable historytable');
         $html = $this->print_heading('history', 2);
@@ -1045,7 +1059,8 @@ class local_obf_renderer extends plugin_renderer_base {
         else {
             $table = new html_table();
             $userpicparams = array('size' => 16, 'courseid' => $courseid);
-            $userswithbackpack = obf_backpack::get_user_ids_with_backpack();
+            $provider = obf_backpack::BACKPACK_PROVIDER_MOZILLA;
+            $userswithbackpack = obf_backpack::get_user_ids_with_backpack($provider);
 
             $table->id = 'obf-participants';
 
@@ -1093,7 +1108,7 @@ class local_obf_renderer extends plugin_renderer_base {
             }
 
             $html .= html_writer::table($table);
-            $url = new moodle_url('/local/obf/backpack.php');
+            $url = new moodle_url('/local/obf/backpack.php', array('provider' => $provider));
             $params = $this->get_displayer_params();
             $params['url'] = $url->out();
 

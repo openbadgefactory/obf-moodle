@@ -72,8 +72,10 @@ $string['coursealreadyincriterion'] = 'The rule of automatic awarding of this ba
         . 'rule containing multiple courses.';
 $string['coursebadgelisttitle'] = 'Badges related to this course';
 $string['coursecompletedby'] = 'Completed by';
+$string['courseeventhistory'] = 'Course history';
 $string['courserequired'] = 'At least one course has to be selected';
 $string['courseuserbadges'] = 'Participants badges';
+$string['courseobfbadges'] = 'Badges';
 $string['criteriaaddcourse'] = 'Add course';
 $string['criteriacompletedwhen'] = 'This rule is met when...';
 $string['criteriacompletedwhenall'] = 'All of the following courses have to be completed:';

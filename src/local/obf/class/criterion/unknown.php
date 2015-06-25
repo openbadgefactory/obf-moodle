@@ -76,6 +76,9 @@ class obf_criterion_unknown extends obf_criterion_item {
         $html = html_writer::tag('strong', $this->get_name());
         return $html;
     }
+    public function is_reviewable() {
+        return false;
+    }
     public function populate_from_record($record) {
         if (isset($record->id)) {
             $this->set_id($record->id)
