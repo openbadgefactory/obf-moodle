@@ -46,12 +46,14 @@ switch ($action) {
     case 'update':
         // Disconnect-button was pressed
         if ($form->is_cancelled()) {
+            $submitteddata = $form->get_submitted_data();
             foreach ($backpacks as $backpack) {
-                if ($backpack->exists()) {
-                    $backpack->disconnect();
+                if (property_exists($submitteddata,'cancelbackpack' . $backpack->get_providershortname())) {
+                    if ($backpack->exists()) {
+                        $backpack->disconnect();
+                    }
                 }
             }
-
             redirect($url);
         }
 
