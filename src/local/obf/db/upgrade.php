@@ -503,6 +503,30 @@ function xmldb_local_obf_upgrade($oldversion) {
         // Obf savepoint reached.
         upgrade_plugin_savepoint(true, 2015062300, 'local', 'obf');
     }
+    if ($oldversion < 2015062501) {
+        $oldtables = array('obf_criterion_courses', 'obf_criterion',
+                'obf_email_templates', 'obf_criterion_met', 'obf_backpack_emails',
+                'obf_criterion_params', 'obf_user_preferences',
+                'obf_user_badge_blacklist', 'obf_issue_events');
+        foreach ($oldtables as $oldtable) {
+            // Define table obf_criterion_courses to be renamed to NEWNAMEGOESHERE.
+            $table = new xmldb_table($oldtable);
+
+            // Launch rename table for obf_criterion_courses.
+
+            if ($oldtable == 'obf_user_badge_blacklist') {
+                $newtablename = 'local_obf_badge_blacklists';
+            } else {
+                $newtablename = 'local_'.$oldtable;
+            }
+            if ($dbman->table_exists($table)) {
+                $dbman->rename_table($table, $newtablename);
+            }
+        }
+
+        // Obf savepoint reached.
+        upgrade_plugin_savepoint(true, 2015062501, 'local', 'obf');
+  }
 
 
 

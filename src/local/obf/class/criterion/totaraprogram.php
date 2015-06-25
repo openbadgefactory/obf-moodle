@@ -27,7 +27,7 @@ class obf_criterion_totaraprogram extends obf_criterion_course {
     public static function get_instance($id, $method = null) {
         global $DB;
 
-        $record = $DB->get_record('obf_criterion_courses', array('id' => $id));
+        $record = $DB->get_record('local_obf_criterion_courses', array('id' => $id));
         $obj = new self();
         if ($record) {
             return $obj->populate_from_record($record);

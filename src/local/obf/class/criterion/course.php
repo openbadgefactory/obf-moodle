@@ -36,7 +36,7 @@ class obf_criterion_course extends obf_criterion_item {
     public static function get_instance($id, $method = null) {
         global $DB;
 
-        $record = $DB->get_record('obf_criterion_courses', array('id' => $id));
+        $record = $DB->get_record('local_obf_criterion_courses', array('id' => $id));
         $obj = new self();
 
         return $obj->populate_from_record($record);
@@ -52,7 +52,7 @@ class obf_criterion_course extends obf_criterion_item {
     public static function get_criterion_courses(obf_criterion $criterion) {
         global $DB;
 
-        $records = $DB->get_records('obf_criterion_courses',
+        $records = $DB->get_records('local_obf_criterion_courses',
                 array('obf_criterion_id' => $criterion->get_id()));
         $ret = array();
 
@@ -114,12 +114,12 @@ class obf_criterion_course extends obf_criterion_item {
         // Updating existing record
         if ($this->id > 0) {
             $obj->id = $this->id;
-            $DB->update_record('obf_criterion_courses', $obj);
+            $DB->update_record('local_obf_criterion_courses', $obj);
         }
 
         // Inserting a new record
         else {
-            $id = $DB->insert_record('obf_criterion_courses', $obj);
+            $id = $DB->insert_record('local_obf_criterion_courses', $obj);
 
             if (!$id) {
                 return false;
@@ -206,7 +206,7 @@ class obf_criterion_course extends obf_criterion_item {
     public function delete() {
         global $DB;
 
-        $DB->delete_records('obf_criterion_courses', array('id' => $this->id));
+        $DB->delete_records('local_obf_criterion_courses', array('id' => $this->id));
         obf_criterion::delete_empty($DB);
     }
 
@@ -221,7 +221,7 @@ class obf_criterion_course extends obf_criterion_item {
     public static function delete_by_course(stdClass $course,
             moodle_database $db) {
         // First delete criterion courses
-        $db->delete_records('obf_criterion_courses',
+        $db->delete_records('local_obf_criterion_courses',
                 array('courseid' => $course->id));
 
         // Then delete "empty" criteria (= criteria that don't have any related courses
@@ -277,7 +277,7 @@ class obf_criterion_course extends obf_criterion_item {
         if (!$this->exists()) {
             return $params;
         }
-        $records = $DB->get_records('obf_criterion_params', array('obf_criterion_id' => $this->get_criterionid()));
+        $records = $DB->get_records('local_obf_criterion_params', array('obf_criterion_id' => $this->get_criterionid()));
         foreach ($records as $record) {
             $arr = explode('_', $record->name);
             $params[$arr[1]][$arr[0]] = $record->value;
@@ -301,7 +301,7 @@ class obf_criterion_course extends obf_criterion_item {
         $regex = implode('|', array_map(function($a) { return $a .'_';}, $match));
         $requiredkeys = preg_grep('/^('.$regex.').*$/', array_keys($params));
 
-        $paramtable = 'obf_criterion_params';
+        $paramtable = 'local_obf_criterion_params';
 
 
         $existing = $DB->get_fieldset_select($paramtable, 'name', 'obf_criterion_id = ?', array($this->get_criterionid()));

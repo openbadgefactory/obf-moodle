@@ -94,7 +94,7 @@ abstract class obf_criterion_item {
     public static function get_instance($instanceid, $method = null) {
         if (is_null($method)) {
             global $DB;
-            $record = $DB->get_record('obf_criterion_courses', array('id' => $instanceid));
+            $record = $DB->get_record('local_obf_criterion_courses', array('id' => $instanceid));
             $method = !empty($record) ? $record->criteria_type : 0;
         }
         $type = self::get_criterion_type_text($method);
@@ -112,7 +112,7 @@ abstract class obf_criterion_item {
     public static function get_criterion_items(obf_criterion $criterion) {
         global $DB;
 
-        $records = $DB->get_records('obf_criterion_courses',
+        $records = $DB->get_records('local_obf_criterion_courses',
                 array('obf_criterion_id' => $criterion->get_id()));
         $ret = array();
 

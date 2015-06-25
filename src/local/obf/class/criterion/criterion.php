@@ -69,7 +69,7 @@ class obf_criterion {
      */
     public static function get_instance($id) {
         global $DB;
-        $record = $DB->get_record('obf_criterion', array('id' => $id));
+        $record = $DB->get_record('local_obf_criterion', array('id' => $id));
 
         if (!$record) {
             return false;
@@ -96,7 +96,7 @@ class obf_criterion {
         $obj->badge_id = $this->get_badgeid();
         $obj->completion_method = $this->completion_method;
 
-        $DB->update_record('obf_criterion', $obj);
+        $DB->update_record('local_obf_criterion', $obj);
     }
 
     /**
@@ -112,7 +112,7 @@ class obf_criterion {
         $obj->badge_id = $this->get_badgeid();
         $obj->completion_method = $this->completion_method;
 
-        $id = $DB->insert_record('obf_criterion', $obj, true);
+        $id = $DB->insert_record('local_obf_criterion', $obj, true);
 
         if ($id === false) {
             return false;
@@ -141,7 +141,7 @@ class obf_criterion {
     public function is_met() {
         global $DB;
 
-        return ($DB->count_records('obf_criterion_met',
+        return ($DB->count_records('local_obf_criterion_met',
                         array('obf_criterion_id' => $this->id)) > 0);
     }
 
@@ -157,7 +157,7 @@ class obf_criterion {
         if ($this->exists()) {
             $this->delete_items();
             $this->delete_met();
-            $DB->delete_records('obf_criterion', array('id' => $this->id));
+            $DB->delete_records('local_obf_criterion', array('id' => $this->id));
             return true;
         }
 
@@ -169,12 +169,12 @@ class obf_criterion {
      * related courses.
      */
     public static function delete_empty(moodle_database $db) {
-        $subquery = 'SELECT obf_criterion_id FROM {obf_criterion_courses}';
-        $db->delete_records_select('obf_criterion',
+        $subquery = 'SELECT obf_criterion_id FROM {local_obf_criterion_courses}';
+        $db->delete_records_select('local_obf_criterion',
                 'id NOT IN (' . $subquery . ')');
-        $db->delete_records_select('obf_criterion_params',
+        $db->delete_records_select('local_obf_criterion_params',
                 'obf_criterion_id NOT IN (' . $subquery .')');
-        $db->delete_records_select('obf_criterion_met',
+        $db->delete_records_select('local_obf_criterion_met',
                 'obf_criterion_id NOT IN (' . $subquery . ')');
     }
 
@@ -187,7 +187,7 @@ class obf_criterion {
         global $DB;
 
         if ($this->exists()) {
-            $DB->delete_records('obf_criterion_met',
+            $DB->delete_records('local_obf_criterion_met',
                     array('obf_criterion_id' => $this->id));
         }
     }
@@ -199,9 +199,9 @@ class obf_criterion {
      */
     public function delete_items() {
         global $DB;
-        $DB->delete_records('obf_criterion_courses',
+        $DB->delete_records('local_obf_criterion_courses',
                 array('obf_criterion_id' => $this->id));
-        $DB->delete_records('obf_criterion_params',
+        $DB->delete_records('local_obf_criterion_params',
                 array('obf_criterion_id' => $this->id));
         $this->items = array();
     }
@@ -330,7 +330,7 @@ class obf_criterion {
      */
     public static function get_course_criterion($courseid) {
         $where = 'c.id IN (SELECT obf_criterion_id '
-                . 'FROM {obf_criterion_courses} '
+                . 'FROM {local_obf_criterion_courses} '
                 . 'WHERE courseid = ' . intval($courseid) . ')';
         return self::get_criteria($where);
     }
@@ -346,8 +346,8 @@ class obf_criterion {
         global $DB;
 
         $sql = 'SELECT cc.*, c.id AS criterionid, ' .
-                'c.badge_id, c.completion_method AS crit_completion_method FROM {obf_criterion_courses} cc ' .
-                'LEFT JOIN {obf_criterion} c ON cc.obf_criterion_id = c.id';
+                'c.badge_id, c.completion_method AS crit_completion_method FROM {local_obf_criterion_courses} cc ' .
+                'LEFT JOIN {local_obf_criterion} c ON cc.obf_criterion_id = c.id';
         $params = array();
         $cols = array();
 
@@ -395,7 +395,7 @@ class obf_criterion {
     public function is_met_by_user(stdClass $user) {
         global $DB;
 
-        return ($DB->count_records('obf_criterion_met',
+        return ($DB->count_records('local_obf_criterion_met',
                         array('obf_criterion_id' => $this->id,
                     'user_id' => $user->id)) > 0);
     }
@@ -414,7 +414,7 @@ class obf_criterion {
         $obj->user_id = $userid;
         $obj->met_at = time();
 
-        $DB->insert_record('obf_criterion_met', $obj, true);
+        $DB->insert_record('local_obf_criterion_met', $obj, true);
     }
 
     /**
@@ -716,7 +716,7 @@ class obf_criterion {
         $ret = array();
         $okbadges = array();
         $failbadges = array();
-        $records = $DB->get_records('obf_criterion');
+        $records = $DB->get_records('local_obf_criterion');
         foreach ($records as $record) {
             $obj = new self();
             $obj->set_id($record->id);

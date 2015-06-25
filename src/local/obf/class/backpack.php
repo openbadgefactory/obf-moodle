@@ -64,7 +64,7 @@ class obf_backpack {
     protected static function get_instance_by_fields(array $fields, $provider = self::BACKPACK_PROVIDER_MOZILLA) {
         global $DB;
         $fields = array_merge($fields, array('backpack_provider' => $provider));
-        $backpackobj = $DB->get_record('obf_backpack_emails', $fields, '*',
+        $backpackobj = $DB->get_record('local_obf_backpack_emails', $fields, '*',
                 IGNORE_MULTIPLE);
 
         if ($backpackobj === false) {
@@ -109,7 +109,7 @@ class obf_backpack {
     public static function get_emails_by_userids(array $userids) {
         global $DB;
 
-        $records = $DB->get_records_list('obf_backpack_emails', 'user_id',
+        $records = $DB->get_records_list('local_obf_backpack_emails', 'user_id',
                 $userids, '', 'id,user_id,email');
 
         $ret = array();
@@ -131,10 +131,10 @@ class obf_backpack {
 
         $ret = array();
         if (is_null($provider)) {
-            $records = $DB->get_records_select('obf_backpack_emails',
+            $records = $DB->get_records_select('local_obf_backpack_emails',
                     'backpack_id > 0');
         } else {
-            $records = $DB->get_records_sql('SELECT * FROM {obf_backpack_emails} ' .
+            $records = $DB->get_records_sql('SELECT * FROM {local_obf_backpack_emails} ' .
                     'WHERE backpack_id > 0 AND backpack_provider = :provider', array('provider' => $provider));
         }
 
@@ -339,10 +339,10 @@ class obf_backpack {
 
         if ($this->id > 0) {
             $obj->id = $this->id;
-            $DB->update_record('obf_backpack_emails', $obj);
+            $DB->update_record('local_obf_backpack_emails', $obj);
         }
         else {
-            $id = $DB->insert_record('obf_backpack_emails', $obj);
+            $id = $DB->insert_record('local_obf_backpack_emails', $obj);
             $this->set_id($id);
         }
     }
@@ -351,7 +351,7 @@ class obf_backpack {
         global $DB;
 
         if ($this->id > 0) {
-            $DB->delete_records('obf_backpack_emails', array('id' => $this->id));
+            $DB->delete_records('local_obf_backpack_emails', array('id' => $this->id));
         }
     }
 

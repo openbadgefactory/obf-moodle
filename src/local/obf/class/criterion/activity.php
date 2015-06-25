@@ -33,7 +33,7 @@ class obf_criterion_activity extends obf_criterion_course {
     public static function get_instance($id, $method = null) {
         global $DB;
 
-        $record = $DB->get_record('obf_criterion_courses', array('id' => $id));
+        $record = $DB->get_record('local_obf_criterion_courses', array('id' => $id));
         $obj = new self();
 
         return $obj->populate_from_record($record);
@@ -74,12 +74,12 @@ class obf_criterion_activity extends obf_criterion_course {
         // Updating existing record
         if ($this->id > 0) {
             $obj->id = $this->id;
-            $DB->update_record('obf_criterion_courses', $obj);
+            $DB->update_record('local_obf_criterion_courses', $obj);
         }
 
         // Inserting a new record
         else {
-            $id = $DB->insert_record('obf_criterion_courses', $obj);
+            $id = $DB->insert_record('local_obf_criterion_courses', $obj);
 
             if (!$id) {
                 return false;

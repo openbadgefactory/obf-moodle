@@ -16,7 +16,7 @@ class obf_issue_event {
      */
     public function __construct($eventid = null, moodle_database $db = null) {
         if (!is_null($eventid) && !is_null($db)) {
-            $record = $db->get_record('obf_issue_events',
+            $record = $db->get_record('local_obf_issue_events',
                     array('event_id' => $eventid));
 
             if ($record !== false) {
@@ -42,8 +42,8 @@ class obf_issue_event {
 
     public static function get_events_in_course($courseid, moodle_database $db) {
         $ret = array();
-        $sql = 'SELECT evt.* FROM {obf_issue_events} AS evt ' .
-        'LEFT JOIN {obf_criterion_courses} AS cc ' .
+        $sql = 'SELECT evt.* FROM {local_obf_issue_events} AS evt ' .
+        'LEFT JOIN {local_obf_criterion_courses} AS cc ' .
         'ON (evt.obf_criterion_id=cc.obf_criterion_id) ' .
         'WHERE cc.courseid = (?) AND evt.obf_criterion_id IS NOT NULL';
         $params = array($courseid);
@@ -68,9 +68,9 @@ class obf_issue_event {
 
         if ($this->id > 0) {
             $obj->id = $this->id;
-            $db->update_record('obf_issue_events', $obj);
+            $db->update_record('local_obf_issue_events', $obj);
         } else {
-            $db->insert_record('obf_issue_events', $obj);
+            $db->insert_record('local_obf_issue_events', $obj);
         }
     }
 

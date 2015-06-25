@@ -10,13 +10,13 @@ class obf_email {
 
     /**
      * Returns the email instance related to a badge.
-     * 
+     *
      * @param obf_badge $badge The related badge.
      * @param moodle_database $db The db instance.
      * @return \self|null Returns this object on success, null otherwise.
      */
     public static function get_by_badge(obf_badge $badge, moodle_database $db) {
-        $record = $db->get_record('obf_email_templates',
+        $record = $db->get_record('local_obf_email_templates',
                 array('badge_id' => $badge->get_id()));
 
         if ($record !== false) {
@@ -31,10 +31,10 @@ class obf_email {
 
         return null;
     }
-    
+
     /**
      * Saves this email instance.
-     * 
+     *
      * @param moodle_database $db
      */
     public function save(moodle_database $db) {
@@ -43,12 +43,12 @@ class obf_email {
         $obj->body = $this->body;
         $obj->footer = $this->footer;
         $obj->badge_id = $this->badge_id;
-        
+
         if ($this->id > 0) {
             $obj->id = $this->id;
-            $db->update_record('obf_email_templates', $obj);
+            $db->update_record('local_obf_email_templates', $obj);
         } else {
-            $db->insert_record('obf_email_templates', $obj);
+            $db->insert_record('local_obf_email_templates', $obj);
         }
     }
 

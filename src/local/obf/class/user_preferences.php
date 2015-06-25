@@ -15,7 +15,7 @@ class obf_user_preferences {
 
     public static function get_user_preference($userid, $preference) {
         global $DB;
-        $record = $DB->get_record('obf_user_preferences', array('user_id' => $userid,
+        $record = $DB->get_record('local_obf_user_preferences', array('user_id' => $userid,
                 'name' => $preference));
         if ($record) {
             return $record->value;
@@ -50,7 +50,7 @@ class obf_user_preferences {
             $this->preferences = array();
             return $this->preferences;
         }
-        $records = $DB->get_records('obf_user_preferences', array('user_id' => $this->userid));
+        $records = $DB->get_records('local_obf_user_preferences', array('user_id' => $this->userid));
         if ($records) {
             $this->indb = true;
             foreach ($records as $record) {
@@ -89,7 +89,7 @@ class obf_user_preferences {
         $regex = implode('|', array_map(function($a) { return $a;}, $match));
         $requiredkeys = preg_grep('/^('.$regex.')$/', array_keys($preferences));
 
-        $preftable = 'obf_user_preferences';
+        $preftable = 'local_obf_user_preferences';
 
         $existing = $DB->get_fieldset_select($preftable, 'name', 'user_id = ?', array($this->userid));
         $todelete = array_diff($existing, $requiredkeys);

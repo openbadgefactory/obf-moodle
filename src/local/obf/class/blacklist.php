@@ -28,7 +28,7 @@ class obf_blacklist {
             $this->blacklistedbadges = array();
             return $this->blacklistedbadges;
         }
-        $records = $DB->get_records('obf_user_badge_blacklist', array('user_id' => $this->userid));
+        $records = $DB->get_records('local_obf_badge_blacklists', array('user_id' => $this->userid));
         if ($records) {
             $this->indb = true;
             foreach ($records as $record) {
@@ -66,7 +66,7 @@ class obf_blacklist {
         // Filter out empty params
         $requiredkeys = array_values($newblacklist);
 
-        $preftable = 'obf_user_badge_blacklist';
+        $preftable = 'local_obf_badge_blacklists';
 
         $existing = $DB->get_fieldset_select($preftable, 'badge_id', 'user_id = ?', array($this->userid));
         $todelete = array_diff($existing, $requiredkeys);
