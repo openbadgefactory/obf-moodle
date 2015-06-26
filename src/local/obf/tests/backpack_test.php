@@ -28,6 +28,9 @@ class local_obf_backpack_testcase extends advanced_testcase {
         $stub->connect($email);
         $this->assertTrue($stub->is_connected());
 
+        $userids = obf_backpack::get_user_ids_with_backpack();
+        $this->assertCount(1, $userids);
+
         $stub->disconnect();
         $this->assertFalse(obf_backpack::get_instance_by_backpack_email($email));
     }
