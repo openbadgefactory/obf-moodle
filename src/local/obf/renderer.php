@@ -166,9 +166,11 @@ class local_obf_renderer extends plugin_renderer_base {
                             $attributes);
         }
 
-        $html .= html_writer::tag('ul', $items, array('class' => 'badgelist'));
+        $ulid = uniqid('badgelist');
+        $html .= html_writer::tag('ul', $items, array('class' => 'badgelist', 'id' => $ulid));
         $params = $this->get_displayer_params();
         $params['assertions'] = $js_assertions;
+        $params['elementid'] = $ulid;
 
         $this->page->requires->yui_module('moodle-local_obf-courseuserbadgedisplayer',
                 'M.local_obf.init_badgedisplayer', array($params));

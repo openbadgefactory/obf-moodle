@@ -25,6 +25,8 @@ YUI.add('moodle-local_obf-courseuserbadgedisplayer', function(Y) {
          * If true, we're dealing only with a single list of badges (one user, one backpack).
          */
         init_list_only: false,
+
+        elementid: null,
         /**
          * Module initializer
          *
@@ -34,6 +36,7 @@ YUI.add('moodle-local_obf-courseuserbadgedisplayer', function(Y) {
             this.config = config;
             this.assertions = config.assertions || {};
             this.init_list_only = config.init_list_only || false;
+            this.elementid = config.elementid || null;
 
             // compile templates
             this.templates.assertion = this.compile_template(unescape(this.config.tpl.assertion));
@@ -50,7 +53,7 @@ YUI.add('moodle-local_obf-courseuserbadgedisplayer', function(Y) {
         },
         /**
          * Initializes the panel that displays the badges.
-         * 
+         *
          * @returns {undefined}
          */
         init_panel: function() {
@@ -60,7 +63,7 @@ YUI.add('moodle-local_obf-courseuserbadgedisplayer', function(Y) {
                 centered: true,
                 modal: true,
                 visible: false,
-                width: 800,
+                width: Y.one('body').get('winWidth') >= 800 ? 800 : (Y.one('body').get('winWidth') * 0.9),
                 render: true,
                 zIndex: 10,
                 buttons: [
@@ -77,16 +80,21 @@ YUI.add('moodle-local_obf-courseuserbadgedisplayer', function(Y) {
         },
         /**
          * Adds click observers for a single list of badges.
-         * 
+         *
          * @returns {undefined}
          */
         process_single: function() {
             this.init_panel();
-            Y.one('ul.badgelist').delegate('click', this.display_badge, 'li', this);
+            if (this.elementid != null) {
+                Y.one('ul#' + this.elementid + '.badgelist').delegate('click', this.display_badge, 'li', this);
+            } else {
+                Y.one('ul.badgelist').delegate('click', this.display_badge, 'li', this);
+            }
+
         },
         /**
          * Adds click observers for a whole table of badges.
-         * 
+         *
          * @returns {undefined}
          */
         process: function() {
@@ -113,7 +121,7 @@ YUI.add('moodle-local_obf-courseuserbadgedisplayer', function(Y) {
         },
         /**
          * Displays the information of a single badge.
-         * 
+         *
          * @param {type} e
          * @returns {undefined}
          */
@@ -129,7 +137,7 @@ YUI.add('moodle-local_obf-courseuserbadgedisplayer', function(Y) {
         },
         /**
          * Shows or hides a row of badges.
-         * 
+         *
          * @param {type} row
          * @returns {undefined}
          */
@@ -168,7 +176,7 @@ YUI.add('moodle-local_obf-courseuserbadgedisplayer', function(Y) {
         /**
          * Gets the badges of a user and calls this.show_badges to display
          * them.
-         * 
+         *
          * @param {type} userid
          * @param {type} cell
          * @param {type} callback
@@ -181,10 +189,10 @@ YUI.add('moodle-local_obf-courseuserbadgedisplayer', function(Y) {
                 arguments: {cell: cell, callback: callback, userid: userid}
             });
         },
-        
+
         /**
          * Displays the badges of a single user.
-         * 
+         *
          * @param {type} transactionid
          * @param {type} xhr
          * @param {type} args
@@ -204,7 +212,7 @@ YUI.add('moodle-local_obf-courseuserbadgedisplayer', function(Y) {
             cell.setContent(this.templates.list({content: html}));
             args.callback();
         },
-        
+
         /**
          * Copied from YUI 3.8.0 templates to work with Moodle 2.2
          */
