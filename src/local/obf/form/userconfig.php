@@ -5,7 +5,7 @@ defined('MOODLE_INTERNAL') or die();
 require_once(__DIR__ . '/obfform.php');
 require_once(__DIR__ . '/../renderer.php');
 
-class obf_userconfig_form extends obfform {
+class obf_userconfig_form extends local_obf_form_base {
 
     protected function definition() {
         global $OUTPUT;
@@ -26,11 +26,6 @@ class obf_userconfig_form extends obfform {
         }
 
 
-        // TODO: TEST
-        /* $mform->addElement('button', 'backpack_submitbutton',
-                get_string('connect', 'local_obf', 'Backpack'), array('class' => 'verifyobpemail', 'data-provider' => 1));
-                */
-
         $buttonarray = array();
 
 
@@ -39,7 +34,6 @@ class obf_userconfig_form extends obfform {
 
 
         $mform->addGroup($buttonarray, 'buttonar', '', array(' '), false);
-        //$this->add_action_buttons();
         $mform->closeHeaderBefore('buttonar');
     }
     private function render_backpack_settings(&$mform, obf_backpack $backpack) {
@@ -115,7 +109,7 @@ class obf_userconfig_form extends obfform {
 
         for ($i = 0; $i < count($assertions); $i++) {
             $badge = $assertions->get_assertion($i)->get_badge();
-            $items[] = obf_html::div($renderer->print_badge_image($badge, $size) .
+            $items[] = local_obf_html::div($renderer->print_badge_image($badge, $size) .
                             html_writer::tag('p', s($badge->get_name())));
         }
 

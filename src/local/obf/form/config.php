@@ -3,7 +3,7 @@ defined('MOODLE_INTERNAL') or die();
 
 require_once(__DIR__ . '/obfform.php');
 
-class obf_config_form extends obfform implements renderable {
+class obf_config_form extends local_obf_form_base implements renderable {
 
     /**
      * @global moodle_core_renderer $OUTPUT

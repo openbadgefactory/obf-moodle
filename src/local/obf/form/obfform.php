@@ -7,9 +7,11 @@ require_once($CFG->libdir . '/formslib.php');
 /**
  * This class is just to add support for older versions of Moodle.
  */
-abstract class obfform extends moodleform {
+abstract class local_obf_form_base extends moodleform {
 
     public function render() {
+        $oldclasses = $this->_form->getAttribute('class');
+        $this->_form->updateAttributes(array('class' => $oldclasses.' local-obf'));
         ob_start();
         $this->display();
         $out = ob_get_contents();

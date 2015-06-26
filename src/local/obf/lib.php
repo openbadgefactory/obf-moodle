@@ -8,6 +8,7 @@ defined('MOODLE_INTERNAL') || die();
 define('OBF_DEFAULT_ADDRESS', 'https://openbadgefactory.com/');
 
 
+
 /**
  * OBF_API_URL - The URL of Open Badge Factory API.
  */
@@ -279,7 +280,7 @@ function local_obf_myprofile_navigation(\core_user\output\myprofile\tree $tree, 
             $title = get_string('profilebadgelist', 'local_obf');
             $renderer = $PAGE->get_renderer('local_obf');
             $content = $renderer->render_user_assertions($assertions);
-            $localnode = $mybadges = new core_user\output\myprofile\node('badges', 'obfbadges', $title, null, null, $content);
+            $localnode = $mybadges = new core_user\output\myprofile\node('badges', 'obfbadges', $title, null, null, $content, null, 'local-obf');
             $tree->add_node($localnode);
         }
 
@@ -290,7 +291,7 @@ function local_obf_myprofile_navigation(\core_user\output\myprofile\tree $tree, 
                 $title = get_string('profilebadgelist' . $name, 'local_obf');
                 $renderer = $PAGE->get_renderer('local_obf');
                 $content = $renderer->render_user_assertions($bpassertions);
-                $localnode = $mybadges = new core_user\output\myprofile\node('badges', 'obfbadges'.$name, $title, null, null, $content);
+                $localnode = $mybadges = new core_user\output\myprofile\node('badges', 'obfbadges'.$name, $title, null, null, $content, null, 'local-obf');
                 $tree->add_node($localnode);
             }
         }

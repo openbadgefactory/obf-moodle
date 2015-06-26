@@ -15,7 +15,7 @@ else {
 require_once(__DIR__ . '/obfform.php');
 require_once($CFG->libdir . '/completionlib.php');
 
-class obf_criterion_form extends obfform implements renderable {
+class obf_criterion_form extends local_obf_form_base implements renderable {
 
     /**
      * @var obf_criterion

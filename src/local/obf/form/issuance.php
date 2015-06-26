@@ -8,7 +8,7 @@ require_once(__DIR__ . '/obfform.php');
 require_once($CFG->dirroot . '/user/selector/lib.php');
 require_once 'HTML/QuickForm/element.php';
 
-class obf_issuance_form extends obfform {
+class obf_issuance_form extends local_obf_form_base {
 
     /**
      * @var obf_badge

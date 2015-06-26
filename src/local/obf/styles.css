@@ -1,24 +1,24 @@
 /**
  * Badge list
  */
-ul.badgelist    { list-style: none; margin: 0; overflow: hidden; padding: 10px; }
+.local-obf ul.badgelist    { list-style: none; margin: 0; overflow: hidden; padding: 10px; }
 #obf-assertion-panel .yui3-widget-hd,
-ul.badgelist li { background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0, #eeeeee), color-stop(1, #cccccc));
+.local-obf ul.badgelist li { background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0, #eeeeee), color-stop(1, #cccccc));
                   background-image: -o-linear-gradient(bottom, #eee 0%, #ccc 100%);
                   background-image: -moz-linear-gradient(bottom, #eee 0%, #ccc 100%);
                   background-image: -webkit-linear-gradient(bottom, #eee 0%, #ccc 100%);
                   background-image: -ms-linear-gradient(bottom, #eee 0%, #ccc 100%);
                   background-image: linear-gradient(to bottom, #eee 0%, #ccc 100%);
 }
-ul.badgelist li { border-radius: 8px; text-align: center; float: left; margin: 0 15px 15px 0; width: 120px; border: solid #ccc 1px; box-shadow: 0 0 10px -2px #888; }
-ul.badgelist li:hover   { border-color: #aaa; }
-ul.badgelist li p       { background: #fff; margin: 0; padding: 5px 10px; border-radius: 0 0 8px 8px; width: 100px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
-ul.badgelist li img     { max-height: 90px; margin: 15px 0; }
-ul.badgelist li a       { color: inherit; text-decoration: none; display: block; }
-ul.badgelist li.expired-assertion { opacity: 0.4; filter: alpha(opacity=40); }
-ul.badgelist li .expired-info { position: absolute; height: inherit; text-align: center; width: inherit; margin-top: 48px; font-weight: bold; vertical-align: middle; transform: rotate(15deg); font-size: 1.2em; overflow: hidden; }
+.local-obf ul.badgelist li { border-radius: 8px; text-align: center; float: left; margin: 0 15px 15px 0; width: 120px; border: solid #ccc 1px; box-shadow: 0 0 10px -2px #888; }
+.local-obf ul.badgelist li:hover   { border-color: #aaa; }
+.local-obf ul.badgelist li p       { background: #fff; margin: 0; padding: 5px 10px; border-radius: 0 0 8px 8px; width: 100px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.local-obf ul.badgelist li img     { max-height: 90px; margin: 15px 0; }
+.local-obf ul.badgelist li a       { color: inherit; text-decoration: none; display: block; }
+.local-obf ul.badgelist li.expired-assertion { opacity: 0.4; filter: alpha(opacity=40); }
+.local-obf ul.badgelist li .expired-info { position: absolute; height: inherit; text-align: center; width: inherit; margin-top: 48px; font-weight: bold; vertical-align: middle; transform: rotate(15deg); font-size: 1.2em; overflow: hidden; }
 
-#page-user-profile .node_category ul.badgelist li  { display: inline-block; }
+#page-user-profile .node_category .local-obf ul.badgelist li  { display: inline-block; }
 
 /**
  * Backpack config
@@ -43,9 +43,9 @@ dl.obf-definition-list dd   { clear: right; margin-left: 120px; padding-bottom: 
 /**
  * Heading in badge-page
  */
-.badgeheading               { overflow: hidden; padding-bottom: 10px; }
-.badgeheading h2            { float: left; margin-right: 15px; }
-.badgeheading .singlebutton { margin-top: 15px; }
+.path-local-obf .badgeheading               { overflow: hidden; padding-bottom: 10px; }
+.path-local-obf .badgeheading h2            { float: left; margin-right: 15px; }
+.path-local-obf .badgeheading .singlebutton { margin-top: 15px; }
 
 /**
  * Badge details
@@ -57,10 +57,10 @@ img.obf-icon        { padding: 0 0 0 5px; }
 .obf-badgeteaser    { overflow: hidden; }
 table.obf-table th  { width: 120px; }
 
-.yui3-tab-panel             { display: none; }
-.yui3-tab-panel-selected    { display: block; }
-.ftext input,
-.felement textarea          { width: 90%; }
+.path-local-obf .yui3-tab-panel             { display: none; }
+.path-local-obf .yui3-tab-panel-selected    { display: block; }
+.path-local-obf .ftext input,
+.path-local-obf .felement textarea          { width: 90%; }
 
 /**
  * Assertion details

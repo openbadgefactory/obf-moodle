@@ -5,7 +5,7 @@ defined('MOODLE_INTERNAL') or die();
 require_once(__DIR__ . '/obfform.php');
 require_once(__DIR__ . '/../renderer.php');
 
-class obf_revoke_form extends obfform {
+class obf_revoke_form extends local_obf_form_base {
     protected function definition() {
         global $OUTPUT;
 
@@ -29,14 +29,7 @@ class obf_revoke_form extends obfform {
         $this->add_checkbox_controller(1, null, null, null);
 
         $mform->addElement('submit', 'submitbutton',
-                get_string('revoke', 'local_obf'));
-
-
-
-        //$mform->addGroup($buttonarray, 'buttonar', '', array(' '), false);
-        //$mform->closeHeaderBefore('buttonar');
-
-        //$this->add_action_buttons();
-        //$mform->closeHeaderBefore('buttonar');
+                get_string('revoke', 'local_obf'),
+                array('class' => 'revokebutton'));
     }
 }

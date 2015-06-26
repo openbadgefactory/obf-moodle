@@ -110,4 +110,9 @@ class block_obf_displayer extends block_base {
         }
         return $assertions;
     }
+    public function html_attributes() {
+        $attributes = parent::html_attributes();
+        $attributes['class'] .= ' local-obf';
+        return $attributes;
+    }
 }

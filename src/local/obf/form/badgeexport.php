@@ -4,7 +4,7 @@ defined('MOODLE_INTERNAL') or die();
 
 require_once($CFG->libdir . '/formslib.php');
 
-class obf_badge_export_form extends moodleform {
+class obf_badge_export_form extends local_obf_form_base {
 
     protected function definition() {
         $mform = $this->_form;

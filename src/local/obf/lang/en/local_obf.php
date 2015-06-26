@@ -63,6 +63,7 @@ $string['closepopup'] = 'Close';
 $string['completedbycriterion'] = 'by <strong>{$a}</strong>';
 $string['configurecriteria'] = 'Configure';
 $string['confirmcriteriondeletion'] = 'Are you sure you want to delete this awarding rule?';
+$string['confirmrevokation'] = 'Are you sure you want to revoke the users badge?';
 $string['connect'] = 'Connect {$a}';
 $string['connectionisworking'] = 'OBF connection is up and working. The client '
         . 'certificate expires in <strong>{$a}</strong>.';

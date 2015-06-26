@@ -4,7 +4,7 @@ defined('MOODLE_INTERNAL') or die();
 
 require_once(__DIR__ . '/obfform.php');
 
-class obf_criterion_deletion_form extends obfform implements renderable {
+class obf_criterion_deletion_form extends local_obf_form_base implements renderable {
     protected function definition() {
         $mform = $this->_form;
 

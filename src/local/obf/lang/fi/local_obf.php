@@ -66,6 +66,7 @@ $string['closepopup'] = 'Sulje';
 $string['completedbycriterion'] = '<strong>{$a}</strong> mennessä';
 $string['configurecriteria'] = 'Muokkaa';
 $string['confirmcriteriondeletion'] = 'Haluatko varmasti poistaa tämän säännön?';
+$string['confirmrevokation'] = 'Haluatko varmasti mitätöidä käyttäjien osaamismerkin?';
 $string['connect'] = 'Yhdistä {$a}';
 $string['connectionisworking'] = 'Yhteys Open Badge Factoryyn muodostettu. Sertifikaatti '
         . 'vanhentuu <strong>{$a}</strong>.';

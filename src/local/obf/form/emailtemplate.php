@@ -4,7 +4,7 @@ defined('MOODLE_INTERNAL') || die();
 
 require_once(__DIR__ . '/obfform.php');
 
-class obf_email_template_form extends obfform {
+class obf_email_template_form extends local_obf_form_base {
 
     private $badge = null;
 

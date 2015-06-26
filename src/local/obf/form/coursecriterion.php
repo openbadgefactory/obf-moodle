@@ -4,7 +4,7 @@ defined('MOODLE_INTERNAL') or die();
 
 require_once(__DIR__ . '/obfform.php');
 
-class obf_coursecriterion_form extends obfform {
+class obf_coursecriterion_form extends local_obf_form_base {
     private $criteriatype;
     private $courseid;
     private $course;

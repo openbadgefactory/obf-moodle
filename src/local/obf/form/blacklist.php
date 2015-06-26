@@ -5,7 +5,7 @@ defined('MOODLE_INTERNAL') or die();
 require_once(__DIR__ . '/obfform.php');
 require_once(__DIR__ . '/../renderer.php');
 
-class obf_blacklist_form extends obfform {
+class obf_blacklist_form extends local_obf_form_base {
     private $blacklist;
     protected function definition() {
         global $OUTPUT;
@@ -22,7 +22,6 @@ class obf_blacklist_form extends obfform {
         $this->render_badges($unique_assertions, $mform);
 
         $this->add_action_buttons();
-        //$mform->closeHeaderBefore('buttonar');
     }
 
     private function render_badges(obf_assertion_collection $assertions, &$mform) {
@@ -35,9 +34,7 @@ class obf_blacklist_form extends obfform {
 
         for ($i = 0; $i < count($assertions); $i++) {
             $badge = $assertions->get_assertion($i)->get_badge();
-            //$items[] = obf_html::div($renderer->print_badge_image($badge, $size) .
-            //                html_writer::tag('p', s($badge->get_name())));
-            $html = $OUTPUT->box(obf_html::div($renderer->print_badge_image($badge, $size) .
+            $html = $OUTPUT->box(local_obf_html::div($renderer->print_badge_image($badge, $size) .
                     html_writer::tag('p', s($badge->get_name()))));
             $items[] = $mform->createElement('advcheckbox', 'blacklist['.$badge->get_id().']',
                     '', $html);
@@ -50,7 +47,6 @@ class obf_blacklist_form extends obfform {
         foreach ($badgeids as $badgeid) {
             $mform->setDefault('blacklist['.$badgeid.']', 1);
         }
-        //return html_writer::alist($items, array('class' => 'badgelist'));
     }
 
 }

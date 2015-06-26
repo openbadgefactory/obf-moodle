@@ -114,6 +114,10 @@ switch ($action) {
         $showrevokeform = $hasrevokepermission;
         if ($showrevokeform) {
             $content .= $PAGE->get_renderer('local_obf')->render_assertion($assertion, true, $revokeform);
+            $params = array(array('class' => 'revokebutton',
+                    'question' => get_string('confirmrevokation', 'local_obf')));
+            $PAGE->requires->yui_module('moodle-local_obf-submitconfirm',
+                    'M.local_obf.init_submitconfirm', $params);
         } else {
             $content .= $PAGE->get_renderer('local_obf')->render_assertion($assertion);
         }

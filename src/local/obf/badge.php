@@ -37,6 +37,7 @@ $PAGE->set_context($context);
 $PAGE->set_url($url);
 $PAGE->set_pagelayout(empty($courseid) ? 'admin' : 'course');
 $PAGE->set_title(get_string('obf', 'local_obf'));
+$PAGE->add_body_class('local-obf');
 
 $content = '';
 $hasissuecapability = has_capability('local/obf:issuebadge', $context);

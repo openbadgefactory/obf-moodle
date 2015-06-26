@@ -115,8 +115,8 @@ class local_obf_renderer extends plugin_renderer_base {
         }
 
         if (count($items) > 0) {
-            $html .= obf_html::div(
-                            obf_html::div(
+            $html .= local_obf_html::div(
+                            local_obf_html::div(
                                     html_writer::tag('p',
                                             get_string('showcategories',
                                                     'local_obf')) .
@@ -162,7 +162,7 @@ class local_obf_renderer extends plugin_renderer_base {
                 $extra = html_writer::tag('div', get_string('expired', 'local_obf'), array('class' => 'expired-info'));
             }
             $items .= html_writer::tag('li',
-                            $extra . obf_html::div($badgeimage . $badgename),
+                            $extra . local_obf_html::div($badgeimage . $badgename),
                             $attributes);
         }
 
@@ -227,17 +227,17 @@ class local_obf_renderer extends plugin_renderer_base {
             $html .= $this->print_heading('issuancedetails', 2);
         }
 
-        $html .= obf_html::div(
-                        obf_html::div(
+        $html .= local_obf_html::div(
+                        local_obf_html::div(
                                 html_writer::empty_tag('img',
                                         array('src' => $badge->get_image())),
                                 'image-wrapper') .
-                        obf_html::div(
-                                obf_html::div(
+                        local_obf_html::div(
+                                local_obf_html::div(
                                         $this->print_heading('badgedetails') .
                                         $this->render_definition_list($assertionitems),
                                         'badge-details') .
-                                obf_html::div(
+                                local_obf_html::div(
                                         $this->print_heading('issuerdetails') .
                                         $this->render_issuer_details($badge->get_issuer()),
                                         'issuer-details'), 'assertion-details'),
@@ -318,7 +318,7 @@ class local_obf_renderer extends plugin_renderer_base {
         $heading .= $this->output->single_button($issueurl,
                 get_string('issuethisbadge', 'local_obf'), 'get');
 
-        return obf_html::div($heading, 'badgeheading');
+        return local_obf_html::div($heading, 'badgeheading');
     }
 
     // Renders the criterion-form
@@ -374,7 +374,7 @@ class local_obf_renderer extends plugin_renderer_base {
                 }
 
                 $items .= html_writer::tag('li',
-                                obf_html::div(html_writer::link(
+                                local_obf_html::div(html_writer::link(
                                                 $url, $badgeimage . $badgename)),
                                 array('data-categories' => json_encode($badge->get_categories())));
             }
@@ -431,7 +431,7 @@ class local_obf_renderer extends plugin_renderer_base {
         $badgecreated = empty($createdon) ? '&amp;' : userdate($createdon,
                         get_string('dateformatdate', 'local_obf'));
 
-        $boxes = obf_html::div($badgeimage, 'obf-badgeimage');
+        $boxes = local_obf_html::div($badgeimage, 'obf-badgeimage');
         $badgedetails = $this->print_heading('badgedetails');
 
         $definitions = array(
@@ -458,8 +458,8 @@ class local_obf_renderer extends plugin_renderer_base {
         $badgedetails .= $this->print_heading('issuerdetails');
         $badgedetails .= $this->render_issuer_details($issuer);
 
-        $boxes .= obf_html::div($badgedetails, 'obf-badgedetails');
-        $html .= obf_html::div($boxes, 'obf-badgewrapper');
+        $boxes .= local_obf_html::div($badgedetails, 'obf-badgedetails');
+        $html .= local_obf_html::div($boxes, 'obf-badgewrapper');
 
         return $html;
     }
@@ -722,17 +722,17 @@ class local_obf_renderer extends plugin_renderer_base {
             $deleteurl = new moodle_url($file,
                     array('badgeid' => $badge->get_id(),
                 'action' => 'delete', 'id' => $id));
-            $heading .= obf_html::icon($deleteurl, 't/delete', 'delete');
+            $heading .= local_obf_html::icon($deleteurl, 't/delete', 'delete');
 
             // If the criterion can be edited, show the edit-icon
             if ($canedit) {
                 $editurl = new moodle_url($file,
                         array('badgeid' => $badge->get_id(),
                     'action' => 'edit', 'id' => $id));
-                $heading .= obf_html::icon($editurl, 't/edit', 'edit');
+                $heading .= local_obf_html::icon($editurl, 't/edit', 'edit');
             }
 
-            $criterionhtml .= $this->output->heading(obf_html::div($heading), 3);
+            $criterionhtml .= $this->output->heading(local_obf_html::div($heading), 3);
 
             if (!$canedit) {
                 $criterionhtml .= $this->output->notification(get_string('cannoteditcriterion',
@@ -784,7 +784,7 @@ class local_obf_renderer extends plugin_renderer_base {
             $history = $newhistory;
         }
         $historytable = new html_table();
-        $historytable->attributes = array('class' => 'generaltable historytable');
+        $historytable->attributes = array('class' => 'local-obf generaltable historytable');
         $html = $this->print_heading('history', 2);
         $historysize = count($history);
         $langkey = $singlebadgehistory ? 'nobadgehistory' : 'nohistory';
@@ -811,16 +811,16 @@ class local_obf_renderer extends plugin_renderer_base {
             $headingrow = array();
 
             if (!$singlebadgehistory) {
-                $headingrow[] = new obf_table_header('badgename');
+                $headingrow[] = new local_obf_table_header('badgename');
                 $historytable->headspan = array(2, 1, 1, 1, 1);
             }
             else {
                 $historytable->headspan = array(1, 1, 2);
             }
 
-            $headingrow[] = new obf_table_header('recipients');
-            $headingrow[] = new obf_table_header('issuedon');
-            $headingrow[] = new obf_table_header('expiresby');
+            $headingrow[] = new local_obf_table_header('recipients');
+            $headingrow[] = new local_obf_table_header('issuedon');
+            $headingrow[] = new local_obf_table_header('expiresby');
             $headingrow[] = new html_table_cell();
             $historytable->head = $headingrow;
 
@@ -888,7 +888,7 @@ class local_obf_renderer extends plugin_renderer_base {
         }
 
 //        $userlist = $this->render_userlist($users);
-//        $row->cells[] = obf_html::div(implode(', ', $userlist), 'recipientlist');
+//        $row->cells[] = local_obf_html::div(implode(', ', $userlist), 'recipientlist');
         $row->cells[] = $recipienthtml;
         $row->cells[] = userdate($assertion->get_issuedon(),
                 get_string('dateformatdate', 'local_obf'));
@@ -1065,6 +1065,7 @@ class local_obf_renderer extends plugin_renderer_base {
             $userswithbackpack = obf_backpack::get_user_ids_with_backpack($provider);
 
             $table->id = 'obf-participants';
+            $table->attributes = array('class' => 'local-obf generaltable');
 
             // some of the formatting taken from user/index.php
             $datestring = new stdClass();
@@ -1130,7 +1131,7 @@ class local_obf_renderer extends plugin_renderer_base {
                         array('class' => 'badgelist')),
                 'assertion' => $this->render_assertion($assertion, false),
                 'badge' => html_writer::tag('li',
-                        obf_html::div(
+                        local_obf_html::div(
                                 html_writer::empty_tag('img',
                                         array('src' => '{{{ this.badge.image }}}')) .
                                 html_writer::tag('p', '{{ this.badge.name }}')),
@@ -1203,7 +1204,7 @@ class local_obf_badge_renderer extends plugin_renderer_base {
 
 }
 
-class obf_table_header extends html_table_cell {
+class local_obf_table_header extends html_table_cell {
 
     public function __construct($stringid = null) {
         $this->header = true;
@@ -1213,7 +1214,7 @@ class obf_table_header extends html_table_cell {
 
 }
 
-class obf_html {
+class local_obf_html {
 
     /**
      * Renders an icon.
