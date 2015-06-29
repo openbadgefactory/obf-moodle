@@ -9,6 +9,7 @@ require_once __DIR__ . '/class/backpack.php';
 require_once __DIR__ . '/class/user_preferences.php';
 
 $error = optional_param('error', '', PARAM_TEXT);
+$msg = optional_param('msg', '', PARAM_TEXT);
 $action = optional_param('action', 'edit', PARAM_TEXT);
 $context = context_system::instance();
 $url = new moodle_url('/local/obf/userconfig.php', array('action' => $action));
@@ -40,6 +41,9 @@ $form = new obf_userconfig_form($formurl,
 
 switch ($action) {
     case 'edit':
+        if (!empty($msg)) {
+            $content .= $OUTPUT->notification($msg,'notifysuccess');
+        }
         $content .= $PAGE->get_renderer('local_obf')->render_userconfig($form, $error);
         break;
 
@@ -71,6 +75,7 @@ switch ($action) {
                     }
 
                     $redirecturl = new moodle_url('/local/obf/userconfig.php', array('action' => 'edit'));
+                    $redirecturl->param('msg', get_string('userpreferencessaved', 'local_obf'));
 
                     try {
                         $backpack->save();

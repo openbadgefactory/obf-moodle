@@ -8,6 +8,7 @@ require_once __DIR__ . '/form/blacklist.php';
 require_once __DIR__ . '/class/user_preferences.php';
 
 $error = optional_param('error', '', PARAM_TEXT);
+$msg = optional_param('msg', '', PARAM_TEXT);
 $action = optional_param('action', 'edit', PARAM_TEXT);
 $context = context_system::instance();
 
@@ -29,6 +30,9 @@ $form = new obf_blacklist_form($formurl,
 
 switch ($action) {
     case 'edit':
+        if (!empty($msg)) {
+            $content .= $OUTPUT->notification($msg,'notifysuccess');
+        }
         $content .= $PAGE->get_renderer('local_obf')->render_blacklistconfig($form, $error);
         break;
     case 'update':
@@ -38,7 +42,10 @@ switch ($action) {
             $blacklist->save($newblacklist);
             cache_helper::invalidate_by_event('new_obf_assertion', array($USER->id));
 
-            $content .= $PAGE->get_renderer('local_obf')->render_blacklistconfig($form, $error);
+            $redirecturl = $url;
+            $redirecturl->param('msg', get_string('blacklistsaved', 'local_obf'));
+            $redirecturl->param('action', 'edit');
+            redirect($redirecturl);
         }
         break;
 }
