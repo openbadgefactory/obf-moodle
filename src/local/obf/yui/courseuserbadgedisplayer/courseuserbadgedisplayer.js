@@ -131,9 +131,29 @@ YUI.add('moodle-local_obf-courseuserbadgedisplayer', function(Y) {
             var node = e.currentTarget;
             var data = this.assertions[node.generateID()];
 
+            data = this.data_conversions(data);
+
             this.panel.set('bodyContent', this.templates.assertion(data));
             this.panel.set('headerContent', data.badge.name);
             this.panel.show();
+        },
+        /**
+         * Convert dates and such.
+         */
+        data_conversions: function(data) {
+            var date_fields = ['issued_on', 'expires'];
+            date_fields.forEach(function (val,idx) {
+                if (this.hasOwnProperty(val)) {
+                    if (val != "-" && typeof val == "string" && !isNaN(Number(this[val]))) {
+                        var datems = parseInt(this[val], 10) * 1000;
+                        if (!isNaN(datems)) {
+                            this[val] = new Date(datems).toLocaleDateString();
+                        }
+                    }
+                }
+            }, data);
+
+            return data;
         },
         /**
          * Shows or hides a row of badges.
