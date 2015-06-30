@@ -64,14 +64,14 @@ class obf_criterion_form extends local_obf_form_base implements renderable {
                         $coursename = $courses[$course->get_courseid()]->fullname;
                         $mform->addElement('html', $OUTPUT->heading($coursename, 3));
                     }
-                    $course->get_options($mform);
+                    $course->get_options($mform, $this);
                     if (!$course->criteria_supports_multiple_courses()) {
                         $showaddcourse = false;
                     }
                 }
             }
             if (count($criterioncourses) > 0) {
-                $criterioncourses[0]->get_form_config($mform);
+                $criterioncourses[0]->get_form_config($mform, $this);
                 if ($showaddcourse) {
                     $mform->addElement('submit','addcourse',get_string('criteriaaddcourse','local_obf'), array('class' => 'addcourse'));
                 }

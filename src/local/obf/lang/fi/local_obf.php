@@ -220,7 +220,8 @@ $string['reviewcriterionaftersave'] = 'Tarkista sääntö tallennettaessa';
 $string['reviewcriterionaftersave_help'] = 'Jos automaattinen tarkistus on valittu, tämä sääntö '
         . 'tarkistetaan tallennuksen yhteydessä ja valittu merkki myönnetään kaikille käyttäjille, '
         . 'jotka ovat säännön kurssit suorittaneet.';
-$string['revoke'] = 'Mitätöi';
+$string['revoke'] = 'Peruuta';
+$string['revokeuserbadges'] = 'Peruuta käyttäjille myönnettyjä merkkejä';
 $string['saveconfiguration'] = 'Jatka';
 $string['savecriteria'] = 'Tallenna';
 $string['selectactivity'] = 'Valitse aktiviteetti';
@@ -245,6 +246,9 @@ $string['showconnectionconfig'] = 'Haluan päivittää valtuutusavaimen siitä h
 $string['showmorerecipients'] = 'lisää';
 $string['toearnthisbadge'] = 'Osaamismerkin ansaitseminen edellyttää tämän kurssin suorittamista';
 $string['tokendecryptionfailed'] = 'Valtuutusavain on virheellinen. Tarkista, että olet kopioinut ja liittänyt koko valtuutusavaimen.';
+$string['totaraprogramselectexpires'] = 'Valitse miten myönnetty merkki vanhenee';
+$string['totaraprogramexpiresbybadge'] = 'Vanhenee osaamismerkkiasetusten mukaisesti';
+$string['totaraprogramexpiresbycertificate'] = 'Vanhenee sertifikaattiasetusten mukaisesti';
 $string['unknowncriterion'] = 'Keskeneräinen kriteeri';
 $string['userpreferences'] = 'Käyttäjä-asetukset';
 $string['userpreferencessaved'] = 'Käyttäjä-asetukset tallennettu.';

@@ -193,7 +193,7 @@ class obf_criterion_activity extends obf_criterion_course {
      * Prints criteria activity settings for criteria forms.
      * @param moodle_form $mform
      */
-    public function get_options(&$mform) {
+    public function get_options(&$mform, &$obj) {
         global $OUTPUT;
 
         $modules = obf_criterion_activity::get_course_activities($this->get_courseid());
@@ -205,7 +205,7 @@ class obf_criterion_activity extends obf_criterion_course {
      * Prints required config fields for criteria forms.
      * @param moodle_form $mform
      */
-    public function get_form_config(&$mform) {
+    public function get_form_config(&$mform, &$obj) {
         global $OUTPUT;
         $mform->addElement('hidden','criteriatype', obf_criterion_item::CRITERIA_TYPE_ACTIVITY);
         $mform->setType('criteriatype', PARAM_INT);

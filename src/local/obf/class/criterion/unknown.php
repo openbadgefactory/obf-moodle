@@ -94,13 +94,13 @@ class obf_criterion_unknown extends obf_criterion_item {
         return $this;
     }
     // Unknown has no options. Only form config.
-    public function get_options(&$mform) {
+    public function get_options(&$mform, &$obj) {
     }
     /**
      * Prints criteria type select for criteria forms.
      * @param moodle_form $mform
      */
-    public function get_form_config(&$mform) {
+    public function get_form_config(&$mform, &$obj) {
         global $PAGE, $OUTPUT, $CFG;
         $optionlist = array(
             obf_criterion_item::CRITERIA_TYPE_UNKNOWN => get_string('selectcriteriatype', 'local_obf'),

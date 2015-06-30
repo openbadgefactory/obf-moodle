@@ -12,6 +12,8 @@ class obf_revoke_form extends local_obf_form_base {
         $mform = $this->_form;
         $assertion = $this->_customdata['assertion'];
         $users = $this->_customdata['users'];
+        $showurl = $this->_customdata['showurl'];
+        $showrevoke = $this->_customdata['showrevoke'];
         $revokedemails = array_keys($assertion->get_revoked());
 
         $i = 0;
@@ -23,13 +25,24 @@ class obf_revoke_form extends local_obf_form_base {
             if ($revoked) {
                 $attributes['class'] = 'revoked';
             }
-            $mform->addElement('advcheckbox', 'email['.$i.']', null, $name, $attributes, array(null, $email));
+            if ($showrevoke) {
+                $mform->addElement('advcheckbox', 'email['.$i.']', null, $name, $attributes, array(null, $email));
+            } else {
+                $mform->addElement('html', html_writer::tag('li', $name));
+            }
+
             $i += 1;
         }
-        $this->add_checkbox_controller(1, null, null, null);
+        if ($showrevoke && count($users) > 1) {
+            $this->add_checkbox_controller(1, null, null, null);
+        }
+        if ($showrevoke) {
+            $mform->addElement('submit', 'submitbutton',
+                    get_string('revoke', 'local_obf'),
+                    array('class' => 'revokebutton'));
+        } else if (!empty($showurl)) {
+            $mform->addElement('html', html_writer::tag('div',html_writer::link($showurl, get_string('revokeuserbadges', 'local_obf')) ));
+        }
 
-        $mform->addElement('submit', 'submitbutton',
-                get_string('revoke', 'local_obf'),
-                array('class' => 'revokebutton'));
     }
 }

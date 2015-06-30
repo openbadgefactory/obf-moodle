@@ -17,6 +17,7 @@ $eventid = required_param('id', PARAM_ALPHANUM);
 
 $courseid = optional_param('course_id', '', PARAM_INT);
 $action = optional_param('action', 'view', PARAM_ALPHANUM);
+$show = optional_param('show', '', PARAM_ALPHANUM);
 $emailar = $action == 'revoke' ? required_param_array('email', PARAM_TEXT) :
         optional_param_array('email', array(), PARAM_TEXT);
 $msg = optional_param('msg', '', PARAM_TEXT);
@@ -108,9 +109,14 @@ switch ($action) {
                     'course_id' => $courseid));
         $collection = new obf_assertion_collection(array($assertion));
         $users = $collection->get_assertion_users($assertion);
+        $showformurl = new moodle_url('/local/obf/event.php',
+                array('id' => $eventid, 'action' => 'view', 'course_id' => $courseid,
+                'show' => 'revoke'));
         $revokeform = new obf_revoke_form($formurl,
                 array('assertion' => $assertion,
-                      'users' => $users));
+                      'users' => $users,
+                      'showurl' => $showformurl,
+                      'showrevoke' => $show == 'revoke'));
 
         $showrevokeform = $hasrevokepermission;
         if ($showrevokeform) {

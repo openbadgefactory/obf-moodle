@@ -23,8 +23,8 @@ class obf_coursecriterion_form extends local_obf_form_base {
         }
 
 
-        $this->criterioncourse->get_options($mform);
-        $this->criterioncourse->get_form_config($mform);
+        $this->criterioncourse->get_options($mform, $this);
+        $this->criterioncourse->get_form_config($mform, $this);
 
         $this->criterioncourse->get_form_after_save_options($mform, $this);
 

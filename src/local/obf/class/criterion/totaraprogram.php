@@ -55,9 +55,6 @@ class obf_criterion_totaraprogram extends obf_criterion_course {
 
 
 
-
-
-
     /**
      * Returns the name of the activity this criterion is related to.
      *
@@ -225,8 +222,22 @@ class obf_criterion_totaraprogram extends obf_criterion_course {
         return true;
     }
     public function get_issue_expires_override($user = null) {
-        return $this->certexpirescache;
+        if ($this->get_expires_method() == obf_criterion_item::EXPIRY_DATE_CUSTOM) {
+            return $this->certexpirescache;
+        } else {
+            return null;
+        }
     }
+
+    public function get_expires_method() {
+        $params = $this->get_params();
+        if (array_key_exists('global', $params) &&
+                array_key_exists('expiresbycertificate', $params['global'])) {
+            return $params['global']['expiresbycertificate'];
+        }
+        return obf_criterion_item::EXPIRY_DATE_CUSTOM;
+    }
+
     protected function has_prog_completedby($programid) {
         $params = $this->get_params();
         $prog_params = array_key_exists($programid, $params) ? $params[$programid] : array();
@@ -335,7 +346,7 @@ class obf_criterion_totaraprogram extends obf_criterion_course {
      * Prints criteria activity settings for criteria forms.
      * @param moodle_form $mform
      */
-    public function get_options(&$mform) {
+    public function get_options(&$mform, &$obj) {
         global $OUTPUT;
 
         $programs = self::get_all_programs();
@@ -348,14 +359,33 @@ class obf_criterion_totaraprogram extends obf_criterion_course {
      * Prints required config fields for criteria forms.
      * @param moodle_form $mform
      */
-    public function get_form_config(&$mform) {
+    public function get_form_config(&$mform, &$obj) {
         global $OUTPUT;
         $crittype = $this->get_criteriatype();
+
         $mform->addElement('hidden','criteriatype', $crittype);
         $mform->setType('criteriatype', PARAM_INT);
 
         $mform->createElement('hidden','picktype', 'no');
         $mform->setType('picktype', PARAM_TEXT);
+
+        if ($this->get_criteriatype() == obf_criterion_item::CRITERIA_TYPE_TOTARA_CERTIF) {
+            $mform->addElement('header', 'header_totaraprogramselectexpires',
+                    get_string('totaraprogramselectexpires', 'local_obf'));
+
+            $radiobuttons = array();
+            $radiobuttons[] = $mform->createElement('radio', 'expiresbycertificate_global', '',
+                    get_string('totaraprogramexpiresbycertificate', 'local_obf'),
+                    obf_criterion_item::EXPIRY_DATE_CUSTOM);
+            $radiobuttons[] = $mform->createElement('radio', 'expiresbycertificate_global', '',
+                    get_string('totaraprogramexpiresbybadge', 'local_obf'),
+                    obf_criterion_item::EXPIRY_DATE_BADGE);
+            $mform->addGroup($radiobuttons, 'radioar', '', '<br />', false);
+
+            $mform->setDefault('expiresbycertificate_global', $this->get_expires_method());
+
+            $obj->setExpanded($mform, 'header_totaraprogramselectexpires', true);            
+        }
     }
     /**
      * Activities do not support multiple courses.

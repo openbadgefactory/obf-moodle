@@ -216,6 +216,7 @@ $string['reviewcriterionaftersave_help'] = 'If this checkbox is checked, the rul
         . 'reviewed after saving and if someone has already met this rule earlier, this badge '
         . 'will then be automatically awarded.';
 $string['revoke'] = 'Revoke';
+$string['revokeuserbadges'] = 'Revoke user badges';
 $string['saveconfiguration'] = 'Continue';
 $string['savecriteria'] = 'Save';
 $string['selectatleastonerecipient'] = 'Select at least one recipient';
@@ -241,6 +242,9 @@ $string['showmorerecipients'] = 'more';
 $string['toearnthisbadge'] = 'To earn this badge this course has to be completed';
 $string['tokendecryptionfailed'] = 'Decrypting the request token failed. Be sure to paste the '
         . 'certificate signing request token fully.';
+$string['totaraprogramselectexpires'] = 'Select which setting is used for awarded badges';
+$string['totaraprogramexpiresbybadge'] = 'Expiry from badge properties';
+$string['totaraprogramexpiresbycertificate'] = 'Expiry from certificate properties';
 $string['unknowncriterion'] = 'Incomplete criterion';
 $string['userpreferences'] = 'User-settings';
 $string['userpreferencessaved'] = 'User-settings saved.';

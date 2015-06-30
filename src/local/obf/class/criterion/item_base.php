@@ -24,6 +24,16 @@ abstract class obf_criterion_item {
     const CRITERIA_TYPE_TOTARA_CERTIF = 6;
 
     /**
+     * Awarded badge issue dates are set according to normal badge settings.
+     */
+    const EXPIRY_DATE_BADGE = 1;
+    /**
+     * Awarded badge issue dates are set according to criterias custom settings.
+     */
+    const EXPIRY_DATE_CUSTOM = 2;
+
+
+    /**
      * @var int The completed by -field of the course criterion as a unix timestamp
      */
 
