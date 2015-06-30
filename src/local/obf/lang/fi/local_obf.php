@@ -34,6 +34,15 @@ $string['backpackemailnotfound'] = 'Sähköpostiosoitteella \'{$a}\' ei löytyny
         . 'Backpackista.';
 $string['backpackemail_help'] = 'Omaan Mozilla OpenBadges Backpack -tiliin liitetty '
         . 'sähköpostiosoitteesi';
+$string['backpackemailaddexternalobp'] = '<p>Sähköpostiosoitteella \'<strong>{$a}</strong>\' ' .
+        'ei löytynyt käyttäjää Open Badge Passport -palvelusta.</p><p>Lisätäksesi ' .
+        'sähköpostiosoitteesi, avaa <a href="https://openbadgepassport.com" target="_blank">' .
+        'https://openbadgepassport.com</a> -osoite selaimessasi ja kirjaudu palveluun.</p><p>' .
+        'Kirjauduttuasi seuraa ' .
+        '<strong><i>Käyttäjätilini &gt; Käyttäjätilin asetukset &gt; Sähköpostiosoitteet</i></strong> ' .
+        '-navigointipolkua. </p><p>Ollessasi <i>Sähköpostiosoitteet</i>-sivulla, ' .
+        'lisää \'<strong>{$a}</strong>\', sivulla näkyvään, \'Lisää uusi sähköpostiosoite\' -kenttään ' .
+        'ja tallenna osoite.</p>';
 $string['backpackgroups'] = 'Näytettävät ryhmät';
 $string['backpackgroups_help'] = 'Valitse ryhmät, joiden osaamismerkit näytetään toisille kurssilaisille.';
 $string['backpacksettings'] = 'Backpack-asetukset';
@@ -58,6 +67,7 @@ $string['badgelisttitle'] = 'Osaamismerkit';
 $string['badgename'] = 'Nimi';
 $string['badgetags'] = 'Tagit';
 $string['badgewasautomaticallyissued'] = 'Osaamismerkki myönnettiin {$a}:lle henkilölle.';
+$string['blacklistsaved'] = 'Muutokset tallennettu.';
 $string['cancel'] = 'Peruuta';
 $string['cannoteditcriterion'] = 'Tämän säännön muokkaus ei ole mahdollista, sillä valittu osaamismerkki on jo myönnetty tämän säännön perusteella.';
 $string['categorysettings'] = 'Merkkikategoriat';
@@ -102,6 +112,8 @@ $string['deletecriterion'] = 'Poista sääntö';
 $string['disablemoodlebadges'] = 'Piilota Moodlen vanhat merkit.';
 $string['disconnect'] = 'Katkaise {$a} -yhteys';
 $string['editemailmessage'] = 'Muokkaa sähköpostiviestiä';
+$string['emailbadgerevokedsubject'] = 'Osaamismerkki mitätöity';
+$string['emailbadgerevokedbody'] = 'Aiemmin ansaitsemasi osaamismerkki ({$a->revokedbadgename}) on mitätöity. Osaamismerkin mitätöinyt käyttäjä: {$a->revokername}.';
 $string['emailbody'] = 'Viestin alkuosa';
 $string['emailfooter'] = 'Viestin loppuosa';
 $string['emailmessage'] = 'Sähköpostiviesti';
@@ -137,6 +149,7 @@ $string['issuername'] = 'Nimi';
 $string['issuerurl'] = 'Osoite';
 $string['issuethisbadge'] = 'Myönnä tämä merkki';
 $string['makeexporteddrafts'] = 'Viedyt merkit ovat luonnoksia';
+$string['messageprovider:revoked'] = 'Myönnetty merkki on mitätöity';
 $string['minimumgrade'] = 'Arvosana vähintään';
 $string['nobadgehistory'] = 'Tätä merkkiä ei ole vielä myönnetty.';
 $string['nobackpackgroups'] = 'Luo vähintään yksi julkinen osaamismerkkiryhmä Backpackiisi.';
@@ -234,5 +247,6 @@ $string['toearnthisbadge'] = 'Osaamismerkin ansaitseminen edellyttää tämän k
 $string['tokendecryptionfailed'] = 'Valtuutusavain on virheellinen. Tarkista, että olet kopioinut ja liittänyt koko valtuutusavaimen.';
 $string['unknowncriterion'] = 'Keskeneräinen kriteeri';
 $string['userpreferences'] = 'Käyttäjä-asetukset';
+$string['userpreferencessaved'] = 'Käyttäjä-asetukset tallennettu.';
 $string['verification_failed'] = 'Sähköpostiosoitteen tarkistus epäonnistui. Virheviesti: {$a}';
 $string['warningcannoteditafterreview'] = 'Sääntöä ei voi muokata, jos merkki on myönnetty automaattisen myöntämissäännön perusteella. Tarkista siis sääntö huolellisesti ennen tallennusta.';

@@ -5,6 +5,7 @@
 
 require_once __DIR__ . '/../../config.php';
 require_once __DIR__ . '/class/assertion.php';
+require_once __DIR__ . '/class/assertion_collection.php';
 require_once __DIR__ . '/class/criterion/criterion.php';
 require_once __DIR__ . '/class/event.php';
 require_once __DIR__ . '/form/revoke.php';
@@ -135,6 +136,8 @@ switch ($action) {
                 } catch (Exception $e) {
                     $redirecturl->param('msg', $e->getMessage());
                 }
+                $tousers = $assertion->get_users($emailar);
+                $assertion->send_revoke_message($tousers, $USER);
             }
             redirect($redirecturl);
         }

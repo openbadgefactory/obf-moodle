@@ -37,7 +37,7 @@ class obf_userconfig_form extends local_obf_form_base {
         $mform->closeHeaderBefore('buttonar');
     }
     private function render_backpack_settings(&$mform, obf_backpack $backpack) {
-        global $OUTPUT;
+        global $OUTPUT, $USER;
         $langkey = 'backpack' . (!$backpack->is_connected() ? 'dis' : '') . 'connected';
         $provider = $backpack->get_provider();
         $groupprefix = $backpack->get_providershortname() . 'backpackgroups';
@@ -90,12 +90,15 @@ class obf_userconfig_form extends local_obf_form_base {
                 }
             }
         }
-        if (!$backpack->is_connected()) {
+        if (!$backpack->is_connected() && $backpack->requires_email_verification()) {
             $mform->addElement('button', 'backpack_submitbutton',
                     get_string('connect', 'local_obf', 'Backpack'), array('class' => 'verifyemail', 'data-provider' => $backpack->get_provider()));
+        } else if (!$backpack->is_connected() && !$backpack->requires_email_verification()) {
+            $externaladdhtml = get_string('backpackemailaddexternal'.$backpack->get_providershortname(), 'local_obf', $USER->email);
+            $mform->addElement('html', $OUTPUT->notification($externaladdhtml), 'notifyproblem');
         }
 
-        if ($backpack->is_connected()) {
+        if ($backpack->is_connected() && $backpack->requires_email_verification()) {
             $mform->addElement('cancel', 'cancelbackpack'.$backpack->get_providershortname(),
                     get_string('disconnect', 'local_obf', 'Backpack'));
         }
@@ -108,9 +111,9 @@ class obf_userconfig_form extends local_obf_form_base {
         $size = -1;
 
         for ($i = 0; $i < count($assertions); $i++) {
-            $badge = $assertions->get_assertion($i)->get_badge();
-            $items[] = local_obf_html::div($renderer->print_badge_image($badge, $size) .
-                            html_writer::tag('p', s($badge->get_name())));
+            $assertion = $assertions->get_assertion($i);
+            $badge = $assertion->get_badge();
+            $items[] = local_obf_html::div($renderer->render_single_simple_assertion($assertion, false) );
         }
 
         return html_writer::alist($items, array('class' => 'badgelist'));

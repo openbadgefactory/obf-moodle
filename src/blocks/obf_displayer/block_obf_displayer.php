@@ -44,14 +44,15 @@ class block_obf_displayer extends block_base {
         $this->content =  new stdClass;
         $this->content->text = '';
         $renderer = $PAGE->get_renderer('local_obf');
+        $large = !empty($this->config) && property_exists($this->config, 'largebadges') && $this->config->largebadges == true;
         if ($assertions !== false && count($assertions) > 0) {
-            $this->content->text .= $renderer->render_user_assertions($assertions);
+            $this->content->text .= $renderer->render_user_assertions($assertions, $large);
         }
         $providers = obf_backpack::get_providers();
         foreach ($providers as $provider) {
             $assertions = $this->get_backpack_assertions($userid, $DB, $provider);
             if (count($assertions) > 0) {
-                $this->content->text .= $renderer->render_user_assertions($assertions);
+                $this->content->text .= $renderer->render_user_assertions($assertions, $large);
             }
         }
 
@@ -67,7 +68,9 @@ class block_obf_displayer extends block_base {
                 $assertions = new obf_assertion_collection();
                 try {
                     $client = obf_client::get_instance();
+                    $blacklist = new obf_blacklist($userid);
                     $assertions->add_collection(obf_assertion::get_assertions($client, null, $db->get_record('user', array('id' => $userid))->email ));
+                    $assertions->apply_blacklist($blacklist);
                 } catch(Exception $e) {
                     debugging('Getting OBF assertions for user id: ' . $userid . ' failed: ' . $e->getMessage());
                 }

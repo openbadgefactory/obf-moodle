@@ -106,6 +106,32 @@ class obf_assertion {
         }
         return false;
     }
+    public function send_revoke_message($users, $revoker) {
+        global $CFG;
+        require_once($CFG->dirroot . '/message/lib.php');
+        foreach ($users as $userto) {
+            if (preg_match('/^2.9/', $CFG->release)) {
+                $message = new \core\message\message();
+            } else {
+                $message = new stdClass();
+            }
+            $badge = $this->get_badge();
+            $messageparams = new stdClass();
+            $messageparams->revokername = fullname($revoker);
+            $messageparams->revokedbadgename = $badge->get_name();
+
+            $message->component = 'local_obf';
+            $message->name = 'revoked';
+            $message->userfrom = $revoker;
+            $message->userto = $userto;
+            $message->subject = get_string('emailbadgerevokedsubject', 'local_obf', $messageparams);
+            $message->fullmessage = get_string('emailbadgerevokedbody', 'local_obf', $messageparams);
+            $message->fullmessageformat = FORMAT_PLAIN;
+            $message->fullmessagehtml = '';
+            $message->smallmessage = '';
+            message_send($message);
+        }
+    }
 
     /**
      * Gets and returns the assertion instance from OBF.
@@ -324,6 +350,30 @@ class obf_assertion {
     public function set_name($name) {
         $this->name = $name;
         return $this;
+    }
+
+    public function get_users($emails = null) {
+        global $DB;
+        if (is_null($emails)) {
+            $emails = $this->get_recipients();
+        }
+        $users = $DB->get_records_list('user','email', $emails);
+        if (count($users) < count($emails)) {
+            foreach ($users as $user) {
+                $key = array_search($user->email, $emails);
+                if ($key) {
+                    unset($emails[$key]);
+                }
+            }
+            foreach ($emails as $email) {
+                $backpack = obf_backpack::get_instance_by_backpack_email($email);
+                if ($backpack !== false) {
+                    $users[] = $DB->get_record('user',
+                                    array('id' => $backpack->get_user_id()));
+                }
+            }
+        }
+        return $users;
     }
 
 }

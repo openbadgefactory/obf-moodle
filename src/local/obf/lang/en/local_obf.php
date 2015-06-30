@@ -30,6 +30,13 @@ $string['backpackdisconnected'] = 'Disconnected';
 $string['backpackemail'] = 'Email address';
 $string['backpackemailnotfound'] = 'Couldn\'t find a user by the email \'{$a}\' from Mozilla Backpack.';
 $string['backpackemail_help'] = 'Email address associated with your Mozilla OpenBadges Backpack account.';
+$string['backpackemailaddexternalobp'] = '<p>Couldn\'t find a user matching the email \'<strong>{$a}</strong>\' from ' .
+        'Open Badge Passport.</p><p>To add your email, ' .
+        'open <a href="https://openbadgepassport.com">' .
+        'https://openbadgepassport.com</a> in your browser and log in. </p><p>' .
+        'After logging in follow the <strong><i>My account &gt; Account settings &gt; E-mail addresses</i></strong> ' .
+        'navigation path.</p><p>With the <i>E-mail addresses</i> -page open, add \'<strong>{$a}</strong>\' in the \'Add new e-mail\' -field ' .
+        'and save.</p>';
 $string['backpackgroups'] = 'Badge groups';
 $string['backpackgroups_help'] = 'Select the badge groups that are shown in your badge displayer.';
 $string['backpacksettings'] = 'Backpack settings';
@@ -54,6 +61,7 @@ $string['badgelisttitle'] = 'All badges';
 $string['badgename'] = 'Name';
 $string['badgetags'] = 'Tags';
 $string['badgewasautomaticallyissued'] = 'After reviewing the badge was awarded to {$a} recipient(s).';
+$string['blacklistsaved'] = 'Blacklist saved.';
 $string['cancel'] = 'Cancel';
 $string['cannoteditcriterion'] = 'This rule cannot be edited, because the badge has already '
         . 'been awarded automatically based on this rule.';
@@ -101,6 +109,8 @@ $string['deletecriterion'] = 'Delete awarding rule';
 $string['disablemoodlebadges'] = 'Disable Moodle\'s own badge-module.';
 $string['disconnect'] = 'Disconnect {$a}';
 $string['editemailmessage'] = 'Edit email message';
+$string['emailbadgerevokedsubject'] = 'Your badge has been revoked';
+$string['emailbadgerevokedbody'] = 'One of your earned badges ({$a->revokedbadgename}) has been revoked by {$a->revokername}.';
 $string['emailbody'] = 'Email body';
 $string['emailfooter'] = 'Email footer';
 $string['emailmessage'] = 'Email message';
@@ -136,6 +146,7 @@ $string['issuername'] = 'Name';
 $string['issuerurl'] = 'URL';
 $string['issuethisbadge'] = 'Issue this badge';
 $string['makeexporteddrafts'] = 'Exported badges are drafts by default';
+$string['messageprovider:revoked'] = 'Issued badge is revoked';
 $string['minimumgrade'] = 'Minimum grade';
 $string['nobackpackgroups'] = 'No public badge groups in your backpack. Create at least one public '
         . 'group to your backpack.';
@@ -232,6 +243,7 @@ $string['tokendecryptionfailed'] = 'Decrypting the request token failed. Be sure
         . 'certificate signing request token fully.';
 $string['unknowncriterion'] = 'Incomplete criterion';
 $string['userpreferences'] = 'User-settings';
+$string['userpreferencessaved'] = 'User-settings saved.';
 $string['verification_failed'] = 'Backpack verification failed. Reason: {$a}';
 $string['warningcannoteditafterreview'] = 'Note that if the badge is awarded when these rules are ' .
         'being reviewed, the rule(s) cannot be edited anymore. Once the badge has been automatically ' .

@@ -140,7 +140,7 @@ class local_obf_renderer extends plugin_renderer_base {
      * @param obf_assertion_collection $assertions
      * @return type
      */
-    public function render_user_assertions(obf_assertion_collection $assertions) {
+    public function render_user_assertions(obf_assertion_collection $assertions, $large = false) {
         global $USER;
 
         $html = '';
@@ -151,19 +151,21 @@ class local_obf_renderer extends plugin_renderer_base {
         for ($i = 0; $i < count($assertions); $i++) {
             $assertion = $assertions->get_assertion($i);
             $badge = $assertion->get_badge();
-            $badgeimage = $this->print_badge_image($badge, -1);
-            $badgename = html_writer::tag('p', s($badge->get_name()));
             $aid = $userid . '-' . $i;
             $js_assertions[$aid] = $assertion->toArray();
             $attributes = array('id' => $aid);
-            $extra = '';
+            $attributes['class'] = '';
             if ($assertion->badge_has_expired()) {
-                $attributes = array_merge($attributes, array('class' => 'expired-assertion'));
-                $extra = html_writer::tag('div', get_string('expired', 'local_obf'), array('class' => 'expired-info'));
+                $attributes['class'] = 'expired-assertion';
             }
             $items .= html_writer::tag('li',
-                            $extra . local_obf_html::div($badgeimage . $badgename),
+                    $this->render_single_simple_assertion($assertion, $large),
                             $attributes);
+            /*
+            $items .= html_writer::tag('li',
+                    $extra . local_obf_html::div($badgeimage . local_obf_html::div($badgename . $badgedescription, 'body')),
+                            $attributes);
+                            */
         }
 
         $ulid = uniqid('badgelist');
@@ -176,6 +178,23 @@ class local_obf_renderer extends plugin_renderer_base {
                 'M.local_obf.init_badgedisplayer', array($params));
         $this->page->requires->string_for_js('closepopup', 'local_obf');
 
+        return $html;
+    }
+    public function render_single_simple_assertion($assertion, $large = false) {
+        $badge = $assertion->get_badge();
+        $badgeimage = $this->print_badge_image($badge, -1);
+        $badgename = html_writer::tag('p', s($badge->get_name()), array('class' => 'badgename'));
+        $badgedescription = html_writer::tag('p', s($badge->get_description()), array('class' => 'description'));
+        $extra = '';
+        $divclass = 'obf-badge';
+        if ($assertion->badge_has_expired()) {
+            $divclass .= ' expired-assertion';
+            $extra = html_writer::tag('div', get_string('expired', 'local_obf'), array('class' => 'expired-info'));
+        }
+        if ($large) {
+            $divclass .= ' large';
+        }
+        $html = local_obf_html::div($extra . $badgeimage . local_obf_html::div($badgename . $badgedescription, 'body'), $divclass);
         return $html;
     }
 
@@ -364,7 +383,7 @@ class local_obf_renderer extends plugin_renderer_base {
 
             foreach ($badges as $badge) {
                 $badgeimage = $this->print_badge_image($badge, -1);
-                $badgename = html_writer::tag('p', s($badge->get_name()));
+                $badgename = html_writer::tag('p', s($badge->get_name()), array('class' => 'badgename'));
 
                 $url = new moodle_url('/local/obf/badge.php',
                         array('id' => $badge->get_id(), 'action' => 'show'));
@@ -375,7 +394,7 @@ class local_obf_renderer extends plugin_renderer_base {
 
                 $items .= html_writer::tag('li',
                                 local_obf_html::div(html_writer::link(
-                                                $url, $badgeimage . $badgename)),
+                                                $url, $badgeimage . $badgename), 'obf-badge'),
                                 array('data-categories' => json_encode($badge->get_categories())));
             }
 

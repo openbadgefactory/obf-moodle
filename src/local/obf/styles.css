@@ -1,37 +1,30 @@
 /**
  * Badge list
  */
-.local-obf ul.badgelist    { list-style: none; margin: 0; overflow: hidden; padding: 10px; }
-#obf-assertion-panel .yui3-widget-hd,
-.local-obf ul.badgelist li { background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0, #eeeeee), color-stop(1, #cccccc));
-                  background-image: -o-linear-gradient(bottom, #eee 0%, #ccc 100%);
-                  background-image: -moz-linear-gradient(bottom, #eee 0%, #ccc 100%);
-                  background-image: -webkit-linear-gradient(bottom, #eee 0%, #ccc 100%);
-                  background-image: -ms-linear-gradient(bottom, #eee 0%, #ccc 100%);
-                  background-image: linear-gradient(to bottom, #eee 0%, #ccc 100%);
-}
-.local-obf ul.badgelist li { border-radius: 8px; text-align: center; float: left; margin: 0 15px 15px 0; width: 120px; border: solid #ccc 1px; box-shadow: 0 0 10px -2px #888; }
-.local-obf ul.badgelist li:hover   { border-color: #aaa; }
-.local-obf ul.badgelist li p       { background: #fff; margin: 0; padding: 5px 10px; border-radius: 0 0 8px 8px; width: 100px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
-.local-obf ul.badgelist li img     { max-height: 90px; margin: 15px 0; }
-.local-obf ul.badgelist li a       { color: inherit; text-decoration: none; display: block; }
-.local-obf ul.badgelist li.expired-assertion { opacity: 0.4; filter: alpha(opacity=40); }
-.local-obf ul.badgelist li .expired-info { position: absolute; height: inherit; text-align: center; width: inherit; margin-top: 48px; font-weight: bold; vertical-align: middle; transform: rotate(15deg); font-size: 1.2em; overflow: hidden; }
+.local-obf ul.badgelist { list-style: none; margin: 0; overflow: hidden; padding: 10px; }
+.local-obf .obf-badge a { color: inherit; text-decoration: none; display: block; }
+.local-obf .obf-badge img { max-height: 90px; margin: 15px 0; }
+#obf-assertion-panel .yui3-widget-hd { background: #FFF none repeat scroll 0% 0%; color: #7F7179; text-transform: uppercase; }
+.local-obf .obf-badge { text-align: center; float: left; margin: 0px 15px 15px 0px; width: 120px; background: #FFF none repeat scroll 0% 0%; border: 1px solid #D2D2D2; color: #929292; box-shadow: 0px 4px 0px #DCDCDC; }
+.local-obf .obf-badge:hover { border-color: #aaa; }
+.local-obf .obf-badge p.badgename { margin: 0; padding: 5px 10px; width: 100px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.local-obf .obf-badge p.badgename:before { content: ""; display: block; height: 5px; width: 100%; border-top: 2px dashed #BFBFBF; }
 
 #page-user-profile .node_category .local-obf ul.badgelist li  { display: inline-block; }
-
+.obf-userconfig-group ul.badgelist li { display: inline-block; }
+.local-obf .obf-badge:not(.large) p.description { display: none; }
+.local-obf .obf-badge.large { width: 280px; }
+.local-obf .obf-badge.large img { float: left; margin-left: 15px; }
+.local-obf .obf-badge.large p.badgename { outline: medium none; padding-left: 0px; color: #F59F48; font-size: 15px; font-weight: 500; line-height: 1.1em; width: 140px; text-align: left; overflow: auto; white-space: normal; }
+.local-obf .obf-badge.large p.badgename:before { display: none; }
+.local-obf .obf-badge.large p.description { text-align: left; position: relative; height: 4.8em; line-height: 1.2em; overflow: hidden; word-wrap: break-word; }
+.local-obf .obf-badge.large div.body { float: left; display: inline-block; width: 140px; margin: 15px; height: 8.6em; }
 /**
  * Backpack config
  */
 span.backpackconnected                      { color: #6a6; }
 span.backpackdisconnected                   { color: #a66; }
 .obf-userconfig-group ul.badgelist li:hover { cursor: inherit; border-color: #ccc; }
-
-/**
- * Badge list in block, move to block-plugin!
- */
-.block ul.badgelist     { text-align: center; padding: 1em 0 0 0; }
-.block ul.badgelist li  { }
 
 /**
  * Definition lists

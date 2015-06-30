@@ -33,9 +33,9 @@ class obf_blacklist_form extends local_obf_form_base {
 
 
         for ($i = 0; $i < count($assertions); $i++) {
-            $badge = $assertions->get_assertion($i)->get_badge();
-            $html = $OUTPUT->box(local_obf_html::div($renderer->print_badge_image($badge, $size) .
-                    html_writer::tag('p', s($badge->get_name()))));
+            $assertion = $assertions->get_assertion($i);
+            $badge = $assertion->get_badge();
+            $html = $OUTPUT->box(local_obf_html::div($renderer->render_single_simple_assertion($assertion, true) ));
             $items[] = $mform->createElement('advcheckbox', 'blacklist['.$badge->get_id().']',
                     '', $html);
         }

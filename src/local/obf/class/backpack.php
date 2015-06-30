@@ -33,6 +33,11 @@ class obf_backpack {
         self::BACKPACK_PROVIDER_OBP => self::OPB_URL
     );
 
+    private static $provider_requires_email_verification = array(
+        self::BACKPACK_PROVIDER_MOZILLA => true,
+        self::BACKPACK_PROVIDER_OBP => false
+    );
+
     public function __construct($transport = null, $provider = self::BACKPACK_PROVIDER_MOZILLA) {
         $this->set_provider($provider);
         if (!is_null($transport)) {
@@ -68,7 +73,24 @@ class obf_backpack {
                 IGNORE_MULTIPLE);
 
         if ($backpackobj === false) {
-            return false;
+            if (!self::does_provider_require_email_verification($provider) && array_key_exists('user_id', $fields)) {
+                $user = $DB->get_record('user', array('id' => $fields['user_id']));
+                if ($user) {
+                    $obj = new self();
+                    $obj->set_user_id($user->id);
+                    $obj->set_provider($provider);
+                    try {
+                        $obj->connect($user->email);
+                    } catch (Exception $e) {
+                        return false; // User does not have a backpack at the provider.
+                    }
+                    return $obj;
+                } else {
+                    return false;
+                }
+            } else {
+                return false;
+            }
         }
 
         $obj = new self();
@@ -409,6 +431,12 @@ class obf_backpack {
     }
     public function exists() {
         return !empty($this->id) && $this->id > 0;
+    }
+    public function requires_email_verification() {
+        return self::does_provider_require_email_verification($this->provider);
+    }
+    public static function does_provider_require_email_verification($provider) {
+        return self::$provider_requires_email_verification[$provider];
     }
     public static function get_providers() {
         return self::$providers;
