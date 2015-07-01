@@ -27,19 +27,7 @@ class block_obf_displayer extends block_base {
 
         $assertions = $this->get_assertions($userid, $DB);
 
-        if (!empty($this->config)) {
-            if ($this->config->showmoz == false && $this->config->showobp == false && $this->config->showobf == true) {
-                $this->title = get_string('blocktitleobf', 'block_obf_displayer');
-            } else if ($this->config->showmoz == false && $this->config->showobp == true && $this->config->showobf == false) {
-                $this->title = get_string('blocktitleobp', 'block_obf_displayer');
-            } else if ($this->config->showmoz == true && $this->config->showobp == false && $this->config->showobf == false) {
-                $this->title = get_string('blocktitlemoz', 'block_obf_displayer');
-            } else {
-                $this->title = get_string('blocktitle', 'block_obf_displayer');
-            }
-        } else {
-            $this->title = get_string('blocktitle', 'block_obf_displayer');
-        }
+        $this->title = get_string('blocktitle', 'block_obf_displayer');
 
         $this->content =  new stdClass;
         $this->content->text = '';
