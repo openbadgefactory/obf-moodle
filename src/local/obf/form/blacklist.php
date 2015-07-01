@@ -31,6 +31,7 @@ class obf_blacklist_form extends local_obf_form_base {
         $renderer = $PAGE->get_renderer('local_obf');
         $size = local_obf_renderer::BADGE_IMAGE_SIZE_NORMAL;
 
+        $mform->addElement('html', $OUTPUT->notification(get_string('blacklistdescription', 'local_obf'), 'notifymessage'));
 
         for ($i = 0; $i < count($assertions); $i++) {
             $assertion = $assertions->get_assertion($i);

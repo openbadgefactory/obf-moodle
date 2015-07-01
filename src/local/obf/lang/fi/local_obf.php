@@ -23,6 +23,7 @@ $string['apierror503'] = 'OBF-palvelu on väliaikaisesti tavoittamattomissa. Ole
 $string['authenticate'] = 'Yhdistä';
 $string['authenticationsuccess'] = 'Valtuutus onnistui.';
 $string['availablecategories'] = 'Sallitut kategoriat';
+$string['availablecategoriesselect'] = 'Kategoriat';
 $string['availablecategorieshelp'] = 'Valitse merkkikategoriat, joiden osaamismerkkejä '
         . 'sivuston kautta voidaan myöntää. Mikäli yhtään kategoriaa ei ole valittu, '
         . 'merkkejä voidaan myöntää kaikista kategorioista.';
@@ -68,6 +69,10 @@ $string['badgename'] = 'Nimi';
 $string['badgetags'] = 'Tagit';
 $string['badgewasautomaticallyissued'] = 'Osaamismerkki myönnettiin {$a}:lle henkilölle.';
 $string['blacklistsaved'] = 'Muutokset tallennettu.';
+$string['blacklistdescription'] = 'Valitse osaamismerkit joita et halua näytettävän profiilissasi. Voit valita minkä tahansa järjestelmän kautta myönnetyn merkin piilotettavaksi.';
+$string['cachedef_obf_assertions'] = 'Open Badge Factory merkkien cache';
+$string['cachedef_obf_assertions_moz'] = 'Mozilla Backpack merkkien cache';
+$string['cachedef_obf_assertions_obp'] = 'Open Badge Passport merkkien cache';
 $string['cancel'] = 'Peruuta';
 $string['cannoteditcriterion'] = 'Tämän säännön muokkaus ei ole mahdollista, sillä valittu osaamismerkki on jo myönnetty tämän säännön perusteella.';
 $string['categorysettings'] = 'Merkkikategoriat';
@@ -87,7 +92,7 @@ $string['coursecompletedby'] = 'Suoritettava viimeistään';
 $string['courseeventhistory'] = 'Kurssin myöntämishistoria';
 $string['courserequired'] = 'Valitse ainakin yksi kurssi';
 $string['courseobfbadges'] = 'Osaamismerkit';
-$string['courseuserbadges'] = 'Osaamismerkit';
+$string['courseuserbadges'] = 'Käyttäjien osaamismerkit';
 $string['criteriaaddcourse'] = 'Lisää kurssi';
 $string['criteriacompletedwhen'] = 'Tämä sääntö täyttyy, kun...';
 $string['criteriacompletedwhenall'] = 'Kaikki seuraavat kurssit on suoritettu:';
@@ -110,6 +115,9 @@ $string['deauthenticate'] = 'Katkaise yhteys';
 $string['deauthenticationsuccess'] = 'Yhteys Open Badge Factoryyn katkaistu.';
 $string['deletecriterion'] = 'Poista sääntö';
 $string['disablemoodlebadges'] = 'Piilota Moodlen vanhat merkit.';
+$string['disablemoodlebadges_help'] = 'Vanhat merkit piilotetaan käyttöliittymästä, ' .
+        'mutta käyttäjien Backpackiin tallentamia merkkejä voidaan yhä näyttää ja ' .
+        'Open Badge Factory -palveluun vietyjä merkkejä voidaan yhä myöntää.';
 $string['disconnect'] = 'Katkaise {$a} -yhteys';
 $string['editemailmessage'] = 'Muokkaa sähköpostiviestiä';
 $string['emailbadgerevokedsubject'] = 'Osaamismerkki mitätöity';

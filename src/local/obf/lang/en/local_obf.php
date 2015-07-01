@@ -21,6 +21,7 @@ $string['apierror503'] = 'OBF service is temporarily unavailable. Please try aga
 $string['authenticate'] = 'Authenticate';
 $string['authenticationsuccess'] = 'Authentication successful.';
 $string['availablecategories'] = 'Available categories';
+$string['availablecategoriesselect'] = 'Categories';
 $string['availablecategorieshelp'] = 'Select the badge categories of which badges '
         . 'can be used in issuance events of this institution. If none of the categories '
         . 'is selected, the badges from every category can be issued.';
@@ -51,7 +52,7 @@ $string['badgedetails'] = 'Badge details';
 $string['badgeemail'] = 'Email template';
 $string['badgeexport'] = 'Export badges previously created in Moodle';
 $string['badgeexpiresby'] = 'Expires by';
-$string['badgehistory'] = 'Issuance history';
+$string['badgehistory'] = 'Awarding history';
 $string['badgeimage'] = 'Badge';
 $string['badgeissued'] = 'Badge was successfully issued.';
 $string['badgeissuedwhen'] = 'This badge is automatically awarded when any of the following rule '
@@ -62,6 +63,10 @@ $string['badgename'] = 'Name';
 $string['badgetags'] = 'Tags';
 $string['badgewasautomaticallyissued'] = 'After reviewing the badge was awarded to {$a} recipient(s).';
 $string['blacklistsaved'] = 'Blacklist saved.';
+$string['blacklistdescription'] = 'Select the badges you don\'t want to display on your profile. You can hide any badge issued by this Moodle environment.';
+$string['cachedef_obf_assertions'] = 'OBF badge assertion cache';
+$string['cachedef_obf_assertions_moz'] = 'Mozilla Backpack badge cache';
+$string['cachedef_obf_assertions_obp'] = 'Open Badge Passport badge cache';
 $string['cancel'] = 'Cancel';
 $string['cannoteditcriterion'] = 'This rule cannot be edited, because the badge has already '
         . 'been awarded automatically based on this rule.';
@@ -81,9 +86,9 @@ $string['coursealreadyincriterion'] = 'The rule of automatic awarding of this ba
         . 'rule containing multiple courses.';
 $string['coursebadgelisttitle'] = 'Badges related to this course';
 $string['coursecompletedby'] = 'Completed by';
-$string['courseeventhistory'] = 'Course history';
+$string['courseeventhistory'] = 'Course awarding history';
 $string['courserequired'] = 'At least one course has to be selected';
-$string['courseuserbadges'] = 'Participants badges';
+$string['courseuserbadges'] = 'User badges';
 $string['courseobfbadges'] = 'Badges';
 $string['criteriaaddcourse'] = 'Add course';
 $string['criteriacompletedwhen'] = 'This rule is met when...';
@@ -107,6 +112,9 @@ $string['deauthenticate'] = 'Disconnect';
 $string['deauthenticationsuccess'] = 'Successfully disconnected from Open Badge Factory.';
 $string['deletecriterion'] = 'Delete awarding rule';
 $string['disablemoodlebadges'] = 'Disable Moodle\'s own badge-module.';
+$string['disablemoodlebadges_help'] = 'Old Moodle badges will be hidden from the user interface, ' .
+        'but user badges that are saved to a Backpack can still be shown, and ' .
+        'the badges exported to Open Badge Factory can still be awarded.';
 $string['disconnect'] = 'Disconnect {$a}';
 $string['editemailmessage'] = 'Edit email message';
 $string['emailbadgerevokedsubject'] = 'Your badge has been revoked';
@@ -132,7 +140,7 @@ $string['expiringcertificatesubject'] = 'Open Badge Factory client certificate i
 $string['exportsettings'] = 'Export settings';
 $string['exportextrasettings'] = 'Export settings';
 $string['gradecriterion'] = 'with <strong>minimum grade of {$a}</strong>';
-$string['history'] = 'History';
+$string['history'] = 'Awarding history';
 $string['historyrecipients'] = '{$a} recipients';
 $string['invalidtab'] = 'Page not found';
 $string['issue'] = 'Issue badge';

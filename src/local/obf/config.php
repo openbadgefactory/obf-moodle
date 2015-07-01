@@ -9,9 +9,9 @@ require_once __DIR__ . '/form/badgeexport.php';
 require_once __DIR__ . '/class/client.php';
 
 $context = context_system::instance();
-$url = new moodle_url('/local/obf/config.php');
 $msg = optional_param('msg', '', PARAM_TEXT);
 $action = optional_param('action', 'authenticate', PARAM_TEXT);
+$url = new moodle_url('/local/obf/config.php', array('action' => $action));
 $client = obf_client::get_instance();
 $badgesupport = file_exists($CFG->libdir . '/badgeslib.php');
 
@@ -76,12 +76,12 @@ switch ($action) {
 
         $content .= $PAGE->get_renderer('local_obf')->render($form);
         break;
-        
+
     // Let the user select the badges that can be exported to OBF
     case 'exportbadges':
 
         require_once($CFG->libdir . '/badgeslib.php');
-        
+
         $badges = array_merge(badges_get_badges(BADGE_TYPE_COURSE),
                 badges_get_badges(BADGE_TYPE_SITE));
         $exportform = new obf_badge_export_form($FULLME,

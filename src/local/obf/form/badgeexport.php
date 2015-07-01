@@ -7,6 +7,7 @@ require_once($CFG->libdir . '/formslib.php');
 class obf_badge_export_form extends local_obf_form_base {
 
     protected function definition() {
+        global $OUTPUT;
         $mform = $this->_form;
         $badges = $this->_customdata['badges'];
 
@@ -23,6 +24,7 @@ class obf_badge_export_form extends local_obf_form_base {
                     $label,array('group' => 1));
         }
         $this->add_checkbox_controller(1);
+        $mform->addElement('html', $OUTPUT->notification('Valituista merkeistä luodaan kopio Open Badge Factory -palveluun.', 'notifymessage'));
 
         $mform->addElement('header', 'header_disablebadges',
                 get_string('exportextrasettings', 'local_obf'));
@@ -37,6 +39,7 @@ class obf_badge_export_form extends local_obf_form_base {
 
         $mform->addElement('advcheckbox', 'disablemoodlebadges', '',
                 get_string('disablemoodlebadges', 'local_obf'));
+        $mform->addHelpButton('disablemoodlebadges', 'disablemoodlebadges', 'local_obf');
         $mform->setDefault('disablemoodlebadges', true);
 
         $this->add_action_buttons(false,
