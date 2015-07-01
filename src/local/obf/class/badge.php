@@ -205,6 +205,7 @@ class obf_badge {
         isset($arr['tags']) and $this->set_tags($arr['tags']);
         isset($arr['css']) and $this->set_criteria_css($arr['css']);
         isset($arr['criteria_html']) and $this->set_criteria_html($arr['criteria_html']);
+        isset($arr['criteria']) and preg_match('/^https?:\/\//',$arr['criteria']) and $this->set_criteria_url($arr['criteria']);
 
         // Try to get the email template from the local database first.
         $email = obf_email::get_by_badge($this, $DB);

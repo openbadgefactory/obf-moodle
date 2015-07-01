@@ -307,7 +307,7 @@ class local_obf_renderer extends plugin_renderer_base {
                                         'badge-details') .
 
                                 local_obf_html::div(
-                                        html_writer::link('#',get_string('showbadgecriteria', 'local_obf'),
+                                        html_writer::link($badge->get_criteria_url().'#',get_string('showbadgecriteria', 'local_obf'),
                                         array('class' => 'view-criteria',
                                                 'data-id' => $badge->get_id(),
                                                 'data-url' => $badge->get_criteria_url())) .
