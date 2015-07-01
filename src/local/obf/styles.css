@@ -75,6 +75,17 @@ table.obf-table th  { width: 120px; }
 .obf-assertion dl.obf-definition-list dt { width: auto; float: none; clear: none; }
 .obf-assertion dl.obf-definition-list dd { clear: none; margin-left: 20px; padding-bottom: 20px; }
 
+
+/**
+ * Assertion details (modal)
+ */
+.obf-assertion-modal .image-wrapper { float: left; width: 25%; text-align: center; }
+.obf-assertion-modal h1.badgename { color: #7F7179; text-transform: uppercase; font-weight: 300; }
+.obf-assertion-modal img { max-width: 100%; }
+.obf-assertion-modal .details-area { margin-left: 25%; padding-left: 15px; min-height: 14em; }
+.obf-assertion-modal .details-area a { color: #F59F48; text-decoration: none; }
+.obf-assertion-modal label { display: inline-block; font-weight: 700; color: #7F7179; margin-right: 0.5em; }
+.obf-assertion-modal label:after { content: ":"; }
 /**
  * Assertion popup
  */

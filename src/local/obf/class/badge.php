@@ -443,11 +443,13 @@ class obf_badge {
      */
     public function toArray() {
         return array(
+            'id' => $this->get_id(),
             'issuer' => $this->get_issuer()->toArray(),
             'name' => $this->get_name(),
             'image' => $this->get_image(),
             'description' => $this->get_description(),
-            'criteria_url' => $this->get_criteria_url());
+            'criteria_url' => $this->get_criteria_url(),
+            'criteria_html' => $this->get_criteria_html());
     }
 
     public function set_issuer(obf_issuer $issuer) {
@@ -517,7 +519,10 @@ class obf_badge {
     }
 
     public function set_criteria_html($criteria) {
-        $this->criteria_html = $criteria;
+        if (count($criteria) <= 2) {
+            $this->criteria_html = $criteria;
+        }
+        $this->criteria_html = markdown_to_html($criteria);
         return $this;
     }
 

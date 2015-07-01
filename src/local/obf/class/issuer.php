@@ -1,39 +1,39 @@
 <?php
 class obf_issuer {
 
-    /** 
-     * @var string The id of the issuer. 
+    /**
+     * @var string The id of the issuer.
      */
     private $id = null;
-    
+
     /**
-     * @var string The name of the issuer. 
+     * @var string The name of the issuer.
      */
     private $name = '';
-    
+
     /**
-     * @var string Issuer description. 
+     * @var string Issuer description.
      */
     private $description = '';
-    
+
     /**
-     * @var string Issuer email address. 
+     * @var string Issuer email address.
      */
     private $email = '';
-    
+
     /**
-     * @var string The URL of the issuer. 
+     * @var string The URL of the issuer.
      */
     private $url = '';
-    
+
     /**
-     * @var string The organization name of the issuer. 
+     * @var string The organization name of the issuer.
      */
     private $organization = '';
 
     /**
      * Returns a new obf_issuer instance.
-     * 
+     *
      * @return \self
      */
     public static function get_instance() {
@@ -42,7 +42,7 @@ class obf_issuer {
 
     /**
      * Returns a new obf_issuer instance created from an array.
-     * 
+     *
      * @param array $arr An array with the issuer data.
      * @return obf_issuer The issuer instance.
      */
@@ -53,7 +53,7 @@ class obf_issuer {
     /**
      * Returns a new obf_issuer instance created from an array fetched from
      * the Mozilla Backpack.
-     * 
+     *
      * @param stdClass $obj The issuer data.
      * @return \self The issuer instance.
      */
@@ -65,6 +65,9 @@ class obf_issuer {
         if (isset($obj->contact)) {
             $issuer->set_email($obj->contact);
         }
+        if (isset($obj->email)) {
+            $issuer->set_email($obj->email);
+        }
 
         if (isset($obj->org)) {
             $issuer->set_organization($obj->org);
@@ -75,7 +78,7 @@ class obf_issuer {
 
     /**
      * Populates this instance with the data from the array.
-     * 
+     *
      * @param array $arr The issuer data.
      * @return obf_issuer Returns this instance.
      */
@@ -89,7 +92,7 @@ class obf_issuer {
 
     /**
      * Converts this issuer to an array.
-     * 
+     *
      * @return array This issuer's properties as an array.
      */
     public function toArray() {
@@ -146,7 +149,7 @@ class obf_issuer {
         $this->url = $url;
         return $this;
     }
-    
+
     public function get_organization() {
         return $this->organization;
     }

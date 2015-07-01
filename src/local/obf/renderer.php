@@ -173,6 +173,8 @@ class local_obf_renderer extends plugin_renderer_base {
         $params = $this->get_displayer_params();
         $params['assertions'] = $js_assertions;
         $params['elementid'] = $ulid;
+        $criteriaurl = new moodle_url('/local/obf/criteriapreview.php');
+        $params['criteria_baseurl'] = $criteriaurl->out();
 
         $this->page->requires->yui_module('moodle-local_obf-courseuserbadgedisplayer',
                 'M.local_obf.init_badgedisplayer', array($params));
@@ -205,7 +207,7 @@ class local_obf_renderer extends plugin_renderer_base {
      * @return type
      */
     public function render_assertion(obf_assertion $assertion,
-                                     $printheading = true, $revokeform = null) {
+                                     $printheading = true, $revokeform = null, $modal = false) {
         $html = '';
         $badge = $assertion->get_badge();
         $collection = new obf_assertion_collection(array($assertion));
@@ -246,25 +248,76 @@ class local_obf_renderer extends plugin_renderer_base {
             $html .= $this->print_heading('issuancedetails', 2);
         }
 
-        $html .= local_obf_html::div(
+        if ($modal) {
+            $html .= $this->render_badge_modal($badge, $assertion);
+        } else {
+            $html .= local_obf_html::div(
+                            local_obf_html::div(
+                                    html_writer::empty_tag('img',
+                                            array('src' => $badge->get_image())),
+                                    'image-wrapper') .
+                            local_obf_html::div(
+                                    local_obf_html::div(
+                                            $this->print_heading('badgedetails') .
+                                            $this->render_definition_list($assertionitems),
+                                            'badge-details') .
+                                    local_obf_html::div(
+                                            $this->print_heading('issuerdetails') .
+                                            $this->render_issuer_details($badge->get_issuer()),
+                                            'issuer-details'), 'assertion-details'),
+                            'obf-assertion');
+        }
+
+        return $html;
+    }
+    public function render_badge_modal($badge, $assertion) {
+        $issuer = $badge->get_issuer();
+        $issuerdetails = html_writer::tag('label', get_string('issuer', 'local_obf'));
+        if (!empty($issuer->get_url())) {
+            $issuerdetails .= html_writer::link($issuer->get_url(),
+                    $issuer->get_name(),array('class' => 'issuer-url'));
+        } else {
+            $issuerdetails .= $issuer->get_name();
+        }
+        $issuerdetails .= ' / ' . html_writer::link('mailto:'.$issuer->get_email(),$issuer->get_email());
+        $issuedon = $assertion->get_issuedon();
+        $assertionitems = array(
+            get_string('issuedon', 'local_obf') => $issuedon,
+            get_string('badgeexpiresby', 'local_obf') => $assertion->get_expires()
+        );
+
+        $assertiondetails = html_writer::tag('h1', $badge->get_name(), array('class' => 'badgename'));
+        foreach ($assertionitems as $key => $value) {
+            $assertiondetails .= html_writer::tag('div', html_writer::tag('label', $key) . $value);
+        }
+        $html = local_obf_html::div(
                         local_obf_html::div(
                                 html_writer::empty_tag('img',
                                         array('src' => $badge->get_image())),
                                 'image-wrapper') .
                         local_obf_html::div(
                                 local_obf_html::div(
-                                        $this->print_heading('badgedetails') .
-                                        $this->render_definition_list($assertionitems),
-                                        'badge-details') .
+                                         $assertiondetails,
+                                        'assertion-details') .
                                 local_obf_html::div(
-                                        $this->print_heading('issuerdetails') .
-                                        $this->render_issuer_details($badge->get_issuer()),
-                                        'issuer-details'), 'assertion-details'),
-                        'obf-assertion');
+                                         $issuerdetails,
+                                        'issuer-details') .
+                                local_obf_html::div(
+                                        $badge->get_description(),
+                                        'badge-details') .
 
+                                local_obf_html::div(
+                                        html_writer::link('#',get_string('showbadgecriteria', 'local_obf'),
+                                        array('class' => 'view-criteria',
+                                                'data-id' => $badge->get_id(),
+                                                'data-url' => $badge->get_criteria_url())) .
+                                        html_writer::tag('div', $badge->get_criteria_html(), array('class' => 'criteria-area')),
+                                        'criteria')
+                                        , 'details-area')
+                        ,
+                        'obf-assertion-modal');
         return $html;
     }
-
     /**
      * Renders a definition list.
      *
@@ -1110,8 +1163,10 @@ class local_obf_renderer extends plugin_renderer_base {
                                 $datestring) : $strnever;
                 $row = new html_table_row();
                 $row->id = 'participant-' . $user->id;
-                $link = in_array($user->id, $userswithbackpack) ? html_writer::link('#',
+                /** $link = in_array($user->id, $userswithbackpack) ? html_writer::link('#',
                                 get_string('showbadges', 'local_obf')) : '&nbsp;';
+                                */
+                $link = html_writer::link('#', get_string('showbadges', 'local_obf'));
                 $linkcell = new html_table_cell($link);
 
                 $linkcell->attributes = array('class' => 'show-badges');
@@ -1130,9 +1185,11 @@ class local_obf_renderer extends plugin_renderer_base {
             }
 
             $html .= html_writer::table($table);
-            $url = new moodle_url('/local/obf/backpack.php', array('provider' => $provider));
+            $url = new moodle_url('/local/obf/userbadges.php', array('provider' => $provider));
             $params = $this->get_displayer_params();
             $params['url'] = $url->out();
+            $criteriaurl = new moodle_url('/local/obf/criteriapreview.php');
+            $params['criteria_baseurl'] = $criteriaurl->out();
 
             $this->page->requires->yui_module('moodle-local_obf-courseuserbadgedisplayer',
                     'M.local_obf.init_courseuserbadgedisplayer', array($params));
@@ -1148,12 +1205,12 @@ class local_obf_renderer extends plugin_renderer_base {
             'tpl' => array(
                 'list' => html_writer::tag('ul', '{{{ this.content }}}',
                         array('class' => 'badgelist')),
-                'assertion' => $this->render_assertion($assertion, false),
+                'assertion' => $this->render_assertion($assertion, false, null, true),
                 'badge' => html_writer::tag('li',
                         local_obf_html::div(
                                 html_writer::empty_tag('img',
                                         array('src' => '{{{ this.badge.image }}}')) .
-                                html_writer::tag('p', '{{ this.badge.name }}')),
+                                html_writer::tag('p', '{{ this.badge.name }}', array('class' => 'badgename')), 'obf-badge'),
                         array('title' => '{{ this.badge.name }}', 'id' => '{{ this.id }}'))
         ));
 
@@ -1162,12 +1219,15 @@ class local_obf_renderer extends plugin_renderer_base {
 
     private function get_template_assertion() {
         $issuer = obf_issuer::get_instance_from_arr(array('id' => '', 'description' => '{{ this.badge.issuer.description }}',
-                    'email' => '', 'url' => '{{ this.badge.issuer.url }}', 'name' => '{{ this.badge.issuer.name }}'));
+                    'email' => '{{ this.badge.issuer.email }}', 'url' => '{{ this.badge.issuer.url }}', 'name' => '{{ this.badge.issuer.name }}'));
         $badge = new obf_badge();
+        $badge->set_id('{{ this.badge.id }}');
         $badge->set_name('{{ this.badge.name }}');
         $badge->set_description('{{ this.badge.description }}');
         $badge->set_issuer($issuer);
         $badge->set_image('{{{ this.badge.image }}}');
+        $badge->set_criteria_url('{{{ this.badge.criteria_url }}}');
+        $badge->set_criteria_html('{{{ this.badge.criteria_html }}}');
 
         $assertion = new obf_assertion();
         $assertion->set_badge($badge);

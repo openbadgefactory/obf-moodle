@@ -26,7 +26,14 @@ YUI.add('moodle-local_obf-courseuserbadgedisplayer', function(Y) {
          */
         init_list_only: false,
 
+        /**
+         * ID of the element we are binding to.
+         */
         elementid: null,
+        /**
+         * Base url for criteria pages, for cases where badges are locally issued.
+         */
+        criteria_baseurl: null,
         /**
          * Module initializer
          *
@@ -37,6 +44,7 @@ YUI.add('moodle-local_obf-courseuserbadgedisplayer', function(Y) {
             this.assertions = config.assertions || {};
             this.init_list_only = config.init_list_only || false;
             this.elementid = config.elementid || null;
+            this.criteria_baseurl = config.criteria_baseurl || null;
 
             // compile templates
             this.templates.assertion = this.compile_template(unescape(this.config.tpl.assertion));
@@ -134,8 +142,31 @@ YUI.add('moodle-local_obf-courseuserbadgedisplayer', function(Y) {
             data = this.data_conversions(data);
 
             this.panel.set('bodyContent', this.templates.assertion(data));
-            this.panel.set('headerContent', data.badge.name);
+            this.panel.set('headerContent', null);
+
+            Y.one('body').delegate('click', this.display_criteria, '.view-criteria', this);
+
             this.panel.show();
+        },
+        /**
+         * Displays the information of a single badge.
+         *
+         * @param {type} e
+         * @returns {undefined}
+         */
+        display_criteria: function(e) {
+            e.preventDefault();
+
+            var node = e.currentTarget;
+            var url = node.getAttribute('data-url');
+            var badgeid = node.getAttribute('data-id');
+            if (url.length > 0) {
+                window.location = url;
+            } else if (url.length == 0 && badgeid.length > 0) {
+                url = this.criteria_baseurl + '?badge_id=' + badgeid;
+                window.location = url;
+            }
+
         },
         /**
          * Convert dates and such.

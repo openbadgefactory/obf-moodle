@@ -24,7 +24,7 @@ $string['authenticate'] = 'Yhdistä';
 $string['authenticationsuccess'] = 'Valtuutus onnistui.';
 $string['availablecategories'] = 'Sallitut kategoriat';
 $string['availablecategorieshelp'] = 'Valitse merkkikategoriat, joiden osaamismerkkejä '
-        . 'instituutiossa voidaan myöntää. Mikäli yhtään kategoriaa ei ole valittu, '
+        . 'sivuston kautta voidaan myöntää. Mikäli yhtään kategoriaa ei ole valittu, '
         . 'merkkejä voidaan myöntää kaikista kategorioista.';
 $string['back'] = 'Takaisin';
 $string['backpackconnected'] = 'Yhteys muodostettu';
@@ -55,7 +55,7 @@ $string['badgecriteriaurl'] = 'Kriteerisivu';
 $string['badgedescription'] = 'Kuvaus';
 $string['badgedetails'] = 'Osaamismerkin tiedot';
 $string['badgeemail'] = 'Sähköpostiviesti';
-$string['badgeexport'] = 'Moodlen vanhat merkit';
+$string['badgeexport'] = 'Moodlessa aiemmin luodut merkit';
 $string['badgeexpiresby'] = 'Vanhenee';
 $string['badgehistory'] = 'Myöntämishistoria';
 $string['badgeimage'] = 'Osaamismerkki';
@@ -132,6 +132,7 @@ $string['expiringcertificate'] = 'Open Badge Factoryn sertifikaatti vanhenee <b>
         . 'Organisation Details -> More settings -kohtaan. Sen jälkeen luo valtuutusavain ja liitä '
         . 'se Moodleen OBF-asetussivulla.';
 $string['expiringcertificatesubject'] = 'Open Badge Factoryn sertifikaatti on vanhentumassa.';
+$string['exportsettings'] = 'Vientiasetukset';
 $string['exportextrasettings'] = 'Vientiasetukset';
 $string['gradecriterion'] = 'vähintään <strong>arvosanalla {$a}</strong>';
 $string['history'] = 'Myöntämishistoria';
@@ -142,6 +143,7 @@ $string['issuancedetails'] = 'Myöntämistiedot';
 $string['issuebadge'] = 'Myönnä osaamismerkki';
 $string['issueandexpiration'] = 'Myöntämis- ja vanhenemisaika';
 $string['issuedon'] = 'Myönnetty';
+$string['issuer'] = 'Myöntäjä';
 $string['issuerdescription'] = 'Kuvaus';
 $string['issuerdetails'] = 'Myöntäjän tiedot';
 $string['issueremail'] = 'Sähköpostiosoite';
@@ -239,6 +241,7 @@ $string['selectprogram'] = 'Valitse ohjelma';
 $string['selectrecipients'] = 'Vastaanottajat';
 $string['settings'] = 'Asetukset';
 $string['showassertion'] = 'Tiedot';
+$string['showbadgecriteria'] = 'Avaa kriteerisivu';
 $string['showbadges'] = 'Näytä osaamismerkit';
 $string['showbadgesonmyprofile'] = 'Näytä osaamismerkit profiilisivulla';
 $string['showcategories'] = 'Suodata merkkejä:';
