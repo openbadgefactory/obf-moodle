@@ -67,6 +67,16 @@ class obf_assertion {
      */
     private $id = null;
 
+
+    const ASSERTION_SOURCE_UNKNOWN = 0;
+    const ASSERTION_SOURCE_OBF = 1;
+    const ASSERTION_SOURCE_OPB = 2;
+    const ASSERTION_SOURCE_MOZILLA = 3;
+    /**
+     * @var int Source where assertion came was retrieved (OBF, OPB, Backpack, other? or unknown)
+     */
+    private $source = self::ASSERTION_SOURCE_UNKNOWN;
+
     /**
      * Returns an empty instance of this class.
      *
@@ -150,7 +160,8 @@ class obf_assertion {
                 ->set_id($arr['id'])
                 ->set_name($arr['name'])
                 ->set_recipients($arr['recipient'])
-                ->set_badge(obf_badge::get_instance($arr['badge_id'], $client));
+                ->set_badge(obf_badge::get_instance($arr['badge_id'], $client))
+                ->set_source(self::ASSERTION_SOURCE_OBF);
 
         return $obj;
     }
@@ -166,7 +177,8 @@ class obf_assertion {
         return array(
             'badge' => $badgearr,
             'issued_on' => $this->get_issuedon() == '' ? '-' : $this->get_issuedon(),
-            'expires' => $this->get_expires() == '' ? '-' : $this->get_expires());
+            'expires' => $this->get_expires() == '' ? '-' : $this->get_expires(),
+            'source' => $this->get_source());
     }
 
     /**
@@ -194,7 +206,8 @@ class obf_assertion {
                     ->set_recipients($item['recipient'])
                     ->set_expires($item['expires'])
                     ->set_name($item['name'])
-                    ->set_issuedon($item['issued_on']);
+                    ->set_issuedon($item['issued_on'])
+                    ->set_source(self::ASSERTION_SOURCE_OBF);
         }
 
         // Sort the assertions by date...
@@ -322,6 +335,13 @@ class obf_assertion {
         return $this;
     }
 
+    public function get_source() {
+        return $this->source;
+    }
+    public function set_source($source) {
+        $this->source = $source;
+        return $this;
+    }
 
     public function get_revoked(obf_client $client = null) {
         if (!is_null($client) && count($this->revoked < 1)) {

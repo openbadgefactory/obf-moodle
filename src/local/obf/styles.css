@@ -86,6 +86,7 @@ table.obf-table th  { width: 120px; }
 .obf-assertion-modal .details-area a { color: #F59F48; text-decoration: none; }
 .obf-assertion-modal label { display: inline-block; font-weight: 700; color: #7F7179; margin-right: 0.5em; }
 .obf-assertion-modal label:after { content: ":"; }
+#obf-assertion-panel .blacklist-badge { position: absolute; left: 0; }
 /**
  * Assertion popup
  */

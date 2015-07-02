@@ -24,8 +24,7 @@ $content = $OUTPUT->header();
 $obfuserpreferences = new obf_user_preferences($USER->id);
 $formurl = new moodle_url('/local/obf/blacklist.php', array('action' => 'update'));
 $form = new obf_blacklist_form($formurl,
-        array('userpreferences' => $obfuserpreferences,
-              'user' => $USER,
+        array('user' => $USER,
               'blacklist' => new obf_blacklist($USER->id)));
 
 switch ($action) {
@@ -35,12 +34,25 @@ switch ($action) {
         }
         $content .= $PAGE->get_renderer('local_obf')->render_blacklistconfig($form, $error);
         break;
+    case 'addbadge':
+        $badgeid = required_param('badgeid', PARAM_ALPHANUM);
+        require_sesskey();
+        $blacklist = new obf_blacklist($USER->id);
+        $blacklist->add_to_blacklist($badgeid);
+        $blacklist->save();
+        $redirecturl = $url;
+        $redirecturl->param('msg', get_string('blacklistsaved', 'local_obf'));
+        $redirecturl->param('action', 'edit');
+        cache_helper::invalidate_by_event('obf_blacklist_changed', array($USER->id));
+
+        redirect($redirecturl);
+        break;
     case 'update':
         if ($data = $form->get_data()) {
             $newblacklist = array_keys(array_filter($data->blacklist));
             $blacklist = new obf_blacklist($USER->id);
             $blacklist->save($newblacklist);
-            cache_helper::invalidate_by_event('new_obf_assertion', array($USER->id));
+            cache_helper::invalidate_by_event('obf_blacklist_changed', array($USER->id));
 
             $redirecturl = $url;
             $redirecturl->param('msg', get_string('blacklistsaved', 'local_obf'));

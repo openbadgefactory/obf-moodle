@@ -140,12 +140,14 @@ class local_obf_renderer extends plugin_renderer_base {
      * @param obf_assertion_collection $assertions
      * @return type
      */
-    public function render_user_assertions(obf_assertion_collection $assertions, $large = false) {
+    public function render_user_assertions(obf_assertion_collection $assertions, $userid = null, $large = false) {
         global $USER;
 
         $html = '';
         $items = '';
-        $userid = $USER->id;
+        if (empty($userid)) {
+            $userid = $USER->id;
+        }
         $js_assertions = array();
 
         for ($i = 0; $i < count($assertions); $i++) {
@@ -175,10 +177,20 @@ class local_obf_renderer extends plugin_renderer_base {
         $params['elementid'] = $ulid;
         $criteriaurl = new moodle_url('/local/obf/criteriapreview.php');
         $params['criteria_baseurl'] = $criteriaurl->out();
+        if ($userid == $USER->id) {
+            $blacklisturl = new moodle_url('/local/obf/blacklist.php');
+            $params['blacklist_params'] = array(
+                    'action' => 'addbadge',
+                    'sesskey' => sesskey(),
+                    );
+            $params['blacklist_url'] = $blacklisturl->out();
+            $params['blacklistable'] = true;
+        }
 
         $this->page->requires->yui_module('moodle-local_obf-courseuserbadgedisplayer',
                 'M.local_obf.init_badgedisplayer', array($params));
         $this->page->requires->string_for_js('closepopup', 'local_obf');
+        $this->page->requires->string_for_js('blacklistbadge', 'local_obf');
 
         return $html;
     }
@@ -1194,6 +1206,7 @@ class local_obf_renderer extends plugin_renderer_base {
             $this->page->requires->yui_module('moodle-local_obf-courseuserbadgedisplayer',
                     'M.local_obf.init_courseuserbadgedisplayer', array($params));
             $this->page->requires->string_for_js('closepopup', 'local_obf');
+            $this->page->requires->string_for_js('blacklistbadge', 'local_obf');
         }
 
         return $html;

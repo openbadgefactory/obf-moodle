@@ -22,6 +22,7 @@ class obf_backpack {
     private $transport = null;
     private $provider = 0;
 
+
     private static $providers = array(self::BACKPACK_PROVIDER_MOZILLA,
             self::BACKPACK_PROVIDER_OBP);
     private static $providershortnames = array(
@@ -36,6 +37,10 @@ class obf_backpack {
     private static $provider_requires_email_verification = array(
         self::BACKPACK_PROVIDER_MOZILLA => true,
         self::BACKPACK_PROVIDER_OBP => false
+    );
+    private static $backpack_provider_sources = array(
+        self::BACKPACK_PROVIDER_MOZILLA => obf_assertion::ASSERTION_SOURCE_MOZILLA,
+        self::BACKPACK_PROVIDER_OBP => obf_assertion::ASSERTION_SOURCE_OPB
     );
 
     public function __construct($transport = null, $provider = self::BACKPACK_PROVIDER_MOZILLA) {
@@ -291,6 +296,7 @@ class obf_backpack {
 
         foreach ($json->badges as $item) {
             $assertion = new obf_assertion();
+            $assertion->set_source($this->get_source());
             $badge = new obf_badge();
             $badge->set_name($item->assertion->badge->name);
             $badge->set_image($item->imageUrl);
@@ -450,6 +456,9 @@ class obf_backpack {
     }
     public function get_provider() {
         return !empty($this->provider) ? $this->provider : self::BACKPACK_PROVIDER_MOZILLA;
+    }
+    public function get_source() {
+        return self::$backpack_provider_sources[$this->provider];
     }
     public function get_providershortname() {
         $provider = $this->get_provider();

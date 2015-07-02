@@ -62,6 +62,7 @@ $string['badgelisttitle'] = 'All badges';
 $string['badgename'] = 'Name';
 $string['badgetags'] = 'Tags';
 $string['badgewasautomaticallyissued'] = 'After reviewing the badge was awarded to {$a} recipient(s).';
+$string['blacklistbadge'] = 'Don\'t show badge';
 $string['blacklistsaved'] = 'Blacklist saved.';
 $string['blacklistdescription'] = 'Select the badges you don\'t want to display on your profile. You can hide any badge issued by this Moodle environment.';
 $string['cachedef_obf_assertions'] = 'OBF badge assertion cache';

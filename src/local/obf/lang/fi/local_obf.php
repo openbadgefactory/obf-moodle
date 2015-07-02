@@ -68,6 +68,7 @@ $string['badgelisttitle'] = 'Osaamismerkit';
 $string['badgename'] = 'Nimi';
 $string['badgetags'] = 'Tagit';
 $string['badgewasautomaticallyissued'] = 'Osaamismerkki myönnettiin {$a}:lle henkilölle.';
+$string['blacklistbadge'] = 'Älä näytä merkkiä';
 $string['blacklistsaved'] = 'Muutokset tallennettu.';
 $string['blacklistdescription'] = 'Valitse osaamismerkit joita et halua näytettävän profiilissasi. Voit valita minkä tahansa järjestelmän kautta myönnetyn merkin piilotettavaksi.';
 $string['cachedef_obf_assertions'] = 'Open Badge Factory merkkien cache';

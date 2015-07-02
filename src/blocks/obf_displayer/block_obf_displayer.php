@@ -34,13 +34,13 @@ class block_obf_displayer extends block_base {
         $renderer = $PAGE->get_renderer('local_obf');
         $large = !empty($this->config) && property_exists($this->config, 'largebadges') && $this->config->largebadges == true;
         if ($assertions !== false && count($assertions) > 0) {
-            $this->content->text .= $renderer->render_user_assertions($assertions, $large);
+            $this->content->text .= $renderer->render_user_assertions($assertions, $userid, $large);
         }
         $providers = obf_backpack::get_providers();
         foreach ($providers as $provider) {
             $assertions = $this->get_backpack_assertions($userid, $DB, $provider);
             if (count($assertions) > 0) {
-                $this->content->text .= $renderer->render_user_assertions($assertions, $large);
+                $this->content->text .= $renderer->render_user_assertions($assertions, $userid, $large);
             }
         }
 
@@ -101,6 +101,7 @@ class block_obf_displayer extends block_base {
         }
         return $assertions;
     }
+    function has_config() {return true;}
     public function html_attributes() {
         $attributes = parent::html_attributes();
         $attributes['class'] .= ' local-obf';

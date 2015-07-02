@@ -35,6 +35,19 @@ YUI.add('moodle-local_obf-courseuserbadgedisplayer', function(Y) {
          */
         criteria_baseurl: null,
         /**
+         * Are badges listed here blacklistable, and should be blacklist button be shown?
+         */
+        blacklistable: true,
+
+        /**
+         * Url to blacklist badges.
+         */
+        blacklist_url: null,
+        /**
+         * Params to pass to blacklist url, when blacklisting badges.
+         */
+        blacklist_params: null,
+        /**
          * Module initializer
          *
          * @param Object config
@@ -45,6 +58,9 @@ YUI.add('moodle-local_obf-courseuserbadgedisplayer', function(Y) {
             this.init_list_only = config.init_list_only || false;
             this.elementid = config.elementid || null;
             this.criteria_baseurl = config.criteria_baseurl || null;
+            this.blacklist_url = config.blacklist_url || null;
+            this.blacklist_params = config.blacklist_params || {};
+            this.blacklistable = config.blacklistable || false;
 
             // compile templates
             this.templates.assertion = this.compile_template(unescape(this.config.tpl.assertion));
@@ -85,6 +101,18 @@ YUI.add('moodle-local_obf-courseuserbadgedisplayer', function(Y) {
                     }
                 ]
             });
+            var hide_badge_button = {
+                classNames: 'blacklist-badge',
+                value : M.util.get_string('blacklistbadge', 'local_obf'),
+                action: function(e) {
+                    e.preventDefault();
+                    var node = e.currentTarget;
+                    var badgeurl = node.getAttribute('data-url');
+                    window.location = badgeurl;
+                },
+                section: Y.WidgetStdMod.FOOTER
+            };
+            this.panel.addButton(hide_badge_button);
         },
         /**
          * Adds click observers for a single list of badges.
@@ -144,9 +172,30 @@ YUI.add('moodle-local_obf-courseuserbadgedisplayer', function(Y) {
             this.panel.set('bodyContent', this.templates.assertion(data));
             this.panel.set('headerContent', null);
 
+            this.setup_blacklist_button(data);
+
             Y.one('body').delegate('click', this.display_criteria, '.view-criteria', this);
 
             this.panel.show();
+        },
+        /**
+         * Sets button visibility and adds badge ids and blacklist urls to button attributes.
+         *
+         * @returns {undefined}
+         */
+        setup_blacklist_button: function(data) {
+            var footer = this.panel.get('footerContent').get('node')[0];
+            var button = footer.one('.blacklist-badge');
+            if (this.blacklistable && typeof button === "object" && data.source === 1 && data.badge && data.badge.id.length > 1) {
+                button.setAttribute('data-id', data.badge.id);
+                var params = this.blacklist_params;
+                params['badgeid'] = data.badge.id;
+                var url = this.blacklist_url + '?' + Y.QueryString.stringify(params);
+                button.setAttribute('data-url', url);
+                button.removeClass('hide');
+            } else if (typeof button === "object") {
+                button.addClass('hide');
+            }
         },
         /**
          * Displays the information of a single badge.

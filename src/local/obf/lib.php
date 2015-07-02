@@ -279,7 +279,7 @@ function local_obf_myprofile_navigation(\core_user\output\myprofile\tree $tree, 
         if ($assertions !== false && count($assertions) > 0) {
             $title = get_string('profilebadgelist', 'local_obf');
             $renderer = $PAGE->get_renderer('local_obf');
-            $content = $renderer->render_user_assertions($assertions);
+            $content = $renderer->render_user_assertions($assertions, $user->id, false);
             $localnode = $mybadges = new core_user\output\myprofile\node('badges', 'obfbadges', $title, null, null, $content, null, 'local-obf');
             $tree->add_node($localnode);
         }
@@ -290,7 +290,7 @@ function local_obf_myprofile_navigation(\core_user\output\myprofile\tree $tree, 
                 $name = obf_backpack::get_providershortname_by_providerid($provider);
                 $title = get_string('profilebadgelist' . $name, 'local_obf');
                 $renderer = $PAGE->get_renderer('local_obf');
-                $content = $renderer->render_user_assertions($bpassertions);
+                $content = $renderer->render_user_assertions($bpassertions, $user->id, false);
                 $localnode = $mybadges = new core_user\output\myprofile\node('badges', 'obfbadges'.$name, $title, null, null, $content, null, 'local-obf');
                 $tree->add_node($localnode);
             }

@@ -11,7 +11,6 @@ class obf_blacklist_form extends local_obf_form_base {
         global $OUTPUT;
 
         $mform = $this->_form;
-        $userpreferences = $this->_customdata['userpreferences'];
         $this->blacklist = $this->_customdata['blacklist'];
         $user = $this->_customdata['user'];
         $client = new obf_client();
