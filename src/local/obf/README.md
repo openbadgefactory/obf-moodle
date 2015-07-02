@@ -1,7 +1,7 @@
 OBF Moodle plugin
 =================
 
-This project user Composer to manage dependencies. If you don't have Composer
+This project uses Composer to manage dependencies. If you don't have Composer
 installed, run the following command to install it:
 
     curl -sS https://getcomposer.org/installer | php
@@ -61,3 +61,14 @@ Moodle 2.2:
    directory, for example `sudo chown www-data:www-data /[MoodleDir]/local/obf/pki`
 3. Update the database using the notifications page
 
+Post install
+------------
+
+To connect to Open Badge Factory, the plugin needs a request token or API key.
+
+To generate the required API key, log in to [Open Badge Factory](https://openbadgefactory.com).
+When logged in, navigate to `Admin tools > API key`.
+On the API key -page click on `Generate certificate signing request token`.
+
+Copy the generated token into OBF Moodle plugin settings,
+in `Site administration > Open Badges > Settings`.

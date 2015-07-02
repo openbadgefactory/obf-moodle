@@ -133,7 +133,7 @@ switch ($action) {
             if ($data->disablemoodlebadges) {
                 set_config('enablebadges', 0);
             }
-
+            $url->param('action', 'authenticate');
             redirect($url);
         }
 

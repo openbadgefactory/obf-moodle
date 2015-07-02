@@ -219,8 +219,12 @@ $string['readmeenablecompletion_help'] = '<p>In order for the automatic badge ' 
 $string['recipients'] = 'Recipients';
 $string['recipientcandidates'] = 'Users matching the search';
 $string['requesttoken'] = 'OBF request token';
-$string['requesttoken_help'] = 'Paste here the token that is used to connect to Open Badge Factory ' .
-        'API.';
+$string['requesttoken_help'] = '<p>Paste here the token that is used to connect to Open Badge Factory ' .
+        'API.</p><p>' .
+        'To generate the required API key, log in to <a href="https://openbadgefactory.com">Open Badge Factory</a>,  '.
+        'in the \'<i>Admin tools</i>\' -page, open the \'<i>API key</i>\' -link, ' .
+        'and click on \'<i>Generate certificate signing request token</i>\'. ' .
+        'Copy the generated token into Moodle.</p>';
 $string['resetfilter'] = 'Reset filter';
 $string['reviewcriterionaftersave'] = 'Review rule after saving';
 $string['reviewcriterionaftersave_help'] = 'If this checkbox is checked, the rule will be '
