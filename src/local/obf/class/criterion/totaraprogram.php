@@ -1,8 +1,28 @@
 <?php
-global $CFG;
-require_once __DIR__ . '/item_base.php';
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-require_once $CFG->dirroot . '/user/lib.php';
+/**
+ * @package    local_obf
+ * @copyright  2013-2015, Discendum Oy
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+global $CFG;
+require_once(__DIR__ . '/item_base.php');
+
+require_once($CFG->dirroot . '/user/lib.php');
 
 
 class obf_criterion_totaraprogram extends obf_criterion_course {
@@ -10,8 +30,8 @@ class obf_criterion_totaraprogram extends obf_criterion_course {
     protected $criteriatype = obf_criterion_item::CRITERIA_TYPE_TOTARA_PROGRAM;
 
 
-    protected $required_param = 'program';
-    protected $optional_params = array('completedby', 'expiresbycertificate');
+    protected $requiredparam = 'program';
+    protected $optionalparams = array('completedby', 'expiresbycertificate');
 
     protected $programscache = array();
     protected $certexpirescache = null;
@@ -44,12 +64,10 @@ class obf_criterion_totaraprogram extends obf_criterion_course {
      * @return \obf_criterion_activity
      */
     public function populate_from_record(\stdClass $record) {
-        $this->set_id($record->id)
-                ->set_criterionid($record->obf_criterion_id)
-                ->set_courseid($record->courseid)
-                ->set_completedby($record->completed_by)
-                ->set_criteriatype($record->criteria_type);
-        // TODO:  params
+        $this->set_id($record->id)->set_criterionid($record->obf_criterion_id);
+        $this->set_courseid($record->courseid)->set_completedby($record->completed_by);
+        $this->set_criteriatype($record->criteria_type);
+        // TODO:  Params?
         return $this;
     }
 
@@ -77,7 +95,7 @@ class obf_criterion_totaraprogram extends obf_criterion_course {
 
     public function get_program_from_cache($progid) {
         global $CFG;
-        require_once $CFG->dirroot . '/totara/program/program.class.php';
+        require_once($CFG->dirroot . '/totara/program/program.class.php');
         if (array_key_exists($progid, $this->programscache)) {
             return $this->programscache[$progid];
         }
@@ -85,7 +103,7 @@ class obf_criterion_totaraprogram extends obf_criterion_course {
             $program = new program($progid);
             $this->programscache[$progid] = $program;
             return $this->programscache[$progid];
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             debugging($e->getMessage());
         }
         return false;
@@ -118,25 +136,28 @@ class obf_criterion_totaraprogram extends obf_criterion_course {
     }
     protected function get_affected_users() {
         global $DB, $CFG, $ASSIGNMENT_CATEGORY_CLASSNAMES;
-        require_once $CFG->dirroot . '/totara/program/program.class.php';
+        require_once($CFG->dirroot . '/totara/program/program.class.php');
         $programids = $this->get_programids();
         $users = array();
         foreach ($programids as $programid) {
             $program = $this->get_program_from_cache($programid);
-            $prog_assignments = $program->get_assignments();
-            if ($prog_assignments) {
-                $assignments = $prog_assignments->get_assignments();
+            $progassignments = $program->get_assignments();
+            if ($progassignments) {
+                $assignments = $progassignments->get_assignments();
                 foreach ($assignments as $assignment) {
-                    $assignments_class = new $ASSIGNMENT_CATEGORY_CLASSNAMES[$assignment->assignmenttype]();
-                    $affected_users = $assignments_class->get_affected_users_by_assignment($assignment);
-                    foreach ($affected_users as $user) {
+                    $assignmentsclass = new $ASSIGNMENT_CATEGORY_CLASSNAMES[$assignment->assignmenttype]();
+                    $affectedusers = $assignmentsclass->get_affected_users_by_assignment($assignment);
+                    foreach ($affectedusers as $user) {
                         $users[$user->id] = $user;
                     }
                 }
             }
         }
-        // Also get email-addresses for users, as they are needed when issuing badges
-        $userids = array_map(function ($u) { return $u->id; }, $users);
+        // Also get email-addresses for users, as they are needed when issuing badges.
+        $userids = array_map(
+                function ($u) {
+                    return $u->id;
+                }, $users);
         list($insql, $inparams) = $DB->get_in_or_equal($userids, SQL_PARAMS_NAMED, 'user');
         $sql = "SELECT u.id, u.email FROM {user} AS u WHERE id " . $insql;
         $records = $DB->get_records_sql($sql, $inparams);
@@ -151,23 +172,23 @@ class obf_criterion_totaraprogram extends obf_criterion_course {
      * @global moodle_database $DB
      * @param int $userid The id of the user.
      * @param obf_criterion $criterion The main criterion.
-     * @param obf_criterion_item[] $other_items Other items related to main criterion.
+     * @param obf_criterion_item[] $otheritems Other items related to main criterion.
      * @param type[] $extra Extra options passed to review method.
      * @return boolean If the course criterion is completed by the user.
      */
-    protected function review_for_user($user, $criterion = null, $other_items = null, &$extra = null) {
+    protected function review_for_user($user, $criterion = null, $otheritems = null, &$extra = null) {
         global $CFG, $DB;
-        require_once $CFG->dirroot . '/totara/program/program.class.php';
-        require_once $CFG->dirroot . '/grade/querylib.php';
-        require_once $CFG->libdir . '/gradelib.php';
-        require_once $CFG->libdir . '/completionlib.php';
+        require_once($CFG->dirroot . '/totara/program/program.class.php');
+        require_once($CFG->dirroot . '/grade/querylib.php');
+        require_once($CFG->libdir . '/gradelib.php');
+        require_once($CFG->libdir . '/completionlib.php');
 
         $userid = $user->id;
 
         $programids = $this->get_programids();
         $criterion = !is_null($criterion) ? $criterion : $this->get_criterion();
         $requireall = $criterion->get_completion_method() == obf_criterion::CRITERIA_COMPLETION_ALL;
-        $programscomplete = $requireall; // Default to true when requiring completion of all programs, false if completion of any
+        $programscomplete = $requireall; // Default to true when requiring completion of all programs, false if completion of any.
         $completedat = false;
         $completedprogramcount = 0;
         foreach ($programids as $programid) {
@@ -175,26 +196,28 @@ class obf_criterion_totaraprogram extends obf_criterion_course {
             $certexpires = null;
             if ($this->get_criteriatype() == obf_criterion_item::CRITERIA_TYPE_TOTARA_CERTIF) {
                 $certifid = $program->certifid;
-                $prog_completion_record = $DB->get_record('certif_completion', array('certifid' => $certifid, 'userid' => $userid));
-                $completedat = $prog_completion_record ? $prog_completion_record->timecompleted : time();
-                $progcomplete = $prog_completion_record && $prog_completion_record->status == CERTIFSTATUS_COMPLETED;
+                $progcompletionrecord = $DB->get_record('certif_completion', array('certifid' => $certifid, 'userid' => $userid));
+                $completedat = $progcompletionrecord ? $progcompletionrecord->timecompleted : time();
+                $progcomplete = $progcompletionrecord && $progcompletionrecord->status == CERTIFSTATUS_COMPLETED;
 
                 if ($progcomplete) {
                     $certification = $DB->get_record('certif', array('id' => $certifid));
                     $lastcompleted = certif_get_content_completion_time($certifid, $userid);
-                    $certiftimebase = get_certiftimebase($certification->recertifydatetype, $prog_completion_record->timeexpires, $lastcompleted);
+                    $certiftimebase = get_certiftimebase($certification->recertifydatetype,
+                            $progcompletionrecord->timeexpires, $lastcompleted);
                     $certexpires = get_timeexpires($certiftimebase, $certification->activeperiod);
                 }
             } else {
-                $prog_completion_record = $DB->get_record('prog_completion', array('programid' => $programid, 'userid' => $userid, 'coursesetid' => 0));
-                $completedat = $prog_completion_record ? $prog_completion_record->timecompleted : time();
-                $progcomplete = $prog_completion_record && $prog_completion_record->status == STATUS_PROGRAM_COMPLETE;
+                $progcompletionrecord = $DB->get_record('prog_completion',
+                        array('programid' => $programid, 'userid' => $userid, 'coursesetid' => 0));
+                $completedat = $progcompletionrecord ? $progcompletionrecord->timecompleted : time();
+                $progcomplete = $progcompletionrecord && $progcompletionrecord->status == STATUS_PROGRAM_COMPLETE;
             }
             if (!$progcomplete) {
                 if ($requireall) {
                     return false;
                 }
-            } else { // User has completed program
+            } else { // User has completed program.
                 $dateok = !$this->has_prog_completedby($programid) ||
                         $completedat <= $this->get_prog_completedby($programid);
                 if (!$dateok) {
@@ -218,7 +241,6 @@ class obf_criterion_totaraprogram extends obf_criterion_course {
             return false;
         }
 
-
         return true;
     }
     public function get_issue_expires_override($user = null) {
@@ -240,13 +262,13 @@ class obf_criterion_totaraprogram extends obf_criterion_course {
 
     protected function has_prog_completedby($programid) {
         $params = $this->get_params();
-        $prog_params = array_key_exists($programid, $params) ? $params[$programid] : array();
-        return array_key_exists('completedby', $prog_params);
+        $progparams = array_key_exists($programid, $params) ? $params[$programid] : array();
+        return array_key_exists('completedby', $progparams);
     }
     protected function get_prog_completedby($programid) {
         $params = $this->get_params();
-        $prog_params = array_key_exists($programid, $params) ? $params[$programid] : array();
-        return array_key_exists('completedby', $prog_params) ? $prog_params['completedby'] : -1;
+        $progparams = array_key_exists($programid, $params) ? $params[$programid] : array();
+        return array_key_exists('completedby', $progparams) ? $progparams['completedby'] : -1;
     }
     public function get_name() {
         return 'Program';
@@ -313,10 +335,11 @@ class obf_criterion_totaraprogram extends obf_criterion_course {
      * @param type $params
      */
     private function get_form_programs(&$mform, $programs, $params) {
-        $mform->addElement('html',html_writer::tag('p', get_string('selectprogram', 'local_obf')));
+        $mform->addElement('html', html_writer::tag('p', get_string('selectprogram', 'local_obf')));
 
         $existing = array();
-        $completedby = array_map(function($a) {
+        $completedby = array_map(
+                function($a) {
                     if (array_key_exists('completedby', $a)) {
                         return $a['completedby'];
                     }
@@ -363,10 +386,10 @@ class obf_criterion_totaraprogram extends obf_criterion_course {
         global $OUTPUT;
         $crittype = $this->get_criteriatype();
 
-        $mform->addElement('hidden','criteriatype', $crittype);
+        $mform->addElement('hidden', 'criteriatype', $crittype);
         $mform->setType('criteriatype', PARAM_INT);
 
-        $mform->createElement('hidden','picktype', 'no');
+        $mform->createElement('hidden', 'picktype', 'no');
         $mform->setType('picktype', PARAM_TEXT);
 
         if ($this->get_criteriatype() == obf_criterion_item::CRITERIA_TYPE_TOTARA_CERTIF) {
@@ -384,7 +407,7 @@ class obf_criterion_totaraprogram extends obf_criterion_course {
 
             $mform->setDefault('expiresbycertificate_global', $this->get_expires_method());
 
-            $obj->setExpanded($mform, 'header_totaraprogramselectexpires', true);            
+            $obj->setExpanded($mform, 'header_totaraprogramselectexpires', true);
         }
     }
     /**

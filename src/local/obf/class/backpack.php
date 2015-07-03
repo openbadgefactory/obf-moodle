@@ -1,6 +1,26 @@
 <?php
-require_once __DIR__ . '/assertion.php';
-require_once __DIR__ . '/assertion_collection.php';
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+/**
+ * @package    local_obf
+ * @copyright  2013-2015, Discendum Oy
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+require_once(__DIR__ . '/assertion.php');
+require_once(__DIR__ . '/assertion_collection.php');
 
 /**
  * Class for handling the communication between the plugin and Mozilla Backpack.
@@ -15,9 +35,9 @@ class obf_backpack {
     const BACKPACK_PROVIDER_OBP = 1;
 
     private $id = -1;
-    private $user_id = -1;
+    private $userid = -1;
     private $email = '';
-    private $backpack_id = -1;
+    private $backpackid = -1;
     private $groups = array();
     private $transport = null;
     private $provider = 0;
@@ -34,11 +54,11 @@ class obf_backpack {
         self::BACKPACK_PROVIDER_OBP => self::OPB_URL
     );
 
-    private static $provider_requires_email_verification = array(
+    private static $providerrequiresemailverification = array(
         self::BACKPACK_PROVIDER_MOZILLA => true,
         self::BACKPACK_PROVIDER_OBP => false
     );
-    private static $backpack_provider_sources = array(
+    private static $backpackprovidersources = array(
         self::BACKPACK_PROVIDER_MOZILLA => obf_assertion::ASSERTION_SOURCE_MOZILLA,
         self::BACKPACK_PROVIDER_OBP => obf_assertion::ASSERTION_SOURCE_OPB
     );
@@ -165,7 +185,6 @@ class obf_backpack {
                     'WHERE backpack_id > 0 AND backpack_provider = :provider', array('provider' => $provider));
         }
 
-
         foreach ($records as $record) {
             $ret[] = $record->user_id;
         }
@@ -268,8 +287,7 @@ class obf_backpack {
         if ($backpackid !== false) {
             $this->set_backpack_id($backpackid);
             $this->save();
-        }
-        else {
+        } else {
             $this->disconnect();
             throw new Exception(get_string('backpackemailnotfound', 'local_obf',
                     s($email)));
@@ -285,7 +303,7 @@ class obf_backpack {
     }
 
     public function get_group_assertions($groupid, $limit = -1) {
-        if ($this->backpack_id < 0) {
+        if ($this->backpackid < 0) {
             throw new Exception('Backpack connection isn\'t set.');
         }
 
@@ -359,17 +377,16 @@ class obf_backpack {
         global $DB;
 
         $obj = new stdClass();
-        $obj->user_id = $this->user_id;
+        $obj->user_id = $this->userid;
         $obj->email = $this->email;
-        $obj->backpack_id = $this->backpack_id;
+        $obj->backpack_id = $this->backpackid;
         $obj->backpack_provider = $this->provider;
         $obj->groups = serialize($this->groups);
 
         if ($this->id > 0) {
             $obj->id = $this->id;
             $DB->update_record('local_obf_backpack_emails', $obj);
-        }
-        else {
+        } else {
             $id = $DB->insert_record('local_obf_backpack_emails', $obj);
             $this->set_id($id);
         }
@@ -384,7 +401,7 @@ class obf_backpack {
     }
 
     public function is_connected() {
-        return $this->backpack_id > 0;
+        return $this->backpackid > 0;
     }
 
     public function get_id() {
@@ -392,7 +409,7 @@ class obf_backpack {
     }
 
     public function get_user_id() {
-        return $this->user_id;
+        return $this->userid;
     }
 
     public function get_email() {
@@ -400,7 +417,7 @@ class obf_backpack {
     }
 
     public function get_backpack_id() {
-        return $this->backpack_id;
+        return $this->backpackid;
     }
 
     public function set_id($id) {
@@ -408,8 +425,8 @@ class obf_backpack {
         return $this;
     }
 
-    public function set_user_id($user_id) {
-        $this->user_id = $user_id;
+    public function set_user_id($userid) {
+        $this->userid = $userid;
         return $this;
     }
 
@@ -418,8 +435,8 @@ class obf_backpack {
         return $this;
     }
 
-    public function set_backpack_id($backpack_id) {
-        $this->backpack_id = $backpack_id;
+    public function set_backpack_id($backpackid) {
+        $this->backpackid = $backpackid;
         return $this;
     }
 
@@ -442,7 +459,7 @@ class obf_backpack {
         return self::does_provider_require_email_verification($this->provider);
     }
     public static function does_provider_require_email_verification($provider) {
-        return self::$provider_requires_email_verification[$provider];
+        return self::$providerrequiresemailverification[$provider];
     }
     public static function get_providers() {
         return self::$providers;
@@ -458,7 +475,7 @@ class obf_backpack {
         return !empty($this->provider) ? $this->provider : self::BACKPACK_PROVIDER_MOZILLA;
     }
     public function get_source() {
-        return self::$backpack_provider_sources[$this->provider];
+        return self::$backpackprovidersources[$this->provider];
     }
     public function get_providershortname() {
         $provider = $this->get_provider();

@@ -48,6 +48,10 @@ YUI.add('moodle-local_obf-courseuserbadgedisplayer', function(Y) {
          */
         blacklist_params: null,
         /**
+         * Branding images to be displayed.
+         */
+        branding_urls: {},
+        /**
          * Module initializer
          *
          * @param Object config
@@ -61,6 +65,7 @@ YUI.add('moodle-local_obf-courseuserbadgedisplayer', function(Y) {
             this.blacklist_url = config.blacklist_url || null;
             this.blacklist_params = config.blacklist_params || {};
             this.blacklistable = config.blacklistable || false;
+            this.branding_urls = config.branding_urls || false;
 
             // compile templates
             this.templates.assertion = this.compile_template(unescape(this.config.tpl.assertion));
@@ -70,8 +75,7 @@ YUI.add('moodle-local_obf-courseuserbadgedisplayer', function(Y) {
             // do it!
             if (this.init_list_only) {
                 this.process_single();
-            }
-            else {
+            } else {
                 this.process();
             }
         },
@@ -173,10 +177,29 @@ YUI.add('moodle-local_obf-courseuserbadgedisplayer', function(Y) {
             this.panel.set('headerContent', null);
 
             this.setup_blacklist_button(data);
+            this.setup_panel_branding(data);
 
             Y.one('body').delegate('click', this.display_criteria, '.view-criteria', this);
 
             this.panel.show();
+        },
+        setup_panel_branding: function (data) {
+            // Do we want more flexible branding?
+            var footer_classes = [];
+            this.panel.footerNode.getAttribute('class').split(' ').forEach(function(a) { var pattern = /^assertion/i; if (!pattern.test(a)) { footer_classes.push(a); } });
+            var sourcename = 'unknown';
+            if (data.source === 1) {
+                sourcename = 'obf';
+            } else if (data.source === 2) {
+                sourcename = 'obp';
+            }
+            this.panel.footerNode.setAttribute('class', footer_classes + ' assertion-source-' + sourcename);
+            if (this.branding_urls.hasOwnProperty(data.source)) {
+                var url = this.branding_urls[data.source];
+                this.panel.footerNode.setAttribute('style', 'background-image: url(\'' + url + '\');');
+            } else {
+                this.panel.footerNode.setAttribute('style', '');
+            }
         },
         /**
          * Sets button visibility and adds badge ids and blacklist urls to button attributes.
@@ -193,7 +216,7 @@ YUI.add('moodle-local_obf-courseuserbadgedisplayer', function(Y) {
                 var url = this.blacklist_url + '?' + Y.QueryString.stringify(params);
                 button.setAttribute('data-url', url);
                 button.removeClass('hide');
-            } else if (typeof button === "object") {
+            } else if (typeof button === "object" && button !== null) {
                 button.addClass('hide');
             }
         },
@@ -267,8 +290,7 @@ YUI.add('moodle-local_obf-courseuserbadgedisplayer', function(Y) {
                     }
                 });
 
-            }
-            else {
+            } else {
                 badgerow.toggleView();
             }
 

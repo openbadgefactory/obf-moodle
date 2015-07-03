@@ -1,11 +1,30 @@
 <?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
  * Page for blacklisting individual badges from being displayed on the profile page.
+ *
+ * @package    local_obf
+ * @copyright  2013-2015, Discendum Oy
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-require_once __DIR__ . '/../../config.php';
-require_once __DIR__ . '/class/blacklist.php';
-require_once __DIR__ . '/form/blacklist.php';
-require_once __DIR__ . '/class/user_preferences.php';
+require_once(__DIR__ . '/../../config.php');
+require_once(__DIR__ . '/class/blacklist.php');
+require_once(__DIR__ . '/form/blacklist.php');
+require_once(__DIR__ . '/class/user_preferences.php');
 
 $error = optional_param('error', '', PARAM_TEXT);
 $msg = optional_param('msg', '', PARAM_TEXT);
@@ -30,7 +49,7 @@ $form = new obf_blacklist_form($formurl,
 switch ($action) {
     case 'edit':
         if (!empty($msg)) {
-            $content .= $OUTPUT->notification($msg,'notifysuccess');
+            $content .= $OUTPUT->notification($msg, 'notifysuccess');
         }
         $content .= $PAGE->get_renderer('local_obf')->render_blacklistconfig($form, $error);
         break;

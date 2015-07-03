@@ -1,5 +1,24 @@
 <?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+/**
+ * @package    local_obf
+ * @copyright  2013-2015, Discendum Oy
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 defined('MOODLE_INTERNAL') or die();
 
 require_once($CFG->libdir . '/formslib.php');
@@ -21,18 +40,15 @@ class obf_badge_export_form extends local_obf_form_base {
         foreach ($badges as $badge) {
             $label = print_badge_image($badge, $badge->get_context()) . ' ' . s($badge->name);
             $mform->addElement('advcheckbox', 'toexport[' . $badge->id . ']', '',
-                    $label,array('group' => 1));
+                    $label, array('group' => 1));
         }
         $this->add_checkbox_controller(1);
-        $mform->addElement('html', $OUTPUT->notification('Valituista merkeistä luodaan kopio Open Badge Factory -palveluun.', 'notifymessage'));
+        $mform->addElement('html', $OUTPUT->notification(get_string('badgeexportdescription', 'local_obf'), 'notifymessage'));
 
         $mform->addElement('header', 'header_disablebadges',
                 get_string('exportextrasettings', 'local_obf'));
 
         if (count($badges) > 0) {
-            /**$mform->addElement('advcheckbox', 'makedrafts', '',
-                    get_string('makeexporteddrafts', 'local_obf'));
-            $mform->setDefault('makedrafts', false);*/
             $mform->addElement('hidden', 'makedrafts', 0);
             $mform->setType('makedrafts', PARAM_INT);
         }

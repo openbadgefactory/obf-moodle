@@ -1,9 +1,28 @@
 <?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-require_once __DIR__ . '/client.php';
-require_once __DIR__ . '/badge.php';
-require_once __DIR__ . '/collection.php';
-require_once __DIR__ . '/assertion_collection.php';
+/**
+ * @package    local_obf
+ * @copyright  2013-2015, Discendum Oy
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+require_once(__DIR__ . '/client.php');
+require_once(__DIR__ . '/badge.php');
+require_once(__DIR__ . '/collection.php');
+require_once(__DIR__ . '/assertion_collection.php');
 
 /**
  * Represents a single event in OBF.
@@ -72,6 +91,7 @@ class obf_assertion {
     const ASSERTION_SOURCE_OBF = 1;
     const ASSERTION_SOURCE_OPB = 2;
     const ASSERTION_SOURCE_MOZILLA = 3;
+
     /**
      * @var int Source where assertion came was retrieved (OBF, OPB, Backpack, other? or unknown)
      */
@@ -152,16 +172,11 @@ class obf_assertion {
      */
     public static function get_instance_by_id($id, obf_client $client) {
         $arr = $client->get_event($id);
-        $obj = self::get_instance()
-                ->set_emailbody($arr['email_body'])
-                ->set_emailfooter($arr['email_footer'])
-                ->set_emailsubject($arr['email_subject'])
-                ->set_issuedon($arr['issued_on'])
-                ->set_id($arr['id'])
-                ->set_name($arr['name'])
-                ->set_recipients($arr['recipient'])
-                ->set_badge(obf_badge::get_instance($arr['badge_id'], $client))
-                ->set_source(self::ASSERTION_SOURCE_OBF);
+        $obj = self::get_instance()->set_emailbody($arr['email_body']);
+        $obj->set_emailfooter($arr['email_footer'])->set_emailsubject($arr['email_subject']);
+        $obj->set_issuedon($arr['issued_on'])->set_id($arr['id'])->set_name($arr['name']);
+        $obj->set_recipients($arr['recipient'])->set_badge(obf_badge::get_instance($arr['badge_id'], $client));
+        $obj->set_source(self::ASSERTION_SOURCE_OBF);
 
         return $obj;
     }
@@ -200,21 +215,18 @@ class obf_assertion {
 
         foreach ($arr as $item) {
             $b = is_null($badge) ? $collection->get_badge($item['badge_id']) : $badge;
-            $assertions[] = self::get_instance()
-                    ->set_badge($b)
-                    ->set_id($item['id'])
-                    ->set_recipients($item['recipient'])
-                    ->set_expires($item['expires'])
-                    ->set_name($item['name'])
-                    ->set_issuedon($item['issued_on'])
-                    ->set_source(self::ASSERTION_SOURCE_OBF);
+            $assertion = self::get_instance();
+            $assertion->set_badge($b)->set_id($item['id'])->set_recipients($item['recipient']);
+            $assertion->set_expires($item['expires'])->set_name($item['name']);
+            $assertion->set_issuedon($item['issued_on'])->set_source(self::ASSERTION_SOURCE_OBF);
+            $assertions[] = $assertion;
         }
 
         // Sort the assertions by date...
         usort($assertions,
                 function (obf_assertion $a1, obf_assertion $a2) {
-            return $a1->get_issuedon() <= $a2->get_issuedon();
-        });
+                    return $a1->get_issuedon() <= $a2->get_issuedon();
+                });
 
         // ... And limit the result set if that's what we want.
         if ($limit > 0) {
@@ -351,7 +363,7 @@ class obf_assertion {
                     $this->revoked = $arr['revoked'];
                 }
             } catch (Exception $e) {
-                // API method for revoked may not be published yet
+                // API method for revoked may not be published yet.
                 $this->revoked = array();
             }
         }
@@ -377,7 +389,7 @@ class obf_assertion {
         if (is_null($emails)) {
             $emails = $this->get_recipients();
         }
-        $users = $DB->get_records_list('user','email', $emails);
+        $users = $DB->get_records_list('user', 'email', $emails);
         if (count($users) < count($emails)) {
             foreach ($users as $user) {
                 $key = array_search($user->email, $emails);

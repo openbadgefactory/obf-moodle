@@ -1,11 +1,30 @@
 <?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-require_once __DIR__ . '/issuer.php';
-require_once __DIR__ . '/client.php';
-require_once __DIR__ . '/email.php';
-require_once __DIR__ . '/criterion/criterion.php';
-require_once __DIR__ . '/assertion.php';
-require_once __DIR__ . '/assertion_collection.php';
+/**
+ * @package    local_obf
+ * @copyright  2013-2015, Discendum Oy
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+require_once(__DIR__ . '/issuer.php');
+require_once(__DIR__ . '/client.php');
+require_once(__DIR__ . '/email.php');
+require_once(__DIR__ . '/criterion/criterion.php');
+require_once(__DIR__ . '/assertion.php');
+require_once(__DIR__ . '/assertion_collection.php');
 
 /**
  * Class for a single Open Badge Factory -badge
@@ -57,17 +76,17 @@ class obf_badge {
     /**
      * @var string The HTML-markup of badge criteria.
      */
-    private $criteria_html = '';
+    private $criteriahtml = '';
 
     /**
      * @var string The CSS of the badge criteria page.
      */
-    private $criteria_css = '';
+    private $criteriacss = '';
 
     /**
      * @var string The URL of the badge criteria.
      */
-    private $criteria_url = '';
+    private $criteriaurl = '';
     private $expiresby = null;
 
     /**
@@ -97,15 +116,13 @@ class obf_badge {
 
         if (is_null($id)) {
             $obj = new self();
-        }
-        else if (!isset(self::$badgecache[$id])) {
+        } else if (!isset(self::$badgecache[$id])) {
             $obj = new self();
 
             if ($obj->set_id($id)->populate() !== false) {
                 self::$badgecache[$id] = $obj;
             }
-        }
-        else {
+        } else {
             $obj = self::$badgecache[$id];
         }
 
@@ -173,7 +190,7 @@ class obf_badge {
      * @return obf_badge The badge.
      */
     public static function get_instance_from_array($arr) {
-        return obf_badge::get_instance()->populate_from_array($arr);
+        return self::get_instance()->populate_from_array($arr);
     }
 
     /**
@@ -187,12 +204,8 @@ class obf_badge {
         global $DB;
 
         // These should always exist.
-        $this->set_description($arr['description'])
-                ->set_id($arr['id'])
-                ->set_isdraft((bool) $arr['draft'])
-                ->set_image($arr['image'])
-                ->set_created($arr['ctime'])
-                ->set_name($arr['name']);
+        $this->set_description($arr['description'])->set_id($arr['id'])->set_isdraft((bool) $arr['draft']);
+        $this->set_image($arr['image'])->set_created($arr['ctime'])->set_name($arr['name']);
 
         $expires = (int) $arr['expires'];
 
@@ -205,7 +218,7 @@ class obf_badge {
         isset($arr['tags']) and $this->set_tags($arr['tags']);
         isset($arr['css']) and $this->set_criteria_css($arr['css']);
         isset($arr['criteria_html']) and $this->set_criteria_html($arr['criteria_html']);
-        isset($arr['criteria']) and preg_match('/^https?:\/\//',$arr['criteria']) and $this->set_criteria_url($arr['criteria']);
+        isset($arr['criteria']) and preg_match('/^https?:\/\//', $arr['criteria']) and $this->set_criteria_url($arr['criteria']);
 
         // Try to get the email template from the local database first.
         $email = obf_email::get_by_badge($this, $DB);
@@ -504,9 +517,6 @@ class obf_badge {
     }
 
     public function get_description() {
-//        if (is_null($this->description)) {
-//            $this->populate();
-//        }
         return $this->description;
     }
 
@@ -516,14 +526,14 @@ class obf_badge {
     }
 
     public function get_criteria_html() {
-        return $this->criteria_html;
+        return $this->criteriahtml;
     }
 
     public function set_criteria_html($criteria) {
         if (count($criteria) <= 2) {
-            $this->criteria_html = $criteria;
+            $this->criteriahtml = $criteria;
         }
-        $this->criteria_html = markdown_to_html($criteria);
+        $this->criteriahtml = markdown_to_html($criteria);
         return $this;
     }
 
@@ -567,25 +577,25 @@ class obf_badge {
     }
 
     public function get_criteria_css() {
-        return $this->criteria_css;
+        return $this->criteriacss;
     }
 
-    public function set_criteria_css($criteria_css) {
-        $this->criteria_css = $criteria_css;
+    public function set_criteria_css($criteriacss) {
+        $this->criteriacss = $criteriacss;
         return $this;
     }
 
     public function get_criteria_url() {
-        return $this->criteria_url;
+        return $this->criteriaurl;
     }
 
-    public function set_criteria_url($criteria_url) {
-        $this->criteria_url = $criteria_url;
+    public function set_criteria_url($criteriaurl) {
+        $this->criteriaurl = $criteriaurl;
         return $this;
     }
 
     public function has_criteria_url() {
-        return !empty($this->criteria_url);
+        return !empty($this->criteriaurl);
     }
 
     public function has_name() {

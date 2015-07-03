@@ -1,5 +1,26 @@
 <?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+/**
+ * Plugin configuration page.
+ *
+ * @package    local_obf
+ * @copyright  2013-2015, Discendum Oy
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 /**
  */
 class local_obf_client_testcase extends advanced_testcase {
@@ -10,21 +31,22 @@ class local_obf_client_testcase extends advanced_testcase {
         // Create the mock object.
         $curl = $this->getMock('curl', array('post', 'get', 'delete'));
 
-        // Mock HTTP POST
+        // Mock HTTP POST.
         $curl->expects($this->once())
                 ->method('post')
                 ->with($this->stringEndsWith('/test/'), $this->anything(),
                         $this->anything())
                 ->will($this->returnValue(json_encode(array('post' => 'works!'))));
 
-        // Mock HTTP GET
+        // Mock HTTP GET.
         $curl->expects($this->any())
                 ->method('get')
                 ->with($this->logicalOr(
                                 $this->stringEndsWith('/test/'),
                                 $this->stringEndsWith('/doesnotexist/')),
                         $this->anything(), $this->anything())
-                ->will($this->returnCallback(function ($path, $arg1, $arg2) {
+                ->will($this->returnCallback(
+                        function ($path, $arg1, $arg2) {
                             // This url exists, return a success message.
                             if ($path == "/test/") {
                                 return json_encode(array('get' => 'works!'));
@@ -33,7 +55,7 @@ class local_obf_client_testcase extends advanced_testcase {
                             return false; // Return false on failure (invalid url).
                         }));
 
-        // Mock HTTP DELETE
+        // Mock HTTP DELETE.
         $curl->expects($this->once())
                 ->method('delete')
                 ->with($this->stringEndsWith('/test/'), $this->anything(),
@@ -42,26 +64,26 @@ class local_obf_client_testcase extends advanced_testcase {
 
         $client = obf_client::get_instance($curl);
 
-        // Test HTTP POST
+        // Test HTTP POST.
         $response = $client->request('/test/', 'post');
         $this->assertArrayHasKey('post', $response);
 
-        // Test HTTP GET
+        // Test HTTP GET.
         $response = $client->request('/test/');
         $this->assertArrayHasKey('get', $response);
 
-        // Test HTTP DELETE
+        // Test HTTP DELETE.
         $response = $client->request('/test/', 'delete');
         $this->assertArrayHasKey('delete', $response);
 
-        // Test preformatter
+        // Test preformatter.
         $response = $client->request('/test/', 'get', array(),
                 function () {
-            return json_encode(array('preformatted' => 'i am!'));
-        });
+                    return json_encode(array('preformatted' => 'i am!'));
+                });
         $this->assertArrayHasKey('preformatted', $response);
 
-        // Test invalid url
+        // Test invalid url.
         $curl->info = array('http_code' => 404);
 
         try {
@@ -83,7 +105,7 @@ class local_obf_client_testcase extends advanced_testcase {
 
         if (!is_dir($pkidir)) {
             global $CFG;
-            mkdir($pkidir,$CFG->directorypermissions,true);
+            mkdir($pkidir, $CFG->directorypermissions, true);
         }
 
         if (!file_exists($certfile)) {

@@ -27,7 +27,7 @@ YUI.add('moodle-local_obf-backpackconfigurator', function(Y) {
          */
         connect: function (evt) {
             evt.preventDefault();
-            var provider=evt.target.getAttribute('data-provider');
+            var provider = evt.target.getAttribute('data-provider');
 
             navigator.id.get(Y.bind(function (assertion) {
                 // User cancelled
@@ -57,8 +57,7 @@ YUI.add('moodle-local_obf-backpackconfigurator', function(Y) {
             // Everything's ok -> redirect
             if (response.error === '') {
                 window.location.reload();
-            }
-            else {
+            } else {
                 window.alert(response.error);
             }
         }

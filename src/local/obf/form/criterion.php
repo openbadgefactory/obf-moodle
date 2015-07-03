@@ -1,14 +1,31 @@
 <?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+/**
+ * @package    local_obf
+ * @copyright  2013-2015, Discendum Oy
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 defined('MOODLE_INTERNAL') or die();
 
 global $CFG;
 
 if (file_exists($CFG->libdir . '/coursecatlib.php')) {
     require_once($CFG->libdir . '/coursecatlib.php');
-}
-// Moodle 2.2
-else {
+} else { // Moodle 2.2.
     require_once($CFG->dirroot . '/course/lib.php');
 }
 
@@ -31,16 +48,13 @@ class obf_criterion_form extends local_obf_form_base implements renderable {
 
         if (!empty($addcourse)) {
             $this->get_courses($mform);
-        }
-
-        // editing an existing criterion
-        else {
+        } else { // Editing an existing criterion.
             $criterioncourses = $this->criterion->get_items();
             $courses = $this->criterion->get_related_courses();
             $showaddcourse = true;
             $showoptions = true;
             $showbuttons = true;
-            // Show options
+            // Show options.
             if (count($criterioncourses) == 0) {
                 $course = obf_criterion_item::build_type(obf_criterion_item::CRITERIA_TYPE_UNKNOWN);
                 $criterioncourses[] = $course;
@@ -73,12 +87,12 @@ class obf_criterion_form extends local_obf_form_base implements renderable {
             if (count($criterioncourses) > 0) {
                 $criterioncourses[0]->get_form_config($mform, $this);
                 if ($showaddcourse) {
-                    $mform->addElement('submit','addcourse',get_string('criteriaaddcourse','local_obf'), array('class' => 'addcourse'));
+                    $mform->addElement('submit', 'addcourse',
+                            get_string('criteriaaddcourse', 'local_obf'), array('class' => 'addcourse'));
                 }
                 $criterioncourses[0]->get_form_completion_options($mform, $this, $criterioncourses);
                 $criterioncourses[0]->get_form_after_save_options($mform, $this);
             }
-
 
             if ($showbuttons) {
                 $this->add_action_buttons();
@@ -87,7 +101,7 @@ class obf_criterion_form extends local_obf_form_base implements renderable {
     }
     private function get_courses($mform) {
         global $DB, $OUTPUT;
-        // Get only courses with course completion enabled (= can be completed somehow)
+        // Get only courses with course completion enabled (= can be completed somehow).
         $courses = $DB->get_records('course', array('enablecompletion' => COMPLETION_ENABLED));
 
         if (count($courses) > 0) {
@@ -95,9 +109,7 @@ class obf_criterion_form extends local_obf_form_base implements renderable {
 
             if (method_exists('coursecat', 'make_categories_list')) {
                 $categories = coursecat::make_categories_list();
-            }
-            // Moodle 2.2
-            else {
+            } else { // Moodle 2.2.
                 $parents = array();
                 make_categories_list($categories, $parents);
             }
@@ -119,7 +131,7 @@ class obf_criterion_form extends local_obf_form_base implements renderable {
 
             $validcourses = 0;
 
-            // Check each course category, are there any courses
+            // Check each course category, are there any courses.
             foreach ($courselist as $name => $courses) {
                 $validcourses += count($courses);
             }
@@ -129,14 +141,11 @@ class obf_criterion_form extends local_obf_form_base implements renderable {
             $this->setExpanded($mform, 'header_criterion_fields');
             $mform->addHelpButton('header_criterion_fields', 'readmeenablecompletion', 'local_obf');
 
-            // There aren't any courses that aren't already in this badge's criteria
+            // There aren't any courses that aren't already in this badge's criteria.
             if ($validcourses === 0) {
                 $mform->addElement('html',
                         $OUTPUT->notification(get_string('novalidcourses', 'local_obf')));
-            }
-
-            // There are courses that can be selected -> show course selection
-            else {
+            } else { // There are courses that can be selected -> show course selection.
                 $mform->addElement('html',
                         html_writer::tag('p', get_string('selectcourses_help', 'local_obf')));
                 $select = $mform->addElement('selectgroups', 'course',
@@ -150,10 +159,7 @@ class obf_criterion_form extends local_obf_form_base implements renderable {
                 $mform->addElement('hidden', 'addcourse', 'addcourse');
                 $mform->setType('addcourse', PARAM_TEXT);
             }
-        }
-
-        // No courses found with completion enabled
-        else {
+        } else { // No courses found with completion enabled.
             $mform->addElement('html',
                     $OUTPUT->notification(get_string('nocourseswithcompletionenabled',
                                     'local_obf')));
@@ -168,7 +174,7 @@ class obf_criterion_form extends local_obf_form_base implements renderable {
         $grade = $course->get_grade();
         $completedby = $course->get_completedby();
 
-        // Minimum grade -field
+        // Minimum grade -field.
         $mform->addElement('text', 'mingrade[' . $criterioncourseid . ']',
                 get_string('minimumgrade', 'local_obf'));
 
@@ -179,7 +185,7 @@ class obf_criterion_form extends local_obf_form_base implements renderable {
         // completely useless. That's why we don't call setType() here.
         //
         // ... EXCEPT that Behat-tests are failing because of the E_NOTICE, so let's add client
-        // side validation + server side cleaning
+        // side validation + server side cleaning.
         $mform->addRule('mingrade[' . $criterioncourseid . ']', null, 'numeric', null, 'client');
         $mform->setType('mingrade[' . $criterioncourseid . ']', PARAM_INT);
 
@@ -211,7 +217,7 @@ class obf_criterion_form extends local_obf_form_base implements renderable {
     private function initialize_categories(array $categories) {
         $courselist = array();
 
-        // initialize categories for the select list's optgroups
+        // Initialize categories for the select list's optgroups.
         foreach ($categories as $category) {
             $courselist[$category] = array();
         }

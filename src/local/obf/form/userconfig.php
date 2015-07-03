@@ -1,5 +1,24 @@
 <?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+/**
+ * @package    local_obf
+ * @copyright  2013-2015, Discendum Oy
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 defined('MOODLE_INTERNAL') or die();
 
 require_once(__DIR__ . '/obfform.php');
@@ -25,13 +44,10 @@ class obf_userconfig_form extends local_obf_form_base {
             $this->render_backpack_settings($mform, $backpack);
         }
 
-
         $buttonarray = array();
-
 
         $buttonarray[] = $mform->createElement('submit', 'submitbutton', get_string('savechanges'),
                 array('class' => 'savegroups'));
-
 
         $mform->addGroup($buttonarray, 'buttonar', '', array(' '), false);
         $mform->closeHeaderBefore('buttonar');
@@ -50,7 +66,6 @@ class obf_userconfig_form extends local_obf_form_base {
                     get_string('obpbackpacksettings', 'local_obf'));
             $this->setExpanded($mform, 'header_obpbackpack_fields', false);
         }
-
 
         $statustext = html_writer::tag('span', get_string($langkey, 'local_obf'),
                         array('class' => $langkey));
@@ -92,7 +107,8 @@ class obf_userconfig_form extends local_obf_form_base {
         }
         if (!$backpack->is_connected() && $backpack->requires_email_verification()) {
             $mform->addElement('button', 'backpack_submitbutton',
-                    get_string('connect', 'local_obf', 'Backpack'), array('class' => 'verifyemail', 'data-provider' => $backpack->get_provider()));
+                    get_string('connect', 'local_obf', 'Backpack'),
+                            array('class' => 'verifyemail', 'data-provider' => $backpack->get_provider()));
         } else if (!$backpack->is_connected() && !$backpack->requires_email_verification()) {
             $externaladdhtml = get_string('backpackemailaddexternal'.$backpack->get_providershortname(), 'local_obf', $USER->email);
             $mform->addElement('html', $OUTPUT->notification($externaladdhtml), 'notifyproblem');

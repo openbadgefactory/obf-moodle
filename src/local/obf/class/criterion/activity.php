@@ -1,8 +1,28 @@
 <?php
-require_once __DIR__ . '/item_base.php';
-require_once __DIR__ . '/criterion.php';
-require_once __DIR__ . '/course.php';
-require_once __DIR__ . '/../badge.php';
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+/**
+ * @package    local_obf
+ * @copyright  2013-2015, Discendum Oy
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+require_once(__DIR__ . '/item_base.php');
+require_once(__DIR__ . '/criterion.php');
+require_once(__DIR__ . '/course.php');
+require_once(__DIR__ . '/../badge.php');
 
 /**
  * Class representing a single activity criterion.
@@ -21,8 +41,8 @@ class obf_criterion_activity extends obf_criterion_course {
     protected $criterionid = -1;
 
     protected $criteriatype = obf_criterion_item::CRITERIA_TYPE_ACTIVITY;
-    protected $required_param = 'module';
-    protected $optional_params = array('completedby');
+    protected $requiredparam = 'module';
+    protected $optionalparams = array('completedby');
     /**
      * Get the instance of this class by id.
      *
@@ -46,12 +66,10 @@ class obf_criterion_activity extends obf_criterion_course {
      * @return \obf_criterion_activity
      */
     public function populate_from_record(\stdClass $record) {
-        $this->set_id($record->id)
-                ->set_criterionid($record->obf_criterion_id)
-                ->set_courseid($record->courseid)
-                ->set_completedby($record->completed_by)
-                ->set_criteriatype($record->criteria_type);
-        // TODO:  params
+        $this->set_id($record->id)->set_criterionid($record->obf_criterion_id);
+        $this->set_courseid($record->courseid)->set_completedby($record->completed_by);
+        $this->set_criteriatype($record->criteria_type);
+        // TODO:  Populate params?
         return $this;
     }
 
@@ -71,14 +89,11 @@ class obf_criterion_activity extends obf_criterion_course {
         $obj->completed_by = $this->has_completion_date() ? $this->completedby : null;
         $obj->criteria_type = $this->get_criteriatype();
 
-        // Updating existing record
+        // Updating existing record.
         if ($this->id > 0) {
             $obj->id = $this->id;
             $DB->update_record('local_obf_criterion_courses', $obj);
-        }
-
-        // Inserting a new record
-        else {
+        } else { // Inserting a new record.
             $id = $DB->insert_record('local_obf_criterion_courses', $obj);
 
             if (!$id) {
@@ -113,7 +128,7 @@ class obf_criterion_activity extends obf_criterion_course {
         $params = $this->get_params();
         $name = '';
         foreach ($params as $key => $param) {
-            if (array_key_exists('module',$param)) {
+            if (array_key_exists('module', $param)) {
                 $cminstance = $param['module'];
                 $name .= (empty($name) ? '' : ', ') . $this->get_activityname($cminstance);
             }
@@ -196,7 +211,7 @@ class obf_criterion_activity extends obf_criterion_course {
     public function get_options(&$mform, &$obj) {
         global $OUTPUT;
 
-        $modules = obf_criterion_activity::get_course_activities($this->get_courseid());
+        $modules = self::get_course_activities($this->get_courseid());
         $params = $this->get_params();
 
         $this->get_form_activities($mform, $modules, $params);
@@ -207,10 +222,10 @@ class obf_criterion_activity extends obf_criterion_course {
      */
     public function get_form_config(&$mform, &$obj) {
         global $OUTPUT;
-        $mform->addElement('hidden','criteriatype', obf_criterion_item::CRITERIA_TYPE_ACTIVITY);
+        $mform->addElement('hidden', 'criteriatype', obf_criterion_item::CRITERIA_TYPE_ACTIVITY);
         $mform->setType('criteriatype', PARAM_INT);
 
-        $mform->createElement('hidden','picktype', 'no');
+        $mform->createElement('hidden', 'picktype', 'no');
         $mform->setType('picktype', PARAM_TEXT);
     }
     /**
@@ -227,15 +242,15 @@ class obf_criterion_activity extends obf_criterion_course {
      * @global type $CFG
      * @param int $userid The id of the user.
      * @param obf_criterion $criterion The main criterion.
-     * @param obf_criterion_item[] $other_items Other items related to main criterion.
+     * @param obf_criterion_item[] $otheritems Other items related to main criterion.
      * @param type[] $extra Extra options passed to review method.
      * @return boolean If the course criterion is completed by the user.
      */
-    protected function review_for_user($user, $criterion = null, $other_items = null, &$extra = null) {
+    protected function review_for_user($user, $criterion = null, $otheritems = null, &$extra = null) {
         global $CFG, $DB;
-        require_once $CFG->dirroot . '/grade/querylib.php';
-        require_once $CFG->libdir . '/gradelib.php';
-        require_once $CFG->libdir . '/completionlib.php';
+        require_once($CFG->dirroot . '/grade/querylib.php');
+        require_once($CFG->libdir . '/gradelib.php');
+        require_once($CFG->libdir . '/completionlib.php');
 
         $requireall = $criterion->get_completion_method() == obf_criterion::CRITERIA_COMPLETION_ALL;
 
@@ -243,18 +258,16 @@ class obf_criterion_activity extends obf_criterion_course {
 
         $coursecompleted = true;
 
-
         $userid = $user->id;
         $courseid = $this->get_courseid();
         $course = $criterion->get_course($courseid);
         $completioninfo = new completion_info($course);
 
-
         $params = $this->get_params();
         $modules = array_keys(array_filter($params, function ($v) {
             return array_key_exists('module', $v) ? true : false;
         }));
-        $completedmodulecount=0;
+        $completedmodulecount = 0;
 
         foreach ($modules as $modid) {
             $cm = $DB->get_record('course_modules', array('id' => $modid));
@@ -263,7 +276,7 @@ class obf_criterion_activity extends obf_criterion_course {
             $modulecomplete = in_array($completiondata->completionstate, array(COMPLETION_COMPLETE, COMPLETION_COMPLETE_PASS));
             $datepassed = false;
             $completedby = array_key_exists('completedby', $params[$modid]) ? $params[$modid][completedby] : null;
-            // check completion date
+            // Check completion date.
             if (!is_null($completedby)) {
                 if ($completioninfo->timemodified <= $completedby) {
                     $datepassed = true;
@@ -292,12 +305,13 @@ class obf_criterion_activity extends obf_criterion_course {
      * @param type $params
      */
     private function get_form_activities(&$mform, $modules, $params) {
-        $mform->addElement('html',html_writer::tag('p', get_string('selectactivity', 'local_obf')));
+        $mform->addElement('html', html_writer::tag('p', get_string('selectactivity', 'local_obf')));
 
         $existing = array();
-        $completedby = array_map(function($a) {
+        $completedby = array_map(
+                function($a) {
                     if (array_key_exists('completedby', $a)) {
-                        return $a['completedby'];
+                            return $a['completedby'];
                     }
                     return false;
                 }, $params);
@@ -309,7 +323,7 @@ class obf_criterion_activity extends obf_criterion_course {
 
         foreach ($modules as $key => $mod) {
             $mform->addElement('advcheckbox', 'module_' . $key,
-                    $mod,null, array('group' => 1), array(0, $key));
+                    $mod, null, array('group' => 1), array(0, $key));
             $mform->addElement('date_selector', 'completedby_' . $key,
                     get_string('activitycompletedby', 'local_obf'),
                     array('optional' => true, 'startyear' => date('Y')));
@@ -328,7 +342,7 @@ class obf_criterion_activity extends obf_criterion_course {
     private static function get_module_instanceids_from_params($params) {
         $ids = array();
         foreach ($params as $key => $param) {
-            if (array_key_exists('module',$param)) {
+            if (array_key_exists('module', $param)) {
                 $ids[] = $param['module'];
             }
         }

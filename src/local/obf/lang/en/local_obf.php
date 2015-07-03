@@ -1,4 +1,24 @@
 <?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+/**
+ * @package    local_obf
+ * @copyright  2015, Discendum Oy
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 $string['activitycompletedby'] = 'Completed by';
 $string['addcourses'] = 'Add selected courses';
 $string['addcriteria'] = 'Create new awarding rule';
@@ -51,6 +71,7 @@ $string['badgedescription'] = 'Description';
 $string['badgedetails'] = 'Badge details';
 $string['badgeemail'] = 'Email template';
 $string['badgeexport'] = 'Export badges previously created in Moodle';
+$string['badgeexportdescription'] = 'A copy of all selected badges will be made on Open Badge Factory.';
 $string['badgeexpiresby'] = 'Expires by';
 $string['badgehistory'] = 'Awarding history';
 $string['badgeimage'] = 'Badge';
@@ -184,7 +205,7 @@ $string['obf:revokecourseevents'] = 'Revoke an event, which was automatically is
 $string['obf:seeparticipantbadges'] = 'See the badges of course participants';
 $string['obf:viewallbadges'] = 'View available badges';
 $string['obf:viewallevents'] = 'View badge issue events';
-$string['obf:viewcourseevents'] = 'View course\'s badge issue events' ;
+$string['obf:viewcourseevents'] = 'View course\'s badge issue events';
 $string['obf:viewbackpack'] = 'View backpacks';
 $string['obf:viewdetails'] = 'View badge details';
 $string['obf:viewhistory'] = 'View badge issuance history';

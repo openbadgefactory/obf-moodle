@@ -1,13 +1,32 @@
 <?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
  * Page for issuing a badge.
+ *
+ * @package    local_obf
+ * @copyright  2013-2015, Discendum Oy
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-require_once __DIR__ . '/../../config.php';
-require_once __DIR__ . '/class/badge.php';
-require_once __DIR__ . '/form/issuance.php';
-require_once $CFG->dirroot . '/user/lib.php';
-require_once __DIR__ . '/class/event.php';
+require_once(__DIR__ . '/../../config.php');
+require_once(__DIR__ . '/class/badge.php');
+require_once(__DIR__ . '/form/issuance.php');
+require_once($CFG->dirroot . '/user/lib.php');
+require_once(__DIR__ . '/class/event.php');
 
 $badgeid = required_param('id', PARAM_ALPHANUM);
 $courseid = optional_param('courseid', null, PARAM_INT);
@@ -18,13 +37,11 @@ if (!is_null($badgeid)) {
     $urlparams['id'] = $badgeid;
 }
 
-// course context
+// Course context.
 if (!is_null($courseid)) {
     $urlparams['courseid'] = $courseid;
     require_login($courseid);
-}
-// site context
-else {
+} else { // Site context.
     require_login();
 }
 
@@ -38,7 +55,7 @@ $PAGE->set_pagelayout(!is_null($courseid) ? 'course' : 'admin');
 $content = $OUTPUT->header();
 $badge = obf_badge::get_instance($badgeid);
 
-// fix breadcrumbs
+// Fix breadcrumbs.
 navigation_node::override_active_url(new moodle_url('/local/obf/badge.php',
         array('action' => 'list')));
 $PAGE->navbar->add($badge->get_name(),
@@ -56,9 +73,9 @@ if (!is_null($courseid)) {
 $issuerform = new obf_issuance_form($url,
         array('badge' => $badge, 'courseid' => $courseid, 'renderer' => $PAGE->get_renderer('local_obf')));
 
-// Issuance was cancelled
+// Issuance was cancelled.
 if ($issuerform->is_cancelled()) {
-    // TODO: check referer maybe and redirect there
+    // TODO: Check referer maybe and redirect there.
 
     if (!empty($courseid)) {
         redirect(new moodle_url('/local/obf/issue.php', array('courseid' => $courseid)));
@@ -67,10 +84,7 @@ if ($issuerform->is_cancelled()) {
                 array('id' => $badge->get_id(), 'action' => 'show',
             'show' => 'details')));
     }
-}
-
-// Issuance form was submitted
-else if (!is_null($data = $issuerform->get_data())) {
+} else if (!is_null($data = $issuerform->get_data())) { // Issuance form was submitted.
     $users = user_get_users_by_id($data->recipientlist);
     $recipients = array();
     $userids = array();
@@ -86,13 +100,9 @@ else if (!is_null($data = $issuerform->get_data())) {
     }
 
     $badge->set_expires($data->expiresby);
-    $assertion = obf_assertion::get_instance()
-            ->set_badge($badge)
-            ->set_emailbody($data->emailbody)
-            ->set_emailsubject($data->emailsubject)
-            ->set_emailfooter($data->emailfooter)
-            ->set_issuedon($data->issuedon)
-            ->set_recipients($recipients);
+    $assertion = obf_assertion::get_instance()->set_badge($badge)->set_emailbody($data->emailbody);
+    $assertion->set_emailsubject($data->emailsubject)->set_emailfooter($data->emailfooter);
+    $assertion->set_issuedon($data->issuedon)->set_recipients($recipients);
 
     $success = $assertion->process();
 
@@ -106,22 +116,18 @@ else if (!is_null($data = $issuerform->get_data())) {
             $issuevent->save($DB);
         }
 
-        // Course context
+        // Course context.
         if (!empty($courseid)) {
             redirect(new moodle_url('/local/obf/badge.php',
                     array('action' => 'list', 'courseid' => $courseid,
                 'msg' => get_string('badgeissued', 'local_obf'))));
-        }
-        // Site context
-        else {
+        } else { // Site context.
             redirect(new moodle_url('/local/obf/badge.php',
                     array('id' => $badge->get_id(),
                 'action' => 'show', 'show' => 'history', 'msg' => get_string('badgeissued',
                         'local_obf'))));
         }
-    }
-    // Oh noes, issuance failed.
-    else {
+    } else { // Oh noes, issuance failed.
         $content .= $OUTPUT->notification('Badge issuance failed. Reason: ' . $assertion->get_error());
     }
 }

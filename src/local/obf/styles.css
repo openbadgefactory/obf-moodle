@@ -87,6 +87,9 @@ table.obf-table th  { width: 120px; }
 .obf-assertion-modal label { display: inline-block; font-weight: 700; color: #7F7179; margin-right: 0.5em; }
 .obf-assertion-modal label:after { content: ":"; }
 #obf-assertion-panel .blacklist-badge { position: absolute; left: 0; }
+.yui3-skin-sam .yui3-panel .yui3-widget-ft.assertion-source-unknown,
+.yui3-skin-sam .yui3-panel .yui3-widget-ft.assertion-source-obp,
+.yui3-skin-sam .yui3-panel .yui3-widget-ft.assertion-source-obf { background-color: white; background-repeat: no-repeat; background-position: center 0; }
 /**
  * Assertion popup
  */

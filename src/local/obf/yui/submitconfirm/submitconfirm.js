@@ -16,7 +16,7 @@ YUI.add('moodle-local_obf-submitconfirm', function(Y) {
          */
         initializer: function(config) {
             this.config = config;
-            M.local_obf.submitconfirmlisteners.push(Y.one('.'+config.class).on('click', this.confirm_click, this));
+            M.local_obf.submitconfirmlisteners.push(Y.one('.' + config.class).on('click', this.confirm_click, this));
         },
         confirm_click: function(e) {
             e.preventDefault();

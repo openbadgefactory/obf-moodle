@@ -1,29 +1,49 @@
 <?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+/**
+ * @package    local_obf
+ * @copyright  2013-2015, Discendum Oy
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 defined('MOODLE_INTERNAL') || die();
 
-require_once __DIR__ . '/class/client.php';
+require_once(__DIR__ . '/class/client.php');
 
 if ($hassiteconfig) {
-    // obf-category in site admin
+    // OBF-category in site admin.
     $obf = new admin_category('obf', get_string('obf', 'local_obf'));
 
-    // obf-settings
+    // OBF-settings.
     $settings = new admin_externalpage('obfconfig', get_string('settings', 'local_obf'),
             new moodle_url('/local/obf/config.php'));
 
-    // add pages to navigation
+    // Add pages to navigation.
     $ADMIN->add('root', $obf, 'location');
     $ADMIN->add('obf', $settings);
 
-    // badge list -page
+    // Badge list -page.
     $badgelist = new admin_externalpage('badgelist', get_string('badgelist', 'local_obf'),
             new moodle_url('/local/obf/badge.php', array('action' => 'list')));
 
-    // issuance history -page
+    // Awarding history -page.
     $history = new admin_externalpage('badgehistory', get_string('history', 'local_obf'),
             new moodle_url('/local/obf/badge.php', array('action' => 'history')));
 
-    // category settings page
+    // Category settings page.
     $client = obf_client::get_instance();
 
     if ($client->test_connection() === -1) {
@@ -36,7 +56,7 @@ if ($hassiteconfig) {
 
         $ADMIN->add('obf', $categorysettings);
 
-        // badge export settings
+        // Badge export settings.
         $export = new admin_externalpage('obfexportbadges', get_string('exportsettings', 'local_obf'),
                         new moodle_url('/local/obf/config.php', array('action' => 'exportbadges')));
         $ADMIN->add('obf', $export);

@@ -1,4 +1,24 @@
 <?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+/**
+ * @package    local_obf
+ * @copyright  2013-2015, Discendum Oy
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 defined('MOODLE_INTERNAL') or die();
 
 require_once(__DIR__ . '/course.php');
@@ -26,7 +46,7 @@ class obf_criterion_unknown extends obf_criterion_item {
 
         return $this->criterion;
     }
-    public function review($criterion = null, $other_items = null, &$extra = array()) {
+    public function review($criterion = null, $otheritems = null, &$extra = array()) {
         return array();
     }
     public function save() {
@@ -42,15 +62,11 @@ class obf_criterion_unknown extends obf_criterion_item {
         $obj->completed_by = $this->has_completion_date() ? $this->completedby : null;
         $obj->criteria_type = $this->criteriatype;
 
-
-        // Updating existing record
+        // Updating existing record.
         if ($this->id > 0) {
             $obj->id = $this->id;
             $DB->update_record('local_obf_criterion_courses', $obj);
-        }
-
-        // Inserting a new record
-        else {
+        } else { // Inserting a new record.
             $id = $DB->insert_record('local_obf_criterion_courses', $obj);
 
             if (!$id) {
@@ -81,11 +97,9 @@ class obf_criterion_unknown extends obf_criterion_item {
     }
     public function populate_from_record($record) {
         if (isset($record->id)) {
-            $this->set_id($record->id)
-                    ->set_criterionid($record->obf_criterion_id)
-                    ->set_courseid($record->courseid)
-                    ->set_criteriatype($record->criteria_type)
-                    ->set_completedby($record->completed_by);
+            $this->set_id($record->id)->set_criterionid($record->obf_criterion_id);
+            $this->set_courseid($record->courseid)->set_criteriatype($record->criteria_type);
+            $this->set_completedby($record->completed_by);
         } else if (isset($record->criteria_type) && $record->criteria_type != obf_criterion_item::CRITERIA_TYPE_UNKNOWN) {
             return obf_criterion_item::build(array_merge(
                     (array)$record,
@@ -107,7 +121,7 @@ class obf_criterion_unknown extends obf_criterion_item {
             obf_criterion_item::CRITERIA_TYPE_COURSE => get_string('criteriatypecourseset', 'local_obf'),
             obf_criterion_item::CRITERIA_TYPE_ACTIVITY => get_string('criteriatypeactivity', 'local_obf')
         );
-        if (property_exists($CFG,'totara_build')) {
+        if (property_exists($CFG, 'totara_build')) {
             $totaraoptions = array(
                 obf_criterion_item::CRITERIA_TYPE_TOTARA_PROGRAM => get_string('criteriatypetotaraprogram', 'local_obf'),
                 obf_criterion_item::CRITERIA_TYPE_TOTARA_CERTIF => get_string('criteriatypetotaracertif', 'local_obf')
@@ -119,7 +133,6 @@ class obf_criterion_unknown extends obf_criterion_item {
 
         if (!empty($this->get_criterionid()) && ($this->get_criterionid() > 0) && !empty($this->get_courseid())) {
             if ($PAGE->pagetype == 'local-obf-badge') {
-                //$url = new moodle_url('/local/obf/badge.php', array());
                 $url = new moodle_url('/local/obf/badge.php',
                         array('id' => $this->get_criterion()->get_badgeid(), 'action' =>
                     'show', 'show' => 'criteria', 'courseid' => $this->get_courseid()));
@@ -133,23 +146,20 @@ class obf_criterion_unknown extends obf_criterion_item {
         $mform->addElement('html',
                 html_writer::tag('p', get_string('selectcriteriatype_help', 'local_obf')));
 
-
         $select = $mform->addElement('select', 'criteriatype',
                 get_string('selectcriteriatype', 'local_obf'), $optionlist);
 
-
         $select->setSelected(obf_criterion_item::CRITERIA_TYPE_UNKNOWN);
-        $mform->addElement('hidden','picktype', 'yes');
+        $mform->addElement('hidden', 'picktype', 'yes');
         $mform->setType('picktype', PARAM_TEXT);
 
-        // TODO: TEST
-        $mform->addElement('hidden','course[]', '-1');
+        $mform->addElement('hidden', 'course[]', '-1');
         $mform->setType('course[]', PARAM_RAW);
     }
     public function get_form_completion_options(&$mform, $obj = null) {
 
     }
-    public function get_form_after_save_options(&$mform,&$obj) {
+    public function get_form_after_save_options(&$mform, &$obj) {
 
     }
     public function criteria_supports_multiple_courses() {

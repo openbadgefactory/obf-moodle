@@ -1,7 +1,27 @@
 <?php
-require_once $CFG->dirroot . '/local/obf/class/backpack.php';
-require_once $CFG->dirroot . '/local/obf/class/badge.php';
-require_once $CFG->dirroot . '/local/obf/renderer.php';
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+/**
+ * @package    local_obf
+ * @copyright  2015, Discendum Oy
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+require_once($CFG->dirroot . '/local/obf/class/backpack.php');
+require_once($CFG->dirroot . '/local/obf/class/badge.php');
+require_once($CFG->dirroot . '/local/obf/renderer.php');
 
 class block_obf_displayer extends block_base {
     public function init() {
@@ -52,7 +72,7 @@ class block_obf_displayer extends block_base {
             $assertions = $cache->get($userid);
 
             if (!$assertions) {
-                // Get user's badges in OBF
+                // Get user's badges in OBF.
                 $assertions = new obf_assertion_collection();
                 try {
                     $client = obf_client::get_instance();
@@ -63,7 +83,7 @@ class block_obf_displayer extends block_base {
                     debugging('Getting OBF assertions for user id: ' . $userid . ' failed: ' . $e->getMessage());
                 }
 
-                $assertions->toArray(); // This makes sure issuer objects are populated and cached
+                $assertions->toArray(); // This makes sure issuer objects are populated and cached.
                 $cache->set($userid, $assertions );
             }
         } else {
@@ -82,10 +102,10 @@ class block_obf_displayer extends block_base {
             $assertions = $cache->get($userid);
 
             if (!$assertions) {
-                // Get user's badges in OBF
+                // Get user's badges in OBF.
                 $assertions = new obf_assertion_collection();
                 try {
-                    // Also get user's badges in Backpack, if user has backpack settings
+                    // Also get user's badges in Backpack, if user has backpack settings.
                     if ($backpack !== false && count($backpack->get_group_ids()) > 0) {
                         $assertions->add_collection( $backpack->get_assertions() );
                     }
@@ -93,7 +113,7 @@ class block_obf_displayer extends block_base {
                     debugging('Getting backpack assertions for user id: ' . $userid . ' failed: ' . $e->getMessage());
                 }
 
-                $assertions->toArray(); // This makes sure issuer objects are populated and cached
+                $assertions->toArray(); // This makes sure issuer objects are populated and cached.
                 $cache->set($userid, $assertions );
             }
         } else {

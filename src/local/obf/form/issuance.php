@@ -1,12 +1,31 @@
 <?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+/**
+ * @package    local_obf
+ * @copyright  2013-2015, Discendum Oy
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 defined('MOODLE_INTERNAL') or die();
 
 global $CFG;
 
 require_once(__DIR__ . '/obfform.php');
 require_once($CFG->dirroot . '/user/selector/lib.php');
-require_once 'HTML/QuickForm/element.php';
+require_once('HTML/QuickForm/element.php');
 
 class obf_issuance_form extends local_obf_form_base {
 
@@ -50,8 +69,8 @@ class obf_issuance_form extends local_obf_form_base {
                 array('stopyear' => date('Y') + 1));
         $mform->addElement('date_selector', 'expiresby',
                 get_string('expiresby', 'local_obf'),
-                array('optional' => true, 'startyear' => date('Y'), 'stopyear' => date('Y')
-            + 20));
+                array('optional' => true, 'startyear' => date('Y'),
+                        'stopyear' => date('Y') + 20));
 
         if ($this->badge->has_expiration_date()) {
             $mform->setDefault('expiresby',
@@ -109,7 +128,7 @@ class obf_issuance_form extends local_obf_form_base {
         $errors = parent::validation($data, $files);
 
         // To apply error messages to correct elements, use the following format:
-        // $errors['recipientlist'] = 'Error text here';
+        // $errors['recipientlist'] = 'Error text here';.
 
         return $errors;
     }
@@ -192,14 +211,14 @@ class badge_recipient_selector extends user_selector_base {
         $tablealias = 'u';
         $whereclauses = array();
 
-        // Get the WHERE-part of the query
+        // Get the WHERE-part of the query.
         list($where, $params) = $this->search_sql($search, $tablealias);
 
         if ($where) {
             $whereclauses[] = $where;
         }
 
-        // Select only users without the current badge
+        // Select only users without the current badge.
         if (count($this->existingrecipients) > 0) {
             list($emailin, $emailparams) = $DB->get_in_or_equal($this->existingrecipients,
                     SQL_PARAMS_NAMED, 'obf', false);

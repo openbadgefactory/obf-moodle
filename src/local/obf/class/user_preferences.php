@@ -1,12 +1,32 @@
 <?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+/**
+ * @package    local_obf
+ * @copyright  2013-2015, Discendum Oy
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class obf_user_preferences {
     private $userid;
 
     private $indb = true;
     private static $defaults = array('badgesonprofile' => 1);
     private $preferences = null;
-    private $required_preferences = array('badgesonprofile');
-    private $optional_preferences = array('openbadgepassport');
+    private $requiredpreferences = array('badgesonprofile');
+    private $optionalpreferences = array('openbadgepassport');
 
     public function __construct($userid) {
         $this->userid = $userid;
@@ -82,11 +102,12 @@ class obf_user_preferences {
     public function save_preferences($data) {
         global $DB;
         $preferences = (array)$data;
-        // Filter out empty params
-        //$preferences = array_filter($preferences);
-        // Get params matching required preferences
-        $match = array_merge($this->optional_preferences, $this->required_preferences);
-        $regex = implode('|', array_map(function($a) { return $a;}, $match));
+
+        $match = array_merge($this->optionalpreferences, $this->requiredpreferences);
+        $regex = implode('|', array_map(
+                function($a) {
+                    return $a;
+                }, $match));
         $requiredkeys = preg_grep('/^('.$regex.')$/', array_keys($preferences));
 
         $preftable = 'local_obf_user_preferences';
@@ -95,7 +116,7 @@ class obf_user_preferences {
         $todelete = array_diff($existing, $requiredkeys);
         $todelete = array_unique($todelete);
         if (!empty($todelete)) {
-            list($insql,$inparams) = $DB->get_in_or_equal($todelete, SQL_PARAMS_NAMED, 'cname', true);
+            list($insql, $inparams) = $DB->get_in_or_equal($todelete, SQL_PARAMS_NAMED, 'cname', true);
             $inparams = array_merge($inparams, array('userid' => $this->userid));
             $DB->delete_records_select($preftable, 'user_id = :userid AND name '.$insql, $inparams );
         }
@@ -106,14 +127,14 @@ class obf_user_preferences {
                                 'name' => $key) );
                 $toupdate->value = $preferences[$key];
                 $DB->update_record($preftable, $toupdate, true);
-                $this->set_preference($key,$preferences[$key]);
+                $this->set_preference($key, $preferences[$key]);
             } else {
                 $obj = new stdClass();
                 $obj->user_id = $this->userid;
                 $obj->name = $key;
                 $obj->value = $preferences[$key];
                 $DB->insert_record($preftable, $obj);
-                $this->set_preference($key,$preferences[$key]);
+                $this->set_preference($key, $preferences[$key]);
             }
         }
     }

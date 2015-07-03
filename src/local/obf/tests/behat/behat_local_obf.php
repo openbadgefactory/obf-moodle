@@ -1,5 +1,26 @@
 <?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+/**
+ * Plugin configuration page.
+ *
+ * @package    local_obf
+ * @copyright  2013-2015, Discendum Oy
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 use Behat\Behat\Context\Step\Given;
 use Behat\Behat\Event\FeatureEvent;
 use Behat\Gherkin\Node\TableNode;
@@ -15,7 +36,7 @@ class behat_local_obf extends behat_base {
         require_once(__DIR__ . '/../../class/client.php');
         try {
             obf_client::get_instance()->delete_badges();
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             // TODO: Do something?
         }
 
@@ -26,7 +47,7 @@ class behat_local_obf extends behat_base {
         $newpkidir = $CFG->behat_dataroot . '/local_obf/pki/';
 
         if (!is_dir($newpkidir)) {
-            mkdir($newpkidir,$CFG->directorypermissions,true);
+            mkdir($newpkidir, $CFG->directorypermissions, true);
         }
     }
     /**
@@ -103,10 +124,11 @@ TABLE
      *
      * @Given /^I trigger cron$/
      */
-     /**
-    public function iTriggerCron() {
-        $this->getSession()->visit($this->locate_path('/admin/cron.php'));
-    }*/
+     /*
+      * public function iTriggerCron() {
+      *     $this->getSession()->visit($this->locate_path('/admin/cron.php'));
+      * }
+      */
 
     /**
      * @Given /^I go to badge list$/
@@ -152,8 +174,7 @@ TABLE
     /**
      * @Given /^I mark "([^"]*)" of "([^"]*)" completed by "([^"]*)"$/
      */
-    public function iMarkOfCompletedBy($assignment, $course, $user)
-    {
+    public function iMarkOfCompletedBy($assignment, $course, $user) {
         return array(
             new Given('I log in as "' . $user . '"'),
             new Given('I follow "' . $course . '"'),

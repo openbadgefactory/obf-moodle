@@ -1,5 +1,25 @@
 <?php
-require_once __DIR__ . '/../lib.php';
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+/**
+ * @package    local_obf
+ * @copyright  2013-2015, Discendum Oy
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+require_once(__DIR__ . '/../lib.php');
 
 /**
  * Class for handling the communication to Open Badge Factory API.
@@ -9,9 +29,17 @@ class obf_client {
     private static $client = null;
     private $transport = null;
 
-    // http_code for handling errors, such as deleted badges.
-    private $http_code = null;
+    /**
+     * @var int HTTP code for handling errors, such as deleted badges.
+     */
+    private $httpcode = null;
+    /**
+     * @var string Last error message.
+     */
     private $error = '';
+    /**
+     * @var array Raw response.
+     */
     private $rawresponse = null;
 
     /**
@@ -103,7 +131,6 @@ class obf_client {
     public function authenticate($signature) {
         $pkidir = realpath($this->get_pki_dir());
 
-
         // Certificate directory not writable.
         if (!is_writable($pkidir)) {
             throw new Exception(get_string('pkidirnotwritable', 'local_obf',
@@ -122,13 +149,13 @@ class obf_client {
 
         $pubkey = $curl->get($apiurl . '/client/OBF.rsa.pub', array(), $curlopts);
 
-        // CURL-request failed
+        // CURL-request failed.
         if ($pubkey === false) {
             throw new Exception(get_string('pubkeyrequestfailed', 'local_obf') .
             ': ' . $curl->error);
         }
 
-        // Server gave us an error
+        // Server gave us an error.
         if ($curl->info['http_code'] !== 200) {
             throw new Exception(get_string('pubkeyrequestfailed', 'local_obf') . ': ' .
             get_string('apierror' . $curl->info['http_code'], 'local_obf'));
@@ -145,7 +172,7 @@ class obf_client {
             ': ' . openssl_error_string());
         }
 
-        // Couldn't decrypt data with provided key
+        // Couldn't decrypt data with provided key.
         if (openssl_public_decrypt($token, $decrypted, $key,
                         OPENSSL_PKCS1_PADDING) === false) {
             throw new Exception(get_string('tokendecryptionfailed', 'local_obf') .
@@ -157,20 +184,20 @@ class obf_client {
         // Yay, we have the client-id. Let's store it somewhere.
         set_config('obfclientid', $json->id, 'local_obf');
 
-        // Create a new private key
+        // Create a new private key.
         $config = array('private_key_bits' => 2048, 'private_key_type' => OPENSSL_KEYTYPE_RSA);
         $privkey = openssl_pkey_new($config);
 
-        // Export the new private key to a file for later use
+        // Export the new private key to a file for later use.
         openssl_pkey_export_to_file($privkey, $this->get_pkey_filename());
 
         $csrout = '';
         $dn = array('commonName' => $json->id);
 
-        // Create a new CSR with the private key we just created
+        // Create a new CSR with the private key we just created.
         $csr = openssl_csr_new($dn, $privkey);
 
-        // Export the CSR into string
+        // Export the CSR into string.
         if (openssl_csr_export($csr, $csrout) === false) {
             throw new Exception(get_string('csrexportfailed', 'local_obf'));
         }
@@ -179,14 +206,14 @@ class obf_client {
         $cert = $curl->post($apiurl . '/client/' . $json->id . '/sign_request',
                 $postdata, $curlopts);
 
-        // Fetching certificate failed
+        // Fetching certificate failed.
         if ($cert === false) {
             throw new Exception(get_string('certrequestfailed', 'local_obf') . ': ' . $curl->error);
         }
 
         $httpcode = $curl->info['http_code'];
 
-        // Server gave us an error
+        // Server gave us an error.
         if ($httpcode !== 200) {
             $jsonresp = json_decode($cert);
             $extrainfo = is_null($jsonresp) ? get_string('apierror' . $httpcode,
@@ -285,7 +312,7 @@ class obf_client {
                         function ($output) {
                     return '[' . implode(',',
                                     array_filter(explode("\n", $output))) . ']';
-                });
+                        });
     }
 
     /**
@@ -316,7 +343,7 @@ class obf_client {
                         function ($output) {
                     return '[' . implode(',',
                                     array_filter(explode("\n", $output))) . ']';
-                });
+                        });
     }
 
     /**
@@ -436,8 +463,8 @@ class obf_client {
                             Closure $preformatter = null) {
         $curl = $this->get_transport();
         $options = $this->get_curl_options();
-        $output = $method == 'get' ? $curl->get($url, $params, $options) : ($method
-                == 'delete' ? $curl->delete($url, $params, $options) : $curl->post($url,
+        $output = $method == 'get' ? $curl->get($url, $params, $options) :
+                ($method == 'delete' ? $curl->delete($url, $params, $options) : $curl->post($url,
                                 json_encode($params), $options));
 
         if ($output !== false) {
@@ -451,14 +478,14 @@ class obf_client {
         $info = $curl->get_info();
 
         $this->rawresponse = $curl->get_raw_response();
-        $this->http_code = $info['http_code'];
+        $this->httpcode = $info['http_code'];
         $this->error = '';
 
-        // Codes 2xx should be ok
-        if (is_numeric($this->http_code) && ($this->http_code < 200 || $this->http_code >= 300)) {
+        // Codes 2xx should be ok.
+        if (is_numeric($this->httpcode) && ($this->httpcode < 200 || $this->httpcode >= 300)) {
             $this->error = isset($response['error']) ? $response['error'] : '';
-            throw new Exception(get_string('apierror' . $this->http_code, 'local_obf',
-                    $this->error), $this->http_code);
+            throw new Exception(get_string('apierror' . $this->httpcode, 'local_obf',
+                    $this->error), $this->httpcode);
         }
 
         return $response;
@@ -477,7 +504,7 @@ class obf_client {
         // Use Moodle's curl-object if no transport is defined.
         global $CFG;
 
-        include_once $CFG->libdir . '/filelib.php';
+        include_once($CFG->libdir . '/filelib.php');
 
         return new curl();
     }
@@ -486,7 +513,7 @@ class obf_client {
      * @return integer HTTP code, 200-299 should be good, 404 means item was not found.
      */
     public function get_http_code() {
-        return $this->http_code;
+        return $this->httpcode;
     }
     /**
      * Get error message of the last request.
@@ -500,9 +527,9 @@ class obf_client {
      * Get raw response.
      * @return string[] Raw response.
      */
-     public function get_raw_response() {
-         return $this->rawresponse;
-     }
+    public function get_raw_response() {
+        return $this->rawresponse;
+    }
 
     /**
      * Returns the default CURL-settings for a request.

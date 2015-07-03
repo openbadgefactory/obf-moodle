@@ -1,12 +1,31 @@
 <?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
  * Page for displaying content related to a single badge and for showing the
  * list of badges.
+ *
+ * @package    local_obf
+ * @copyright  2013-2015, Discendum Oy
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-require_once __DIR__ . '/../../config.php';
-require_once __DIR__ . '/class/badge.php';
-require_once $CFG->libdir . '/adminlib.php';
+require_once(__DIR__ . '/../../config.php');
+require_once(__DIR__ . '/class/badge.php');
+require_once($CFG->libdir . '/adminlib.php');
 
 $badgeid = optional_param('id', '', PARAM_ALPHANUM);
 $action = optional_param('action', 'list', PARAM_ALPHANUM);
@@ -22,13 +41,10 @@ if (!empty($badgeid)) {
     $url->param('id', $badgeid);
 }
 
-// site context
+// Site context.
 if (empty($courseid)) {
     require_login();
-}
-
-// course context
-else {
+} else { // Course context.
     $url->param('courseid', $courseid);
     require_login($courseid);
 }
@@ -106,7 +122,7 @@ switch ($action) {
                 $context);
 
         switch ($show) {
-            // Email template
+            // Email template.
             case 'email':
                 require_capability('local/obf:configure', $context);
 
@@ -145,7 +161,7 @@ switch ($action) {
                 $content .= $renderer->page($badge, 'email', $html);
                 break;
 
-            // Badge details
+            // Badge details.
             case 'details':
                 $taburl = clone $baseurl;
                 $taburl->param('show', $show);
@@ -159,13 +175,13 @@ switch ($action) {
                         $context, $show, $page, $message);
                 break;
 
-            // Badge criteria
+            // Badge criteria.
             case 'criteria':
                 $content .= $PAGE->get_renderer('local_obf')->page_badgedetails($client, $badge,
                         $context, $show, $page, $message);
                 break;
 
-            // Badge issuance history
+            // Badge issuance history.
             case 'history':
                 $content .= $PAGE->get_renderer('local_obf')->page_badgedetails($client, $badge,
                         $context, $show, $page, $message);

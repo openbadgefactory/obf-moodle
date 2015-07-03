@@ -1,11 +1,30 @@
 <?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
  * Page for handling the CRUD of a badge criterion.
+ *
+ * @package    local_obf
+ * @copyright  2013-2015, Discendum Oy
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-require_once __DIR__ . '/../../config.php';
-require_once __DIR__ . '/class/criterion/course.php';
-require_once __DIR__ . "/class/badge.php";
+require_once(__DIR__ . '/../../config.php');
+require_once(__DIR__ . '/class/criterion/course.php');
+require_once(__DIR__ . "/class/badge.php");
 
 $id = optional_param('id', null, PARAM_INT);
 $action = optional_param('action', 'new', PARAM_ALPHANUM);
@@ -41,7 +60,7 @@ $PAGE->navbar->add(get_string('configurecriteria', 'local_obf'));
 
 switch ($action) {
 
-    // Save the criterion
+    // Save the criterion.
     case 'save':
         require_capability('local/obf:editcriterion', $context);
         require_once(__DIR__ . '/form/criterion.php');
@@ -53,26 +72,20 @@ switch ($action) {
         $criterion->set_badge($badge);
         $criterionform = new obf_criterion_form($url, array('criterion' => $criterion, 'addcourse' => $addcourse));
 
-        // Form submission was cancelled
+        // Form submission was cancelled.
         if ($criterionform->is_cancelled()) {
             redirect(new moodle_url('/local/obf/badge.php',
                     array('id' => $badge->get_id(), 'action' => 'show', 'show' => 'criteria')));
-        }
-
-        // Form was successfully submitted
-        else if (!is_null($data = $criterionform->get_data())) {
+        } else if (!is_null($data = $criterionform->get_data())) { // Form was successfully submitted.
             $criterion->set_completion_method(obf_criterion::CRITERIA_COMPLETION_ALL);
 
             // Save the criterion object first.
             if ($criterion->save() === false) {
                 $content .= $OUTPUT->error_text(get_string('creatingcriterionfailed', 'local_obf'));
                 $content = $PAGE->get_renderer('local_obf')->render($criterionform);
-            }
-
-            // Then add the selected courses.
-            else {
-                if (property_exists($data,'criteriatype')) {
-                    $criteriatype =  $data->criteriatype;
+            } else { // Then add the selected courses.
+                if (property_exists($data, 'criteriatype')) {
+                    $criteriatype = $data->criteriatype;
                 } else {
                     $criteriatype = obf_criterion_item::CRITERIA_TYPE_UNKNOWN;
                 }
@@ -84,13 +97,19 @@ switch ($action) {
                         $courseobj->set_criterionid($criterion->get_id());
                         $courseobj->save();
                     } else {
-                        // Check course id validity
+                        // Check course id validity.
                         $course = $DB->get_record('course',
                                 array('id' => $courseid, 'enablecompletion' => COMPLETION_ENABLED));
 
                         if ($course !== false) {
-                            // If multiple courses selected, set criteriatype to course since multi-course activities are not supported
-                            $objtype = (count($courseids) == 1 ? obf_criterion_item::CRITERIA_TYPE_UNKNOWN : obf_criterion_item::CRITERIA_TYPE_COURSE);
+                            // If multiple courses selected, set criteriatype to course since
+                            // multi-course activities are not supported.
+                            if (count($courseids) == 1) {
+                                $objtype = obf_criterion_item::CRITERIA_TYPE_UNKNOWN;
+                            } else {
+                                $objtype = obf_criterion_item::CRITERIA_TYPE_COURSE;
+                            }
+
                             $courseobj = obf_criterion_item::build_type($objtype);
                             $courseobj->set_courseid($courseid);
                             $courseobj->set_criterionid($criterion->get_id());
@@ -107,7 +126,7 @@ switch ($action) {
         }
         break;
 
-    // Creating a new criterion
+    // Creating a new criterion.
     case 'new':
         require_capability('local/obf:editcriterion', $context);
         require_once(__DIR__ . '/form/criterion.php');
@@ -123,7 +142,7 @@ switch ($action) {
 
         break;
 
-    // Editing an existing criterion
+    // Editing an existing criterion.
     case 'edit':
         require_capability('local/obf:editcriterion', $context);
         require_once(__DIR__ . '/form/criterion.php');
@@ -140,7 +159,7 @@ switch ($action) {
 
         break;
 
-    // Updating an existing criterion
+    // Updating an existing criterion.
     case 'update':
         require_capability('local/obf:editcriterion', $context);
         require_once(__DIR__ . '/form/criterion.php');
@@ -156,21 +175,18 @@ switch ($action) {
 
         $criterionform = new obf_criterion_form($url, array('criterion' => $criterion, 'addcourse' => $addcourse));
 
-        // Form was cancelled or editing is prohibited (criterion has already been met)
+        // Form was cancelled or editing is prohibited (criterion has already been met).
         if ($criterionform->is_cancelled() || $criterion->is_met()) {
             redirect(new moodle_url('/local/obf/badge.php',
                     array('id' => $badge->get_id(),
                 'action' => 'show', 'show' => 'criteria')));
-        }
-
-        // Form was successfully submitted, save data
-        else if (!is_null($data = $criterionform->get_data())) {
+        } else if (!is_null($data = $criterionform->get_data())) { // Form was successfully submitted, save data.
             // TODO: wrap into a transaction?
             if (!empty($addcourse)) {
 
                 $courseids = array_filter($data->course, function($courseid) {
                     global $DB;
-                    // Check course id validity
+                    // Check course id validity.
                     return ($DB->get_record('course',
                             array('id' => $courseid, 'enablecompletion' => COMPLETION_ENABLED)) !== false);
                 });
@@ -178,7 +194,8 @@ switch ($action) {
                 if (property_exists($data, 'criteriatype')) {
                     $criteriatype = $data->criteriatype;
                 } else {
-                    $criteriatype = (count($courses) == 1 ? $courses[0]->get_criteriatype() : obf_criterion_item::CRITERIA_TYPE_COURSE);
+                    $criteriatype = (count($courses) == 1 ? $courses[0]->get_criteriatype() :
+                            obf_criterion_item::CRITERIA_TYPE_COURSE);
                 }
                 $criterion->set_items_by_courseids($courseids, $criteriatype);
 
@@ -186,10 +203,11 @@ switch ($action) {
                         array('badgeid' => $badge->get_id(), 'action' => 'edit',
                     'id' => $id));
             } else {
-                $criterion_completion_method = isset($data->completion_method) ? $data->completion_method : obf_criterion::CRITERIA_COMPLETION_ALL;
+                $criterioncompletionmethod = isset($data->completion_method) ? $data->completion_method :
+                        obf_criterion::CRITERIA_COMPLETION_ALL;
 
-                if ($criterion_completion_method != $criterion->get_completion_method()) {
-                    $criterion->set_completion_method($criterion_completion_method);
+                if ($criterioncompletionmethod != $criterion->get_completion_method()) {
+                    $criterion->set_completion_method($criterioncompletionmethod);
                     $criterion->update();
                 }
 
@@ -214,7 +232,7 @@ switch ($action) {
                     }
                     $criterioncourse->save_params($data);
                 } else if ($data->criteriatype == obf_criterion_item::CRITERIA_TYPE_COURSE && !$pickingtype) {
-                    // ... and then add the criterion attributes
+                    // ... And then add the criterion attributes.
                     foreach ($data->mingrade as $criterioncourseid => $grade) {
                         $criterioncourse = obf_criterion_item::get_instance($criterioncourseid);
                         $criterioncourse->set_grade((int) $grade);
@@ -240,7 +258,7 @@ switch ($action) {
 
                 // If the review-checkbox was selected, let's review the criterion and check whether
                 // the badge can be issued right now.
-                if (property_exists($data,'reviewaftersave') && $data->reviewaftersave) {
+                if (property_exists($data, 'reviewaftersave') && $data->reviewaftersave) {
                     $recipientcount = $criterion->review_previous_completions();
                     $tourl->param('msg', get_string('badgewasautomaticallyissued', 'local_obf', $recipientcount));
                 }
@@ -252,10 +270,10 @@ switch ($action) {
         }
         break;
 
-    // Deleting a criterion
+    // Deleting a criterion.
     case 'delete':
         require_capability('local/obf:editcriterion', $context);
-        require_once __DIR__ . '/form/criteriondeletion.php';
+        require_once(__DIR__ . '/form/criteriondeletion.php');
 
         $criterion = obf_criterion::get_instance($id);
         $deletionform = new obf_criterion_deletion_form($FULLME, array('criterion' => $criterion));
@@ -263,12 +281,10 @@ switch ($action) {
                 array('action' => 'show', 'show' => 'criteria',
             'id' => $badgeid));
 
-        // deletion cancelled
+        // Deletion cancelled.
         if ($deletionform->is_cancelled()) {
             redirect($url);
-        }
-        // deletion confirmed
-        else if ($deletionform->is_submitted()) {
+        } else if ($deletionform->is_submitted()) { // Deletion confirmed.
             $criterion->delete();
             redirect($url, get_string('criteriondeleted', 'local_obf'));
         } else {

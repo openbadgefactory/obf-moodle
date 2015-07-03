@@ -1,4 +1,26 @@
 <?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+/**
+ * Plugin configuration page.
+ *
+ * @package    local_obf
+ * @copyright  2013-2015, Discendum Oy
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 require_once(__DIR__ . '/../class/criterion/criterion.php');
 require_once(__DIR__ . '/../class/badge.php');
 require_once(__DIR__ . '/../class/criterion/activity.php');
@@ -42,39 +64,39 @@ class local_obf_criterion_testcase extends advanced_testcase {
         $courserule1->save();
         $courserule2->save();
 
-        // Test, whether the course rules were saved
+        // Test, whether the course rules were saved.
         $this->assertCount(2, $rule->get_items());
         $this->assertTrue($courserule1->exists());
         $this->assertTrue($courserule2->exists());
         $this->assertEquals($courserule1->get_criterion()->get_badgeid(), $rule->get_badgeid());
         $this->assertEquals($course1->fullname, $courserule1->get_coursename());
 
-        // Test completion data validity
+        // Test completion data validity.
         $this->assertTrue($courserule1->has_completion_date());
         $this->assertFalse($courserule1->has_grade());
         $this->assertTrue($courserule2->has_grade());
 
-        // Test related courses
+        // Test related courses.
         $relatedcourses = $rule->get_related_courses();
         $this->assertArrayHasKey($course1->id, $relatedcourses);
         $this->assertArrayHasKey($course2->id, $relatedcourses);
         $this->assertTrue($rule->has_course($course1->id));
         $this->assertTrue($rule->has_course($course2->id));
 
-        // Test if rule has been met
+        // Test if rule has been met.
         $user1 = $this->getDataGenerator()->create_user();
         $this->assertFalse($rule->is_met_by_user($user1));
         $rule->set_met_by_user($user1->id);
         $this->assertTrue($rule->is_met_by_user($user1));
         $this->assertTrue($rule->is_met());
 
-        // Test course-related rules
+        // Test course-related rules.
         $coursecriterion = obf_criterion::get_course_criterion($course1->id);
         $this->assertCount(1, $coursecriterion);
         $this->assertArrayHasKey($rule->get_id(), $coursecriterion);
         $this->assertCount(2, $coursecriterion[$rule->get_id()]->get_items());
 
-        // Delete course rules
+        // Delete course rules.
         $rule->delete_items();
         $this->assertCount(0, $rule->get_items());
     }

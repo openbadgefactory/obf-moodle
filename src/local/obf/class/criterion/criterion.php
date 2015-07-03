@@ -1,15 +1,33 @@
 <?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+/**
+ * @package    local_obf
+ * @copyright  2013-2015, Discendum Oy
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 global $CFG;
 
-require_once __DIR__ . '/../badge.php';
-require_once __DIR__ . '/item_base.php';
-require_once __DIR__ . '/course.php';
+require_once(__DIR__ . '/../badge.php');
+require_once(__DIR__ . '/item_base.php');
+require_once(__DIR__ . '/course.php');
 
-
-require_once $CFG->dirroot . '/grade/querylib.php';
-require_once $CFG->libdir . '/gradelib.php';
-require_once $CFG->libdir . '/completionlib.php';
+require_once($CFG->dirroot . '/grade/querylib.php');
+require_once($CFG->libdir . '/gradelib.php');
+require_once($CFG->libdir . '/completionlib.php');
 
 /**
  * Class representing a criterion which the student has to complete to earn
@@ -41,7 +59,7 @@ class obf_criterion {
      * @var int Whether the student has to complete all or any of the courses
      *      to earn a badge.
      */
-    private $completion_method = null;
+    private $completionmethod = null;
 
     /**
      * @var obf_criterion_item[] The courses/activities in this criterion
@@ -94,7 +112,7 @@ class obf_criterion {
         $obj = new stdClass();
         $obj->id = $this->id;
         $obj->badge_id = $this->get_badgeid();
-        $obj->completion_method = $this->completion_method;
+        $obj->completion_method = $this->completionmethod;
 
         $DB->update_record('local_obf_criterion', $obj);
     }
@@ -110,7 +128,7 @@ class obf_criterion {
 
         $obj = new stdClass();
         $obj->badge_id = $this->get_badgeid();
-        $obj->completion_method = $this->completion_method;
+        $obj->completion_method = $this->completionmethod;
 
         $id = $DB->insert_record('local_obf_criterion', $obj, true);
 
@@ -228,7 +246,7 @@ class obf_criterion {
         if (is_null($this->items) || $force) {
             $this->items = obf_criterion_item::get_criterion_items($this);
         }
-        // Filter by criteriatype
+        // Filter by criteriatype.
 
         if ($criteriatype != obf_criterion_item::CRITERIA_TYPE_ANY) {
             return array_filter($this->items,
@@ -265,7 +283,7 @@ class obf_criterion {
         foreach ($courses as $criterioncourse) {
             if ($criterioncourse->get_criteriatype() == obf_criterion_item::CRITERIA_TYPE_COURSE) {
                 $courseid = $criterioncourse->get_courseid();
-                if (!in_array($courseid,$courseids)) {
+                if (!in_array($courseid, $courseids)) {
                     $criterioncourse->delete();
                 }
             } else {
@@ -273,7 +291,6 @@ class obf_criterion {
             }
 
         }
-
 
         return $this;
     }
@@ -358,8 +375,7 @@ class obf_criterion {
             }
 
             $sql .= ' WHERE ' . implode(' AND ', $cols);
-        }
-        else if (is_string($conditions) && !empty($conditions)) {
+        } else if (is_string($conditions) && !empty($conditions)) {
             $sql .= ' WHERE ' . $conditions;
         }
 
@@ -367,7 +383,7 @@ class obf_criterion {
         $ret = array();
 
         foreach ($records as $record) {
-            // Group by criterion
+            // Group by criterion.
             if (!isset($ret[$record->criterionid])) {
                 $obj = new self();
                 $obj->set_badgeid($record->badge_id);
@@ -423,8 +439,7 @@ class obf_criterion {
      * @return obf_badge The badge.
      */
     public function get_badge() {
-        return (!empty($this->badge) ? $this->badge : (!empty($this->badgeid) ? obf_badge::get_instance($this->badgeid)
-                                    : null));
+        return (!empty($this->badge) ? $this->badge : (!empty($this->badgeid) ? obf_badge::get_instance($this->badgeid) : null));
     }
 
     /**
@@ -456,7 +471,7 @@ class obf_criterion {
      */
     public function review_previous_completions() {
         global $DB;
-        require_once __DIR__ . '/../event.php';
+        require_once(__DIR__ . '/../event.php');
         // Just in case this operation takes ages, raise the limits a bit.
         set_time_limit(0);
         raise_memory_limit(MEMORY_EXTRA);
@@ -473,13 +488,13 @@ class obf_criterion {
         $selfreviewsupported = true;
 
         foreach ($criterioncourses as $crit) {
-            $review_result = $crit->review($this, $criterioncourses,
+            $reviewresult = $crit->review($this, $criterioncourses,
                     $selfreviewextra);
 
             if (count($selfreviewusers) == 0 || !$requireall) {
-                $selfreviewusers = array_merge($selfreviewusers, $review_result);
-            } else { // Require all courses complete
-                $selfreviewusers = array_intersect_key($selfreviewusers,$review_result);
+                $selfreviewusers = array_merge($selfreviewusers, $reviewresult);
+            } else { // Require all courses complete.
+                $selfreviewusers = array_intersect_key($selfreviewusers, $reviewresult);
             }
         }
         foreach ($selfreviewusers as $user) {
@@ -489,14 +504,11 @@ class obf_criterion {
             }
         }
 
-
-
         // We found users that have completed this criterion. Let's issue some
         // badges, then!
         if (count($recipients) > 0) {
             $badge = $this->get_badge();
             $email = $badge->get_email();
-
 
             if (is_null($email)) {
                 $email = new obf_email();
@@ -505,13 +517,12 @@ class obf_criterion {
             $backpackemails = obf_backpack::get_emails_by_userids($recipientids);
 
             foreach ($recipients as $user) {
-                $recipientemails[] = isset($backpackemails[$user->id]) ? $backpackemails[$user->id]
-                            : $user->email;
+                $recipientemails[] = isset($backpackemails[$user->id]) ? $backpackemails[$user->id] : $user->email;
             }
             // Check if criterion wants to override badges expries settings.
             $expiresoverride = null;
             foreach ($criterioncourses as $crit) {
-                $expiresoverride = max(array($crit->get_issue_expires_override(),$expiresoverride));
+                $expiresoverride = max(array($crit->get_issue_expires_override(), $expiresoverride));
             }
             if (!is_null($expiresoverride)) {
                 $badge->set_expires($expiresoverride);
@@ -526,7 +537,7 @@ class obf_criterion {
                 $issuevent->save($DB);
             }
 
-            // Update the database
+            // Update the database.
             foreach ($recipientids as $userid) {
                 $this->set_met_by_user($userid);
             }
@@ -552,8 +563,8 @@ class obf_criterion {
             $criterioncourses = $this->get_items(true);
         }
 
-        $requireall = $this->get_completion_method() == obf_criterion::CRITERIA_COMPLETION_ALL;
-        // The completed course doesn't exist in this criterion, no need to continue
+        $requireall = $this->get_completion_method() == self::CRITERIA_COMPLETION_ALL;
+        // The completed course doesn't exist in this criterion, no need to continue.
         if (!$this->has_course($courseid)) {
             return false;
         }
@@ -563,22 +574,17 @@ class obf_criterion {
         foreach ($criterioncourses as $criterioncourse) {
             $coursecompleted = $this->review_course($criterioncourse, $userid);
 
-            // All of the courses have to be completed
+            // All of the courses have to be completed.
             if ($requireall) {
                 if (!$coursecompleted) {
                     return false;
-                }
-                else {
+                } else {
                     $criterioncompleted = true;
                 }
-            }
-
-            // Any of the courses has to be completed
-            else {
+            } else { // Any of the courses has to be completed.
                 if ($coursecompleted) {
                     return true;
-                }
-                else {
+                } else {
                     $criterioncompleted = false;
                 }
             }
@@ -599,7 +605,6 @@ class obf_criterion {
             $userid) {
         global $DB;
 
-
         $courseid = $criterioncourse->get_courseid();
         $course = $this->get_course($courseid);
         $completioninfo = new completion_info($course);
@@ -616,8 +621,8 @@ class obf_criterion {
                     $modules[] = $param['module'];
                 }
             }
-            $completedmodulecount=0;
-            $requireall = $this->get_completion_method() == obf_criterion::CRITERIA_COMPLETION_ALL;
+            $completedmodulecount = 0;
+            $requireall = $this->get_completion_method() == self::CRITERIA_COMPLETION_ALL;
             foreach ($modules as $modid) {
                 $cm = $DB->get_record('course_modules', array('id' => $modid));
                 $completiondata = $completioninfo->get_data($cm, false, $userid);
@@ -633,32 +638,28 @@ class obf_criterion {
             }
         }
 
-
-
         $datepassed = false;
         $gradepassed = false;
         $completion = new completion_completion(array('userid' => $userid, 'course' => $courseid));
         $completedat = $completion->timecompleted;
 
-        // check completion date
+        // Check completion date.
         if ($criterioncourse->has_completion_date()) {
             if ($completedat <= $criterioncourse->get_completedby()) {
                 $datepassed = true;
             }
-        }
-        else {
+        } else {
             $datepassed = true;
         }
 
-        // check grade
+        // Check grade.
         if ($criterioncourse->has_grade()) {
             $grade = grade_get_course_grade($userid, $courseid);
 
             if (!is_null($grade->grade) && $grade->grade >= $criterioncourse->get_grade()) {
                 $gradepassed = true;
             }
-        }
-        else {
+        } else {
             $gradepassed = true;
         }
 
@@ -682,7 +683,7 @@ class obf_criterion {
     }
 
     public function get_completion_method() {
-        return $this->completion_method;
+        return $this->completionmethod;
     }
 
     public function set_id($id) {
@@ -694,8 +695,8 @@ class obf_criterion {
         $this->items[] = $item;
     }
 
-    public function set_completion_method($completion_method) {
-        $this->completion_method = $completion_method;
+    public function set_completion_method($completionmethod) {
+        $this->completionmethod = $completionmethod;
         return $this;
     }
 
@@ -723,8 +724,8 @@ class obf_criterion {
             $obj->set_badgeid($record->badge_id);
             $obj->set_completion_method($record->completion_method);
 
-            if (in_array($obj->get_badgeid(),$okbadges) || in_array($obj->get_badgeid(),$failbadges)) {
-                if (in_array($obj->get_badgeid(),$failbadges)) {
+            if (in_array($obj->get_badgeid(), $okbadges) || in_array($obj->get_badgeid(), $failbadges)) {
+                if (in_array($obj->get_badgeid(), $failbadges)) {
                     $ret[] = $obj;
                 }
                 continue;
@@ -732,12 +733,13 @@ class obf_criterion {
             try {
                 $badge = $client->get_badge($obj->get_badgeid());
                 $okbadges[] = $obj->get_badgeid();
-            } catch(Exception $e) {
+            } catch (Exception $e) {
                 if ($e->getCode() == 404) {
                     $failbadges[] = $obj->get_badgeid();
                     $ret[] = $obj;
                 } else {
-                    debugging('Criteria with badge_id: ' . $obj->get_badgeid() . ' caused an error, possible connection issue. Error code: '. $client->get_http_code());
+                    debugging('Criteria with badge_id: ' . $obj->get_badgeid() .
+                            ' caused an error, possible connection issue. Error code: '. $client->get_http_code());
                 }
             }
         }

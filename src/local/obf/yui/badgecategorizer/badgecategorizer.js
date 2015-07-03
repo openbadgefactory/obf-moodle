@@ -14,10 +14,10 @@ YUI.add('moodle-local_obf-badgecategorizer', function(Y) {
             Y.one('ul.obf-categories').delegate('click', this.toggle_class, 'button', this);
             Y.one('button.obf-reset-filter').on('click', this.reset_filter, this);
         },
-        
+
         /**
          * Toggles the visibility of a single category.
-         * 
+         *
          * @param {type} e
          * @returns {undefined}
          */
@@ -28,11 +28,11 @@ YUI.add('moodle-local_obf-badgecategorizer', function(Y) {
             node.toggleClass('active');
             this.toggle_badges();
         },
-        
+
         /**
          * Displays (and hides) the badges according to states of the category
          * buttons.
-         * 
+         *
          * @returns {undefined}
          */
         toggle_badges: function() {
@@ -45,8 +45,7 @@ YUI.add('moodle-local_obf-badgecategorizer', function(Y) {
                 // Show all badges if none of the categories is selected
                 if (categories.length === 0) {
                     show_badge = true;
-                }
-                else {
+                } else {
                     Y.Array.each(categories, function(cat) {
                         if (Y.Array.indexOf(badge_categories, cat) === -1) {
                             show_badge = false;
@@ -57,10 +56,10 @@ YUI.add('moodle-local_obf-badgecategorizer', function(Y) {
                 badge[show_badge ? 'show' : 'hide'](true);
             }, this);
         },
-        
+
         /**
          * Resets the filter and displays all badges.
-         * 
+         *
          * @param {type} e
          * @returns {undefined}
          */

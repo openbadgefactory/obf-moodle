@@ -1,7 +1,27 @@
 <?php
-require_once __DIR__ . '/item_base.php';
-require_once __DIR__ . '/criterion.php';
-require_once __DIR__ . '/../badge.php';
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+/**
+ * @package    local_obf
+ * @copyright  2013-2015, Discendum Oy
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+require_once(__DIR__ . '/item_base.php');
+require_once(__DIR__ . '/criterion.php');
+require_once(__DIR__ . '/../badge.php');
 
 /**
  * Class representing a single course criterion.
@@ -80,12 +100,9 @@ class obf_criterion_course extends obf_criterion_item {
      * @return \obf_criterion_course
      */
     public function populate_from_record(\stdClass $record) {
-        $this->set_id($record->id)
-                ->set_criterionid($record->obf_criterion_id)
-                ->set_courseid($record->courseid)
-                ->set_grade($record->grade)
-                ->set_criteriatype($record->criteria_type)
-                ->set_completedby($record->completed_by);
+        $this->set_id($record->id)->set_criterionid($record->obf_criterion_id);
+        $this->set_courseid($record->courseid)->set_grade($record->grade);
+        $this->set_criteriatype($record->criteria_type)->set_completedby($record->completed_by);
 
         return $this;
     }
@@ -111,14 +128,11 @@ class obf_criterion_course extends obf_criterion_item {
         $obj->completed_by = $this->has_completion_date() ? $this->completedby : null;
         $obj->criteria_type = $this->criteriatype;
 
-        // Updating existing record
+        // Updating existing record.
         if ($this->id > 0) {
             $obj->id = $this->id;
             $DB->update_record('local_obf_criterion_courses', $obj);
-        }
-
-        // Inserting a new record
-        else {
+        } else { // Inserting a new record.
             $id = $DB->insert_record('local_obf_criterion_courses', $obj);
 
             if (!$id) {
@@ -220,11 +234,11 @@ class obf_criterion_course extends obf_criterion_item {
      */
     public static function delete_by_course(stdClass $course,
             moodle_database $db) {
-        // First delete criterion courses
+        // First delete criterion courses.
         $db->delete_records('local_obf_criterion_courses',
                 array('courseid' => $course->id));
 
-        // Then delete "empty" criteria (= criteria that don't have any related courses
+        // Then delete "empty" criteria (= criteria that don't have any related courses.
         obf_criterion::delete_empty($db);
     }
 
@@ -243,32 +257,32 @@ class obf_criterion_course extends obf_criterion_item {
      *
      * @global moodle_database $DB
      * @param obf_criterion $criterion The main criterion.
-     * @param obf_criterion_item[] $other_items Other items related to main criterion.
+     * @param obf_criterion_item[] $otheritems Other items related to main criterion.
      * @param type[] $extra Extra options passed to review method.
      *      Each criterion item may save anything in $extra[$this->id].
      * @return stdClass[] Users that pass (id).
      */
-    public function review($criterion = null, $other_items = null, &$extra = array()) {
+    public function review($criterion = null, $otheritems = null, &$extra = array()) {
         $users = $this->get_affected_users();
-        $passing_users = array();
-        if (array_key_exists($this->get_id(),$extra) || !$this->is_reviewable()) {
-            return $passing_users;
+        $passingusers = array();
+        if (array_key_exists($this->get_id(), $extra) || !$this->is_reviewable()) {
+            return $passingusers;
         }
         $extra[$this->get_id()] = 0;
         $criterion = isset($criterion) ? $criterion : $this->get_criterion();
-        if (!isset($other_items)) {
-            $other_items = $criterion->get_items();
+        if (!isset($otheritems)) {
+            $otheritems = $criterion->get_items();
         }
-        // TODO: Remove self from $other_items?
+        // TODO: Remove self from $otheritems?
 
         foreach ($users as $user) {
-            $pass = $this->review_for_user($user, $criterion, $other_items, $extra);
+            $pass = $this->review_for_user($user, $criterion, $otheritems, $extra);
             if ($pass) {
-                $passing_users[$user->id] = $user;
+                $passingusers[$user->id] = $user;
             }
         }
         $extra[$this->get_id()] = 1;
-        return $passing_users;
+        return $passingusers;
     }
 
     public function get_params() {
@@ -294,21 +308,23 @@ class obf_criterion_course extends obf_criterion_item {
         $this->save();
 
         $params = (array)$data;
-        // Filter out empty params
+        // Filter out empty params.
         $params = array_filter($params);
-        // Get params matching required params
-        $match = array_merge($this->optional_params, array($this->required_param));
-        $regex = implode('|', array_map(function($a) { return $a .'_';}, $match));
+        // Get params matching required params.
+        $match = array_merge($this->optionalparams, array($this->requiredparam));
+        $regex = implode('|', array_map(
+                function($a) {
+                    return $a .'_';
+                }, $match));
         $requiredkeys = preg_grep('/^('.$regex.').*$/', array_keys($params));
 
         $paramtable = 'local_obf_criterion_params';
-
 
         $existing = $DB->get_fieldset_select($paramtable, 'name', 'obf_criterion_id = ?', array($this->get_criterionid()));
         $todelete = array_diff($existing, $requiredkeys);
         $todelete = array_unique($todelete);
         if (!empty($todelete)) {
-            list($insql,$inparams) = $DB->get_in_or_equal($todelete, SQL_PARAMS_NAMED, 'cname', true);
+            list($insql, $inparams) = $DB->get_in_or_equal($todelete, SQL_PARAMS_NAMED, 'cname', true);
             $inparams = array_merge($inparams, array('critid' => $this->get_criterionid()));
             $DB->delete_records_select($paramtable, 'obf_criterion_id = :critid AND name '.$insql, $inparams );
         }
@@ -337,7 +353,7 @@ class obf_criterion_course extends obf_criterion_item {
         $grade = $this->get_grade();
         $completedby = $this->get_completedby();
 
-        // Minimum grade -field
+        // Minimum grade -field.
         $mform->addElement('text', 'mingrade[' . $criterioncourseid . ']',
                 get_string('minimumgrade', 'local_obf'));
 
@@ -348,7 +364,7 @@ class obf_criterion_course extends obf_criterion_item {
         // completely useless. That's why we don't call setType() here.
         //
         // ... EXCEPT that Behat-tests are failing because of the E_NOTICE, so let's add client
-        // side validation + server side cleaning
+        // side validation + server side cleaning.
         $mform->addRule('mingrade[' . $criterioncourseid . ']', null, 'numeric', null, 'client');
         $mform->setType('mingrade[' . $criterioncourseid . ']', PARAM_INT);
 
@@ -374,10 +390,10 @@ class obf_criterion_course extends obf_criterion_item {
      */
     public function get_form_config(&$mform, &$obj) {
         global $OUTPUT;
-        $mform->addElement('hidden','criteriatype', obf_criterion_item::CRITERIA_TYPE_COURSE);
+        $mform->addElement('hidden', 'criteriatype', obf_criterion_item::CRITERIA_TYPE_COURSE);
         $mform->setType('criteriatype', PARAM_INT);
 
-        $mform->createElement('hidden','picktype', 'no');
+        $mform->createElement('hidden', 'picktype', 'no');
         $mform->setType('picktype', PARAM_TEXT);
     }
 
@@ -385,7 +401,7 @@ class obf_criterion_course extends obf_criterion_item {
     public function get_form_completion_options(&$mform, $obj = null, $items = null) {
         if ($this->get_criterion()) {
             // Radiobuttons to select whether this criterion is completed
-            // when any of the courses are completed or all of them
+            // when any of the courses are completed or all of them.
             $itemcount = !is_null($items) ? count($items) : count($this->get_criterion()->get_items());
             if ($itemcount > 1) {
                 $radiobuttons = array();
@@ -405,7 +421,7 @@ class obf_criterion_course extends obf_criterion_item {
         }
     }
 
-    public function get_form_after_save_options(&$mform,&$obj) {
+    public function get_form_after_save_options(&$mform, &$obj) {
         global $OUTPUT;
         if ($this->show_review_options()) {
             $mform->addElement('header', 'header_review_criterion_after_save',
@@ -445,15 +461,15 @@ class obf_criterion_course extends obf_criterion_item {
      * @global type $CFG
      * @param int $userid The id of the user.
      * @param obf_criterion $criterion The main criterion.
-     * @param obf_criterion_item[] $other_items Other items related to main criterion.
+     * @param obf_criterion_item[] $otheritems Other items related to main criterion.
      * @param type[] $extra Extra options passed to review method.
      * @return boolean If the course criterion is completed by the user.
      */
-    protected function review_for_user($user, $criterion = null, $other_items = null, &$extra = null) {
+    protected function review_for_user($user, $criterion = null, $otheritems = null, &$extra = null) {
         global $CFG, $DB;
-        require_once $CFG->dirroot . '/grade/querylib.php';
-        require_once $CFG->libdir . '/gradelib.php';
-        require_once $CFG->libdir . '/completionlib.php';
+        require_once($CFG->dirroot . '/grade/querylib.php');
+        require_once($CFG->libdir . '/gradelib.php');
+        require_once($CFG->libdir . '/completionlib.php');
 
         $requireall = $criterion->get_completion_method() == obf_criterion::CRITERIA_COMPLETION_ALL;
 
@@ -478,7 +494,7 @@ class obf_criterion_course extends obf_criterion_item {
         $completion = new completion_completion(array('userid' => $userid, 'course' => $courseid));
         $completedat = $completion->timecompleted;
 
-        // check completion date
+        // Check completion date.
         if ($this->has_completion_date()) {
             if ($completedat <= $this->get_completedby()) {
                 $datepassed = true;
@@ -487,7 +503,7 @@ class obf_criterion_course extends obf_criterion_item {
             $datepassed = true;
         }
 
-        // check grade
+        // Check grade.
         if ($this->has_grade()) {
             $grade = grade_get_course_grade($userid, $courseid);
 

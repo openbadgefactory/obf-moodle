@@ -1,14 +1,33 @@
 <?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
  * Displays the details of a single event from OBF.
+ *
+ * @package    local_obf
+ * @copyright  2013-2015, Discendum Oy
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-require_once __DIR__ . '/../../config.php';
-require_once __DIR__ . '/class/assertion.php';
-require_once __DIR__ . '/class/assertion_collection.php';
-require_once __DIR__ . '/class/criterion/criterion.php';
-require_once __DIR__ . '/class/event.php';
-require_once __DIR__ . '/form/revoke.php';
+require_once(__DIR__ . '/../../config.php');
+require_once(__DIR__ . '/class/assertion.php');
+require_once(__DIR__ . '/class/assertion_collection.php');
+require_once(__DIR__ . '/class/criterion/criterion.php');
+require_once(__DIR__ . '/class/event.php');
+require_once(__DIR__ . '/form/revoke.php');
 
 
 require_login();
@@ -24,13 +43,13 @@ $msg = optional_param('msg', '', PARAM_TEXT);
 
 $eventdata = new obf_issue_event($eventid, $DB);
 $syscontext = context_system::instance();
-$hasviewpermission=false;
-$hasrevokepermission=false;
+$hasviewpermission = false;
+$hasrevokepermission = false;
 if ($eventdata) {
-    // Check user capabilities for different event and criteria types
+    // Check user capabilities for different event and criteria types.
     if ($eventdata->has_userid() && $USER->id == $eventdata->get_userid()) {
         $hasviewpermission = true;
-        $hasrevokepermission= true;
+        $hasrevokepermission = true;
     } else if ($eventdata->has_userid()) {
         $context = context_user::instance($eventdata->get_userid());
         require_capability('local/obf:viewallevents', $context);
@@ -42,7 +61,7 @@ if ($eventdata) {
     } else if ($eventdata->has_criterionid()) {
         $criterion = obf_criterion::get_instance($eventdata->get_criterionid());
         $criterionitems = $criterion->get_items();
-        $lastindex = count($criterionitems)-1;
+        $lastindex = count($criterionitems) - 1;
         foreach ($criterionitems as $key => $item) {
             if ($item->has_courseid()) {
                 $context = context_course::instance($item->get_courseid());
@@ -94,7 +113,7 @@ navigation_node::override_active_url(new moodle_url('/local/obf/badge.php',
 
 $content = $OUTPUT->header();
 
-// Filter out nulls
+// Filter out nulls.
 $emailar = array_filter($emailar);
 
 switch ($action) {

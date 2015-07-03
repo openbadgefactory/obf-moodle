@@ -1,5 +1,24 @@
 <?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+/**
+ * @package    local_obf
+ * @copyright  2013-2015, Discendum Oy
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 defined('MOODLE_INTERNAL') || die();
 
 /**
@@ -11,7 +30,7 @@ defined('MOODLE_INTERNAL') || die();
 function xmldb_local_obf_upgrade($oldversion) {
     global $DB;
 
-    $dbman = $DB->get_manager(); // loads ddl manager and xmldb classes
+    $dbman = $DB->get_manager(); // Loads ddl manager and xmldb classes.
 
     if ($oldversion < 2013100701) {
 
@@ -143,12 +162,12 @@ function xmldb_local_obf_upgrade($oldversion) {
             $dbman->create_table($table);
         }
 
-        // Obf savepoint reached.
+        // OBF savepoint reached.
         upgrade_plugin_savepoint(true, 2013100901, 'local', 'obf');
     }
 
     if ($oldversion < 2013101000) {
-        // drop index and rename the foreign key column
+        // Drop index and rename the foreign key column.
         $attributetable = new xmldb_table('obf_criterion_attributes');
         $attributetable->deleteKey('fk_obf_criterion_group_id');
         $field = new xmldb_field('obf_criterion_group_id', XMLDB_TYPE_INTEGER, '10', null,
@@ -156,11 +175,11 @@ function xmldb_local_obf_upgrade($oldversion) {
 
         $dbman->rename_field($attributetable, $field, 'obf_criterion_id');
 
-        // rename criterion table
+        // Rename criterion table.
         $criteriontable = new xmldb_table('obf_criterion_groups');
         $dbman->rename_table($criteriontable, 'obf_criterion');
 
-        // add the new index
+        // Add the new index.
         $attributetable->add_key('fk_obf_criterion_id', XMLDB_KEY_FOREIGN,
                 array('obf_criterion_id'), 'obf_criterion', array('id'));
 
@@ -348,22 +367,22 @@ function xmldb_local_obf_upgrade($oldversion) {
         $newpkidir = $CFG->dataroot . '/local_obf/pki/';
 
         if (!is_dir($newpkidir)) {
-            mkdir($newpkidir,$CFG->directorypermissions,true);
+            mkdir($newpkidir, $CFG->directorypermissions, true);
         }
         $newpkidir = realpath($newpkidir);
 
-        $pkey_filename = '/obf.key';
-        $cert_filename = '/obf.pem';
+        $pkeyfilename = '/obf.key';
+        $certfilename = '/obf.pem';
 
         if (!is_writable($newpkidir)) {
             throw new Exception(get_string('pkidirnotwritable', 'local_obf',
                     $newpkidir));
         }
-        $oldpkeyfile = $oldpkidir . $pkey_filename;
-        $oldcertfile = $oldpkidir . $cert_filename;
+        $oldpkeyfile = $oldpkidir . $pkeyfilename;
+        $oldcertfile = $oldpkidir . $certfilename;
 
-        $newpkeyfile = $newpkidir . $pkey_filename;
-        $newcertfile = $newpkidir . $cert_filename;
+        $newpkeyfile = $newpkidir . $pkeyfilename;
+        $newcertfile = $newpkidir . $certfilename;
 
         if (is_file($oldpkeyfile) ) {
             copy($oldpkeyfile, $newpkeyfile);
@@ -379,7 +398,7 @@ function xmldb_local_obf_upgrade($oldversion) {
             @unlink($oldcertfile);
         }
 
-        // Obf savepoint reached
+        // Obf savepoint reached.
         upgrade_plugin_savepoint(true, 2015052700, 'local', 'obf');
     }
 
@@ -392,9 +411,9 @@ function xmldb_local_obf_upgrade($oldversion) {
         // Conditionally launch add field completion_method.
         if (!$dbman->field_exists($table, $field)) {
             $dbman->add_field($table, $field);
-            //TODO: Set all old completion methods to 1
+            // TODO: Set all old completion methods to 1.
         }
-        // And a new table:
+        // And a new table...
 
         // Define table obf_criterion_params to be created.
         $table = new xmldb_table('obf_criterion_params');
@@ -461,7 +480,6 @@ function xmldb_local_obf_upgrade($oldversion) {
             $dbman->create_table($table);
         }
 
-
         // Obf savepoint reached.
         upgrade_plugin_savepoint(true, 2015061800, 'local', 'obf');
     }
@@ -526,9 +544,6 @@ function xmldb_local_obf_upgrade($oldversion) {
 
         // Obf savepoint reached.
         upgrade_plugin_savepoint(true, 2015062501, 'local', 'obf');
-  }
-
-
-
+    }
     return true;
 }

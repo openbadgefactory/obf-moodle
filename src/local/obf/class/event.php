@@ -1,5 +1,24 @@
 <?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+/**
+ * @package    local_obf
+ * @copyright  2013-2015, Discendum Oy
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class obf_issue_event {
 
     private $id = -1;
@@ -20,10 +39,8 @@ class obf_issue_event {
                     array('event_id' => $eventid));
 
             if ($record !== false) {
-                $this->set_id($record->id)
-                        ->set_eventid($record->event_id)
-                        ->set_criterionid($record->obf_criterion_id)
-                        ->set_userid($record->user_id);
+                $this->set_id($record->id)->set_eventid($record->event_id);
+                $this->set_criterionid($record->obf_criterion_id)->set_userid($record->user_id);
             } else {
                 $this->set_eventid($eventid);
             }
@@ -32,10 +49,8 @@ class obf_issue_event {
 
     public function populate_from_record($record) {
         if ($record !== false) {
-            $this->set_id($record->id)
-                    ->set_eventid($record->event_id)
-                    ->set_criterionid($record->obf_criterion_id)
-                    ->set_userid($record->user_id);
+            $this->set_id($record->id)->set_eventid($record->event_id);
+            $this->set_criterionid($record->obf_criterion_id)->set_userid($record->user_id);
         }
         return $this;
     }
@@ -43,11 +58,11 @@ class obf_issue_event {
     public static function get_events_in_course($courseid, moodle_database $db) {
         $ret = array();
         $sql = 'SELECT evt.* FROM {local_obf_issue_events} AS evt ' .
-        'LEFT JOIN {local_obf_criterion_courses} AS cc ' .
-        'ON (evt.obf_criterion_id=cc.obf_criterion_id) ' .
-        'WHERE cc.courseid = (?) AND evt.obf_criterion_id IS NOT NULL';
+                'LEFT JOIN {local_obf_criterion_courses} AS cc ' .
+                'ON (evt.obf_criterion_id=cc.obf_criterion_id) ' .
+                'WHERE cc.courseid = (?) AND evt.obf_criterion_id IS NOT NULL';
         $params = array($courseid);
-        $records = $db->get_records_sql($sql,$params);
+        $records = $db->get_records_sql($sql, $params);
         foreach ($records as $record) {
             $obj = new self();
             $ret[] = $obj->populate_from_record($record);

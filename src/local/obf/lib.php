@@ -1,5 +1,24 @@
 <?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+/**
+ * @package    local_obf
+ * @copyright  2013-2015, Discendum Oy
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 defined('MOODLE_INTERNAL') || die();
 
 /**
@@ -38,7 +57,7 @@ require_once(__DIR__ . '/class/criterion/course.php');
  */
 function local_obf_course_completed(stdClass $eventdata) {
     global $DB;
-    require_once __DIR__ . '/class/event.php';
+    require_once(__DIR__ . '/class/event.php');
 
     $user = $DB->get_record('user', array('id' => $eventdata->userid));
     $backpack = obf_backpack::get_instance($user);
@@ -54,11 +73,11 @@ function local_obf_course_completed(stdClass $eventdata) {
         return true;
     }
 
-    // Get all criteria related to course completion
+    // Get all criteria related to course completion.
     $criteria = obf_criterion::get_course_criterion($eventdata->course);
 
     foreach ($criteria as $criterionid => $criterion) {
-        // User has already met this criterion
+        // User has already met this criterion.
         if ($criterion->is_met_by_user($user)) {
             continue;
         }
@@ -68,7 +87,7 @@ function local_obf_course_completed(stdClass $eventdata) {
         $criterionmet = $criterion->review($eventdata->userid,
                 $eventdata->course);
 
-        // Criterion was met, issue the badge
+        // Criterion was met, issue the badge.
         if ($criterionmet) {
             $badge = $criterion->get_badge();
             $email = is_null($badge->get_email()) ? new obf_email() : $badge->get_email();
@@ -149,12 +168,12 @@ function local_obf_extend_settings_navigation(settings_navigation $navigation) {
     if (($branch = $navigation->get('usercurrentsettings'))) { // This does not work on Moodle 2.9?
         local_obf_add_obf_user_preferences_link($branch);
         local_obf_add_obf_user_badge_blacklist_link($branch);
-    } else if (($branch = $navigation->find('usercurrentsettings', navigation_node::TYPE_CONTAINER))) { // This works on Moodle 2.9
+    } else if (($branch = $navigation->find('usercurrentsettings', navigation_node::TYPE_CONTAINER))) { // This works on Moodle 2.9.
         local_obf_add_obf_user_preferences_link($branch);
         local_obf_add_obf_user_badge_blacklist_link($branch);
     }
 }
-// Support Moodle 2.8 and older
+// Support Moodle 2.8 and older.
 function local_obf_extends_settings_navigation(settings_navigation $navigation) {
     local_obf_extend_settings_navigation($navigation);
 }
@@ -169,13 +188,13 @@ function local_obf_extends_settings_navigation(settings_navigation $navigation) 
 function local_obf_extend_navigation(global_navigation $navigation) {
     global $PAGE, $COURSE;
 
-    // Course id 1 is Moodle
+    // Course id 1 is Moodle.
     if ($COURSE->id > 1 && $branch = $PAGE->navigation->find($COURSE->id,
             navigation_node::TYPE_COURSE)) {
         local_obf_add_course_participant_badges_link($branch);
     }
 }
-// Support Moodle 2.8 and older
+// Support Moodle 2.8 and older.
 function local_obf_extends_navigation(global_navigation $navigation) {
     local_obf_extend_navigation($navigation);
 }
@@ -280,7 +299,8 @@ function local_obf_myprofile_navigation(\core_user\output\myprofile\tree $tree, 
             $title = get_string('profilebadgelist', 'local_obf');
             $renderer = $PAGE->get_renderer('local_obf');
             $content = $renderer->render_user_assertions($assertions, $user->id, false);
-            $localnode = $mybadges = new core_user\output\myprofile\node('badges', 'obfbadges', $title, null, null, $content, null, 'local-obf');
+            $localnode = $mybadges = new core_user\output\myprofile\node('badges', 'obfbadges',
+                    $title, null, null, $content, null, 'local-obf');
             $tree->add_node($localnode);
         }
 
@@ -291,7 +311,8 @@ function local_obf_myprofile_navigation(\core_user\output\myprofile\tree $tree, 
                 $title = get_string('profilebadgelist' . $name, 'local_obf');
                 $renderer = $PAGE->get_renderer('local_obf');
                 $content = $renderer->render_user_assertions($bpassertions, $user->id, false);
-                $localnode = $mybadges = new core_user\output\myprofile\node('badges', 'obfbadges'.$name, $title, null, null, $content, null, 'local-obf');
+                $localnode = $mybadges = new core_user\output\myprofile\node('badges', 'obfbadges'.$name,
+                        $title, null, null, $content, null, 'local-obf');
                 $tree->add_node($localnode);
             }
         }
@@ -309,18 +330,19 @@ function local_obf_myprofile_get_assertions($userid, $db) {
 
     if (!$assertions) {
         require_once(__DIR__ . '/class/blacklist.php');
-        // Get user's badges in OBF
+        // Get user's badges in OBF.
         $assertions = new obf_assertion_collection();
         try {
             $client = obf_client::get_instance();
             $blacklist = new obf_blacklist($userid);
-            $assertions->add_collection(obf_assertion::get_assertions($client, null, $db->get_record('user', array('id' => $userid))->email ));
+            $assertions->add_collection(obf_assertion::get_assertions($client,
+                    null, $db->get_record('user', array('id' => $userid))->email ));
             $assertions->apply_blacklist($blacklist);
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             debugging('Getting OBF assertions for user id: ' . $userid . ' failed: ' . $e->getMessage());
         }
 
-        $assertions->toArray(); // This makes sure issuer objects are populated and cached
+        $assertions->toArray(); // This makes sure issuer objects are populated and cached.
         $cache->set($userid, $assertions );
     }
     return $assertions;
@@ -348,11 +370,11 @@ function local_obf_myprofile_get_backpack_badges($userid, $provider, $db) {
             $blacklist = new obf_blacklist($userid);
             $assertions->add_collection( $backpack->get_assertions() );
             $assertions->apply_blacklist($blacklist);
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             debugging('Getting OBF assertions for user id: ' . $userid . ' failed: ' . $e->getMessage());
         }
 
-        $assertions->toArray(); // This makes sure issuer objects are populated and cached
+        $assertions->toArray(); // This makes sure issuer objects are populated and cached.
         $cache->set($userid, $assertions );
     }
 
@@ -412,7 +434,7 @@ function local_obf_cron() {
     return true;
 }
 
-// Moodle 2.2 -support
+// Moodle 2.2 -support.
 if (!function_exists('users_order_by_sql')) {
 
     /**
@@ -428,8 +450,7 @@ if (!function_exists('users_order_by_sql')) {
 
         if ($usertablealias) {
             $tableprefix = $usertablealias . '.';
-        }
-        else {
+        } else {
             $tableprefix = '';
         }
 
