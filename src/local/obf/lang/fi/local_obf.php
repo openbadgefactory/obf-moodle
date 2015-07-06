@@ -248,8 +248,8 @@ $string['requesttoken'] = 'Valtuutusavain';
 $string['requesttoken_help'] = '<p>Liitä kenttään Open Badge Factory API:in yhdistämiseen käytettävä '
         . 'valtuutusavain.</p><p>' .
         'Luodaksesi tarvittavan valtuutusavaimen, kirjaudu <a href="https://openbadgefactory.com">Open Badge Factoryyn</a>, avaa ' .
-        '\'<i>Admin tools</i>\' -sivulla sijaitseva \'<i>API key</i>\' -linkki, ' .
-        'ja paina \'<i>Generate certificate signing request token</i>\' -linkkiä. ' .
+        '\'<i>Admin-työkalut</i>\' -sivulla sijaitseva \'<i>Valtuutusavain</i>\' -linkki, ' .
+        'ja paina \'<i>Luo valtuutusavain</i>\' -linkkiä. ' .
         'Kopioi generoitu valtuutusavain Moodleen.</p>';
 $string['resetfilter'] = 'Näytä kaikki';
 $string['reviewcriterionaftersave'] = 'Tarkista sääntö tallennettaessa';
