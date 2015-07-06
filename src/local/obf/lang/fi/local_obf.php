@@ -78,6 +78,7 @@ $string['badgedetails'] = 'Osaamismerkin tiedot';
 $string['badgeemail'] = 'Sähköpostiviesti';
 $string['badgeexport'] = 'Moodlessa aiemmin luodut merkit';
 $string['badgeexportdescription'] = 'Valituista merkeistä luodaan kopio Open Badge Factory -palveluun.';
+$string['badgeexportzeroexportable'] = 'Vietäviä merkkejä ei löytynyt, tai kaikki merkit on jo viety.';
 $string['badgeexpiresby'] = 'Vanhenee';
 $string['badgehistory'] = 'Myöntämishistoria';
 $string['badgeimage'] = 'Osaamismerkki';

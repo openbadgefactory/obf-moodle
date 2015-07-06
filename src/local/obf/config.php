@@ -99,8 +99,14 @@ switch ($action) {
 
         $badges = array_merge(badges_get_badges(BADGE_TYPE_COURSE),
                 badges_get_badges(BADGE_TYPE_SITE));
+        try {
+            $obfbadges = obf_badge::get_badges();
+        } catch (Exception $e) {
+            $content .= $OUTPUT->notification($e->getMessage(), 'notifyproblem');
+            break;
+        }
         $exportform = new obf_badge_export_form($FULLME,
-                array('badges' => $badges));
+                array('badges' => $badges, 'obfbadges' => $obfbadges));
 
         if (!is_null($data = $exportform->get_data())) {
             // At least one badge has been selected to be included in exporting.

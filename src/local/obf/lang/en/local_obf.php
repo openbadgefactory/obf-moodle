@@ -72,6 +72,7 @@ $string['badgedetails'] = 'Badge details';
 $string['badgeemail'] = 'Email template';
 $string['badgeexport'] = 'Export badges previously created in Moodle';
 $string['badgeexportdescription'] = 'A copy of all selected badges will be made on Open Badge Factory.';
+$string['badgeexportzeroexportable'] = 'No exportable badges found, or all badges already exported.';
 $string['badgeexpiresby'] = 'Expires by';
 $string['badgehistory'] = 'Awarding history';
 $string['badgeimage'] = 'Badge';
