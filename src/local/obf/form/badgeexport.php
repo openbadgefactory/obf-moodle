@@ -43,7 +43,9 @@ class obf_badge_export_form extends local_obf_form_base {
                     $label, array('group' => 1));
         }
         $this->add_checkbox_controller(1);
-        $mform->addElement('html', $OUTPUT->notification(get_string('badgeexportdescription', 'local_obf'), 'notifymessage'));
+        if (count($badges) > 0) {
+            $mform->addElement('html', $OUTPUT->notification(get_string('badgeexportdescription', 'local_obf'), 'notifymessage'));
+        }
 
         $mform->addElement('header', 'header_disablebadges',
                 get_string('exportextrasettings', 'local_obf'));
