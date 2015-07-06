@@ -46,21 +46,10 @@ if ($hassiteconfig) {
     // Category settings page.
     $client = obf_client::get_instance();
 
-    if ($client->test_connection() === -1) {
-        $categories = obf_client::get_instance()->get_categories();
-        $categorysettings = new admin_settingpage('badgecategories', get_string('categorysettings', 'local_obf'),
-                'local/obf:configure');
-        $categorysettings->add(new admin_setting_configmultiselect('local_obf/availablecategories',
-                get_string('availablecategories', 'local_obf'), get_string('availablecategorieshelp', 'local_obf'),
-                array(), array_combine($categories, $categories)));
-
-        $ADMIN->add('obf', $categorysettings);
-
-        // Badge export settings.
-        $export = new admin_externalpage('obfexportbadges', get_string('exportsettings', 'local_obf'),
-                        new moodle_url('/local/obf/config.php', array('action' => 'exportbadges')));
-        $ADMIN->add('obf', $export);
-    }
+    // Badge export settings.
+    $export = new admin_externalpage('obfexportbadges', get_string('exportsettings', 'local_obf'),
+                    new moodle_url('/local/obf/config.php', array('action' => 'exportbadges')));
+    $ADMIN->add('obf', $export);
 
     $ADMIN->add('obf', $badgelist);
     $ADMIN->add('obf', $history);

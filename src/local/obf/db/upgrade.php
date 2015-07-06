@@ -545,5 +545,9 @@ function xmldb_local_obf_upgrade($oldversion) {
         // Obf savepoint reached.
         upgrade_plugin_savepoint(true, 2015062501, 'local', 'obf');
     }
+    if ($oldversion < 2015070600) {
+        set_config('availablecategories', null, 'local_obf');
+        upgrade_plugin_savepoint(true, 2015070600, 'local', 'obf');
+    }
     return true;
 }
