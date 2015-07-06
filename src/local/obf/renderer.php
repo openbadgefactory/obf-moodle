@@ -158,18 +158,27 @@ class local_obf_renderer extends plugin_renderer_base {
      * @param obf_assertion_collection $assertions
      * @return type
      */
-    public function render_user_assertions(obf_assertion_collection $assertions, $userid = null, $large = false) {
-        global $USER;
+    public function render_user_assertions(obf_assertion_collection $assertions, $user = null, $large = false) {
+        global $USER, $DB;
 
         $html = '';
         $items = '';
-        if (empty($userid)) {
+        if (is_numeric($user)) {
+            $userid = $user;
+            $user = $DB->get_record('user',array('id' => $userid));
+        } else if ($user instanceof stdClass) {
+            $userid = $user->id;
+        } else if (empty($userid)) {
             $userid = $USER->id;
+            $user = $DB->get_record('user',array('id' => $userid));
         }
         $jsassertions = array();
 
         for ($i = 0; $i < count($assertions); $i++) {
             $assertion = $assertions->get_assertion($i);
+            if ($assertion->is_revoked_for_user($user)) {
+                continue;
+            }
             $badge = $assertion->get_badge();
             $aid = $userid . '-' . $i;
             $jsassertions[$aid] = $assertion->toArray();

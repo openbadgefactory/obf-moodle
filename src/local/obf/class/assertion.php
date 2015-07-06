@@ -177,6 +177,9 @@ class obf_assertion {
         $obj->set_issuedon($arr['issued_on'])->set_id($arr['id'])->set_name($arr['name']);
         $obj->set_recipients($arr['recipient'])->set_badge(obf_badge::get_instance($arr['badge_id'], $client));
         $obj->set_source(self::ASSERTION_SOURCE_OBF);
+        if (array_key_exists('revoked', $arr)) {
+            $obj->set_revoked($arr['revoked']);
+        }
 
         return $obj;
     }
@@ -219,6 +222,9 @@ class obf_assertion {
             $assertion->set_badge($b)->set_id($item['id'])->set_recipients($item['recipient']);
             $assertion->set_expires($item['expires'])->set_name($item['name']);
             $assertion->set_issuedon($item['issued_on'])->set_source(self::ASSERTION_SOURCE_OBF);
+            if (array_key_exists('revoked', $item)) {
+                $assertion->set_revoked($item['revoked']);
+            }
             $assertions[] = $assertion;
         }
 
@@ -243,8 +249,13 @@ class obf_assertion {
      * @return boolean True on success, false otherwise.
      */
     public function equals(obf_assertion $another) {
+        $recipients = $this->get_valid_recipients();
+        $recipientsforanother = $another->get_valid_recipients();
+        // When getting assertions from OBF for signle user, the recipientlist only has 1 recipient,
+        // so checking valid recipient count matches makes sure revokated badges do not duplicate,
+        // valid badges.
         // PENDING: Is this comparison enough?
-        return ($this->get_badge()->equals($another->get_badge()));
+        return ($this->get_badge()->equals($another->get_badge()) && count($recipients) == count($recipientsforanother));
     }
 
     /**
@@ -341,6 +352,24 @@ class obf_assertion {
     public function get_recipients() {
         return $this->recipients;
     }
+    /**
+     * Get recipients, whose badge has not been revoked.
+     *
+     * @return string[] Email-addresses of recipients.
+     */
+    public function get_valid_recipients() {
+        $recipients = $this->recipients;
+        foreach ($this->recipients as $recipient) {
+            $email = $recipient;
+            if ($this->is_revoked_for_email($email)) {
+                $key = array_search($email, $recipients);
+                if ($key !== false) {
+                    unset($recipients[$key]);
+                }
+            }
+        }
+        return $recipients;
+    }
 
     public function set_recipients($recipients) {
         $this->recipients = $recipients;
@@ -375,6 +404,14 @@ class obf_assertion {
         return $this;
     }
 
+    public function is_revoked_for_user(stdClass $user) {
+        return (in_array($user->email, array_keys($this->revoked)));
+    }
+
+    public function is_revoked_for_email($email) {
+        return (in_array($email, array_keys($this->revoked)));
+    }
+
     public function get_name() {
         return $this->name;
     }
@@ -393,7 +430,7 @@ class obf_assertion {
         if (count($users) < count($emails)) {
             foreach ($users as $user) {
                 $key = array_search($user->email, $emails);
-                if ($key) {
+                if ($key !== false) {
                     unset($emails[$key]);
                 }
             }

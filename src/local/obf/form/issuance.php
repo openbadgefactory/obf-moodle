@@ -112,7 +112,7 @@ class obf_issuance_form extends local_obf_form_base {
         $emails = array();
 
         foreach ($assertions as $issuance) {
-            $emails = array_merge($emails, $issuance->get_recipients());
+            $emails = array_merge($emails, $issuance->get_valid_recipients());
         }
 
         $users = $DB->get_records_list('user', 'email', $emails);
