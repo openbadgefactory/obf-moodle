@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Plugin configuration page.
+ * Blacklist tests.
  *
  * @package    local_obf
  * @copyright  2013-2015, Discendum Oy
@@ -24,10 +24,16 @@
 require_once(__DIR__ . '/../class/blacklist.php');
 
 /**
+ * Blacklist testcase
+ *
  * @group obf
+ * @copyright  2013-2015, Discendum Oy
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class local_obf_blacklist_testcase extends advanced_testcase {
-
+    /**
+     * Test blacklist saving, adding and removing.
+     */
     public function test_blacklist_preferences() {
         $this->resetAfterTest();
         $user = $this->getDataGenerator()->create_user();

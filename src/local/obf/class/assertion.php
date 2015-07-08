@@ -15,6 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * Assertion.
  * @package    local_obf
  * @copyright  2013-2015, Discendum Oy
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -28,6 +29,8 @@ require_once(__DIR__ . '/assertion_collection.php');
  * Represents a single event in OBF.
  *
  * @author olli
+ * @copyright  2013-2015, Discendum Oy
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class obf_assertion {
 
@@ -87,9 +90,21 @@ class obf_assertion {
     private $id = null;
 
 
+    /**
+     * @var Assertion source is unknown.
+     */
     const ASSERTION_SOURCE_UNKNOWN = 0;
+    /**
+     * @var Assertion source is Open Badge Factory.
+     */
     const ASSERTION_SOURCE_OBF = 1;
-    const ASSERTION_SOURCE_OPB = 2;
+    /**
+     * @var Assertion source is Open Badge Passport.
+     */
+    const ASSERTION_SOURCE_OBP = 2;
+    /**
+     * @var Assertion source is Mozilla Backpack.
+     */
     const ASSERTION_SOURCE_MOZILLA = 3;
 
     /**
@@ -124,6 +139,9 @@ class obf_assertion {
     }
     /**
      * Revoke this assertion for a list of emails.
+     *
+     * @param obf_client $client
+     * @param string[] $emails
      * @return True on success, false otherwise.
      */
     public function revoke(obf_client $client, $emails = array()) {
@@ -136,6 +154,11 @@ class obf_assertion {
         }
         return false;
     }
+    /**
+     * Send a message to users, that their badge assertion has been revoked.
+     * @param stdClass[] $users
+     * @param stdclass $revoker
+     */
     public function send_revoke_message($users, $revoker) {
         global $CFG;
         require_once($CFG->dirroot . '/message/lib.php');
@@ -204,8 +227,8 @@ class obf_assertion {
      *
      * @param obf_client $client The client instance.
      * @param obf_badge $badge Get only the assertions containing this badge.
-     * @param type $email Get only the assertions related to this email.
-     * @param type $limit Limit the amount of results.
+     * @param string $email Get only the assertions related to this email.
+     * @param int $limit Limit the amount of results.
      * @return \obf_assertion_collection The assertions.
      */
     public static function get_assertions(obf_client $client,
@@ -262,6 +285,7 @@ class obf_assertion {
      * Returns all assertions related to $badge.
      *
      * @param obf_badge $badge The badge.
+     * @param obf_client $client
      * @return obf_assertion_collection The related assertions.
      */
     public static function get_badge_assertions(obf_badge $badge,
@@ -278,77 +302,147 @@ class obf_assertion {
         return ($this->has_expiration_date() && $this->expires < time());
     }
 
+    /**
+     * Has expiration date?
+     * @return boolean True if expiration date is set
+     */
     public function has_expiration_date() {
         return !empty($this->expires) && $this->expires != 0;
     }
 
+    /**
+     * Get expiration date.
+     * @return int Expiration date as a unix-timestamp
+     */
     public function get_expires() {
         return $this->expires;
     }
 
+    /**
+     * Set expiraiton date.
+     * @param int $expires Expiration date as a unix-timestamp
+     * @return $this
+     */
     public function set_expires($expires) {
         $this->expires = $expires;
         return $this;
     }
 
+    /**
+     * Get id.
+     * @return int
+     */
     public function get_id() {
         return $this->id;
     }
 
+    /**
+     * Set id
+     * @param int $id
+     */
     public function set_id($id) {
         $this->id = $id;
         return $this;
     }
 
+    /**
+     * Get error
+     * @return string Error message.
+     */
     public function get_error() {
         return $this->error;
     }
 
+    /**
+     * Get badge.
+     * @return obf_badge
+     */
     public function get_badge() {
         return $this->badge;
     }
 
+    /**
+     * Set badge.
+     * @param obf_badge $badge
+     * @return $this
+     */
     public function set_badge($badge) {
         $this->badge = $badge;
         return $this;
     }
 
+    /**
+     * Get email subject.
+     * @return string Email subject
+     */
     public function get_emailsubject() {
         return $this->emailsubject;
     }
 
+    /**
+     * Set email subject.
+     * @param string $emailsubject
+     */
     public function set_emailsubject($emailsubject) {
         $this->emailsubject = $emailsubject;
         return $this;
     }
 
+    /**
+     * Get emailfooter.
+     * @return string Email footer
+     */
     public function get_emailfooter() {
         return $this->emailfooter;
     }
 
+    /**
+     * Set email footer.
+     * @param string $emailfooter Email footer
+     */
     public function set_emailfooter($emailfooter) {
         $this->emailfooter = $emailfooter;
         return $this;
     }
 
+    /**
+     * Get email body.
+     * @return string Email message body
+     */
     public function get_emailbody() {
         return $this->emailbody;
     }
 
+    /**
+     * Set email body.
+     * @param string $emailbody Email message body
+     */
     public function set_emailbody($emailbody) {
         $this->emailbody = $emailbody;
         return $this;
     }
 
+    /**
+     * Get issued on.
+     * @return int Issue time as a unix-timestamp
+     */
     public function get_issuedon() {
         return $this->issuedon;
     }
 
+    /**
+     * Set issued on timestamp.
+     * @param int $issuedon Issue time as a unix-timestamp
+     */
     public function set_issuedon($issuedon) {
         $this->issuedon = $issuedon;
         return $this;
     }
 
+    /**
+     * Get assertion event recipients.
+     * @return string[] Array of email addresses who received the assertion
+     */
     public function get_recipients() {
         return $this->recipients;
     }
@@ -371,19 +465,37 @@ class obf_assertion {
         return $recipients;
     }
 
+    /**
+     * Set recipients.
+     * @param string[] $recipients Array of recipient email addresses
+     */
     public function set_recipients($recipients) {
         $this->recipients = $recipients;
         return $this;
     }
 
+    /**
+     * Get source of assertion. (Where moodle retrieved the assertion from)
+     * @return int Assertion source as self::ASSERTION_SOURCE_*
+     */
     public function get_source() {
         return $this->source;
     }
+
+    /**
+     * Set assertion source. (Where moodle retrieved the assertion from)
+     * @param int $source Assertion source as self::ASSERTION_SOURCE_*
+     */
     public function set_source($source) {
         $this->source = $source;
         return $this;
     }
 
+    /**
+     * Get list addresses, for which the assertion event is revoked for.
+     * @param obf_client $client
+     * @return array Array of revocation details as array(array(email-address => unix-timestamp),...)
+     */
     public function get_revoked(obf_client $client = null) {
         if (!is_null($client) && count($this->revoked < 1)) {
             try {
@@ -399,28 +511,57 @@ class obf_assertion {
         return $this->revoked;
     }
 
+    /**
+     * Set revocation details.
+     * @param array $revoked Array of revocation details as array(array(email-address => unix-timestamp),...)
+     * @return $this
+     */
     public function set_revoked($revoked) {
         $this->revoked = $revoked;
         return $this;
     }
-
+    /**
+     * Check if this assertion is revoked for user.
+     * @param stdClass $user
+     * @return bool True if revoked for user.
+     * @todo Should users backpack emails be checked also?
+     */
     public function is_revoked_for_user(stdClass $user) {
         return (in_array($user->email, array_keys($this->revoked)));
     }
-
+    /**
+     * Check if this assertion is revoked for an email address.
+     * @param string $email
+     * @return bool True if revoked for address.
+     * @todo Should users backpack emails be checked also?
+     */
     public function is_revoked_for_email($email) {
         return (in_array($email, array_keys($this->revoked)));
     }
 
+    /**
+     * Get the name of the assertion.
+     * @return string
+     */
     public function get_name() {
         return $this->name;
     }
 
+    /**
+     * Set the name of the assertion.
+     * @param string $name
+     * @return $this
+     */
     public function set_name($name) {
         $this->name = $name;
         return $this;
     }
 
+    /**
+     * Get users matching recipient email-addresses.
+     * @param array $emails Limit users to specified email addresses
+     * @return stdClass[]
+     */
     public function get_users($emails = null) {
         global $DB;
         if (is_null($emails)) {

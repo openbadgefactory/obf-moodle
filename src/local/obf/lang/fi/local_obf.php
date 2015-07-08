@@ -15,6 +15,8 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * Finnish locale for local_obf.
+ *
  * @package    local_obf
  * @copyright  2015, Discendum Oy
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -284,6 +286,7 @@ $string['showconnectionconfig'] = 'Haluan päivittää valtuutusavaimen siitä h
 $string['showmorerecipients'] = 'lisää';
 $string['toearnthisbadge'] = 'Osaamismerkin ansaitseminen edellyttää tämän kurssin suorittamista';
 $string['tokendecryptionfailed'] = 'Valtuutusavain on virheellinen. Tarkista, että olet kopioinut ja liittänyt koko valtuutusavaimen.';
+$string['totaraprogram'] = 'Ohjelma';
 $string['totaraprogramselectexpires'] = 'Valitse miten myönnetty merkki vanhenee';
 $string['totaraprogramexpiresbybadge'] = 'Vanhenee osaamismerkkiasetusten mukaisesti';
 $string['totaraprogramexpiresbycertificate'] = 'Vanhenee sertifikaattiasetusten mukaisesti';

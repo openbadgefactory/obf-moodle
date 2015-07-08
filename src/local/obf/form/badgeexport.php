@@ -15,6 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * Badge export form.
  * @package    local_obf
  * @copyright  2013-2015, Discendum Oy
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -22,9 +23,18 @@
 defined('MOODLE_INTERNAL') or die();
 
 require_once($CFG->libdir . '/formslib.php');
-
+/**
+ * Badge export form.
+ *
+ * Form for exporting Moodle's badges to Open Badge Factory.
+ *
+ * @copyright  2013-2015, Discendum Oy
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class obf_badge_export_form extends local_obf_form_base {
-
+    /**
+     * Defines forms elements
+     */
     protected function definition() {
         global $OUTPUT;
         $mform = $this->_form;
@@ -39,7 +49,7 @@ class obf_badge_export_form extends local_obf_form_base {
         }
         $exportablecount = 0;
         foreach ($badges as $badge) {
-            if (!self::moodle_badge_in_obf_badge_array($badge,$obfbadges)) {
+            if (!self::moodle_badge_in_obf_badge_array($badge, $obfbadges)) {
                 $label = print_badge_image($badge, $badge->get_context()) . ' ' . s($badge->name);
                 $mform->addElement('advcheckbox', 'toexport[' . $badge->id . ']', '',
                         $label, array('group' => 1));
@@ -48,9 +58,11 @@ class obf_badge_export_form extends local_obf_form_base {
         }
         $this->add_checkbox_controller(1);
         if ($exportablecount == 0) {
-            $mform->addElement('html', $OUTPUT->notification(get_string('badgeexportzeroexportable', 'local_obf'), 'notifymessage'));
+            $mform->addElement('html',
+                    $OUTPUT->notification(get_string('badgeexportzeroexportable', 'local_obf'), 'notifymessage'));
         } else if (count($badges) > 0) {
-            $mform->addElement('html', $OUTPUT->notification(get_string('badgeexportdescription', 'local_obf'), 'notifymessage'));
+            $mform->addElement('html',
+                    $OUTPUT->notification(get_string('badgeexportdescription', 'local_obf'), 'notifymessage'));
         }
 
         $mform->addElement('header', 'header_disablebadges',
@@ -69,6 +81,12 @@ class obf_badge_export_form extends local_obf_form_base {
         $this->add_action_buttons(false,
                 get_string('saveconfiguration', 'local_obf'));
     }
+    /**
+     * Check if moodle badge is already exported as an OBF badge.
+     * @param badge $moodlebadge
+     * @param obf_badge[] $obfbadges
+     * @return boolean OBF with the same name already exists.
+     */
     private static function moodle_badge_in_obf_badge_array($moodlebadge, $obfbadges) {
         foreach ($obfbadges as $obfbadge) {
             if ($moodlebadge->name == $obfbadge->get_name()) {

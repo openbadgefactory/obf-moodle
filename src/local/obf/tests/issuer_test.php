@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Plugin configuration page.
+ * Issuer tests.
  *
  * @package    local_obf
  * @copyright  2013-2015, Discendum Oy
@@ -26,9 +26,16 @@ defined('MOODLE_INTERNAL') || die();
 require_once(__DIR__ . '/../class/issuer.php');
 
 /**
+ * Issuer testcase.
+ *
  * @group obf
+ * @copyright  2013-2015, Discendum Oy
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class local_obf_issuer_testcase extends advanced_testcase {
+    /**
+     * Test issuer population from array.
+     */
     public function test_population_from_array() {
         $data = array(
             'id' => 'testissuer',

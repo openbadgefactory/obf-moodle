@@ -15,6 +15,8 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * Open Badge -class.
+ *
  * @package    local_obf
  * @copyright  2013-2015, Discendum Oy
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -27,10 +29,15 @@ require_once(__DIR__ . '/assertion.php');
 require_once(__DIR__ . '/assertion_collection.php');
 
 /**
- * Class for a single Open Badge Factory -badge
+ * Class for a Open Badge Factory -badge.
+ * @copyright  2013-2015, Discendum Oy
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class obf_badge {
 
+    /**
+     * @var self[] Badge cache.
+     */
     private static $badgecache = array();
 
     /**
@@ -87,6 +94,10 @@ class obf_badge {
      * @var string The URL of the badge criteria.
      */
     private $criteriaurl = '';
+
+    /**
+     * @var int Badge expiration time as an unix-timestamp
+     */
     private $expiresby = null;
 
     /**
@@ -109,6 +120,7 @@ class obf_badge {
      * will return a new instance.
      *
      * @param string $id The id of the badge.
+     * @param obf_client $client
      * @return obf_badge
      */
     public static function get_instance($id = null, $client = null) {
@@ -132,12 +144,22 @@ class obf_badge {
 
         return $obj;
     }
-
+    /**
+     * Check if the badge roughly equals another badge
+     *
+     * @param obf_badge $another Badge to compare to
+     * @return bool $this matches $another
+     */
     public function equals(obf_badge $another) {
         return (strcmp($this->get_name(), $another->get_name()) === 0 &&
                 strcmp($this->get_description(), $another->get_description()) === 0);
     }
-
+    /**
+     * Check if the badge's image equals another badge's image.
+     *
+     * @param obf_badge $another Badge to compare to
+     * @return bool image matches $another's image.
+     */
     public function image_equals(obf_badge $another) {
         return $this->get_image() == $another->get_image();
     }
@@ -285,11 +307,12 @@ class obf_badge {
         if (empty($this->id)) {
             throw new Exception('Invalid or missing badge id');
         }
-
+        $this->get_client()->set_enable_raw_response(true);
         $this->get_client()->issue_badge($this, $recipients, $issuedon,
                 $emailsubject, $emailbody, $emailfooter);
 
         $raw = $this->get_client()->get_raw_response();
+        $this->get_client()->set_enable_raw_response(false);
         foreach ($raw as $key => $value) {
             if ($match = preg_match('/^Location: .*event\/[\w]+\/(.*)$/i', $value, $matches)) {
                 $eventid = trim($matches[$match]);
@@ -304,7 +327,7 @@ class obf_badge {
     /**
      * Returns the badges issued to $user.
      *
-     * @param type $user The Moodle's user object.
+     * @param stdClass $user The Moodle's user object.
      * @param obf_client $client The client instance.
      * @return obf_badge[] The badges.
      */
@@ -420,7 +443,6 @@ class obf_badge {
     /**
      * Returns the email template associated with this badge.
      *
-     * @global type $DB
      * @return obf_email The email template.
      */
     public function get_email() {
@@ -466,34 +488,64 @@ class obf_badge {
             'criteria_html' => $this->get_criteria_html());
     }
 
+    /**
+     * Set issuer.
+     * @param obf_issuer $issuer [description]
+     * @return $this
+     */
     public function set_issuer(obf_issuer $issuer) {
         $this->issuer = $issuer;
         return $this;
     }
 
+    /**
+     * Set email template.
+     * @param obf_email $email Email template
+     */
     public function set_email(obf_email $email) {
         $this->email = $email;
         return $this;
     }
 
+    /**
+     * Get id.
+     * @return int
+     */
     public function get_id() {
         return $this->id;
     }
 
+    /**
+     * Set id.
+     * @param [type] $id [description]
+     * @return $this
+     */
     public function set_id($id) {
         $this->id = $id;
         return $this;
     }
 
+    /**
+     * Get name.
+     * @return string Name
+     */
     public function get_name() {
         return $this->name;
     }
 
+    /**
+     * Set name.
+     * @param string $name
+     */
     public function set_name($name) {
         $this->name = $name;
         return $this;
     }
 
+    /**
+     * Get image.
+     * @return mixed Image url or base encoded image.
+     */
     public function get_image() {
         if (empty($this->image)) {
             $this->populate();
@@ -502,33 +554,65 @@ class obf_badge {
         return $this->image;
     }
 
-    public function set_image($ımage) {
-        $this->image = $ımage;
+    /**
+     * Set image.
+     * @param mixed $image
+     * @return $this
+     */
+    public function set_image($image) {
+        $this->image = $image;
         return $this;
     }
 
+    /**
+     * Is badge a draft?
+     * @return boolean True if badge is a draft
+     */
     public function is_draft() {
         return $this->isdraft;
     }
 
+    /**
+     * Set draft.
+     * @param bool $isdraft If badge is a draft or not
+     * @return $this
+     */
     public function set_isdraft($isdraft) {
         $this->isdraft = $isdraft;
         return $this;
     }
 
+    /**
+     * Get description.
+     * @return string
+     */
     public function get_description() {
         return $this->description;
     }
 
+    /**
+     * Set description.
+     * @param string $description Description
+     * @return $this
+     */
     public function set_description($description) {
         $this->description = $description;
         return $this;
     }
 
+    /**
+     * Get criteria html.
+     * @return string
+     */
     public function get_criteria_html() {
         return $this->criteriahtml;
     }
 
+    /**
+     * Set criteria html.
+     * @param string $criteria Criteria HTML
+     * @return $this
+     */
     public function set_criteria_html($criteria) {
         if (count($criteria) <= 2) {
             $this->criteriahtml = $criteria;
@@ -537,33 +621,62 @@ class obf_badge {
         return $this;
     }
 
+    /**
+     * Get expires.
+     * @return int Expires by time as a unix-timestamp
+     */
     public function get_expires() {
         return $this->expiresby;
     }
 
+    /**
+     * Set expires.
+     * @param int $expires Expires by time as a unix-timestamp
+     */
     public function set_expires($expires) {
         $this->expiresby = $expires;
         return $this;
     }
 
+    /**
+     * Get tags
+     * @return string[]
+     */
     public function get_tags() {
         return $this->tags;
     }
 
+    /**
+     * Set tags.
+     * @param string[] $tags
+     * @return $this
+     */
     public function set_tags($tags) {
         $this->tags = $tags;
         return $this;
     }
 
+    /**
+     * Get creation time.
+     * @return int Creation time as a unix-timestamp
+     */
     public function get_created() {
         return $this->created;
     }
 
+    /**
+     * Set creation time.
+     * @param int $created Creation time as a unix-timestamp
+     */
     public function set_created($created) {
         $this->created = $created;
         return $this;
     }
 
+    /**
+     * Get client.
+     * @return obf_client
+     */
     public function get_client() {
         if (!$this->client instanceof obf_client) {
             $this->client = obf_client::get_instance();
@@ -572,40 +685,79 @@ class obf_badge {
         return $this->client;
     }
 
+    /**
+     * Set client.
+     * @param obf_client $client
+     */
     public function set_client(obf_client $client) {
         $this->client = $client;
     }
 
+    /**
+     * Get criteria css.
+     * @return string|null
+     */
     public function get_criteria_css() {
         return $this->criteriacss;
     }
 
+    /**
+     * Set criteria css.
+     * @param string|null $criteriacss
+     * @return $this
+     */
     public function set_criteria_css($criteriacss) {
         $this->criteriacss = $criteriacss;
         return $this;
     }
 
+    /**
+     * Get criteria url.
+     * @return string
+     */
     public function get_criteria_url() {
         return $this->criteriaurl;
     }
 
+    /**
+     * Set criteria url.
+     * @param string $criteriaurl
+     * @return $this
+     */
     public function set_criteria_url($criteriaurl) {
         $this->criteriaurl = $criteriaurl;
         return $this;
     }
 
+    /**
+     * Has criteria url?
+     * @return boolean True if url is set
+     */
     public function has_criteria_url() {
         return !empty($this->criteriaurl);
     }
 
+    /**
+     * Badge has a name?
+     * @return boolean True if name is set
+     */
     public function has_name() {
         return !empty($this->name);
     }
 
+    /**
+     * Get badge categories
+     * @return array
+     */
     public function get_categories() {
         return $this->categories;
     }
 
+    /**
+     * Set badge categories
+     * @param array $categories
+     * @return $this
+     */
     public function set_categories($categories) {
         $this->categories = $categories;
         return $this;

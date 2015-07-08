@@ -15,16 +15,40 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * Email templates.
+ *
+ * @package    local_obf
+ * @copyright  2013-2015, Discendum Oy
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
+/**
+ * Email templates -class.
+ *
  * @package    local_obf
  * @copyright  2013-2015, Discendum Oy
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class obf_email {
-
+    /**
+     * @var int ID in the database
+     */
     private $id = -1;
+    /**
+     * @var string badgeid in OBF
+     */
     private $badgeid = null;
+    /**
+     * @var string Email subject
+     */
     private $subject = '';
+    /**
+     * @var string Email body
+     */
     private $body = '';
+    /**
+     * @var string Email footer.
+     */
     private $footer = '';
 
     /**
@@ -68,46 +92,87 @@ class obf_email {
         }
     }
 
+    /**
+     * Get id.
+     * @return int
+     */
     public function get_id() {
         return $this->id;
     }
 
+    /**
+     * Set id.
+     * @param int $id
+     * @return $this
+     */
     public function set_id($id) {
         $this->id = $id;
         return $this;
     }
 
+    /**
+     * Get badge id
+     * @return string Badge id
+     */
     public function get_badge_id() {
         return $this->badgeid;
     }
 
+    /**
+     * Set badge id.
+     * @param string $badgeid Badge id
+     */
     public function set_badge_id($badgeid) {
         $this->badgeid = $badgeid;
         return $this;
     }
 
+    /**
+     * Get email subject.
+     * @return string Subject
+     */
     public function get_subject() {
         return $this->subject;
     }
 
+    /**
+     * Set email subject
+     * @param string $subject
+     */
     public function set_subject($subject) {
         $this->subject = $subject;
         return $this;
     }
 
+    /**
+     * Get email body.
+     * @return string Email body
+     */
     public function get_body() {
         return $this->body;
     }
 
+    /**
+     * Set email body.
+     * @param string $body Email body
+     */
     public function set_body($body) {
         $this->body = $body;
         return $this;
     }
 
+    /**
+     * Get email footer.
+     * @return string Email footer
+     */
     public function get_footer() {
         return $this->footer;
     }
 
+    /**
+     * Set email footer.
+     * @param string $footer Email footer
+     */
     public function set_footer($footer) {
         $this->footer = $footer;
         return $this;

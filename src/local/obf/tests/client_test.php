@@ -15,16 +15,22 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Plugin configuration page.
+ * Client tests.
  *
  * @package    local_obf
  * @copyright  2013-2015, Discendum Oy
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 /**
+ * OBF Client testcase.
+ *
+ * @copyright  2013-2015, Discendum Oy
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class local_obf_client_testcase extends advanced_testcase {
-
+    /**
+     * Test API request.
+     */
     public function test_request() {
         $this->resetAfterTest();
 
@@ -32,20 +38,16 @@ class local_obf_client_testcase extends advanced_testcase {
         $curl = $this->getMock('curl', array('post', 'get', 'delete'));
 
         // Mock HTTP POST.
-        $curl->expects($this->once())
-                ->method('post')
-                ->with($this->stringEndsWith('/test/'), $this->anything(),
-                        $this->anything())
-                ->will($this->returnValue(json_encode(array('post' => 'works!'))));
+        $curl->expects($this->once())->method(
+                'post')->with($this->stringEndsWith('/test/'), $this->anything(),
+                        $this->anything())->will(
+                                $this->returnValue(json_encode(array('post' => 'works!'))));
 
         // Mock HTTP GET.
-        $curl->expects($this->any())
-                ->method('get')
-                ->with($this->logicalOr(
+        $curl->expects($this->any())->method('get')->with($this->logicalOr(
                                 $this->stringEndsWith('/test/'),
                                 $this->stringEndsWith('/doesnotexist/')),
-                        $this->anything(), $this->anything())
-                ->will($this->returnCallback(
+                        $this->anything(), $this->anything())->will($this->returnCallback(
                         function ($path, $arg1, $arg2) {
                             // This url exists, return a success message.
                             if ($path == "/test/") {
@@ -56,11 +58,8 @@ class local_obf_client_testcase extends advanced_testcase {
                         }));
 
         // Mock HTTP DELETE.
-        $curl->expects($this->once())
-                ->method('delete')
-                ->with($this->stringEndsWith('/test/'), $this->anything(),
-                        $this->anything())
-                ->will($this->returnValue(json_encode(array('delete' => 'works!'))));
+        $curl->expects($this->once())->method('delete')->with($this->stringEndsWith('/test/'), $this->anything(),
+                        $this->anything())->will($this->returnValue(json_encode(array('delete' => 'works!'))));
 
         $client = obf_client::get_instance($curl);
 
@@ -91,9 +90,12 @@ class local_obf_client_testcase extends advanced_testcase {
             $this->fail('An expected exception has not been raised.');
         } catch (Exception $e) {
             // We should end up here.
+            0 + 0; // Suppressing PHP_CodeSniffer error messages.
         }
     }
-
+    /**
+     * Test Deauthentication.
+     */
     public function test_deauthentication() {
         $this->resetAfterTest();
 
@@ -125,7 +127,9 @@ class local_obf_client_testcase extends advanced_testcase {
         $this->assertFalse(get_config('local_obf', 'obfclientid'));
     }
 
-
+    /**
+     * Test missing clinet id.
+     */
     public function test_missing_client_id() {
         $this->resetAfterTest();
 
@@ -146,6 +150,7 @@ class local_obf_client_testcase extends advanced_testcase {
             $this->fail('Missing client id should throw an exception.');
         } catch (Exception $ex) {
             // We should end up here.
+            0 + 0; // Suppressing PHP_CodeSniffer error messages.
         }
     }
 }

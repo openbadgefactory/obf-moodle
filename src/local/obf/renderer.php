@@ -32,21 +32,33 @@ require_once(__DIR__ . '/class/backpack.php');
 
 /**
  * HTML output renderer for local_obf-plugin
+ *
+ * @package    local_obf
+ * @copyright  2013-2015, Discendum Oy
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class local_obf_renderer extends plugin_renderer_base {
-
+    /**
+     * @var int tiny badge image.
+     */
     const BADGE_IMAGE_SIZE_TINY = 22;
+    /**
+     * @var int small badge image.
+     */
     const BADGE_IMAGE_SIZE_SMALL = 32;
+    /**
+     * @var int normal badge image.
+     */
     const BADGE_IMAGE_SIZE_NORMAL = 100;
 
     /**
      * Renders the list of badges in course context
      *
      * @param obf_badge[] $badges
-     * @param type $hasissuecapability
+     * @param bool $hasissuecapability
      * @param context $context
-     * @param type $message
-     * @return type
+     * @param string $message
+     * @return string
      */
     public function render_badgelist_course($badges, $hasissuecapability,
                                             context $context, $message = '') {
@@ -90,10 +102,10 @@ class local_obf_renderer extends plugin_renderer_base {
      * Renders the list of badges.
      *
      * @param obf_badge[] $badges
-     * @param type $hasissuecapability
+     * @param bool $hasissuecapability
      * @param context $context
-     * @param type $message
-     * @return type
+     * @param string $message
+     * @return string
      */
     public function render_badgelist($badges, $hasissuecapability,
                                      context $context, $message = '') {
@@ -110,9 +122,10 @@ class local_obf_renderer extends plugin_renderer_base {
     }
 
     /**
+     * Render all available badge categories.
      *
-     * @param type $badges
-     * @return type
+     * @param obf_badge[] $badges
+     * @return string
      */
     public function render_badge_categories($badges) {
         $html = '';
@@ -154,9 +167,12 @@ class local_obf_renderer extends plugin_renderer_base {
     }
 
     /**
+     * Render assertions for user.
      *
      * @param obf_assertion_collection $assertions
-     * @return type
+     * @param stdClass $user
+     * @param bool $large
+     * @return string
      */
     public function render_user_assertions(obf_assertion_collection $assertions, $user = null, $large = false) {
         global $USER, $DB;
@@ -165,12 +181,12 @@ class local_obf_renderer extends plugin_renderer_base {
         $items = '';
         if (is_numeric($user)) {
             $userid = $user;
-            $user = $DB->get_record('user',array('id' => $userid));
+            $user = $DB->get_record('user', array('id' => $userid));
         } else if ($user instanceof stdClass) {
             $userid = $user->id;
         } else if (empty($userid)) {
             $userid = $USER->id;
-            $user = $DB->get_record('user',array('id' => $userid));
+            $user = $DB->get_record('user', array('id' => $userid));
         }
         $jsassertions = array();
 
@@ -203,6 +219,13 @@ class local_obf_renderer extends plugin_renderer_base {
 
         return $html;
     }
+    /**
+     * Render one assertion.
+     *
+     * @param obf_assertion $assertion
+     * @param bool $large Use large style? Default: false.
+     * @return string HTML of one badge assertion.
+     */
     public function render_single_simple_assertion($assertion, $large = false) {
         $badge = $assertion->get_badge();
         $badgeimage = $this->print_badge_image($badge, -1);
@@ -225,7 +248,10 @@ class local_obf_renderer extends plugin_renderer_base {
      * Renders a single badge assertion.
      *
      * @param obf_assertion $assertion
-     * @return type
+     * @param bool $printheading
+     * @param obf_revoke_form $revokeform
+     * @param bool $modal
+     * @return string
      */
     public function render_assertion(obf_assertion $assertion,
                                      $printheading = true, $revokeform = null, $modal = false) {
@@ -289,6 +315,12 @@ class local_obf_renderer extends plugin_renderer_base {
 
         return $html;
     }
+    /**
+     * Render details used in badge/assertion displayed in a modal.
+     * @param obf_badge $badge
+     * @param obf_assertion $assertion
+     * @return string HTML-string.
+     */
     public function render_badge_modal($badge, $assertion) {
         $issuer = $badge->get_issuer();
         $issuerdetails = html_writer::tag('label', get_string('issuer', 'local_obf'));
@@ -340,7 +372,7 @@ class local_obf_renderer extends plugin_renderer_base {
     /**
      * Renders a definition list.
      *
-     * @param array An array of items to render (key-value -pairs)
+     * @param array $items An array of items to render (key-value -pairs)
      * @return string Returns the html-markup
      */
     public function render_definition_list(array $items) {
@@ -358,12 +390,13 @@ class local_obf_renderer extends plugin_renderer_base {
     /**
      * Renders the page with the badge details.
      *
+     * @param obf_client $client
      * @param obf_badge $badge
      * @param context $context
-     * @param type $tab
-     * @param type $page
-     * @param type $message
-     * @return type
+     * @param string $tab
+     * @param int $page
+     * @param string $message
+     * @return string
      */
     public function page_badgedetails(obf_client $client, obf_badge $badge,
                                       context $context, $tab = 'details',
@@ -393,7 +426,7 @@ class local_obf_renderer extends plugin_renderer_base {
      *
      * @param obf_badge $badge
      * @param context $context
-     * @return type
+     * @return string HTML
      */
     public function render_badge_heading(obf_badge $badge, context $context) {
         $heading = $this->output->heading($this->print_badge_image($badge) . ' ' .
@@ -411,7 +444,11 @@ class local_obf_renderer extends plugin_renderer_base {
         return local_obf_html::div($heading, 'badgeheading');
     }
 
-    // Renders the criterion-form.
+    /**
+     * Renders the criterion-form.
+     * @param obf_criterion_form $form
+     * @return string HTML.
+     */
     protected function render_obf_criterion_form(obf_criterion_form $form) {
         $criterion = $form->get_criterion();
         $badge = $criterion->get_badge();
@@ -424,7 +461,11 @@ class local_obf_renderer extends plugin_renderer_base {
         return $html;
     }
 
-    // Renders the criterion deletion form.
+    /**
+     * Renders the criterion deletion form.
+     * @param obf_criterion_deletion_form $form
+     * @return string HTML.
+     */
     protected function render_obf_criterion_deletion_form(obf_criterion_deletion_form $form) {
         $html = $this->output->header();
         $html .= $form->render();
@@ -437,9 +478,9 @@ class local_obf_renderer extends plugin_renderer_base {
      * Renders the OBF-badges.
      *
      * @param obf_badge[] $badges
-     * @param type $hasissuecapability
+     * @param bool $hasissuecapability
      * @param context $context
-     * @return type
+     * @return string HTML
      */
     protected function render_badges($badges, $hasissuecapability,
                                      context $context) {
@@ -507,9 +548,10 @@ class local_obf_renderer extends plugin_renderer_base {
     /**
      * Renders the badge and issuer details.
      *
+     * @param obf_client $client
      * @param obf_badge $badge
      * @param context $context
-     * @return type
+     * @return string HTML
      */
     public function print_badge_info_details(obf_client $client,
                                              obf_badge $badge, context $context) {
@@ -553,9 +595,10 @@ class local_obf_renderer extends plugin_renderer_base {
     }
 
     /**
+     * Render issuer details.
      *
      * @param obf_issuer $issuer
-     * @return type
+     * @return string HTML
      */
     public function render_issuer_details(obf_issuer $issuer) {
         $url = $issuer->get_url();
@@ -574,9 +617,10 @@ class local_obf_renderer extends plugin_renderer_base {
     /**
      * Renders the badge criteria page.
      *
+     * @param obf_client $client
      * @param obf_badge $badge
      * @param context $context
-     * @return type
+     * @return string HTML
      */
     public function print_badge_info_criteria(obf_client $client,
                                               obf_badge $badge, context $context) {
@@ -596,8 +640,8 @@ class local_obf_renderer extends plugin_renderer_base {
      * Renders the form for modifying the criteria of a single course
      *
      * @param obf_badge $badge
-     * @param type $courseid
-     * @return type
+     * @param int $courseid
+     * @return string HTML
      */
     public function render_badge_criteria_course(obf_badge $badge, $courseid) {
         $html = '';
@@ -607,8 +651,8 @@ class local_obf_renderer extends plugin_renderer_base {
         $courseincriterion = false;
         $error = '';
         $url = new moodle_url('/local/obf/badge.php',
-                array('id' => $badge->get_id(), 'action' =>
-            'show', 'show' => 'criteria', 'courseid' => $courseid));
+                array('id' => $badge->get_id(), 'action' => 'show',
+                'show' => 'criteria', 'courseid' => $courseid));
 
         // Show edit form if there aren't any criteria related to this badge or
         // there is only one which hasn't been met yet by any user.
@@ -652,8 +696,12 @@ class local_obf_renderer extends plugin_renderer_base {
             if (!is_null($coursewithcriterion)) {
                 $params = array_merge($params, array('obf_criterion_id' => $coursewithcriterion->get_id()));
             }
-            $criterioncourse = is_null($criterioncourseid) ? obf_criterion_item::build($params) :
-                    obf_criterion_item::get_instance($criterioncourseid);
+            if (is_null($criterioncourseid)) {
+                $criterioncourse = obf_criterion_item::build($params);
+            } else {
+                $criterioncourse = obf_criterion_item::get_instance($criterioncourseid);
+            }
+
             $criterionform = new obf_coursecriterion_form($url,
                     array('criterioncourse' => $criterioncourse));
 
@@ -708,12 +756,7 @@ class local_obf_renderer extends plugin_renderer_base {
                             $completedby = (int) $data->{'completedby_'.$key};
                         }
 
-                        // Both fields are empty -> remove criterion
-                        // if ($criterioncourse->exists() && $grade === 0 && $completedby === 0) {
-                        //     $criterioncourse->delete();
-                        // }
                         // Update or insert criterion course
-                        // else {
                         // Object doesn't exist yet, let's create the criterion.
                         if (!$criterioncourse->exists()) {
                             $criterion = new obf_criterion();
@@ -758,7 +801,7 @@ class local_obf_renderer extends plugin_renderer_base {
      * Renders the badge criteria in site context.
      *
      * @param obf_badge $badge
-     * @return type
+     * @return string HTML
      */
     public function render_badge_criteria_site(obf_badge $badge) {
         $html = '';
@@ -840,9 +883,12 @@ class local_obf_renderer extends plugin_renderer_base {
     /**
      * Renders badge issuance history.
      *
+     * @param obf_client $client
      * @param obf_badge $badge
-     * @param type $currentpage
-     * @return type
+     * @param context $context
+     * @param int $currentpage
+     * @param obf_issue_event[] $eventfilter
+     * @return string HTML
      */
     public function print_badge_info_history(obf_client $client,
                                              obf_badge $badge = null,
@@ -920,8 +966,8 @@ class local_obf_renderer extends plugin_renderer_base {
      * Renders a single row in badge issuance history table.
      *
      * @param obf_assertion $assertion
-     * @param type $singlebadgehistory
-     * @param type $path
+     * @param bool $singlebadgehistory
+     * @param string $path
      * @param array $users
      * @return \html_table_row
      */
@@ -976,7 +1022,8 @@ class local_obf_renderer extends plugin_renderer_base {
      * Renders a list of users.
      *
      * @param array $users
-     * @return type
+     * @param bool $addlinks
+     * @return string User list as HTML
      */
     private function render_userlist(array $users, $addlinks = true) {
         $userlist = array();
@@ -1002,10 +1049,10 @@ class local_obf_renderer extends plugin_renderer_base {
     /**
      * Renders the tabs in badge-page.
      *
-     * @param type $badgeid
+     * @param string|int $badgeid
      * @param context $context
-     * @param type $selectedtab
-     * @return type
+     * @param string $selectedtab
+     * @return string HTML
      */
     public function print_badge_tabs($badgeid, context $context,
                                      $selectedtab = 'details') {
@@ -1041,7 +1088,12 @@ class local_obf_renderer extends plugin_renderer_base {
         return $tabhtml;
     }
 
-    // For Moodle 2.2.
+    /**
+     * For Moodle 2.2. tabtree replacement.
+     * @param array $tabs
+     * @param string $selectedtab
+     * @return string HTML
+     */
     public static function render_tabs(array $tabs, $selectedtab = '') {
         ob_start();
         print_tabs(array($tabs), $selectedtab);
@@ -1054,7 +1106,7 @@ class local_obf_renderer extends plugin_renderer_base {
      * Renders the OBF configuration form
      *
      * @param obf_config_form $form
-     * @return type
+     * @return string HTML
      */
     public function render_obf_config_form(obf_config_form $form) {
         $html = $this->print_heading('settings', 2);
@@ -1067,7 +1119,7 @@ class local_obf_renderer extends plugin_renderer_base {
      * Renders the badge exporter form.
      *
      * @param obf_badge_export_form $form
-     * @return type
+     * @return string HTML
      */
     public function render_badge_exporter(obf_badge_export_form $form) {
         $html = $this->print_heading('badgeexport', 2);
@@ -1080,8 +1132,8 @@ class local_obf_renderer extends plugin_renderer_base {
      * Renders the OBF-userconfig form.
      *
      * @param obf_userconfig_form $form
-     * @param type $errormsg
-     * @return type
+     * @param string $errormsg
+     * @return string HTML
      */
     public function render_userconfig(obf_userconfig_form $form, $errormsg = '') {
         $html = $this->print_heading('obfuserpreferences', 2);
@@ -1104,8 +1156,8 @@ class local_obf_renderer extends plugin_renderer_base {
      * Renders the OBF-blacklist form.
      *
      * @param obf_blacklist_form $form
-     * @param type $errormsg
-     * @return type
+     * @param string $errormsg
+     * @return string HTML
      */
     public function render_blacklistconfig(obf_blacklist_form $form, $errormsg = '') {
         $html = $this->print_heading('badgeblacklist', 2);
@@ -1117,7 +1169,13 @@ class local_obf_renderer extends plugin_renderer_base {
         $html .= $form->render();
         return $html;
     }
-
+    /**
+     * Render table of users who are participating a course.
+     *
+     * @param int $courseid
+     * @param array $participants
+     * @return string HTML.
+     */
     public function render_course_participants($courseid, array $participants) {
         $html = '';
         $html .= $this->print_heading('courseuserbadges');
@@ -1166,8 +1224,7 @@ class local_obf_renderer extends plugin_renderer_base {
                 $row->cells = array(
                     $this->output->user_picture($user, $userpicparams),
                     html_writer::link(new moodle_url('/user/view.php',
-                            array('id' => $user->id, 'course' =>
-                        $courseid)), fullname($user)),
+                            array('id' => $user->id, 'course' => $courseid)), fullname($user)),
                     $user->city,
                     $lastaccess,
                     $linkcell
@@ -1191,7 +1248,13 @@ class local_obf_renderer extends plugin_renderer_base {
 
         return $html;
     }
-
+    /**
+     * Get parameters to pass to javascript displayer.
+     * @param array $jsassertions Assertions in json_encoded form.
+     * @param string $elementid ID of element to bind to.
+     * @param int $userid
+     * @return array params.
+     */
     private function get_displayer_params($jsassertions = null, $elementid = null, $userid = null) {
         global $USER;
         $assertion = $this->get_template_assertion();
@@ -1229,7 +1292,10 @@ class local_obf_renderer extends plugin_renderer_base {
 
         return $params;
     }
-
+    /**
+     * Get an assertion template.
+     * @return obf_assertion Template assertion.
+     */
     private function get_template_assertion() {
         $issuer = obf_issuer::get_instance_from_arr(array('id' => '', 'description' => '{{ this.badge.issuer.description }}',
                     'email' => '{{ this.badge.issuer.email }}', 'url' => '{{ this.badge.issuer.url }}',
@@ -1252,9 +1318,21 @@ class local_obf_renderer extends plugin_renderer_base {
     }
 
 }
-
+/**
+ * Badge renderer.
+ *
+ * @package    local_obf
+ * @copyright  20013-2015 Discendum Oy
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @todo Check if deprecated.
+ */
 class local_obf_badge_renderer extends plugin_renderer_base {
-
+    /**
+     * Generates the HTML for the badge tabs.
+     * @param string $badgeid
+     * @param string $selectedtab
+     * @return string HTML
+     */
     public function tabs($badgeid, $selectedtab = 'details') {
         $tabdata = array('details', 'criteria', 'email', 'history');
         $tabs = array();
@@ -1273,7 +1351,14 @@ class local_obf_badge_renderer extends plugin_renderer_base {
             return local_obf_renderer::render_tabs($tabs, $selectedtab);
         }
     }
-
+    /**
+     * Generates the HTML for the badge page.
+     *
+     * @param obf_badge $badge
+     * @param string $tab Selected tab
+     * @param string $content
+     * @return string HTML
+     */
     public function page(obf_badge $badge, $tab, $content) {
         $html = $this->tabs($badge->get_id(), $tab);
         $html .= $content;
@@ -1295,9 +1380,18 @@ class local_obf_badge_renderer extends plugin_renderer_base {
     }
 
 }
-
+/**
+ * Table header -class.
+ *
+ * @package    local_obf
+ * @copyright  20013-2015 Discendum Oy
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class local_obf_table_header extends html_table_cell {
-
+    /**
+     * Constructor
+     * @param string $stringid
+     */
     public function __construct($stringid = null) {
         $this->header = true;
         parent::__construct(is_null($stringid) ? null : get_string($stringid,
@@ -1305,16 +1399,22 @@ class local_obf_table_header extends html_table_cell {
     }
 
 }
-
+/**
+ * Class for some custom html function.
+ *
+ * @package    local_obf
+ * @copyright  20013-2015 Discendum Oy
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class local_obf_html {
 
     /**
      * Renders an icon.
      *
      * @param moodle_url $url
-     * @param type $icon
-     * @param type $langkey
-     * @return type
+     * @param string $icon
+     * @param string $langkey
+     * @return string HTML
      */
     public static function icon(moodle_url $url, $icon, $langkey) {
         global $OUTPUT;
@@ -1322,7 +1422,12 @@ class local_obf_html {
                         new pix_icon($icon, get_string($langkey), null,
                         array('class' => 'obf-icon')));
     }
-
+    /**
+     * Renders a div.
+     * @param string $content
+     * @param string $classes
+     * @return string HTML.
+     */
     public static function div($content, $classes = '') {
         return html_writer::tag('div', $content,
                         empty($classes) ? array() : array('class' => $classes));

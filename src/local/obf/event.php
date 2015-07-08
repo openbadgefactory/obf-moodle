@@ -37,8 +37,11 @@ $eventid = required_param('id', PARAM_ALPHANUM);
 $courseid = optional_param('course_id', '', PARAM_INT);
 $action = optional_param('action', 'view', PARAM_ALPHANUM);
 $show = optional_param('show', '', PARAM_ALPHANUM);
-$emailar = $action == 'revoke' ? required_param_array('email', PARAM_TEXT) :
-        optional_param_array('email', array(), PARAM_TEXT);
+if ($action == 'revoke') {
+    $emailar = required_param_array('email', PARAM_TEXT);
+} else {
+    $emailar = optional_param_array('email', array(), PARAM_TEXT);
+}
 $msg = optional_param('msg', '', PARAM_TEXT);
 
 $eventdata = new obf_issue_event($eventid, $DB);

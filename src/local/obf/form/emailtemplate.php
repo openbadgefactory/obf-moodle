@@ -15,6 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * Email template form.
  * @package    local_obf
  * @copyright  2013-2015, Discendum Oy
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -22,11 +23,20 @@
 defined('MOODLE_INTERNAL') || die();
 
 require_once(__DIR__ . '/obfform.php');
-
+/**
+ * Email template form -class.
+ * @copyright  2013-2015, Discendum Oy
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class obf_email_template_form extends local_obf_form_base {
-
+    /**
+     * @var obf_badge $badge The badge the template is for.
+     */
     private $badge = null;
 
+    /**
+     * Defines forms elements
+     */
     protected function definition() {
         $mform = $this->_form;
         $this->badge = $this->_customdata['badge'];
@@ -37,6 +47,7 @@ class obf_email_template_form extends local_obf_form_base {
     }
 
     /**
+     * Add email fields to the form.
      *
      * @param MoodleQuickForm $mform
      * @param obf_email $email

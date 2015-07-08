@@ -15,6 +15,8 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * OBF Client.
+ *
  * @package    local_obf
  * @copyright  2013-2015, Discendum Oy
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -23,10 +25,18 @@ require_once(__DIR__ . '/../lib.php');
 
 /**
  * Class for handling the communication to Open Badge Factory API.
+ *
+ * @copyright  2013-2015, Discendum Oy
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class obf_client {
-
+    /**
+     * @var $client Static client
+     */
     private static $client = null;
+    /**
+     * @var curl|null Transport. Curl.
+     */
     private $transport = null;
 
     /**
@@ -41,6 +51,10 @@ class obf_client {
      * @var array Raw response.
      */
     private $rawresponse = null;
+    /**
+     * @var bool Store raw response?
+     */
+    private $enablerawresponse = false;
 
     /**
      * Returns the id of the client stored in Moodle's config.
@@ -63,6 +77,7 @@ class obf_client {
     /**
      * Returns the client instance.
      *
+     * @param curl|null $transport
      * @return obf_client The client.
      */
     public static function get_instance($transport = null) {
@@ -77,6 +92,11 @@ class obf_client {
         return self::$client;
     }
 
+    /**
+     * Set object transport.
+     *
+     * @param curl $transport
+     */
     public function set_transport($transport) {
         $this->transport = $transport;
     }
@@ -246,14 +266,24 @@ class obf_client {
         return $ssl['validTo_time_t'];
     }
 
+    /**
+     * Get absolute filename of certificate key-file.
+     * @return string
+     */
     public function get_pkey_filename() {
         return $this->get_pki_dir() . 'obf.key';
     }
-
+    /**
+     * Get absolute filename of certificate pem-file.
+     * @return string
+     */
     public function get_cert_filename() {
         return $this->get_pki_dir() . 'obf.pem';
     }
-
+    /**
+     * Get absolute path of certificate directory.
+     * @return string
+     */
     public function get_pki_dir() {
         global $CFG;
         return $CFG->dataroot . '/local_obf/pki/';
@@ -262,7 +292,7 @@ class obf_client {
     /**
      * Get a single badge from the API.
      *
-     * @param type $badgeid
+     * @param string $badgeid
      * @throws Exception If the request fails
      * @return array The badge data.
      */
@@ -433,13 +463,28 @@ class obf_client {
         $this->api_request('/badge/' . self::get_client_id() . '/' . $badge->get_id(),
                 'post', $params);
     }
+    /**
+     * Revoke an issued event.
+     *
+     * @param string $eventid
+     * @param string[] $emails Array of emails to revoke the event for.
+     */
     public function revoke_event($eventid, $emails) {
         $this->require_client_id();
         $this->api_request('/event/' . self::get_client_id() . '/' . $eventid . '/?email=' . implode('|', $emails),
                 'delete');
     }
 
-    // A wrapper for obf_client::request, prefixing $path with the API url.
+    /**
+     * A wrapper for obf_client::request, prefixing $path with the API url.
+     *
+     * @param string $path
+     * @param string $method Supported methods are: 'get', 'post' and 'delete'
+     * @param array $params
+     * @param Closure $preformatter
+     * @return mixed Response from request.
+     * @see self::request
+     */
     protected function api_request($path, $method = 'get',
                                    array $params = array(),
                                    Closure $preformatter = null) {
@@ -463,9 +508,13 @@ class obf_client {
                             Closure $preformatter = null) {
         $curl = $this->get_transport();
         $options = $this->get_curl_options();
-        $output = $method == 'get' ? $curl->get($url, $params, $options) :
-                ($method == 'delete' ? $curl->delete($url, $params, $options) : $curl->post($url,
-                                json_encode($params), $options));
+        if ($method == 'get') {
+            $output = $curl->get($url, $params, $options);
+        } else if ($method == 'delete') {
+            $output = $curl->delete($url, $params, $options);
+        } else {
+            $output = $curl->post($url, json_encode($params), $options);
+        }
 
         if ($output !== false) {
             if (!is_null($preformatter)) {
@@ -477,7 +526,9 @@ class obf_client {
 
         $info = $curl->get_info();
 
-        $this->rawresponse = $curl->get_raw_response();
+        if ($this->enablerawresponse) {
+            $this->rawresponse = $curl->get_raw_response();
+        }
         $this->httpcode = $info['http_code'];
         $this->error = '';
 
@@ -529,6 +580,16 @@ class obf_client {
      */
     public function get_raw_response() {
         return $this->rawresponse;
+    }
+    /**
+     * Enable/disable storing raw response.
+     * @param bool $enable
+     * @return obf_client This object.
+     */
+    public function set_enable_raw_response($enable) {
+        $this->enablerawresponse = $enable;
+        $this->rawresponse = null;
+        return $this;
     }
 
     /**

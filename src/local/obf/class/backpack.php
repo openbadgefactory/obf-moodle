@@ -15,6 +15,8 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * Backpack. Supports Open Badge Passport and Mozilla Backpack.
+ *
  * @package    local_obf
  * @copyright  2013-2015, Discendum Oy
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -24,52 +26,113 @@ require_once(__DIR__ . '/assertion_collection.php');
 
 /**
  * Class for handling the communication between the plugin and Mozilla Backpack.
+ *
+ * @copyright  2013-2015, Discendum Oy
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class obf_backpack {
 
+    /**
+     * @var Mozilla Backpack displayer API url.
+     */
     const BACKPACK_URL = 'http://beta.openbadges.org/displayer/';
+    /**
+     * @var Open Badge Passport displayer API url.
+     */
     const OPB_URL = 'https://openbadgepassport.com/displayer/';
+    /**
+     * @var Mozilla Persona verifier url.
+     */
     const PERSONA_VERIFIER_URL = 'https://verifier.login.persona.org/verify';
 
+    /**
+     * @var Mozilla Backpack provider id in the database.
+     */
     const BACKPACK_PROVIDER_MOZILLA = 0;
+    /**
+     * @var Open Badge Passport provider id in the database.
+     */
     const BACKPACK_PROVIDER_OBP = 1;
 
+    /**
+     * @var Id in database
+     */
     private $id = -1;
+    /**
+     * @var Userid.
+     */
     private $userid = -1;
+    /**
+     * @var Email address in backpack.
+     */
     private $email = '';
+    /**
+     * @var Backpack id.
+     */
     private $backpackid = -1;
+    /**
+     * @var List or groups to display.
+     */
     private $groups = array();
+    /**
+     * @var Transport.
+     */
     private $transport = null;
+    /**
+     * @var Provider id self::BACKPACK_PROVIDER_*
+     */
     private $provider = 0;
 
 
+    /**
+     * @var Array of provider ids.
+     */
     private static $providers = array(self::BACKPACK_PROVIDER_MOZILLA,
             self::BACKPACK_PROVIDER_OBP);
+    /**
+     * @var Array of provider name shortened for use as pre-/postfixes on forms and localisations.
+     */
     private static $providershortnames = array(
         self::BACKPACK_PROVIDER_MOZILLA => 'moz',
         self::BACKPACK_PROVIDER_OBP => 'obp'
     );
+    /**
+     * @var API urls as array.
+     */
     private static $apiurls = array(
         self::BACKPACK_PROVIDER_MOZILLA => self::BACKPACK_URL,
         self::BACKPACK_PROVIDER_OBP => self::OPB_URL
     );
-
+    /**
+     * @var Array of settings on should email address verification be used,
+     *      or should we assume moodle email is configured at the backpack provider.
+     */
     private static $providerrequiresemailverification = array(
         self::BACKPACK_PROVIDER_MOZILLA => true,
         self::BACKPACK_PROVIDER_OBP => false
     );
+    /**
+     * @var Associative array to match provider ids to assertion source ids.
+     */
     private static $backpackprovidersources = array(
         self::BACKPACK_PROVIDER_MOZILLA => obf_assertion::ASSERTION_SOURCE_MOZILLA,
-        self::BACKPACK_PROVIDER_OBP => obf_assertion::ASSERTION_SOURCE_OPB
+        self::BACKPACK_PROVIDER_OBP => obf_assertion::ASSERTION_SOURCE_OBP
     );
-
+    /**
+     * Constructor.
+     * @param curl|null $transport
+     * @param int $provider
+     */
     public function __construct($transport = null, $provider = self::BACKPACK_PROVIDER_MOZILLA) {
         $this->set_provider($provider);
         if (!is_null($transport)) {
             $this->set_transport($transport);
         }
     }
-
+    /**
+     * Get API URL.
+     * @return string API URL.
+     */
     private function get_apiurl() {
         if (!empty($this->provider)) {
             return self::$apiurls[$this->provider];
@@ -78,17 +141,21 @@ class obf_backpack {
     }
 
     /**
+     * Get backpack instance.
      *
-     * @param type $user
+     * @param stdClass $user
+     * @param int $provider
+     * @return self
      */
     public static function get_instance($user, $provider = self::BACKPACK_PROVIDER_MOZILLA) {
         return self::get_instance_by_fields(array('user_id' => $user->id), $provider);
     }
 
     /**
+     * Get instance matching fields in the database.
      *
-     * @global moodle_database $DB
      * @param array $fields
+     * @param int $provider
      * @return \self|boolean
      */
     protected static function get_instance_by_fields(array $fields, $provider = self::BACKPACK_PROVIDER_MOZILLA) {
@@ -130,17 +197,22 @@ class obf_backpack {
     }
 
     /**
+     * Get instance matching email
      *
-     * @param type $email
+     * @param string $email
+     * @param int $provider
      */
     public static function get_instance_by_backpack_email($email, $provider = self::BACKPACK_PROVIDER_MOZILLA) {
         return self::get_instance_by_fields(array('email' => $email), $provider);
     }
 
     /**
+     * Get instance matching user id.
      *
-     * @param type $userid
-     * @return type
+     * @param int $userid
+     * @param moodle_database $db
+     * @param int $provider
+     * @return self
      */
     public static function get_instance_by_userid($userid, moodle_database $db, $provider = self::BACKPACK_PROVIDER_MOZILLA) {
         return self::get_instance($db->get_record('user', array('id' => $userid)), $provider);
@@ -149,7 +221,6 @@ class obf_backpack {
     /**
      * Returns an array of backpack email addresses matching the user ids found from $userids
      *
-     * @global moodle_database $DB
      * @param array $userids
      * @return String[] An array of backpack emails
      */
@@ -169,9 +240,10 @@ class obf_backpack {
     }
 
     /**
+     * Get user ids who have backpack connections saved.
      *
-     * @global moodle_database $DB
-     * @return type
+     * @param int $provider
+     * @return int[]
      */
     public static function get_user_ids_with_backpack($provider = null) {
         global $DB;
@@ -193,8 +265,9 @@ class obf_backpack {
     }
 
     /**
+     * Connect backpack to email-address.
      *
-     * @param type $email
+     * @param string $email
      * @return boolean
      */
     protected function connect_to_backpack($email) {
@@ -211,6 +284,10 @@ class obf_backpack {
         return false;
     }
 
+    /**
+     * Get transport.
+     * @return curl
+     */
     protected function get_transport() {
         if (!is_null($this->transport)) {
             return $this->transport;
@@ -227,7 +304,6 @@ class obf_backpack {
      * Tries to verify the assertion and returns the associated email address
      * if verification was successful. Return false otherwise.
      *
-     * @global type $CFG
      * @param string $assertion The assertion from Mozilla Persona.
      * @return string Returns the users email or false if verification
      *      fails.
@@ -269,15 +345,16 @@ class obf_backpack {
     }
 
     /**
-     *
+     * Disconnect from backpack.
      */
     public function disconnect() {
         $this->delete();
     }
 
     /**
+     * Connect to backpack.
      *
-     * @param type $email
+     * @param string $email
      * @throws Exception
      */
     public function connect($email) {
@@ -293,7 +370,10 @@ class obf_backpack {
                     s($email)));
         }
     }
-
+    /**
+     * Get groups for backpack.
+     * @return array groups
+     */
     public function get_groups() {
         $curl = $this->get_transport();
         $output = $curl->get($this->get_apiurl() . $this->get_backpack_id() . '/groups.json');
@@ -301,7 +381,12 @@ class obf_backpack {
 
         return $json->groups;
     }
-
+    /**
+     * Get assertions in a group.
+     * @param mixed $groupid
+     * @param int $limit
+     * @return obf_assertion_collection Assertions in the group
+     */
     public function get_group_assertions($groupid, $limit = -1) {
         if ($this->backpackid < 0) {
             throw new Exception('Backpack connection isn\'t set.');
@@ -339,8 +424,9 @@ class obf_backpack {
     }
 
     /**
+     * Get backpack assertions for all allowed groups.
      *
-     * @param type $limit
+     * @param int $limit
      * @return \obf_assertion_collection
      * @throws Exception
      */
@@ -358,6 +444,11 @@ class obf_backpack {
         return $assertions;
     }
 
+    /**
+     * Get assertions and return them as an arrays in array.
+     * @param int $limit
+     * @return array[]
+     */
     public function get_assertions_as_array($limit = -1) {
         $assertions = $this->get_assertions($limit);
         $ret = array();
@@ -370,8 +461,7 @@ class obf_backpack {
     }
 
     /**
-     *
-     * @global moodle_database $DB
+     * Save backpack connection details.
      */
     public function save() {
         global $DB;
@@ -391,7 +481,9 @@ class obf_backpack {
             $this->set_id($id);
         }
     }
-
+    /**
+     * Delete record. (Disconnect backpack)
+     */
     public function delete() {
         global $DB;
 
@@ -399,88 +491,175 @@ class obf_backpack {
             $DB->delete_records('local_obf_backpack_emails', array('id' => $this->id));
         }
     }
-
+    /**
+     * Is backpack connected?
+     */
     public function is_connected() {
         return $this->backpackid > 0;
     }
 
+    /**
+     * Get id.
+     * @return int
+     */
     public function get_id() {
         return $this->id;
     }
 
+    /**
+     * Get user id.
+     * @return int
+     */
     public function get_user_id() {
         return $this->userid;
     }
 
+    /**
+     * Get email address.
+     * @return string
+     */
     public function get_email() {
         return $this->email;
     }
 
+    /**
+     * Get backpack id.
+     * @return mixed
+     */
     public function get_backpack_id() {
         return $this->backpackid;
     }
 
+    /**
+     * Set id.
+     * @param int $id
+     * @return $this
+     */
     public function set_id($id) {
         $this->id = $id;
         return $this;
     }
 
+    /**
+     * Set user id.
+     * @param int $userid
+     */
     public function set_user_id($userid) {
         $this->userid = $userid;
         return $this;
     }
 
+    /**
+     * Set email address.
+     * @param string $email Email address
+     */
     public function set_email($email) {
         $this->email = $email;
         return $this;
     }
 
+    /**
+     * Set backpack id.
+     * @param mixed $backpackid Backpack id on the backpack provider
+     */
     public function set_backpack_id($backpackid) {
         $this->backpackid = $backpackid;
         return $this;
     }
 
+    /**
+     * Get group ids.
+     * @return array Groups set to be displayed.
+     */
     public function get_group_ids() {
         return $this->groups;
     }
 
+    /**
+     * Set groups.
+     * @param array $groups
+     */
     public function set_groups($groups) {
         $this->groups = is_array($groups) ? $groups : array();
         return $this;
     }
 
+    /**
+     * Set transport.
+     * @param curl $transport
+     */
     public function set_transport($transport) {
         $this->transport = $transport;
     }
+    /**
+     * Backpack connection saved to database?
+     * @return bool True if saved.
+     */
     public function exists() {
         return !empty($this->id) && $this->id > 0;
     }
+    /**
+     * Check if backpack requires email verification.
+     * @return bool True if email verification is required.
+     */
     public function requires_email_verification() {
         return self::does_provider_require_email_verification($this->provider);
     }
+    /**
+     * Check if backpacks with provider of $provider require email verification.
+     * @param int $provider
+     * @return bool True if email verification is required.
+     */
     public static function does_provider_require_email_verification($provider) {
         return self::$providerrequiresemailverification[$provider];
     }
+    /**
+     * Get list or provider ids.
+     * @return int[]
+     */
     public static function get_providers() {
         return self::$providers;
     }
+    /**
+     * Set backpacks provider.
+     * @param int $provider
+     * @return $this
+     */
     public function set_provider($provider = self::BACKPACK_PROVIDER_MOZILLA) {
         if (in_array($provider, self::$providers)) {
             $this->provider = $provider;
         } else {
             throw new Exception("Invalid backpack provider.", $provider);
         }
+        return $this;
     }
+    /**
+     * Get provider on the backpack.
+     * @return int Provider as self::BACKPACK_PROVIDER_*
+     */
     public function get_provider() {
         return !empty($this->provider) ? $this->provider : self::BACKPACK_PROVIDER_MOZILLA;
     }
+    /**
+     * Get assertion source
+     * @return int
+     */
     public function get_source() {
         return self::$backpackprovidersources[$this->provider];
     }
+    /**
+     * Get providers short name.
+     * @see self::$providershortnames
+     */
     public function get_providershortname() {
         $provider = $this->get_provider();
         return self::$providershortnames[$provider];
     }
+    /**
+     * Get short name matching provider id.
+     * @param int $provider
+     * @see self::$providershortnames
+     */
     public static function get_providershortname_by_providerid($provider) {
         return self::$providershortnames[$provider];
     }

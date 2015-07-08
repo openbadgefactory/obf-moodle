@@ -15,17 +15,23 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Plugin configuration page.
+ * Backpack testcase.
  *
  * @package    local_obf
  * @copyright  2013-2015, Discendum Oy
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 /**
+ * Backpack testcase.
+ *
  * @group obf
+ * @copyright  2013-2015, Discendum Oy
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class local_obf_backpack_testcase extends advanced_testcase {
-
+    /**
+     * Test backpack.
+     */
     public function test_backpack() {
         $this->resetAfterTest();
         $user = $this->getDataGenerator()->create_user();
@@ -35,16 +41,16 @@ class local_obf_backpack_testcase extends advanced_testcase {
         $userids = obf_backpack::get_user_ids_with_backpack();
         $this->assertCount(0, $userids);
     }
-
+    /**
+     * Test valid backpack connection.
+     */
     public function test_valid_connection() {
         $this->resetAfterTest();
 
         $email = 'existing@example.com';
         $stub = $this->getMock('obf_backpack', array('connect_to_backpack'));
-        $stub->expects($this->any())
-                ->method('connect_to_backpack')
-                ->with($this->equalTo($email))
-                ->will($this->returnValue(69));
+        $stub->expects($this->any())->method('connect_to_backpack')->with(
+                $this->equalTo($email))->will($this->returnValue(69));
 
         $stub->connect($email);
         $this->assertTrue($stub->is_connected());
@@ -55,13 +61,14 @@ class local_obf_backpack_testcase extends advanced_testcase {
         $stub->disconnect();
         $this->assertFalse(obf_backpack::get_instance_by_backpack_email($email));
     }
-
+    /**
+     * Test invalid backpack connection.
+     */
     public function test_invalid_connection() {
         $this->resetAfterTest();
         $stub = $this->getMock('obf_backpack', array('connect_to_backpack'));
-        $stub->expects($this->any())
-                ->method($this->equalTo('connect_to_backpack'))
-                ->will($this->returnValue(false));
+        $stub->expects($this->any())->method(
+                $this->equalTo('connect_to_backpack'))->will($this->returnValue(false));
 
         try {
             $email = 'doesnotexist@example.com';
@@ -69,20 +76,22 @@ class local_obf_backpack_testcase extends advanced_testcase {
             $this->fail('There shouldn\'t exist an account with email "' . $email . '"');
         } catch (Exception $e) {
             // We should end up here.
+            0 + 0; // Suppressing PHP_CodeSniffer error messages.
         }
 
         $this->assertFalse($stub->is_connected());
     }
-
+    /**
+     * Test email verification on backpack.
+     */
     public function test_verification() {
         $assertion = 'valid_assertion';
         $invalidassertion = 'invalid_assertion';
         $email = 'existing@example.com';
 
         $mock = $this->getMock('curl', array('post'));
-        $mock->expects($this->any())
-                ->method('post')
-                ->will($this->returnCallback(function ($url, $params) use ($email, $assertion) {
+        $mock->expects($this->any())->method('post')->will($this->returnCallback(
+                function ($url, $params) use ($email, $assertion) {
                     $obj = json_decode($params);
 
                     if ($obj->assertion == $assertion) {
@@ -100,6 +109,7 @@ class local_obf_backpack_testcase extends advanced_testcase {
             $this->fail('Verification should have failed.');
         } catch (Exception $e) {
             // We should end up here.
+            0 + 0; // Suppressing PHP_CodeSniffer error messages.
         }
     }
 

@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Plugin configuration page.
+ * Behat.
  *
  * @package    local_obf
  * @copyright  2013-2015, Discendum Oy
@@ -27,9 +27,23 @@ use Behat\Gherkin\Node\TableNode;
 use Behat\Mink\Driver\Selenium2Driver;
 use Behat\Mink\Session;
 
+/**
+ * Behat functions.
+ *
+ * Currently requires modification to iEnterAValidRequestTokenTo, and usage
+ * of demo OBF accounts as tests delete all badges on OBF after running.
+ *
+ * @copyright  2013-2015, Discendum Oy
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class behat_local_obf extends behat_base {
 
     /**
+     * Teardown feature. Tries to delete all badges in OBF.
+     *
+     * Deletion will succeed if behat has entered the request token/API key.
+     *
+     * @param FeatureEvent $event
      * @AfterFeature
      */
     public static function teardownFeature(FeatureEvent $event) {
@@ -38,10 +52,13 @@ class behat_local_obf extends behat_base {
             obf_client::get_instance()->delete_badges();
         } catch (Exception $e) {
             // TODO: Do something?
+            0 + 0; // Suppressing a PHP_CodeSniffer error message.
         }
 
     }
-
+    /**
+     * Create pki dir, as install.php can't create it for behat_dataroot.
+     */
     private static function iCreatePkiDir() {
         global $CFG;
         $newpkidir = $CFG->behat_dataroot . '/local_obf/pki/';
@@ -51,6 +68,12 @@ class behat_local_obf extends behat_base {
         }
     }
     /**
+     * Entering a valid request token/API key to the settings.
+     *
+     * Beware that using your real credentials here might cause you
+     * to delete all of the badges you have created on OBF.
+     *
+     * @param string $fieldname
      * @Given /^I enter a valid request token to "([^"]*)"$/
      */
     public function iEnterAValidRequestTokenTo($fieldname) {
@@ -79,6 +102,9 @@ class behat_local_obf extends behat_base {
     }
 
     /**
+     * Check that list of badges exist.
+     *
+     * @param TableNode $badgetable
      * @Given /^the following badges exist:$/
      */
     public function theFollowingBadgesExist(TableNode $badgetable) {
@@ -131,6 +157,8 @@ TABLE
       */
 
     /**
+     * Go to badge list.
+     *
      * @Given /^I go to badge list$/
      */
     public function iGoToBadgeList() {
@@ -143,6 +171,10 @@ TABLE
     }
 
     /**
+     * Set a criterion to be completed when an Assignment is completed.
+     *
+     * @param stdClass $course
+     * @param stdClass $assignment
      * @Given /^I set "([^"]*)" to be completed when assignment "([^"]*)" is completed$/
      */
     public function iSetToBeCompletedWhenAssignmentIsCompleted($course, $assignment) {
@@ -172,6 +204,11 @@ TABLE
     }
 
     /**
+     * Mark an assignment as complete.
+     *
+     * @param stdClass $assignment
+     * @param stdClass $course
+     * @param stdClass $user
      * @Given /^I mark "([^"]*)" of "([^"]*)" completed by "([^"]*)"$/
      */
     public function iMarkOfCompletedBy($assignment, $course, $user) {

@@ -15,6 +15,8 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * Issuance form.
+ *
  * @package    local_obf
  * @copyright  2013-2015, Discendum Oy
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -27,12 +29,22 @@ require_once(__DIR__ . '/obfform.php');
 require_once($CFG->dirroot . '/user/selector/lib.php');
 require_once('HTML/QuickForm/element.php');
 
+/**
+ * Manual issue form.
+ *
+ * @copyright  2013-2015, Discendum Oy
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class obf_issuance_form extends local_obf_form_base {
 
     /**
      * @var obf_badge
      */
     private $badge = null;
+    /**
+     * Course id
+     * @var int
+     */
     private $courseid = null;
 
     /**
@@ -40,7 +52,9 @@ class obf_issuance_form extends local_obf_form_base {
      * @var local_obf_renderer
      */
     private $renderer = null;
-
+    /**
+     * Defines forms elements
+     */
     protected function definition() {
         $this->badge = $this->_customdata['badge'];
         $this->renderer = $this->_customdata['renderer'];
@@ -51,7 +65,9 @@ class obf_issuance_form extends local_obf_form_base {
         $this->add_message_elements();
         $this->add_action_buttons(true, get_string('issue', 'local_obf'));
     }
-
+    /**
+     * Add details elements
+     */
     private function add_details_elements() {
         $mform = $this->_form;
         $mform->addElement('header', 'badgedetailsheader',
@@ -78,6 +94,9 @@ class obf_issuance_form extends local_obf_form_base {
         }
     }
 
+    /**
+     * Add recipients elements.
+     */
     private function add_recipients_elements() {
         $mform = $this->_form;
         $mform->addElement('header', 'badgerecipientsheader',
@@ -93,6 +112,9 @@ class obf_issuance_form extends local_obf_form_base {
                 get_string('selectatleastonerecipient', 'local_obf'), 'required');
     }
 
+    /**
+     * Add message elements.
+     */
     private function add_message_elements() {
         require_once(__DIR__ . '/emailtemplate.php');
 
@@ -104,6 +126,10 @@ class obf_issuance_form extends local_obf_form_base {
                 $this->badge->get_email());
     }
 
+    /**
+     * Get user ids with badge issued.
+     * @return int[]
+     */
     private function get_user_ids_with_badge_issued() {
         global $DB;
 
@@ -124,6 +150,12 @@ class obf_issuance_form extends local_obf_form_base {
         return $ids;
     }
 
+    /**
+     * Validation.
+     * @param  stdClass $data
+     * @param  array $files
+     * @return array
+     */
     public function validation($data, $files) {
         $errors = parent::validation($data, $files);
 
@@ -135,17 +167,42 @@ class obf_issuance_form extends local_obf_form_base {
 
 }
 
+/**
+ * User selector form element.
+ *
+ * @copyright  2013-2015, Discendum Oy
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class MoodleQuickForm_userselector extends HTML_QuickForm_element {
 
+    /**
+     * User selector.
+     * @var badge_recipient_selector
+     */
     protected $userselector;
+    /**
+     * HTML string.
+     * @var string
+     */
     protected $strHtml;
+    /**
+     * Name.
+     * @var string
+     */
     protected $name = '';
 
-    public function MoodleQuickForm_userselector($elementName = null,
-            $elementLabel = null, $options = null, $attributes = null) {
-        parent::HTML_QuickForm_element($elementName, $elementLabel, $attributes);
-        $this->setName($elementName);
-        $this->userselector = new badge_recipient_selector($elementName,
+    /**
+     * Constructor.
+     * @param string $name
+     * @param string $label
+     * @param array $options
+     * @param array $attributes
+     */
+    public function MoodleQuickForm_userselector($name = null,
+            $label = null, $options = null, $attributes = null) {
+        parent::HTML_QuickForm_element($name, $label, $attributes);
+        $this->setName($name);
+        $this->userselector = new badge_recipient_selector($name,
                 $options);
         $this->userselector->set_multiselect(true);
 
@@ -154,32 +211,69 @@ class MoodleQuickForm_userselector extends HTML_QuickForm_element {
         }
     }
 
+    /**
+     * Get name.
+     * @return string
+     */
     public function getName() {
         return $this->name;
     }
 
+    /**
+     * Set name.
+     * @param string $name
+     */
     public function setName($name) {
         $this->name = $name;
     }
 
+    /**
+     * Get HTML of this selector element.
+     * @return string HTML
+     */
     public function toHtml() {
         $this->strHtml = $this->userselector->display(true);
         return $this->strHtml;
     }
 
+    /**
+     * Get value.
+     * @return mixed
+     */
     public function getValue() {
         return $this->userselector->get_selected_users();
     }
 
 }
 
+/**
+ * Badge recipient selector.
+ *
+ * @copyright  2013-2015, Discendum Oy
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class badge_recipient_selector extends user_selector_base {
-
+    /**
+     * Max amount of users in list.
+     */
     const MAX_USERS_IN_LIST = 5000;
 
+    /**
+     * Recipients who have already received the badge.
+     * @var array
+     */
     private $existingrecipients = array();
+    /**
+     * Course id.
+     * @var int
+     */
     private $courseid = null;
 
+    /**
+     * Constructor.
+     * @param string $name
+     * @param array $options
+     */
     public function __construct($name, $options = array()) {
         parent::__construct($name, $options);
 
@@ -188,6 +282,10 @@ class badge_recipient_selector extends user_selector_base {
         }
     }
 
+    /**
+     * Get options.
+     * @return array
+     */
     protected function get_options() {
         $options = parent::get_options();
         $options['file'] = 'local/obf/form/issuance.php';
@@ -195,15 +293,20 @@ class badge_recipient_selector extends user_selector_base {
         return $options;
     }
 
+    /**
+     * Set course id.
+     * @param int $id
+     */
     public function set_courseid($id) {
         $this->courseid = $id;
     }
 
     /**
+     * Find users from the database.
      *
-     * @global moodle_database $DB
-     * @param type $search
-     * @return type
+     * @param string $search
+     * @return array
+     * @todo Is this used anymore? If not, remove.
      */
     public function find_users($search) {
         global $DB;

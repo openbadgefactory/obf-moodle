@@ -15,6 +15,8 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * Activity completion critrion.
+ *
  * @package    local_obf
  * @copyright  2013-2015, Discendum Oy
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -25,29 +27,31 @@ require_once(__DIR__ . '/course.php');
 require_once(__DIR__ . '/../badge.php');
 
 /**
- * Class representing a single activity criterion.
+ * Class representing a activity criterion.
+ *
+ * @copyright  2013-2015, Discendum Oy
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class obf_criterion_activity extends obf_criterion_course {
     /**
-     * @var string For caching the name of the activity
+     * @var $criteriatype Set to self::CRITERIA_TYPE_ACTIVITY
      */
-    protected $activityname = '';
-
-    /**
-     * @var obf_criterion The criterion this activity belongs to.
-     */
-    protected $criterion = null;
-    protected $id = -1;
-    protected $criterionid = -1;
-
     protected $criteriatype = obf_criterion_item::CRITERIA_TYPE_ACTIVITY;
+    /**
+     * @var string $requiredparam
+     * @see obf_criterion_course::save_params
+     */
     protected $requiredparam = 'module';
+    /**
+     * @var string[] $optionalparams Optional params to be saved.
+     * @see obf_criterion_course::save_params
+     */
     protected $optionalparams = array('completedby');
     /**
      * Get the instance of this class by id.
      *
-     * @global moodle_database $DB
      * @param int $id The id of the activity criterion
+     * @param int $method
      * @return obf_criterion_activity
      */
     public static function get_instance($id, $method = null) {
@@ -77,7 +81,6 @@ class obf_criterion_activity extends obf_criterion_course {
      * Saves this activity criterion to database. If it exists already, the
      * existing record will be updated.
      *
-     * @global moodle_database $DB
      * @return mixed Returns this object if everything went ok, false otherwise.
      */
     public function save() {
@@ -109,7 +112,7 @@ class obf_criterion_activity extends obf_criterion_course {
     /**
      * Returns the name of the activity this criterion is related to.
      *
-     * @global moodle_database $DB
+     * @param int $cminstance Course module instance id
      * @return string The full name of the activity.
      */
     public function get_activityname($cminstance) {
@@ -124,6 +127,10 @@ class obf_criterion_activity extends obf_criterion_course {
         }
         return $activityname;
     }
+    /**
+     * Get name.
+     * @return string
+     */
     public function get_name() {
         $params = $this->get_params();
         $name = '';
@@ -137,7 +144,9 @@ class obf_criterion_activity extends obf_criterion_course {
     }
 
     /**
-     * Get course activities
+     * Get course activities.
+     * @param int $courseid
+     * @return stdClass[] Activities
      */
     public static function get_course_activities($courseid) {
         global $DB;
@@ -168,6 +177,7 @@ class obf_criterion_activity extends obf_criterion_course {
         return $html;
     }
     /**
+     * Get an array of activity names.
      * @return array html encoded activity descriptions.
      */
     public function get_text_array() {
@@ -206,7 +216,8 @@ class obf_criterion_activity extends obf_criterion_course {
     }
     /**
      * Prints criteria activity settings for criteria forms.
-     * @param moodle_form $mform
+     * @param MoodleQuickForm& $mform
+     * @param mixed& $obj
      */
     public function get_options(&$mform, &$obj) {
         global $OUTPUT;
@@ -218,7 +229,8 @@ class obf_criterion_activity extends obf_criterion_course {
     }
     /**
      * Prints required config fields for criteria forms.
-     * @param moodle_form $mform
+     * @param MoodleQuickForm& $mform
+     * @param mixed& $obj
      */
     public function get_form_config(&$mform, &$obj) {
         global $OUTPUT;
@@ -238,12 +250,10 @@ class obf_criterion_activity extends obf_criterion_course {
     /**
      * Reviews criteria for single user.
      *
-     * @global moodle_database $DB
-     * @global type $CFG
-     * @param int $userid The id of the user.
+     * @param stdClass $user
      * @param obf_criterion $criterion The main criterion.
      * @param obf_criterion_item[] $otheritems Other items related to main criterion.
-     * @param type[] $extra Extra options passed to review method.
+     * @param array& $extra Extra options passed to review method.
      * @return boolean If the course criterion is completed by the user.
      */
     protected function review_for_user($user, $criterion = null, $otheritems = null, &$extra = null) {
@@ -300,9 +310,9 @@ class obf_criterion_activity extends obf_criterion_course {
     }
     /**
      * Print activities to form.
-     * @param moodle_form $mform
-     * @param type $modules modules so the database is not accessed too much
-     * @param type $params
+     * @param MoodleQuickForm& $mform
+     * @param array $modules modules so the database is not accessed too much
+     * @param array $params
      */
     private function get_form_activities(&$mform, $modules, $params) {
         $mform->addElement('html', html_writer::tag('p', get_string('selectactivity', 'local_obf')));
@@ -336,7 +346,8 @@ class obf_criterion_activity extends obf_criterion_course {
         }
     }
     /**
-     * @param type $params
+     * Get module instance ids this activity criterion item is asscociated to.
+     * @param array $params
      * @return array ids of activity instances
      */
     private static function get_module_instanceids_from_params($params) {

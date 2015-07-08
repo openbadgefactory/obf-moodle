@@ -15,24 +15,61 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * User preferences.
+ *
  * @package    local_obf
  * @copyright  2013-2015, Discendum Oy
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
+/**
+ * User preferences -class.
+ *
+ * @copyright  2013-2015, Discendum Oy
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class obf_user_preferences {
+    /**
+     * @var $userid User id of the user preferences belong to.
+     */
     private $userid;
 
+    /**
+     * @var $indb True if the preferences exist in the database.
+     */
     private $indb = true;
+    /**
+     * @var $defaults Some defaults for when nothing in the database for user.
+     */
     private static $defaults = array('badgesonprofile' => 1);
+    /**
+     * @var $preferences The preferences
+     */
     private $preferences = null;
+    /**
+     * @var $requiredpreferences What must be defined in preferences.
+     */
     private $requiredpreferences = array('badgesonprofile');
+    /**
+     * @var $optionalpreferences What may be defined in preferences.
+     */
     private $optionalpreferences = array('openbadgepassport');
 
+    /**
+     * Constructor.
+     * @param int $userid
+     */
     public function __construct($userid) {
         $this->userid = $userid;
         $this->get_preferences();
     }
 
+    /**
+     * Get a single preference for $userid
+     * @param int $userid
+     * @param string $preference
+     * @return mixed Preference to be used.
+     */
     public static function get_user_preference($userid, $preference) {
         global $DB;
         $record = $DB->get_record('local_obf_user_preferences', array('user_id' => $userid,
@@ -42,24 +79,50 @@ class obf_user_preferences {
         }
         return self::get_default($preference);
     }
-
+    /**
+     * Get a single preference.
+     * @param string $preference
+     * @return mixed Preference to be used.
+     */
     public function get_preference($preference) {
         $this->get_preferences();
-        return !is_null($this->preferences) && array_key_exists($preference, $this->preferences) ?
-                $this->preferences[$preference] : self::get_default($preference);
+        if (!is_null($this->preferences) && array_key_exists($preference, $this->preferences)) {
+            return $this->preferences[$preference];
+        }
+        return self::get_default($preference);
     }
+    /**
+     * Get the default preference.
+     * @param string $preference
+     * @return mixed Preference to be used.
+     */
     public static function get_default($preference) {
-        return array_key_exists($preference, self::$defaults) ?
-                self::$defaults[$preference] : null;
+        if (array_key_exists($preference, self::$defaults)) {
+            return self::$defaults[$preference];
+        }
+        return null;
     }
 
+    /**
+     * Get user id.
+     *
+     * @return int
+     */
     public function get_userid() {
         return $this->userid;
     }
-
+    /**
+     * Does the object exist in the database?
+     * @return bool True if saved to the database.
+     */
     public function exists() {
         return $this->indb;
     }
+    /**
+     * Get all preferences.
+     * @param bool $force Force loading of preferences from the database.
+     * @return array The preferences.
+     */
     public function get_preferences($force = false) {
         global $DB;
         $preferences = array();
@@ -82,22 +145,37 @@ class obf_user_preferences {
         $this->preferences = $preferences;
         return $this->preferences;
     }
+    /**
+     * Set a user pref.
+     * @param string $name
+     * @param string $value
+     * @return $this
+     */
     public function set_preference($name, $value) {
         $this->preferences[$name] = $value;
         return $this;
     }
+    /**
+     * Add an array of preferences to existing preferences.
+     *
+     * @param array $data
+     */
     public function add_preferences($data) {
         $prefs = $this->get_preferences();
         $prefs = array_merge($prefs, (array)$data);
         return $this->save_preferences($prefs);
     }
+    /**
+     * Save.
+     * @see self::save_preferences
+     */
     public function save() {
         $prefs = $this->get_preferences();
         $this->save_preferences($prefs);
     }
     /**
      * Save params. (activity selections and completedby dates)
-     * @param type $data
+     * @param array|stdClass $data
      */
     public function save_preferences($data) {
         global $DB;

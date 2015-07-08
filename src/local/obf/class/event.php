@@ -15,15 +15,35 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * Issue events.
+ *
  * @package    local_obf
  * @copyright  2013-2015, Discendum Oy
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class obf_issue_event {
 
+/**
+ * Issue events -class.
+ *
+ * @copyright  2013-2015, Discendum Oy
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+class obf_issue_event {
+    /**
+     * @var int ID of event in the database.
+     */
     private $id = -1;
+    /**
+     * @var string ID of event in OBF.
+     */
     private $eventid = null;
+    /**
+     * @var int User ID, if a user manually issued the event.
+     */
     private $userid = -1;
+    /**
+     * @var int Criterion id, if the event was issued automatically by a criterion.
+     */
     private $criterionid = -1;
 
     /**
@@ -46,7 +66,11 @@ class obf_issue_event {
             }
         }
     }
-
+    /**
+     * Populate object from a database record.
+     * @param stdClass $record
+     * @return $this
+     */
     public function populate_from_record($record) {
         if ($record !== false) {
             $this->set_id($record->id)->set_eventid($record->event_id);
@@ -54,7 +78,11 @@ class obf_issue_event {
         }
         return $this;
     }
-
+    /**
+     * Get all events that were issued by a criterion that is related to a course.
+     * @param int $courseid
+     * @param moodle_database $db
+     */
     public static function get_events_in_course($courseid, moodle_database $db) {
         $ret = array();
         $sql = 'SELECT evt.* FROM {local_obf_issue_events} AS evt ' .
@@ -89,28 +117,54 @@ class obf_issue_event {
         }
     }
 
+    /**
+     * Get id.
+     * @return int
+     */
     public function get_id() {
         return $this->id;
     }
 
+    /**
+     * Set id.
+     * @param int $id
+     */
     public function set_id($id) {
         $this->id = $id;
         return $this;
     }
 
+    /**
+     * Get event id.
+     * @return string The event id in Open Badge Factory
+     */
     public function get_eventid() {
         return $this->eventid;
     }
 
+    /**
+     * Set event id.
+     * @param string $eventid The event id in Open Badge Factory
+     * @return $this
+     */
     public function set_eventid($eventid) {
         $this->eventid = $eventid;
         return $this;
     }
 
+    /**
+     * Get user id.
+     * @return int
+     */
     public function get_userid() {
         return $this->userid;
     }
 
+    /**
+     * Set user id.
+     * @param int $userid
+     * @return $this
+     */
     public function set_userid($userid) {
         if (!empty($userid) && $userid > 0) {
             $this->criterionid = null;
@@ -119,14 +173,26 @@ class obf_issue_event {
         return $this;
     }
 
+    /**
+     * Has user id?
+     * @return boolean True if object has a userid.
+     */
     public function has_userid() {
         return !empty($this->userid) && $this->userid > 0;
     }
 
+    /**
+     * Get criterion id.
+     * @return int Criterion id
+     */
     public function get_criterionid() {
         return $this->criterionid;
     }
 
+    /**
+     * Set criterion id.
+     * @param int $criterionid Criterion id
+     */
     public function set_criterionid($criterionid) {
         if (!empty($criterionid) && $criterionid > 0) {
             $this->userid = null;
@@ -135,6 +201,10 @@ class obf_issue_event {
         return $this;
     }
 
+    /**
+     * Has criterion id?
+     * @return boolean True if object has a criterion id set.
+     */
     public function has_criterionid() {
         return !empty($this->criterionid) && $this->criterionid > 0;
     }

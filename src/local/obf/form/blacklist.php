@@ -15,6 +15,8 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * User's badge blacklist form.
+ *
  * @package    local_obf
  * @copyright  2013-2015, Discendum Oy
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -23,9 +25,21 @@ defined('MOODLE_INTERNAL') or die();
 
 require_once(__DIR__ . '/obfform.php');
 require_once(__DIR__ . '/../renderer.php');
-
+/**
+ * Badge blacklisting form.
+ *
+ * @copyright  2013-2015, Discendum Oy
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class obf_blacklist_form extends local_obf_form_base {
+    /**
+     * @var obf_blacklist The blacklist
+     */
     private $blacklist;
+
+    /**
+     * Defines forms elements
+     */
     protected function definition() {
         global $OUTPUT;
 
@@ -41,7 +55,11 @@ class obf_blacklist_form extends local_obf_form_base {
 
         $this->add_action_buttons();
     }
-
+    /**
+     * Render badges that are blacklistable.
+     * @param obf_assertion_collection $assertions
+     * @param MoodleQuickForm& $mform
+     */
     private function render_badges(obf_assertion_collection $assertions, &$mform) {
         global $PAGE, $OUTPUT;
 

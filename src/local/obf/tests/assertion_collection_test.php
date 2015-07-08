@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Plugin configuration page.
+ * Assertion collection test.
  *
  * @package    local_obf
  * @copyright  2013-2015, Discendum Oy
@@ -25,9 +25,13 @@
  * Description of assertion_collection_test
  *
  * @author olli
+ * @copyright  2013-2015, Discendum Oy
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class local_obf_assertion_collection_testcase extends advanced_testcase {
-
+    /**
+     * Test assertion collection.
+     */
     public function test_collection() {
         $description = 'Description';
         $issuer = obf_issuer::get_instance()->set_name('Issuer');

@@ -15,6 +15,8 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * Course criterion form.
+ *
  * @package    local_obf
  * @copyright  2013-2015, Discendum Oy
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -22,13 +24,36 @@
 defined('MOODLE_INTERNAL') or die();
 
 require_once(__DIR__ . '/obfform.php');
-
+/**
+ * Course criterion form.
+ * @copyright  2013-2015, Discendum Oy
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class obf_coursecriterion_form extends local_obf_form_base {
+    /**
+     * @var int Criteria type
+     */
     private $criteriatype;
+    /**
+     * @var int Course id
+     */
     private $courseid;
+    /**
+     * @var course Course criterion belogns to
+     */
     private $course;
+    /**
+     * @var mixed criterion_item
+     */
     private $criterioncourse;
 
+    /**
+     * Defines forms elements
+     * @see obf_criterion_course::get_form_after_save_options
+     * @see obf_criterion_course::get_form_completion_options
+     * @see obf_criterion_course::get_form_config
+     * @see obf_criterion_course::get_options
+     */
     protected function definition() {
         global $OUTPUT;
 
@@ -36,9 +61,10 @@ class obf_coursecriterion_form extends local_obf_form_base {
         $this->criterioncourse = $this->_customdata['criterioncourse'];
         if ($this->criterioncourse->exists()) {
             $this->criteriatype = $this->criterioncourse->get_criteriatype();
+        } else if (array_key_exists('criteriatype', $this->_customdata)) {
+            $this->criteriatype = $this->_customdata['criteriatype'];
         } else {
-            $this->criteriatype = array_key_exists('criteriatype', $this->_customdata) ?
-                    $this->_customdata['criteriatype'] : $this->criterioncourse->get_criteriatype();
+            $this->criteriatype = $this->criterioncourse->get_criteriatype();
         }
 
         $this->criterioncourse->get_options($mform, $this);

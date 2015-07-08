@@ -15,18 +15,29 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * Abstract criterion item base.
+ *
  * @package    local_obf
  * @copyright  2013-2015, Discendum Oy
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 require_once(__DIR__ . '/criterion.php');
 
+/**
+ * Abstract criterion item base.
+ *
+ * @copyright  2013-2015, Discendum Oy
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 abstract class obf_criterion_item {
 
     /**
-     * Criteria that does nothing, but help set up new criteria.
+     * @var Criteria that does nothing, but help set up new criteria.
      */
     const CRITERIA_TYPE_UNKNOWN = 0;
+    /**
+     * @var Criteria that does nothing, but help set up new criteria.
+     */
     const CRITERIA_TYPE_ANY = 0; // For internal filtering purposes.
     /**
      * Criteria is associated to courses
@@ -38,9 +49,12 @@ abstract class obf_criterion_item {
     const CRITERIA_TYPE_ACTIVITY = 2;
 
     /**
-     * Criteria is associated to a totara program or certificate.
+     * Criteria is associated with a totara program.
      */
     const CRITERIA_TYPE_TOTARA_PROGRAM = 5;
+    /**
+     * Criteria is associated with a totara certificate.
+     */
     const CRITERIA_TYPE_TOTARA_CERTIF = 6;
 
     /**
@@ -56,7 +70,6 @@ abstract class obf_criterion_item {
     /**
      * @var int The completed by -field of the course criterion as a unix timestamp.
      */
-
     protected $completedby = -1;
     /**
      * @var int The course id
@@ -64,7 +77,7 @@ abstract class obf_criterion_item {
     protected $courseid = -1;
 
     /**
-     *
+     * @var $criteriatype Set to self::CRITERIA_TYPE_*
      */
     protected $criteriatype = self::CRITERIA_TYPE_UNKNOWN;
 
@@ -72,9 +85,19 @@ abstract class obf_criterion_item {
      * @var obf_criterion The criterion this course belongs to.
      */
     protected $criterion = null;
+    /**
+     * @var int ID in the database.
+     */
     protected $id = -1;
+    /**
+     * @var int Criterion ID the item is attached to.
+     * @see obf_criterion
+     */
     protected $criterionid = -1;
 
+    /**
+     * @var array $obfbadgecriteriatypeclasses Criteria type classes, for dynamic class loading.
+     */
     private static $obfbadgecriteriatypeclasses = array(
         self::CRITERIA_TYPE_UNKNOWN => 'unknown',
         self::CRITERIA_TYPE_COURSE => 'course',
@@ -82,7 +105,12 @@ abstract class obf_criterion_item {
         self::CRITERIA_TYPE_TOTARA_PROGRAM => 'totaraprogram',
         self::CRITERIA_TYPE_TOTARA_CERTIF => 'totaraprogram'
     );
-
+    /**
+     * Constructor
+     *
+     * @param array $params
+     * @see self::build
+     */
     public function __construct($params = null) {
         $this->id = isset($params['id']) ? $params['id'] : -1;
         $this->courseid = isset($params['courseid']) ? $params['courseid'] : -1;
@@ -93,8 +121,11 @@ abstract class obf_criterion_item {
     }
     /**
      * Build criteria object based on params.
-     * @param type $params
-     * @return mixed obf_criterion_(course|activity|unknown)
+     *
+     * @param array $params
+     * @return mixed Returns obf_criterion_(course|activity|unknown)
+     *         based on what criteriatype was passed in params.
+     * @see self::$obfbadgecriteriatypeclasses
      */
     public static function build($params) {
         $typeid = $params['criteriatype'];
@@ -108,19 +139,29 @@ abstract class obf_criterion_item {
     }
     /**
      * Return a criteria item with the right class.
-     * @param type $type Criteria type (obf_criterion_item::CRITERIA_TYPE_*)
+     * @param int $type Criteria type (obf_criterion_item::CRITERIA_TYPE_*)
      * @return mixed obf_criterion_(course|activity|unknown)
+     * @see self::build
      */
     public static function build_type($type) {
         return self::build(array('criteriatype' => $type));
     }
     /**
-     * @param type $type Criteria type (obf_criterion_item::CRITERIA_TYPE_*)
+     * Get text represention of the criterion type.
+     *
+     * @param int $type Criteria type (obf_criterion_item::CRITERIA_TYPE_*)
      * @return string Text repesantation (course|activity|unknown)
      */
     public static function get_criterion_type_text($type) {
         return self::$obfbadgecriteriatypeclasses[$type];
     }
+    /**
+     * Get instance of obf_criterion_*.
+     *
+     * @param int $instanceid
+     * @param int $method
+     * @return mixed obf_criterion_* based on what $method or criteria on record type was.
+     */
     public static function get_instance($instanceid, $method = null) {
         if (is_null($method)) {
             global $DB;
@@ -135,7 +176,6 @@ abstract class obf_criterion_item {
     /**
      * Returns all the course criterion objects related to $criterion
      *
-     * @global moodle_database $DB
      * @param obf_criterion $criterion
      * @return obf_criterion_course[]
      */
@@ -154,11 +194,6 @@ abstract class obf_criterion_item {
         return $ret;
     }
 
-
-    /**
-     * Common get/set functions.
-     */
-
     /**
      * Checks whether this instance exists in the database.
      *
@@ -168,6 +203,7 @@ abstract class obf_criterion_item {
     public function exists() {
         return $this->id > 0;
     }
+
     /**
      * Checks that criteria is reviewable and we should
      * show review after save settings on forms.
@@ -176,26 +212,58 @@ abstract class obf_criterion_item {
         return $this->courseid != -1 && $this->criterionid != -1 &&
                 $this->criteriatype != self::CRITERIA_TYPE_UNKNOWN;
     }
+    /**
+     * If criterion required a field.
+     * Child class may override this function if required fields differ.
+     * @param string $field Fielnd name.
+     * @return bool True if field is required.
+     */
     public function requires_field($field) {
         return in_array($field, array('courseid', 'criterionid'));
     }
-    public function get_id() {
-        return $this->id;
-    }
-    // Criteria may override badge expires settings.
+
+    /**
+     * Get expires date that overrides expiration date set on badge settings.
+     *
+     * @param stdClass $user
+     * @return Expires by time in unix-timestamp format
+     */
     public function get_issue_expires_override($user = null) {
         return null;
     }
 
+    /**
+     * Get id.
+     * @return int
+     */
+    public function get_id() {
+        return $this->id;
+    }
+
+    /**
+     * Set id.
+     * @param int $id
+     * @return $this
+     */
     public function set_id($id) {
         $this->id = $id;
         return $this;
     }
 
+    /**
+     * Get criterion id.
+     * @return int Main criterion on which this is an item on
+     * @see obf_criterion
+     */
     public function get_criterionid() {
         return $this->criterionid;
     }
 
+    /**
+     * Set criterion id.
+     * @param int $criterionid Main criterion on which this will be an item on
+     * @see obf_criterion
+     */
     public function set_criterionid($criterionid) {
         $this->criterionid = $criterionid;
         return $this;
@@ -204,6 +272,7 @@ abstract class obf_criterion_item {
      * Returns the criterion related to this object.
      *
      * @return obf_criterion
+     * @see obf_criterion
      */
     public function get_criterion() {
         if (is_null($this->criterion)) {
@@ -213,27 +282,62 @@ abstract class obf_criterion_item {
         return $this->criterion;
     }
 
+    /**
+     * Set course id.
+     * @param int $courseid
+     * @return $this
+     */
     public function set_courseid($courseid) {
         $this->courseid = $courseid;
         return $this;
     }
+
+    /**
+     * Get course id
+     * @return int
+     */
     public function get_courseid() {
         return $this->courseid;
     }
+
+    /**
+     * Is there a courseid in this criterion?
+     *
+     * @return boolean True if course id is set
+     */
     public function has_courseid() {
         return !empty($this->courseid) && $this->courseid > 0;
     }
+
+    /**
+     * Get criteria type.
+     * @return int Type as obf_criterion_item::CRITERIA_TYPE_*
+     */
     public function get_criteriatype() {
         return $this->criteriatype;
     }
+
+    /**
+     * Set criteria type.
+     * @param int $type Type as obf_criterion_item::CRITERIA_TYPE_*
+     */
     public function set_criteriatype($type) {
         $this->criteriatype = $type;
         return $this;
     }
+
+    /**
+     * Get completed by timestamp.
+     * @return int Completed by time requirement as a unix-timestamp
+     */
     public function get_completedby() {
         return $this->completedby;
     }
 
+    /**
+     * Set completed by time.
+     * @param int $completedby Completed by time requirement as a unix-timestamp
+     */
     public function set_completedby($completedby) {
         $this->completedby = $completedby;
         return $this;
@@ -246,14 +350,40 @@ abstract class obf_criterion_item {
     public function has_completion_date() {
         return (!empty($this->completedby) && $this->completedby > 0);
     }
+    /**
+     * Does the criteria support multiple courses?
+     *
+     * @return boolean
+     */
     public function criteria_supports_multiple_courses() {
         return false;
     }
+    /**
+     * Save criterion item.
+     *
+     * @see obf_criterion_course::save
+     */
     abstract public function save();
+    /**
+     * Get name (abstract).
+     * @return string
+     */
     abstract public function get_name();
+    /**
+     * Get text/name (abstract).
+     * @return string
+     */
     abstract public function get_text();
+    /**
+     * Get text/name array.
+     * @return string[]
+     */
     public function get_text_array() {
         return array($this->get_text());
     }
+    /**
+     * Delete criterion item.
+     * @see obf_criterion_course::delete
+     */
     abstract public function delete();
 }

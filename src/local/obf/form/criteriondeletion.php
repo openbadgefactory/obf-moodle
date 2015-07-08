@@ -15,6 +15,8 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * Criterion deletion.
+ *
  * @package    local_obf
  * @copyright  2013-2015, Discendum Oy
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -22,8 +24,16 @@
 defined('MOODLE_INTERNAL') or die();
 
 require_once(__DIR__ . '/obfform.php');
-
+/**
+ * Criterion deletion form.
+ *
+ * @copyright  2013-2015, Discendum Oy
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class obf_criterion_deletion_form extends local_obf_form_base implements renderable {
+    /**
+     * Defines forms elements
+     */
     protected function definition() {
         $mform = $this->_form;
 

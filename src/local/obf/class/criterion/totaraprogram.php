@@ -15,6 +15,8 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * Totara program and certificate completion criterion.
+ *
  * @package    local_obf
  * @copyright  2013-2015, Discendum Oy
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -25,23 +27,43 @@ require_once(__DIR__ . '/item_base.php');
 require_once($CFG->dirroot . '/user/lib.php');
 
 
+/**
+ * Totara program and certificate completion criterion -class.
+ *
+ * @copyright  2013-2015, Discendum Oy
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class obf_criterion_totaraprogram extends obf_criterion_course {
-
+    /**
+     * @var $criteriatype Set to self::CRITERIA_TYPE_TOTARA_PROGRAM
+     */
     protected $criteriatype = obf_criterion_item::CRITERIA_TYPE_TOTARA_PROGRAM;
 
-
+    /**
+     * @var string $requiredparam
+     * @see obf_criterion_course::save_params
+     */
     protected $requiredparam = 'program';
+    /**
+     * @var string[] $optionalparams Optional params to be saved.
+     * @see obf_criterion_course::save_params
+     */
     protected $optionalparams = array('completedby', 'expiresbycertificate');
-
+    /**
+     * @var $programscache Programs cache.
+     */
     protected $programscache = array();
+    /**
+     * @var $certexpirescache Certificate expiration time timestamp may be stored here.
+     */
     protected $certexpirescache = null;
 
 
     /**
      * Get the instance of this class by id.
      *
-     * @global moodle_database $DB
      * @param int $id The id of the activity criterion
+     * @param int $method
      * @return obf_criterion_activity
      */
     public static function get_instance($id, $method = null) {
@@ -76,8 +98,7 @@ class obf_criterion_totaraprogram extends obf_criterion_course {
     /**
      * Returns the name of the activity this criterion is related to.
      *
-     * @global moodle_database $DB
-     * @param $programids List if ids
+     * @param int[] $programids List if ids
      * @return stdClass[] Programs matching ids.
      */
     public static function get_programs_by_id($programids) {
@@ -92,7 +113,11 @@ class obf_criterion_totaraprogram extends obf_criterion_course {
         }
         return $ret;
     }
-
+    /**
+     * Get program matchind $progid.
+     * @param int $progid
+     * @return program Totara program
+     */
     public function get_program_from_cache($progid) {
         global $CFG;
         require_once($CFG->dirroot . '/totara/program/program.class.php');
@@ -114,7 +139,6 @@ class obf_criterion_totaraprogram extends obf_criterion_course {
     /**
      * Returns all programs.
      *
-     * @global moodle_database $DB
      * @return stdClass[] Programs.
      */
     public static function get_all_programs() {
@@ -127,14 +151,22 @@ class obf_criterion_totaraprogram extends obf_criterion_course {
         }
         return $ret;
     }
-
+    /**
+     * Get program ids this criterion has completion settings for.
+     * @return int[] Program IDs
+     */
     public function get_programids() {
         $params = $this->get_params();
         return array_keys(array_filter($params, function ($v) {
             return array_key_exists('program', $v) ? true : false;
         }));
     }
+    /**
+     * Get users this criterion may have effect on.
+     * @return stdClass[]
+     */
     protected function get_affected_users() {
+        // The $ASSIGNMENT_CATEGORY_CLASSNAMES variable is a global totara variable.
         global $DB, $CFG, $ASSIGNMENT_CATEGORY_CLASSNAMES;
         require_once($CFG->dirroot . '/totara/program/program.class.php');
         $programids = $this->get_programids();
@@ -169,11 +201,10 @@ class obf_criterion_totaraprogram extends obf_criterion_course {
     /**
      * Reviews criteria for single user.
      *
-     * @global moodle_database $DB
-     * @param int $userid The id of the user.
+     * @param stdClass $user
      * @param obf_criterion $criterion The main criterion.
      * @param obf_criterion_item[] $otheritems Other items related to main criterion.
-     * @param type[] $extra Extra options passed to review method.
+     * @param array& $extra Extra options passed to review method.
      * @return boolean If the course criterion is completed by the user.
      */
     protected function review_for_user($user, $criterion = null, $otheritems = null, &$extra = null) {
@@ -243,6 +274,14 @@ class obf_criterion_totaraprogram extends obf_criterion_course {
 
         return true;
     }
+    /**
+     * Get expires date that overrides expiration date set on badge settings.
+     *
+     * Certificates have expiration dates that may override badge expiration dates.
+     *
+     * @param stdClass $user
+     * @return Expires by time in unix-timestamp format
+     */
     public function get_issue_expires_override($user = null) {
         if ($this->get_expires_method() == obf_criterion_item::EXPIRY_DATE_CUSTOM) {
             return $this->certexpirescache;
@@ -250,7 +289,12 @@ class obf_criterion_totaraprogram extends obf_criterion_course {
             return null;
         }
     }
-
+    /**
+     * Get the method used for expiration dates.
+     *
+     * @return int obf_criterion_item::EXPIRY_DATE_CUSTOM or
+     *         obf_criterion_item::EXPIRY_DATE_BADGE.
+     */
     public function get_expires_method() {
         $params = $this->get_params();
         if (array_key_exists('global', $params) &&
@@ -259,19 +303,33 @@ class obf_criterion_totaraprogram extends obf_criterion_course {
         }
         return obf_criterion_item::EXPIRY_DATE_CUSTOM;
     }
-
+    /**
+     * Does a program have a completed by setting set.
+     * @param int $programid
+     * @return bool if Program needs to be completed by date.
+     */
     protected function has_prog_completedby($programid) {
         $params = $this->get_params();
         $progparams = array_key_exists($programid, $params) ? $params[$programid] : array();
         return array_key_exists('completedby', $progparams);
     }
+    /**
+     * Does a program have a completed by setting set.
+     *
+     * @param int $programid
+     * @return int Program's completed by date or -1 if not set.
+     */
     protected function get_prog_completedby($programid) {
         $params = $this->get_params();
         $progparams = array_key_exists($programid, $params) ? $params[$programid] : array();
         return array_key_exists('completedby', $progparams) ? $progparams['completedby'] : -1;
     }
+    /**
+     * Get name. This should not be visible anywhere.
+     * @return string
+     */
     public function get_name() {
-        return 'Program';
+        return get_string('totaraprogram', 'local_obf');
     }
     /**
      * Returns this criterion as text, including the name of the course.
@@ -295,6 +353,7 @@ class obf_criterion_totaraprogram extends obf_criterion_course {
         return $html;
     }
     /**
+     * Get text array to be printed on badge awarding rules -page.
      * @return array html encoded activity descriptions.
      */
     public function get_text_array() {
@@ -316,23 +375,36 @@ class obf_criterion_totaraprogram extends obf_criterion_course {
         }
         return $texts;
     }
-
+    /**
+     * Check if $field is a required field.
+     * @param strign $field
+     * @return bool True if required.
+     */
     public function requires_field($field) {
         return in_array($field, array_merge(array('criterionid')));
     }
+    /**
+     * Check if criteria is reviewable.
+     * @return bool True if reviewable.
+     */
     public function is_reviewable() {
         return $this->criterionid != -1 && count($this->get_programids()) > 0 &&
                 $this->criteriatype != obf_criterion_item::CRITERIA_TYPE_UNKNOWN;
     }
+    /**
+     * Show review options?
+     * @return bool Should be true,
+     *         unless something is broken and criterion id is not there.
+     */
     protected function show_review_options() {
         return $this->criterionid != -1;
     }
 
     /**
      * Print activities to form.
-     * @param moodle_form $mform
-     * @param type $modules modules so the database is not accessed too much
-     * @param type $params
+     * @param MoodleQuickForm& $mform
+     * @param program[] $programs programs so the database is not accessed too much
+     * @param array $params
      */
     private function get_form_programs(&$mform, $programs, $params) {
         $mform->addElement('html', html_writer::tag('p', get_string('selectprogram', 'local_obf')));
@@ -367,7 +439,8 @@ class obf_criterion_totaraprogram extends obf_criterion_course {
     }
     /**
      * Prints criteria activity settings for criteria forms.
-     * @param moodle_form $mform
+     * @param MoodleQuickForm& $mform
+     * @param mixed& $obj
      */
     public function get_options(&$mform, &$obj) {
         global $OUTPUT;
@@ -380,7 +453,8 @@ class obf_criterion_totaraprogram extends obf_criterion_course {
 
     /**
      * Prints required config fields for criteria forms.
-     * @param moodle_form $mform
+     * @param MoodleQuickForm& $mform
+     * @param mixed& $obj
      */
     public function get_form_config(&$mform, &$obj) {
         global $OUTPUT;

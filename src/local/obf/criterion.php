@@ -193,18 +193,23 @@ switch ($action) {
                 $courses = $criterion->get_items();
                 if (property_exists($data, 'criteriatype')) {
                     $criteriatype = $data->criteriatype;
+                } else if (count($courses) == 1) {
+                    $criteriatype = $courses[0]->get_criteriatype();
                 } else {
-                    $criteriatype = (count($courses) == 1 ? $courses[0]->get_criteriatype() :
-                            obf_criterion_item::CRITERIA_TYPE_COURSE);
+                    $criteriatype = obf_criterion_item::CRITERIA_TYPE_COURSE;
                 }
+
                 $criterion->set_items_by_courseids($courseids, $criteriatype);
 
                 $tourl = new moodle_url('/local/obf/criterion.php',
                         array('badgeid' => $badge->get_id(), 'action' => 'edit',
                     'id' => $id));
             } else {
-                $criterioncompletionmethod = isset($data->completion_method) ? $data->completion_method :
-                        obf_criterion::CRITERIA_COMPLETION_ALL;
+                if (isset($data->completion_method)) {
+                    $criterioncompletionmethod = $data->completion_method;
+                } else {
+                    $criterioncompletionmethod = obf_criterion::CRITERIA_COMPLETION_ALL;
+                }
 
                 if ($criterioncompletionmethod != $criterion->get_completion_method()) {
                     $criterion->set_completion_method($criterioncompletionmethod);

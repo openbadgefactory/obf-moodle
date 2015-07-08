@@ -15,28 +15,62 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * Blacklist.
+ *
  * @package    local_obf
  * @copyright  2013-2015, Discendum Oy
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
+/**
+ * Blacklist of badges user wishes to hide.
+ *
+ * @copyright  2013-2015, Discendum Oy
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class obf_blacklist {
+    /**
+     * @var User id
+     */
     private $userid;
 
+    /**
+     * @var Blacklist saved to the database?
+     */
     private $indb = true;
+    /**
+     * @var array of badges user has blacklisted.
+     */
     private $blacklistedbadges = null;
 
+    /**
+     * Constructor
+     * @param int $userid
+     */
     public function __construct($userid) {
         $this->userid = $userid;
         $this->get_blacklist();
     }
-
+    /**
+     * Get the user id of the user the backpack belongs to.
+     * @return int
+     */
     public function get_userid() {
         return $this->userid;
     }
 
+    /**
+     * Is the blacklist saved to the database?
+     */
     public function exists() {
         return $this->indb;
     }
+    /**
+     * Get badge ids the user has blacklisted.
+     *
+     * @param bool $force
+     * @return string[]
+     */
     public function get_blacklist($force = false) {
         global $DB;
         $blacklistedbadges = array();
@@ -59,12 +93,22 @@ class obf_blacklist {
         $this->blacklistedbadges = $blacklistedbadges;
         return $this->blacklistedbadges;
     }
+    /**
+     * Add a badge id to blacklisted badges.
+     * @param string $badgeid
+     * @return $this
+     */
     public function add_to_blacklist($badgeid) {
         if (!in_array($badgeid, $this->blacklistedbadges)) {
             $this->blacklistedbadges[] = $badgeid;
         }
         return $this;
     }
+    /**
+     * Remove a badge id from blacklisted badges.
+     * @param string $badgeid
+     * @return $this
+     */
     public function remove_from_blacklist($badgeid) {
         $key = array_search($badgeid, $this->blacklistedbadges);
         if ($key !== false) {
@@ -74,7 +118,7 @@ class obf_blacklist {
     }
     /**
      * Save blacklist
-     * @param type $data
+     * @param stdClass|array $newblacklist
      */
     public function save($newblacklist = null) {
         global $DB;

@@ -15,6 +15,8 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * Criterion.
+ *
  * @package    local_obf
  * @copyright  2013-2015, Discendum Oy
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -30,8 +32,13 @@ require_once($CFG->libdir . '/gradelib.php');
 require_once($CFG->libdir . '/completionlib.php');
 
 /**
+ * Criterion -class.
+ *
  * Class representing a criterion which the student has to complete to earn
- * a badge. One criterion can contain multiple courses.
+ * a badge. One criterion can contain multiple courses or other items.
+ *
+ * @copyright  2013-2015, Discendum Oy
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class obf_criterion {
 
@@ -80,7 +87,6 @@ class obf_criterion {
     /**
      * Returns the criterion instance identified by $id
      *
-     * @global moodle_database $DB
      * @param int $id The id of the criterion
      * @return obf_criterion|boolean Returns the criterion instance and false
      *      if it doesn't exist.
@@ -104,7 +110,6 @@ class obf_criterion {
     /**
      * Updates this criterion object in database.
      *
-     * @global moodle_database $DB
      */
     public function update() {
         global $DB;
@@ -120,7 +125,6 @@ class obf_criterion {
     /**
      * Saves this criterion object to database.
      *
-     * @global moodle_database $DB
      * @return boolean Returns true on success, false otherwise.
      */
     public function save() {
@@ -153,7 +157,6 @@ class obf_criterion {
     /**
      * Checks, whether this criterion has already been met at least once.
      *
-     * @global moodle_database $DB
      * @return boolean Returns true if the criterion has been met, false otherwise.
      */
     public function is_met() {
@@ -166,7 +169,6 @@ class obf_criterion {
     /**
      * Deletes this criterion from the database.
      *
-     * @global moodle_database $DB
      * @return boolean Returns true if the criterion was successfully deleted, false otherwise.
      */
     public function delete() {
@@ -185,6 +187,7 @@ class obf_criterion {
     /**
      * Deletes all criteria from the database that don't have any
      * related courses.
+     * @param moodle_database $db
      */
     public static function delete_empty(moodle_database $db) {
         $subquery = 'SELECT obf_criterion_id FROM {local_obf_criterion_courses}';
@@ -199,7 +202,6 @@ class obf_criterion {
     /**
      * Deletes all history about meeting this criterion.
      *
-     * @global moodle_database $DB
      */
     public function delete_met() {
         global $DB;
@@ -213,7 +215,6 @@ class obf_criterion {
     /**
      * Deletes all related courses from the database.
      *
-     * @global moodle_database $DB
      */
     public function delete_items() {
         global $DB;
@@ -239,8 +240,9 @@ class obf_criterion {
     /**
      * Returns all course criterions related to this criterion.
      *
-     * @param type $force Get from the database bypassing the cache.
-     * @return type obf_criterion_course[] The related course criterions.
+     * @param bool $force Get from the database bypassing the cache.
+     * @param int $criteriatype Which types to return. Default: any
+     * @return obf_criterion_course[] The related course criterions.
      */
     public function get_items($force = false, $criteriatype = obf_criterion_item::CRITERIA_TYPE_ANY) {
         if (is_null($this->items) || $force) {
@@ -260,9 +262,9 @@ class obf_criterion {
     /**
      * Set course criterions for this criterion.
      *
-     * @param array $courseids.
-     * @param type $criteriatype Type of criteria to add
-     * @return obf_criterion
+     * @param int[] $courseids
+     * @param int $criteriatype Type of criteria to add
+     * @return $this
      */
     public function set_items_by_courseids($courseids, $criteriatype = obf_criterion_item::CRITERIA_TYPE_COURSE) {
         $courses = $this->get_items(true);
@@ -298,8 +300,7 @@ class obf_criterion {
     /**
      * Returns all related Moodle courses.
      *
-     * @global moodle_database $DB
-     * @return type stdClass[] The related Moodle courses
+     * @return stdClass[] The related Moodle courses
      */
     public function get_related_courses() {
         global $DB;
@@ -326,7 +327,6 @@ class obf_criterion {
      * Returns the Moodle course object matching $courseid.
      *
      * @param int $courseid
-     * @global moodle_database $DB
      * @return stdClass The Moodle's course object.
      */
     public function get_course($courseid) {
@@ -355,7 +355,6 @@ class obf_criterion {
     /**
      * Returns all criteria matching $conditions.
      *
-     * @global moodle_database $DB
      * @param array|string $conditions The conditions after WHERE clause in SQL.
      * @return obf_criterion[] The matching criteria.
      */
@@ -403,7 +402,6 @@ class obf_criterion {
     /**
      * Whether the user $user has already met this criterion.
      *
-     * @global moodle_database $DB
      * @param stdClass $user The Moodle's user
      * @return boolean Returns true if the user has met this criterion and
      *      false otherwise.
@@ -419,8 +417,7 @@ class obf_criterion {
     /**
      * Set this criterion met by user identified by $userid.
      *
-     * @global moodle_database $DB
-     * @param type $userid The id of the user
+     * @param int $userid The id of the user
      */
     public function set_met_by_user($userid) {
         global $DB;
@@ -552,9 +549,9 @@ class obf_criterion {
      *
      * @param int $userid The id of the user.
      * @param int $courseid The course the user has completed.
-     * @param obf_criterion_course[] The course criteria in this criterion to
-     *      prevent extra database queries. Optional, retrieved automatically
-     *      if the parameter isn't given.
+     * @param obf_criterion_course[] $criterioncourses The course criteria
+     *      in this criterion to prevent extra database queries.
+     *      Optional, retrieved automatically if the parameter isn't given.
      * @return boolean Whether this criterion is complete.
      */
     public function review($userid, $courseid, $criterioncourses = null) {
@@ -596,7 +593,6 @@ class obf_criterion {
     /**
      * Reviews a single course.
      *
-     * @global moodle_database $DB
      * @param obf_criterion_course $criterioncourse The course criterion.
      * @param int $userid The id of the user.
      * @return boolean If the course criterion is completed by the user.
@@ -677,38 +673,67 @@ class obf_criterion {
         $this->badge_id = $badge->get_id();
         return $this;
     }
-
+    /**
+     * Get id.
+     * @return mixed
+     */
     public function get_id() {
         return $this->id;
     }
-
+    /**
+     * Get completion method.
+     * @return int
+     */
     public function get_completion_method() {
         return $this->completionmethod;
     }
-
+    /**
+     * Set id
+     * @param int $id
+     * @return $this
+     */
     public function set_id($id) {
         $this->id = $id;
         return $this;
     }
-
+    /**
+     * Add obf_criterion_item to list of items.
+     * @param obf_criterion_item $item
+     */
     public function add_criterion_item(obf_criterion_item $item) {
         $this->items[] = $item;
     }
-
+    /**
+     * Set completion method.
+     * @param int $completionmethod
+     * @see self::CRITERIA_COMPLETION_ALL
+     * @see self::CRITERIA_COMPLETION_ANY
+     * @return $this
+     */
     public function set_completion_method($completionmethod) {
         $this->completionmethod = $completionmethod;
         return $this;
     }
 
+    /**
+     * Get badge id.
+     * @return mixed Badge id
+     */
     public function get_badgeid() {
         return (empty($this->badgeid) ? $this->get_badge()->get_id() : $this->badgeid);
     }
-
+    /**
+     * Set badge id
+     * @param mixed $badgeid
+     * @return $this
+     */
     public function set_badgeid($badgeid) {
         $this->badgeid = $badgeid;
         return $this;
     }
     /**
+     * Get criteria for which badge cannot be retrieved from OBF.
+     *
      * @return obf_criterion[] Criteria for badges deleted from OBF.
      */
     public static function get_criteria_with_deleted_badges() {

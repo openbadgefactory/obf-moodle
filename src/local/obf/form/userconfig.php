@@ -15,6 +15,8 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * User config form.
+ *
  * @package    local_obf
  * @copyright  2013-2015, Discendum Oy
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -23,9 +25,18 @@ defined('MOODLE_INTERNAL') or die();
 
 require_once(__DIR__ . '/obfform.php');
 require_once(__DIR__ . '/../renderer.php');
-
+/**
+ * User config form.
+ *
+ * Configurin user's preferences and backpacks.
+ *
+ * @copyright  2013-2015, Discendum Oy
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class obf_userconfig_form extends local_obf_form_base {
-
+    /**
+     * Defines forms elements
+     */
     protected function definition() {
         global $OUTPUT;
 
@@ -52,6 +63,11 @@ class obf_userconfig_form extends local_obf_form_base {
         $mform->addGroup($buttonarray, 'buttonar', '', array(' '), false);
         $mform->closeHeaderBefore('buttonar');
     }
+    /**
+     * Render preferences for a backpack provider.
+     * @param MoodleQuickForm& $mform
+     * @param obf_backpack $backpack The backpack the settings should be rendered for.
+     */
     private function render_backpack_settings(&$mform, obf_backpack $backpack) {
         global $OUTPUT, $USER;
         $langkey = 'backpack' . (!$backpack->is_connected() ? 'dis' : '') . 'connected';
@@ -119,6 +135,11 @@ class obf_userconfig_form extends local_obf_form_base {
                     get_string('disconnect', 'local_obf', 'Backpack'));
         }
     }
+    /**
+     * Render badge group.
+     * @param obf_assertion_collection $assertions
+     * @return string HTML.
+     */
     private function render_badge_group(obf_assertion_collection $assertions) {
         global $PAGE;
 

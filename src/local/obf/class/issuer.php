@@ -15,7 +15,16 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * Badge issuer.
+ *
  * @package    local_obf
+ * @copyright  2013-2015, Discendum Oy
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
+/**
+ * Badge issuer -class.
+ *
  * @copyright  2013-2015, Discendum Oy
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -123,55 +132,105 @@ class obf_issuer {
         );
     }
 
+    /**
+     * Get id
+     * @return int
+     */
     public function get_id() {
         return $this->id;
     }
 
+    /**
+     * Set id.
+     * @param int $id
+     * @return $this
+     */
     public function set_id($id) {
         $this->id = $id;
         return $this;
     }
 
+    /**
+     * Get name.
+     * @return string Name
+     */
     public function get_name() {
         return $this->name;
     }
 
+    /**
+     * Set name.
+     * @param string $name
+     * @return $this
+     */
     public function set_name($name) {
         $this->name = $name;
         return $this;
     }
 
+    /**
+     * Get description.
+     * @return string Description
+     */
     public function get_description() {
         return $this->description;
     }
 
+    /**
+     * Set Description.
+     * @param string $description
+     */
     public function set_description($description) {
         $this->description = $description;
         return $this;
     }
 
+    /**
+     * Get email.
+     * @return string Email
+     */
     public function get_email() {
         return $this->email;
     }
 
+    /**
+     * Set email.
+     * @param string $email
+     */
     public function set_email($email) {
         $this->email = $email;
         return $this;
     }
 
+    /**
+     * Get URL.
+     * @return string
+     */
     public function get_url() {
         return $this->url;
     }
 
+    /**
+     * Set URL.
+     * @param string $url
+     */
     public function set_url($url) {
         $this->url = $url;
         return $this;
     }
 
+    /**
+     * Get organization.
+     * @return mixed Organization
+     */
     public function get_organization() {
         return $this->organization;
     }
 
+    /**
+     * Set organization.
+     * @param mixed $organization
+     */
     public function set_organization($organization) {
         $this->organization = $organization;
         return $this;

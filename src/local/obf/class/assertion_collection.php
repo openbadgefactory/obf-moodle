@@ -15,6 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * Collection of assertions.
  * @package    local_obf
  * @copyright  2013-2015, Discendum Oy
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -27,6 +28,8 @@ require_once(__DIR__ . '/blacklist.php');
  * Represents a collection of events in OBF.
  *
  * @author olli
+ * @copyright  2013-2015, Discendum Oy
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class obf_assertion_collection implements Countable, IteratorAggregate {
 
@@ -124,7 +127,6 @@ class obf_assertion_collection implements Countable, IteratorAggregate {
     /**
      * Returns an array of Moodle-users that are related to selected assertion.
      *
-     * @global type $DB
      * @param obf_assertion $assertion The assertion.
      * @return stdClass[] An array of Moodle's user objects.
      */
@@ -192,10 +194,18 @@ class obf_assertion_collection implements Countable, IteratorAggregate {
         return false;
     }
 
+    /**
+     * Get count as assertions.
+     * @return int Assertion count
+     */
     public function count() {
         return count($this->assertions);
     }
 
+    /**
+     * Get iterator for assertions.
+     * @return ArrayIterator
+     */
     public function getIterator() {
         return new ArrayIterator($this->assertions);
     }

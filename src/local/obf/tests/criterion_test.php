@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Plugin configuration page.
+ * Criterion tests.
  *
  * @package    local_obf
  * @copyright  2013-2015, Discendum Oy
@@ -26,9 +26,16 @@ require_once(__DIR__ . '/../class/badge.php');
 require_once(__DIR__ . '/../class/criterion/activity.php');
 
 /**
+ * Criterion testcase.
+ *
  * @group obf
+ * @copyright  2013-2015, Discendum Oy
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class local_obf_criterion_testcase extends advanced_testcase {
+    /**
+     * Test creation of criterion.
+     */
     public function test_create() {
         $this->resetAfterTest(true);
 

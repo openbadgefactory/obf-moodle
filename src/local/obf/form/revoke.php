@@ -15,6 +15,8 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * Revoke form.
+ *
  * @package    local_obf
  * @copyright  2013-2015, Discendum Oy
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -23,8 +25,16 @@ defined('MOODLE_INTERNAL') or die();
 
 require_once(__DIR__ . '/obfform.php');
 require_once(__DIR__ . '/../renderer.php');
-
+/**
+ * Revoke form.
+ *
+ * @copyright  2013-2015, Discendum Oy
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class obf_revoke_form extends local_obf_form_base {
+    /**
+     * Defines forms elements
+     */
     protected function definition() {
         global $OUTPUT;
 

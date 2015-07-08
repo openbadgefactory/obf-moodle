@@ -15,6 +15,8 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * Course completion criterion.
+ *
  * @package    local_obf
  * @copyright  2013-2015, Discendum Oy
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -25,6 +27,9 @@ require_once(__DIR__ . '/../badge.php');
 
 /**
  * Class representing a single course criterion.
+ *
+ * @copyright  2013-2015, Discendum Oy
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class obf_criterion_course extends obf_criterion_item {
 
@@ -49,8 +54,8 @@ class obf_criterion_course extends obf_criterion_item {
     /**
      * Get the instance of this class by id.
      *
-     * @global moodle_database $DB
      * @param int $id The id of the course criterion
+     * @param int $method
      * @return obf_criterion_course
      */
     public static function get_instance($id, $method = null) {
@@ -65,7 +70,6 @@ class obf_criterion_course extends obf_criterion_item {
     /**
      * Returns all the course criterion objects related to $criterion
      *
-     * @global moodle_database $DB
      * @param obf_criterion $criterion
      * @return obf_criterion_course[]
      */
@@ -112,7 +116,6 @@ class obf_criterion_course extends obf_criterion_item {
      * Saves this course criterion to database. If it exists already, the
      * existing record will be updated.
      *
-     * @global moodle_database $DB
      * @return mixed Returns this object if everything went ok, false otherwise.
      */
     public function save() {
@@ -148,7 +151,6 @@ class obf_criterion_course extends obf_criterion_item {
     /**
      * Returns the name of the course this criterion is related to.
      *
-     * @global moodle_database $DB
      * @return string The full name of the course.
      */
     public function get_coursename() {
@@ -161,6 +163,11 @@ class obf_criterion_course extends obf_criterion_item {
 
         return $this->coursename;
     }
+
+    /**
+     * Get name.
+     * @return string
+     */
     public function get_name() {
         return $this->get_coursename();
     }
@@ -215,7 +222,6 @@ class obf_criterion_course extends obf_criterion_item {
      * Deletes this record from the database. Also deletes the related criterion if it doesn't have
      * any courses.
      *
-     * @global moodle_database $DB
      */
     public function delete() {
         global $DB;
@@ -242,10 +248,18 @@ class obf_criterion_course extends obf_criterion_item {
         obf_criterion::delete_empty($db);
     }
 
+    /**
+     * Get grade.
+     * @return mixed Grade
+     */
     public function get_grade() {
         return $this->grade;
     }
-
+    /**
+     * Set grade.
+     * @param mixed $grade
+     * @return $this
+     */
     public function set_grade($grade) {
         $this->grade = $grade;
         return $this;
@@ -255,7 +269,6 @@ class obf_criterion_course extends obf_criterion_item {
     /**
      * Reviews criteria for all applicaple users.
      *
-     * @global moodle_database $DB
      * @param obf_criterion $criterion The main criterion.
      * @param obf_criterion_item[] $otheritems Other items related to main criterion.
      * @param type[] $extra Extra options passed to review method.
@@ -284,7 +297,10 @@ class obf_criterion_course extends obf_criterion_item {
         $extra[$this->get_id()] = 1;
         return $passingusers;
     }
-
+    /**
+     * Get params. Course items don't have params, but child classes might.
+     * @return array
+     */
     public function get_params() {
         global $DB;
         $params = array();
@@ -301,7 +317,8 @@ class obf_criterion_course extends obf_criterion_item {
     }
     /**
      * Save params. (activity selections and completedby dates)
-     * @param type $data
+     *
+     * @param stdClass|array $data
      */
     public function save_params($data) {
         global $DB;
@@ -346,7 +363,8 @@ class obf_criterion_course extends obf_criterion_item {
     }
     /**
      * Prints criteria course settings for criteria forms.
-     * @param moodle_form $mform
+     * @param MoodleQuickForm& $mform
+     * @param mixed& $obj Form object.
      */
     public function get_options(&$mform, &$obj) {
         $criterioncourseid = $this->get_id();
@@ -386,7 +404,9 @@ class obf_criterion_course extends obf_criterion_item {
     }
     /**
      * Prints required config fields for criteria forms.
-     * @param moodle_form $mform
+     *
+     * @param MoodleQuickForm& $mform
+     * @param mixed& $obj Form object
      */
     public function get_form_config(&$mform, &$obj) {
         global $OUTPUT;
@@ -397,7 +417,13 @@ class obf_criterion_course extends obf_criterion_item {
         $mform->setType('picktype', PARAM_TEXT);
     }
 
-
+    /**
+     * Prints completion options to form.
+     *
+     * @param MoodleQuickForm& $mform
+     * @param mixed& $obj Form object
+     * @param mixed[] $items
+     */
     public function get_form_completion_options(&$mform, $obj = null, $items = null) {
         if ($this->get_criterion()) {
             // Radiobuttons to select whether this criterion is completed
@@ -420,7 +446,12 @@ class obf_criterion_course extends obf_criterion_item {
             }
         }
     }
-
+    /**
+     * Prints after save options to form.
+     *
+     * @param MoodleQuickForm& $mform
+     * @param mixed& $obj Form object
+     */
     public function get_form_after_save_options(&$mform, &$obj) {
         global $OUTPUT;
         if ($this->show_review_options()) {
@@ -457,12 +488,10 @@ class obf_criterion_course extends obf_criterion_item {
     /**
      * Reviews criteria for single user.
      *
-     * @global moodle_database $DB
-     * @global type $CFG
-     * @param int $userid The id of the user.
+     * @param stdClass $user
      * @param obf_criterion $criterion The main criterion.
      * @param obf_criterion_item[] $otheritems Other items related to main criterion.
-     * @param type[] $extra Extra options passed to review method.
+     * @param array& $extra Extra options passed to review method.
      * @return boolean If the course criterion is completed by the user.
      */
     protected function review_for_user($user, $criterion = null, $otheritems = null, &$extra = null) {
@@ -520,6 +549,10 @@ class obf_criterion_course extends obf_criterion_item {
 
         return $coursecompleted;
     }
+    /**
+     * To show review options or not?
+     * @return bool True if options should be shown. False otherwise.
+     */
     protected function show_review_options() {
         return $this->is_reviewable();
     }

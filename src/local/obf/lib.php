@@ -15,6 +15,8 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * Lib for local_obf.
+ *
  * @package    local_obf
  * @copyright  2013-2015, Discendum Oy
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -51,7 +53,6 @@ require_once(__DIR__ . '/class/criterion/course.php');
  * Reviews the badge criteria and issues the badges (if necessary) when
  * a course is completed.
  *
- * @global moodle_database $DB
  * @param stdClass $eventdata
  * @return boolean Returns true if everything went ok.
  */
@@ -124,9 +125,7 @@ function local_obf_course_deleted(stdClass $course) {
 /**
  * Adds the OBF-links to Moodle's navigation, Moodle 2.2 -style.
  *
- * @global type $COURSE The current course
- * @global moodle_page $PAGE
- * @param settings_navigation $navigation
+ * @param global_navigation $navigation Global navigation.
  */
 function obf_extends_navigation(global_navigation $navigation) {
     global $COURSE, $PAGE;
@@ -153,7 +152,6 @@ function obf_extends_navigation(global_navigation $navigation) {
 /**
  * Adds the OBF-links to Moodle's settings navigation.
  *
- * @global type $COURSE
  * @param settings_navigation $navigation
  */
 function local_obf_extend_settings_navigation(settings_navigation $navigation) {
@@ -173,7 +171,11 @@ function local_obf_extend_settings_navigation(settings_navigation $navigation) {
         local_obf_add_obf_user_badge_blacklist_link($branch);
     }
 }
-// Support Moodle 2.8 and older.
+/**
+ * Adds the OBF-links to Moodle's settings navigation on older Moodle versions.
+ *
+ * @param settings_navigation $navigation
+ */
 function local_obf_extends_settings_navigation(settings_navigation $navigation) {
     local_obf_extend_settings_navigation($navigation);
 }
@@ -181,8 +183,6 @@ function local_obf_extends_settings_navigation(settings_navigation $navigation) 
 /**
  * Adds the OBF-links to Moodle's navigation.
  *
- * @global moodle_page $PAGE
- * @global type $COURSE
  * @param global_navigation $navigation
  */
 function local_obf_extend_navigation(global_navigation $navigation) {
@@ -194,10 +194,19 @@ function local_obf_extend_navigation(global_navigation $navigation) {
         local_obf_add_course_participant_badges_link($branch);
     }
 }
-// Support Moodle 2.8 and older.
+/**
+ * Adds the OBF-links to Moodle's navigation in Moodle 2.8 and older.
+ *
+ * @param global_navigation $navigation
+ */
 function local_obf_extends_navigation(global_navigation $navigation) {
     local_obf_extend_navigation($navigation);
 }
+/**
+ * Adds the OBF admin-links container.
+ *
+ * @param type& $branch Branch where to add the container node.
+ */
 function local_obf_add_course_admin_container(&$branch) {
     $node = navigation_node::create(get_string('obf', 'local_obf'),
             null, navigation_node::TYPE_CONTAINER, null, 'obf');
@@ -206,8 +215,7 @@ function local_obf_add_course_admin_container(&$branch) {
 /**
  * Adds the link to course navigation to see the badges of course participants.
  *
- * @global type $COURSE
- * @param type $branch
+ * @param navigation_node& $branch Branch where to add the container node.
  */
 function local_obf_add_course_participant_badges_link(&$branch) {
     global $COURSE;
@@ -224,8 +232,7 @@ function local_obf_add_course_participant_badges_link(&$branch) {
 /**
  * Adds the link to course navigation to see the event history related to course.
  *
- * @global type $COURSE
- * @param type $branch
+ * @param type& $branch
  */
 function local_obf_add_course_event_history_link(&$branch) {
     global $COURSE;
@@ -243,8 +250,7 @@ function local_obf_add_course_event_history_link(&$branch) {
 /**
  * Adds the OBF-links to course management navigation.
  *
- * @global type $COURSE
- * @param type $branch
+ * @param type& $branch
  */
 function local_obf_add_course_admin_link(&$branch) {
     global $COURSE;
@@ -261,7 +267,7 @@ function local_obf_add_course_admin_link(&$branch) {
 /**
  * Adds the user preferences configuration link to navigation.
  *
- * @param type $branch
+ * @param type& $branch
  */
 function local_obf_add_obf_user_preferences_link(&$branch) {
     $node = navigation_node::create(get_string('obfuserpreferences', 'local_obf'),
@@ -272,7 +278,7 @@ function local_obf_add_obf_user_preferences_link(&$branch) {
 /**
  * Adds the user badge blacklist configuration link to navigation.
  *
- * @param type $branch
+ * @param type& $branch
  */
 function local_obf_add_obf_user_badge_blacklist_link(&$branch) {
     $node = navigation_node::create(get_string('badgeblacklist', 'local_obf'),
@@ -282,12 +288,11 @@ function local_obf_add_obf_user_badge_blacklist_link(&$branch) {
 
 /**
  * Adds OBF badges to profile pages.
+ *
  * @param \core_user\output\myprofile\tree $tree
- * @param type $user
- * @param type $iscurrentuser
- * @param type $course
- * @global moodle_page $PAGE
- * @global moodle_database $DB
+ * @param stdClass $user
+ * @param bool $iscurrentuser
+ * @param moodle_course $course
  */
 function local_obf_myprofile_navigation(\core_user\output\myprofile\tree $tree, $user, $iscurrentuser, $course) {
     require_once(__DIR__ . '/class/user_preferences.php');
@@ -322,7 +327,8 @@ function local_obf_myprofile_navigation(\core_user\output\myprofile\tree $tree, 
 }
 /**
  * Returns cached assertions for user
- * @param type $userid
+ *
+ * @param int $userid
  * @param moodle_database $db
  * @return obf_assertion_collection
  */
@@ -352,7 +358,9 @@ function local_obf_myprofile_get_assertions($userid, $db) {
 
 /**
  * Returns cached backpack badges for user
- * @param type $userid
+ *
+ * @param int $userid
+ * @param int $provider Backpack provider. obf_backpack::BACKPACK_PROVIDER_*.
  * @param moodle_database $db
  * @return obf_assertion_collection
  */
@@ -388,7 +396,6 @@ function local_obf_myprofile_get_backpack_badges($userid, $provider, $db) {
  * certificate is expiring. This function is called periodically when Moodle's cron job is run.
  * The interval is defined in version.php.
  *
- * @global type $CFG
  * @return boolean
  */
 function local_obf_cron() {
@@ -445,6 +452,10 @@ if (!function_exists('users_order_by_sql')) {
      * you should use this method to generate the order when displaying lists of users.
      *
      * COPIED FROM THE CODE OF MOODLE 2.5
+     *
+     * @param string $usertablealias
+     * @param string $search
+     * @param context $context
      */
     function users_order_by_sql($usertablealias = '', $search = null,
                                 context $context = null) {

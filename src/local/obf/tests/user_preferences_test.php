@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Plugin configuration page.
+ * User preference tests.
  *
  * @package    local_obf
  * @copyright  2013-2015, Discendum Oy
@@ -24,10 +24,16 @@
 require_once(__DIR__ . '/../class/user_preferences.php');
 
 /**
+ * User preferences testcase.
+ *
  * @group obf
+ * @copyright  2013-2015, Discendum Oy
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class local_obf_user_preferences_testcase extends advanced_testcase {
-
+    /**
+     * Test user preferences.
+     */
     public function test_user_preferences() {
         $this->resetAfterTest();
         $user = $this->getDataGenerator()->create_user();

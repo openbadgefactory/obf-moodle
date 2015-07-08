@@ -15,6 +15,8 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * OBF Install script. See https://docs.moodle.org/dev/Upgrade_API for details.
+ *
  * @package    local_obf
  * @copyright  2013-2015, Discendum Oy
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -22,7 +24,8 @@
 defined('MOODLE_INTERNAL') || die();
 
 /**
- * @global type $CFG
+ * Install function. Makes sure path for certificates exists.
+ *
  * @return boolean
  **/
 function xmldb_local_obf_install() {

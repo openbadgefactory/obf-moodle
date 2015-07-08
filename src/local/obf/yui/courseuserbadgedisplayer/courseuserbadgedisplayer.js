@@ -125,7 +125,7 @@ YUI.add('moodle-local_obf-courseuserbadgedisplayer', function(Y) {
          */
         process_single: function() {
             this.init_panel();
-            if (this.elementid != null) {
+            if (this.elementid !== null) {
                 Y.one('ul#' + this.elementid + '.badgelist').delegate('click', this.display_badge, 'li', this);
             } else {
                 Y.one('ul.badgelist').delegate('click', this.display_badge, 'li', this);
@@ -186,7 +186,10 @@ YUI.add('moodle-local_obf-courseuserbadgedisplayer', function(Y) {
         setup_panel_branding: function (data) {
             // Do we want more flexible branding?
             var footer_classes = [];
-            this.panel.footerNode.getAttribute('class').split(' ').forEach(function(a) { var pattern = /^assertion/i; if (!pattern.test(a)) { footer_classes.push(a); } });
+            this.panel.footerNode.getAttribute('class').split(' ').forEach(
+                    function(a) {
+                        var pattern = /^assertion/i; if (!pattern.test(a)) { footer_classes.push(a); }
+                    });
             var sourcename = 'unknown';
             if (data.source === 1) {
                 sourcename = 'obf';
@@ -234,7 +237,7 @@ YUI.add('moodle-local_obf-courseuserbadgedisplayer', function(Y) {
             var badgeid = node.getAttribute('data-id');
             if (url.length > 0) {
                 window.location = url;
-            } else if (url.length == 0 && badgeid.length > 0) {
+            } else if (url.length === 0 && badgeid.length > 0) {
                 url = this.criteria_baseurl + '?badge_id=' + badgeid;
                 window.location = url;
             }
@@ -361,8 +364,7 @@ YUI.add('moodle-local_obf-courseuserbadgedisplayer', function(Y) {
                 }
             }, options);
 
-            source = "var $b='', $v=function (v){return v || v === 0 ? v : $b;}, $t='" +
-                    text.replace(/\ufffe|\uffff/g, '')
+            source = "var $b='', $v=function (v){return v || v === 0 ? v : $b;}, $t='" + text.replace(/\ufffe|\uffff/g, '')
                     .replace(options.rawOutput, function(match, code) {
                         return tokenOpen + (blocks.push("'+\n$v(" + code + ")+\n'") - 1) + tokenClose;
                     })

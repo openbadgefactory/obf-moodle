@@ -15,6 +15,8 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * English locale for local_obf.
+ *
  * @package    local_obf
  * @copyright  2015, Discendum Oy
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -280,6 +282,7 @@ $string['showmorerecipients'] = 'more';
 $string['toearnthisbadge'] = 'To earn this badge this course has to be completed';
 $string['tokendecryptionfailed'] = 'Decrypting the request token failed. Be sure to paste the '
         . 'certificate signing request token fully.';
+$string['totaraprogram'] = 'Program';
 $string['totaraprogramselectexpires'] = 'Select which setting is used for awarded badges';
 $string['totaraprogramexpiresbybadge'] = 'Expiry from badge properties';
 $string['totaraprogramexpiresbycertificate'] = 'Expiry from certificate properties';

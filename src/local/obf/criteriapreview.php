@@ -15,6 +15,8 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * Page for displaying badge earning criteria.
+ *
  * @package    local_obf
  * @copyright  2013-2015, Discendum Oy
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -35,29 +37,32 @@ $PAGE->set_title(get_string('criteriapreview', 'local_obf'));
 $PAGE->set_pagelayout('popup');
 $badgehascss = !empty($badge->get_criteria_css());
 $xhrrequest = (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest');
-?>
 
-<?php if (!$xhrrequest): ?>
+if (!$xhrrequest) {
+    ?>
     <html>
         <head>
             <title><?php echo get_string('criteriapreview', 'local_obf') ?></title>
-            <?php if ($badgehascss): ?>
-                <style type="text/css">
-                    <?php echo $badge->get_criteria_css(); ?>
-                </style>
-            <?php else: ?>
-                <style type="text/css">
-                    body { background-color: #FFF; font-family: "Source Sans Pro",sans-serif; color: #333; margin: 75px auto;
-                    width: 800px; border: 1px solid #CCC; padding: 10px; border-radius: 3px;
-                    box-shadow: 4px 4px 10px 2px rgba(80, 80, 80, 0.4); }
-                </style>
-            <?php endif; ?>
+    <?php
+    if ($badgehascss) {
+        html_writer::tag('style', $badge->get_criteria_css(), array('type' => 'text/css'));
+    } else {
+        ?>
+        <style type="text/css">
+            body { background-color: #FFF; font-family: "Source Sans Pro",sans-serif; color: #333; margin: 75px auto;
+            width: 800px; border: 1px solid #CCC; padding: 10px; border-radius: 3px;
+            box-shadow: 4px 4px 10px 2px rgba(80, 80, 80, 0.4); }
+        </style>
+        <?php
+    }
+    ?>
         </head>
 
         <body class='local-obf criteria-page'>
             <?php echo $badge->get_criteria_html(); ?>
         </body>
     </html>
-<?php else: ?>
-    <?php echo $badge->get_criteria_html(); ?>
-<?php endif; ?>
+    <?php
+} else {
+    echo $badge->get_criteria_html();
+}

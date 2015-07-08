@@ -15,6 +15,8 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * Criterion form.
+ *
  * @package    local_obf
  * @copyright  2013-2015, Discendum Oy
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -32,6 +34,12 @@ if (file_exists($CFG->libdir . '/coursecatlib.php')) {
 require_once(__DIR__ . '/obfform.php');
 require_once($CFG->libdir . '/completionlib.php');
 
+/**
+ * Criterion form.
+ *
+ * @copyright  2013-2015, Discendum Oy
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class obf_criterion_form extends local_obf_form_base implements renderable {
 
     /**
@@ -39,6 +47,13 @@ class obf_criterion_form extends local_obf_form_base implements renderable {
      */
     protected $criterion = null;
 
+    /**
+     * Defines forms elements
+     * @see obf_criterion_course::get_form_after_save_options
+     * @see obf_criterion_course::get_form_completion_options
+     * @see obf_criterion_course::get_form_config
+     * @see obf_criterion_course::get_options
+     */
     protected function definition() {
         global $DB, $OUTPUT;
 
@@ -99,6 +114,10 @@ class obf_criterion_form extends local_obf_form_base implements renderable {
             }
         }
     }
+    /**
+     * Add courses to the form.
+     * @param MoodleQuickForm $mform
+     */
     private function get_courses($mform) {
         global $DB, $OUTPUT;
         // Get only courses with course completion enabled (= can be completed somehow).
@@ -169,51 +188,25 @@ class obf_criterion_form extends local_obf_form_base implements renderable {
                 get_string('back', 'local_obf'));
         $mform->addGroup($buttons, 'buttonar', '', null, false);
     }
-    public static function add_coursefields(&$mform, obf_criterion_item $course) {
-        $criterioncourseid = $course->get_id();
-        $grade = $course->get_grade();
-        $completedby = $course->get_completedby();
-
-        // Minimum grade -field.
-        $mform->addElement('text', 'mingrade[' . $criterioncourseid . ']',
-                get_string('minimumgrade', 'local_obf'));
-
-        // Fun fact: Moodle would like the developer to call $mform->setType()
-        // for every form element just in case and shows a E_NOTICE in logs
-        // if it detects a missing setType-call. But if we call setType,
-        // server-side validation stops working and thus makes $mform->addRule()
-        // completely useless. That's why we don't call setType() here.
-        //
-        // ... EXCEPT that Behat-tests are failing because of the E_NOTICE, so let's add client
-        // side validation + server side cleaning.
-        $mform->addRule('mingrade[' . $criterioncourseid . ']', null, 'numeric', null, 'client');
-        $mform->setType('mingrade[' . $criterioncourseid . ']', PARAM_INT);
-
-        if ($course->has_grade()) {
-            $mform->setDefault('mingrade[' . $criterioncourseid . ']', $grade);
-        }
-
-        // Course completion date -selector. We could try naming the element
-        // using array (like above), but it's broken with date_selector.
-        // Instead of returning an array like it should, $form->get_data()
-        // returns something like array["completedby[60]"] which is fun.
-        $mform->addElement('date_selector', 'completedby_' . $criterioncourseid . '',
-                get_string('coursecompletedby', 'local_obf'),
-                array('optional' => true, 'startyear' => date('Y')));
-
-        if ($course->has_completion_date()) {
-            $mform->setDefault('completedby_' . $criterioncourseid, $completedby);
-        }
-    }
-
+    /**
+     * Get criterion.
+     * @return obf_criterion
+     */
     public function get_criterion() {
         return $this->criterion;
     }
-
+    /**
+     * Get form.
+     * @return MoodleQuickForm
+     */
     public function get_form() {
         return $this->_form;
     }
-
+    /**
+     * Initialize categories.
+     * @param array $categories
+     * @return array Course list.
+     */
     private function initialize_categories(array $categories) {
         $courselist = array();
 

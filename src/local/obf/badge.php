@@ -15,8 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Page for displaying content related to a single badge and for showing the
- * list of badges.
+ * Page for displaying content closely related to badges.
  *
  * @package    local_obf
  * @copyright  2013-2015, Discendum Oy
@@ -68,8 +67,8 @@ switch ($action) {
 
         try {
             $client = obf_client::get_instance();
-            $content .= $PAGE->get_renderer('local_obf')->print_badge_info_history($client,
-                    $badge, $context, $page);
+            $content .= $PAGE->get_renderer('local_obf')->print_badge_info_history(
+                    $client, $badge, $context, $page);
         } catch (Exception $e) {
             $content .= $OUTPUT->notification($e->getMessage());
         }
@@ -126,14 +125,14 @@ switch ($action) {
             case 'email':
                 require_capability('local/obf:configure', $context);
 
-                $emailurl = new moodle_url('/local/obf/badge.php',
-                        array('id' => $badge->get_id(),
+                $emailurl = new moodle_url(
+                        '/local/obf/badge.php', array('id' => $badge->get_id(),
                     'action' => 'show', 'show' => 'email'));
 
-                $PAGE->navbar->add(get_string('badgeemail', 'local_obf'),
-                        $emailurl);
-                $form = new obf_email_template_form($emailurl,
-                        array('badge' => $badge));
+                $PAGE->navbar->add(
+                        get_string('badgeemail', 'local_obf'), $emailurl);
+                $form = new obf_email_template_form(
+                        $emailurl, array('badge' => $badge));
                 $html = '';
 
                 if (!empty($message)) {
@@ -151,8 +150,8 @@ switch ($action) {
                     $email->save($DB);
 
                     $redirecturl = clone $emailurl;
-                    $redirecturl->param('msg',
-                            get_string('emailtemplatesaved', 'local_obf'));
+                    $redirecturl->param(
+                            'msg', get_string('emailtemplatesaved', 'local_obf'));
 
                     redirect($redirecturl);
                 }
@@ -167,24 +166,24 @@ switch ($action) {
                 $taburl->param('show', $show);
 
                 if ($context instanceof context_system) {
-                    $PAGE->navbar->add(get_string('badge' . $show, 'local_obf'),
-                            $taburl);
+                    $PAGE->navbar->add(
+                            get_string('badge' . $show, 'local_obf'), $taburl);
                 }
 
-                $content .= $PAGE->get_renderer('local_obf')->page_badgedetails($client, $badge,
-                        $context, $show, $page, $message);
+                $content .= $PAGE->get_renderer('local_obf')->page_badgedetails(
+                        $client, $badge, $context, $show, $page, $message);
                 break;
 
             // Badge criteria.
             case 'criteria':
-                $content .= $PAGE->get_renderer('local_obf')->page_badgedetails($client, $badge,
-                        $context, $show, $page, $message);
+                $content .= $PAGE->get_renderer('local_obf')->page_badgedetails(
+                        $client, $badge, $context, $show, $page, $message);
                 break;
 
             // Badge issuance history.
             case 'history':
-                $content .= $PAGE->get_renderer('local_obf')->page_badgedetails($client, $badge,
-                        $context, $show, $page, $message);
+                $content .= $PAGE->get_renderer('local_obf')->page_badgedetails(
+                        $client, $badge,  $context, $show, $page, $message);
                 break;
         }
 
