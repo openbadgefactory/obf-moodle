@@ -208,9 +208,16 @@ function local_obf_extends_navigation(global_navigation $navigation) {
  * @param type& $branch Branch where to add the container node.
  */
 function local_obf_add_course_admin_container(&$branch) {
-    $node = navigation_node::create(get_string('obf', 'local_obf'),
-            null, navigation_node::TYPE_CONTAINER, null, 'obf');
-    return $branch->add_node($node, 'backup');
+    global $COURSE;
+
+    if (has_capability('local/obf:viewhistory', context_course::instance($COURSE->id)) ||
+                    has_capability('local/obf:issuebadge', context_course::instance($COURSE->id))) {
+        $node = navigation_node::create(get_string('obf', 'local_obf'),
+                null, navigation_node::TYPE_CONTAINER, null, 'obf');
+        $backupnode = $branch->find('backup', navigation_node::TYPE_SETTING);
+        return $branch->add_node($node, $backupnode != false ? 'backup' : null);
+    }
+    return $branch;
 }
 /**
  * Adds the link to course navigation to see the badges of course participants.
