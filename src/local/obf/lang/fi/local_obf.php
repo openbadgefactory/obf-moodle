@@ -25,8 +25,7 @@ $string['activitycompletedby'] = 'Suoritettava viimeistään';
 $string['addcourses'] = 'Lisää valitut kurssit';
 $string['addcriteria'] = 'Luo uusi myöntämissääntö';
 $string['addnewcriterion'] = 'Lisää kurssi';
-$string['apierror0'] = 'Yhteys Open Badge Factoryyn epäonnistui. Sivuston ylläpidon tulee tarkistaa'
-        . ' Open Badge Factory -lisäosan asetukset.';
+$string['apierror0'] = 'Yhteys Open Badge Factoryyn epäonnistui. Sivuston ylläpidon tulee tarkistaa Open Badge Factory -lisäosan asetukset.';
 $string['apierror400'] = 'Yhteys OBF-palveluun epäonnistui virheellisen tai puuttuvan parametrin vuoksi.';
 $string['apierror403'] = 'Yhteys Open Badge Factoryyn epäonnistui virheellisen valtuutusavaimen vuoksi.';
 $string['apierror404'] = 'Yhteys OBF-palveluun epäonnistui virheellisen osoitteen vuoksi.';
@@ -35,37 +34,22 @@ $string['apierror411'] = '411 Length required';
 $string['apierror413'] = '413 Request entity too large';
 $string['apierror429'] = '429 Too many requests';
 $string['apierror495'] = '495 Cert error';
-$string['apierror496'] = 'Open Badge Factoryn käyttö ei ole mahdollista ennen sertifikaatin luontia.'
-        . ' Kirjaudu Open Badge Factoryyn luodaksesi valtuutusavaimen ja liitä se oheiseen '
-        . 'tekstikenttään.';
+$string['apierror496'] = 'Open Badge Factoryn käyttö ei ole mahdollista ennen sertifikaatin luontia. Kirjaudu Open Badge Factoryyn luodaksesi valtuutusavaimen ja liitä se oheiseen tekstikenttään.';
 $string['apierror500'] = 'Palvelinvirhe';
 $string['apierror502'] = '502 Bad gateway';
-$string['apierror503'] = 'OBF-palvelu on väliaikaisesti tavoittamattomissa. Ole hyvä ja yritä'
-        . ' hetken kuluttua uudelleen.';
+$string['apierror503'] = 'OBF-palvelu on väliaikaisesti tavoittamattomissa. Ole hyvä ja yritä hetken kuluttua uudelleen.';
 $string['authenticate'] = 'Yhdistä';
 $string['authenticationsuccess'] = 'Valtuutus onnistui.';
 $string['availablecategories'] = 'Sallitut kategoriat';
 $string['availablecategoriesselect'] = 'Kategoriat';
-$string['availablecategorieshelp'] = 'Valitse merkkikategoriat, joiden osaamismerkkejä '
-        . 'sivuston kautta voidaan myöntää. Mikäli yhtään kategoriaa ei ole valittu, '
-        . 'merkkejä voidaan myöntää kaikista kategorioista.';
+$string['availablecategorieshelp'] = 'Valitse merkkikategoriat, joiden osaamismerkkejä sivuston kautta voidaan myöntää. Mikäli yhtään kategoriaa ei ole valittu, merkkejä voidaan myöntää kaikista kategorioista.';
 $string['back'] = 'Takaisin';
 $string['backpackconnected'] = 'Yhteys muodostettu';
 $string['backpackdisconnected'] = 'Yhteyttä ei ole muodostettu';
 $string['backpackemail'] = 'Sähköpostiosoite';
-$string['backpackemailnotfound'] = 'Sähköpostiosoitteella \'{$a}\' ei löytynyt käyttäjää Mozilla '
-        . 'Backpackista.';
-$string['backpackemail_help'] = 'Omaan Mozilla OpenBadges Backpack -tiliin liitetty '
-        . 'sähköpostiosoitteesi';
-$string['backpackemailaddexternalobp'] = '<p>Sähköpostiosoitteella \'<strong>{$a}</strong>\' ' .
-        'ei löytynyt käyttäjää Open Badge Passport -palvelusta.</p><p>Lisätäksesi ' .
-        'sähköpostiosoitteesi, avaa <a href="https://openbadgepassport.com" target="_blank">' .
-        'https://openbadgepassport.com</a> -osoite selaimessasi ja kirjaudu palveluun.</p><p>' .
-        'Kirjauduttuasi seuraa ' .
-        '<strong><i>Käyttäjätilini &gt; Käyttäjätilin asetukset &gt; Sähköpostiosoitteet</i></strong> ' .
-        '-navigointipolkua. </p><p>Ollessasi <i>Sähköpostiosoitteet</i>-sivulla, ' .
-        'lisää \'<strong>{$a}</strong>\', sivulla näkyvään, \'Lisää uusi sähköpostiosoite\' -kenttään ' .
-        'ja tallenna osoite.</p>';
+$string['backpackemailnotfound'] = 'Sähköpostiosoitteella \'{$a}\' ei löytynyt käyttäjää Mozilla Backpackista.';
+$string['backpackemail_help'] = 'Omaan Mozilla OpenBadges Backpack -tiliin liitetty sähköpostiosoitteesi';
+$string['backpackemailaddexternalobp'] = '<p>Sähköpostiosoitteella \'<strong>{$a}</strong>\' ei löytynyt käyttäjää Open Badge Passport -palvelusta.</p><p>Lisätäksesi sähköpostiosoitteesi, avaa <a href="https://openbadgepassport.com" target="_blank">https://openbadgepassport.com</a> -osoite selaimessasi ja kirjaudu palveluun.</p><p>Kirjauduttuasi seuraa <strong><i>Käyttäjätilini &gt; Käyttäjätilin asetukset &gt; Sähköpostiosoitteet</i></strong> -navigointipolkua. </p><p>Ollessasi <i>Sähköpostiosoitteet</i>-sivulla, lisää \'<strong>{$a}</strong>\', sivulla näkyvään, \'Lisää uusi sähköpostiosoite\' -kenttään ja tallenna osoite.</p>';
 $string['backpackgroups'] = 'Näytettävät ryhmät';
 $string['backpackgroups_help'] = 'Valitse ryhmät, joiden osaamismerkit näytetään toisille kurssilaisille.';
 $string['backpacksettings'] = 'Backpack-asetukset';
@@ -85,8 +69,7 @@ $string['badgeexpiresby'] = 'Vanhenee';
 $string['badgehistory'] = 'Myöntämishistoria';
 $string['badgeimage'] = 'Osaamismerkki';
 $string['badgeissued'] = 'Osaamismerkin myöntäminen onnistui.';
-$string['badgeissuedwhen'] = 'Tämä merkki myönnetään automaattisesti, kun jokin seuraavista'
-        . ' säännöistä täyttyy:';
+$string['badgeissuedwhen'] = 'Tämä merkki myönnetään automaattisesti, kun jokin seuraavista säännöistä täyttyy:';
 $string['badgelist'] = 'Osaamismerkit';
 $string['badgelisttitle'] = 'Osaamismerkit';
 $string['badgename'] = 'Nimi';
@@ -108,8 +91,7 @@ $string['configurecriteria'] = 'Muokkaa';
 $string['confirmcriteriondeletion'] = 'Haluatko varmasti poistaa tämän säännön?';
 $string['confirmrevokation'] = 'Haluatko varmasti mitätöidä käyttäjien osaamismerkin?';
 $string['connect'] = 'Yhdistä {$a}';
-$string['connectionisworking'] = 'Yhteys Open Badge Factoryyn muodostettu. Sertifikaatti '
-        . 'vanhentuu <strong>{$a}</strong>.';
+$string['connectionisworking'] = 'Yhteys Open Badge Factoryyn muodostettu. Sertifikaatti vanhentuu <strong>{$a}</strong>.';
 $string['connectionstatus'] = 'Backpack-yhteyden tila';
 $string['coursealreadyincriterion'] = 'Myöntämissääntöä ei voi muokata, sillä tällä kurssilla on jo myöntämissääntö valittuun merkkiin liittyen ja sääntö sisältää muitakin kursseja.';
 $string['coursebadgelisttitle'] = 'Tähän kurssiin liittyvät osaamismerkit';
@@ -140,9 +122,7 @@ $string['deauthenticate'] = 'Katkaise yhteys';
 $string['deauthenticationsuccess'] = 'Yhteys Open Badge Factoryyn katkaistu.';
 $string['deletecriterion'] = 'Poista sääntö';
 $string['disablemoodlebadges'] = 'Piilota Moodlen vanhat merkit.';
-$string['disablemoodlebadges_help'] = 'Vanhat merkit piilotetaan käyttöliittymästä, ' .
-        'mutta käyttäjien Backpackiin tallentamia merkkejä voidaan yhä näyttää ja ' .
-        'Open Badge Factory -palveluun vietyjä merkkejä voidaan yhä myöntää.';
+$string['disablemoodlebadges_help'] = 'Vanhat merkit piilotetaan käyttöliittymästä, mutta käyttäjien Backpackiin tallentamia merkkejä voidaan yhä näyttää ja Open Badge Factory -palveluun vietyjä merkkejä voidaan yhä myöntää.';
 $string['disconnect'] = 'Katkaise {$a} -yhteys';
 $string['editemailmessage'] = 'Muokkaa sähköpostiviestiä';
 $string['emailbadgerevokedsubject'] = 'Osaamismerkki mitätöity';
@@ -152,18 +132,12 @@ $string['emailfooter'] = 'Viestin loppuosa';
 $string['emailmessage'] = 'Sähköpostiviesti';
 $string['emailsubject'] = 'Viestin otsikko';
 $string['emailtemplatesaved'] = 'Sähköpostiviesti tallennettu.';
-$string['emailtemplatedescription'] = 'Voit asettaa tälle osaamismerkille sähköpostiviestin, joka '
-        . 'lähetetään osaamismerkin saajalle myöntämishetkellä. Viestiä voi muokata vielä ennen merkin'
-        . ' myöntämistä.';
+$string['emailtemplatedescription'] = 'Voit asettaa tälle osaamismerkille sähköpostiviestin, joka lähetetään osaamismerkin saajalle myöntämishetkellä. Viestiä voi muokata vielä ennen merkin myöntämistä.';
 $string['eventrevoked'] = 'Tapahtuma mitätöity ({$a} osoitteiden osalta.)';
 $string['evidence'] = 'Todiste';
 $string['expiresby'] = 'Vanhenee';
 $string['expired'] = 'Vanhentunut';
-$string['expiringcertificate'] = 'Open Badge Factoryn sertifikaatti vanhenee <b>{$a->days}</b> '
-        . 'päivän kuluttua. Voit uusia sertifikaatin <a href="{$a->obfurl}">kirjautumalla Open Badge '
-        . 'Factoryyn</a> organisaatiosi ylläpitotunnuksella ja menemällä Admin tools -> Edit '
-        . 'Organisation Details -> More settings -kohtaan. Sen jälkeen luo valtuutusavain ja liitä '
-        . 'se Moodleen OBF-asetussivulla.';
+$string['expiringcertificate'] = 'Open Badge Factoryn sertifikaatti vanhenee <b>{$a->days}</b> päivän kuluttua. Voit uusia sertifikaatin <a href="{$a->obfurl}">kirjautumalla Open Badge Factoryyn</a> organisaatiosi ylläpitotunnuksella ja menemällä Admin tools -> Edit Organisation Details -> More settings -kohtaan. Sen jälkeen luo valtuutusavain ja liitä se Moodleen OBF-asetussivulla.';
 $string['expiringcertificatesubject'] = 'Open Badge Factoryn sertifikaatti on vanhentumassa.';
 $string['exportsettings'] = 'Vientiasetukset';
 $string['exportextrasettings'] = 'Vientiasetukset';
@@ -191,15 +165,12 @@ $string['nobackpackgroups'] = 'Luo vähintään yksi julkinen osaamismerkkiryhm�
 $string['nobadges'] = 'Ei osaamismerkkejä.';
 $string['nobadgesincourse'] = 'Kurssiin ei ole  liitetty osaamismerkkejä.';
 $string['nobadgestoexport'] = 'Järjestelmässä ei ole luotu aiempia osaamismerkkejä.';
-$string['nocourseswithcompletionenabled'] = 'Jotta osaamismerkkien automaattinen myöntäminen '
-        . 'olisi mahdollista, kurssista täytyy olla mahdollista saada suoritusmerkintä. Tarkista '
-        . 'kurssien asetukset.';
+$string['nocourseswithcompletionenabled'] = 'Jotta osaamismerkkien automaattinen myöntäminen olisi mahdollista, kurssista täytyy olla mahdollista saada suoritusmerkintä. Tarkista kurssien asetukset.';
 $string['nocriteriayet'] = 'Ei vielä myöntämissääntöjä.';
 $string['nohistory'] = 'Yhtään osaamismerkkiä ei ole vielä myönnetty.';
 $string['noparticipants'] = 'Ei osallistujia.';
 $string['nouserbadges'] = 'Ei ansaittuja osaamismerkkejä.';
-$string['novalidcourses'] = 'Kaikilla valittavissa olevilla kursseilla on jo myöntämissääntö tähän'
-        . ' merkkiin liittyen.';
+$string['novalidcourses'] = 'Kaikilla valittavissa olevilla kursseilla on jo myöntämissääntö tähän merkkiin liittyen.';
 $string['numberofbadgessingle'] = ' merkki';
 $string['numberofbadgesmany'] = ' merkkiä';
 $string['obf'] = 'Osaamismerkit';
@@ -231,34 +202,14 @@ $string['profilebadgelistobp'] = 'Open Badge Passport osaamismerkit';
 $string['pubkeyextractionfailed'] = 'Julkisen avaimen purkaminen sertifikaatista epäonnistui.';
 $string['pubkeyrequestfailed'] = 'Julkisen avaimen haku Open Badge Factory API:sta epäonnistui.';
 $string['readmeenablecompletion'] = 'Osaamismerkkien ansaintakriteerit';
-$string['readmeenablecompletion_help'] = '<p>Jotta osaamismerkkien automaattiset ' .
-        'ansaintakriteerit toimivat, ' .
-        'on kurssien suoritusten seurannan oltava käytössä. </p>' .
-        '<p>Helpoin tapa ottaa suoritusten seuranta käyttöön, on seuraava:</p><ol>' .
-        '<li>Paikanna "Asetukset" -lohko.</li>' .
-        '<li>Kirjoita lohkon hakupalkkiin "enablecompletion".</li>' .
-        '<li>Ota opiskelijoiden suoritusten seuranta käyttöön: Kyllä.</li>' .
-        '<li>Valinnainen, mutta suositeltava: Ota suoritusten seuranta käyttöön kurssioletuksissa.</li>' .
-        '</ol>' .
-        '<strong>Kurssiasetusket</strong>' .
-        '<p>Jos suoritusten seuranta ei ole käytössä kurssioletuksissa, ' .
-        'tai suoritusten seuranta on pois käytöstä yksittäisellä kurssilla, ' .
-        'voidaan seuranta ottaa käyttöön kurssin ' .
-        '<i>Kurssin ylläpitö-&gt;Muokkaa asetuksia</i> -sivulla.</p>';
+$string['readmeenablecompletion_help'] = '<p>Jotta osaamismerkkien automaattiset ansaintakriteerit toimivat, on kurssien suoritusten seurannan oltava käytössä. </p><p>Helpoin tapa ottaa suoritusten seuranta käyttöön, on seuraava:</p><ol><li>Paikanna "Asetukset" -lohko.</li><li>Kirjoita lohkon hakupalkkiin "enablecompletion".</li><li>Ota opiskelijoiden suoritusten seuranta käyttöön: Kyllä.</li><li>Valinnainen, mutta suositeltava: Ota suoritusten seuranta käyttöön kurssioletuksissa.</li></ol><strong>Kurssiasetusket</strong><p>Jos suoritusten seuranta ei ole käytössä kurssioletuksissa, tai suoritusten seuranta on pois käytöstä yksittäisellä kurssilla, voidaan seuranta ottaa käyttöön kurssin <i>Kurssin ylläpitö-&gt;Muokkaa asetuksia</i> -sivulla.</p>';
 $string['recipients'] = 'Vastaanottajat';
 $string['recipientcandidates'] = 'Hakuun täsmäävät käyttäjät';
 $string['requesttoken'] = 'Valtuutusavain';
-$string['requesttoken_help'] = '<p>Liitä kenttään Open Badge Factory API:in yhdistämiseen käytettävä '
-        . 'valtuutusavain.</p><p>' .
-        'Luodaksesi tarvittavan valtuutusavaimen, kirjaudu <a href="https://openbadgefactory.com">Open Badge Factoryyn</a>, avaa ' .
-        '\'<i>Admin-työkalut</i>\' -sivulla sijaitseva \'<i>Valtuutusavain</i>\' -linkki, ' .
-        'ja paina \'<i>Luo valtuutusavain</i>\' -linkkiä. ' .
-        'Kopioi generoitu valtuutusavain Moodleen.</p>';
+$string['requesttoken_help'] = '<p>Liitä kenttään Open Badge Factory API:in yhdistämiseen käytettävä valtuutusavain.</p><p>Luodaksesi tarvittavan valtuutusavaimen, kirjaudu <a href="https://openbadgefactory.com">Open Badge Factoryyn</a>, avaa \'<i>Admin-työkalut</i>\' -sivulla sijaitseva \'<i>Valtuutusavain</i>\' -linkki, ja paina \'<i>Luo valtuutusavain</i>\' -linkkiä. Kopioi generoitu valtuutusavain Moodleen.</p>';
 $string['resetfilter'] = 'Näytä kaikki';
 $string['reviewcriterionaftersave'] = 'Tarkista sääntö tallennettaessa';
-$string['reviewcriterionaftersave_help'] = 'Jos automaattinen tarkistus on valittu, tämä sääntö '
-        . 'tarkistetaan tallennuksen yhteydessä ja valittu merkki myönnetään kaikille käyttäjille, '
-        . 'jotka ovat säännön kurssit suorittaneet.';
+$string['reviewcriterionaftersave_help'] = 'Jos automaattinen tarkistus on valittu, tämä sääntö tarkistetaan tallennuksen yhteydessä ja valittu merkki myönnetään kaikille käyttäjille, jotka ovat säännön kurssit suorittaneet.';
 $string['revoke'] = 'Peruuta';
 $string['revokeuserbadges'] = 'Peruuta käyttäjille myönnettyjä merkkejä';
 $string['saveconfiguration'] = 'Jatka';
@@ -268,8 +219,7 @@ $string['selectatleastonerecipient'] = 'Valitse ainakin yksi vastaanottaja';
 $string['selectbadge'] = 'Valitse osaamismerkki';
 $string['selectbadgestoexport'] = 'Valitse Open Badge Factoryyn vietävät osaamismerkit';
 $string['selectcourses'] = 'Valitse kurssit';
-$string['selectcourses_help'] = 'Valitse kurssit, jotka käyttäjän on suoritettava tämän osaamismerkin '
-        . 'ansaitakseen.';
+$string['selectcourses_help'] = 'Valitse kurssit, jotka käyttäjän on suoritettava tämän osaamismerkin ansaitakseen.';
 $string['selectcriteriatype'] = 'Valitse...';
 $string['selectcriteriatype_help'] = 'Valitse tapa, jola osaamismerkki ansaitaan.';
 $string['selectcompletionmethod'] = 'Valitse suoritustapa';

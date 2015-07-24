@@ -27,16 +27,14 @@ $string['addcriteria'] = 'Create new awarding rule';
 $string['addnewcriterion'] = 'Add course';
 $string['apierror0'] = 'Open Badge Factory service request failed. The site admin needs to configure the settings of the plugin.';
 $string['apierror400'] = 'OBF service request failed because of an erroneous/missing parameter.';
-$string['apierror403'] = 'Open Badge Factory denied the request. Site administrator needs to '
-        . 'reauthenticate the Open Badge Factory -client.';
+$string['apierror403'] = 'Open Badge Factory denied the request. Site administrator needs to reauthenticate the Open Badge Factory -client.';
 $string['apierror404'] = 'Couldn\'t find OBF service. Please check the API URL from the settings.';
 $string['apierror405'] = '405 Method not allowed';
 $string['apierror411'] = '411 Length required';
 $string['apierror413'] = '413 Request entity too large';
 $string['apierror429'] = '429 Too many requests';
 $string['apierror495'] = '495 Cert error';
-$string['apierror496'] = 'Certificate needs to be generated before Open Badge Factory can be used with Moodle. ' .
-        'Log in to Open Badge Factory to get the request token and paste it to the field below.';
+$string['apierror496'] = 'Certificate needs to be generated before Open Badge Factory can be used with Moodle. Log in to Open Badge Factory to get the request token and paste it to the field below.';
 $string['apierror500'] = '500 Internal server error';
 $string['apierror502'] = '502 Bad gateway';
 $string['apierror503'] = 'OBF service is temporarily unavailable. Please try again later.';
@@ -44,22 +42,14 @@ $string['authenticate'] = 'Authenticate';
 $string['authenticationsuccess'] = 'Authentication successful.';
 $string['availablecategories'] = 'Available categories';
 $string['availablecategoriesselect'] = 'Categories';
-$string['availablecategorieshelp'] = 'Select the badge categories of which badges '
-        . 'can be used in issuance events of this institution. If none of the categories '
-        . 'is selected, the badges from every category can be issued.';
+$string['availablecategorieshelp'] = 'Select the badge categories of which badges can be used in issuance events of this institution. If none of the categories is selected, the badges from every category can be issued.';
 $string['back'] = 'Back';
 $string['backpackconnected'] = 'Connected';
 $string['backpackdisconnected'] = 'Disconnected';
 $string['backpackemail'] = 'Email address';
 $string['backpackemailnotfound'] = 'Couldn\'t find a user by the email \'{$a}\' from Mozilla Backpack.';
 $string['backpackemail_help'] = 'Email address associated with your Mozilla OpenBadges Backpack account.';
-$string['backpackemailaddexternalobp'] = '<p>Couldn\'t find a user matching the email \'<strong>{$a}</strong>\' from ' .
-        'Open Badge Passport.</p><p>To add your email, ' .
-        'open <a href="https://openbadgepassport.com">' .
-        'https://openbadgepassport.com</a> in your browser and log in. </p><p>' .
-        'After logging in follow the <strong><i>My account &gt; Account settings &gt; E-mail addresses</i></strong> ' .
-        'navigation path.</p><p>With the <i>E-mail addresses</i> -page open, add \'<strong>{$a}</strong>\' in the \'Add new e-mail\' -field ' .
-        'and save.</p>';
+$string['backpackemailaddexternalobp'] = '<p>Couldn\'t find a user matching the email \'<strong>{$a}</strong>\' from Open Badge Passport.</p><p>To add your email, open <a href="https://openbadgepassport.com">https://openbadgepassport.com</a> in your browser and log in. </p><p>After logging in follow the <strong><i>My account &gt; Account settings &gt; E-mail addresses</i></strong> navigation path.</p><p>With the <i>E-mail addresses</i> -page open, add \'<strong>{$a}</strong>\' in the \'Add new e-mail\' -field and save.</p>';
 $string['backpackgroups'] = 'Badge groups';
 $string['backpackgroups_help'] = 'Select the badge groups that are shown in your badge displayer.';
 $string['backpacksettings'] = 'Backpack settings';
@@ -79,8 +69,7 @@ $string['badgeexpiresby'] = 'Expires by';
 $string['badgehistory'] = 'Awarding history';
 $string['badgeimage'] = 'Badge';
 $string['badgeissued'] = 'Badge was successfully issued.';
-$string['badgeissuedwhen'] = 'This badge is automatically awarded when any of the following rule '
-        . 'is met:';
+$string['badgeissuedwhen'] = 'This badge is automatically awarded when any of the following rule is met:';
 $string['badgelist'] = 'Badge list';
 $string['badgelisttitle'] = 'All badges';
 $string['badgename'] = 'Name';
@@ -93,8 +82,7 @@ $string['cachedef_obf_assertions'] = 'OBF badge assertion cache';
 $string['cachedef_obf_assertions_moz'] = 'Mozilla Backpack badge cache';
 $string['cachedef_obf_assertions_obp'] = 'Open Badge Passport badge cache';
 $string['cancel'] = 'Cancel';
-$string['cannoteditcriterion'] = 'This rule cannot be edited, because the badge has already '
-        . 'been awarded automatically based on this rule.';
+$string['cannoteditcriterion'] = 'This rule cannot be edited, because the badge has already been awarded automatically based on this rule.';
 $string['categorysettings'] = 'Category settings';
 $string['certrequestfailed'] = 'There was an error while requesting the certificate from the API';
 $string['closepopup'] = 'Close';
@@ -103,12 +91,9 @@ $string['configurecriteria'] = 'Configure';
 $string['confirmcriteriondeletion'] = 'Are you sure you want to delete this awarding rule?';
 $string['confirmrevokation'] = 'Are you sure you want to revoke the users badge?';
 $string['connect'] = 'Connect {$a}';
-$string['connectionisworking'] = 'OBF connection is up and working. The client '
-        . 'certificate expires in <strong>{$a}</strong>.';
+$string['connectionisworking'] = 'OBF connection is up and working. The client certificate expires in <strong>{$a}</strong>.';
 $string['connectionstatus'] = 'Backpack connection status';
-$string['coursealreadyincriterion'] = 'The rule of automatic awarding of this badge in this '
-        . 'course cannot be edited, because this course/badge -combination already exists in another '
-        . 'rule containing multiple courses.';
+$string['coursealreadyincriterion'] = 'The rule of automatic awarding of this badge in this course cannot be edited, because this course/badge -combination already exists in another rule containing multiple courses.';
 $string['coursebadgelisttitle'] = 'Badges related to this course';
 $string['coursecompletedby'] = 'Completed by';
 $string['courseeventhistory'] = 'Course awarding history';
@@ -137,9 +122,7 @@ $string['deauthenticate'] = 'Disconnect';
 $string['deauthenticationsuccess'] = 'Successfully disconnected from Open Badge Factory.';
 $string['deletecriterion'] = 'Delete awarding rule';
 $string['disablemoodlebadges'] = 'Disable Moodle\'s own badge-module.';
-$string['disablemoodlebadges_help'] = 'Old Moodle badges will be hidden from the user interface, ' .
-        'but user badges that are saved to a Backpack can still be shown, and ' .
-        'the badges exported to Open Badge Factory can still be awarded.';
+$string['disablemoodlebadges_help'] = 'Old Moodle badges will be hidden from the user interface, but user badges that are saved to a Backpack can still be shown, and the badges exported to Open Badge Factory can still be awarded.';
 $string['disconnect'] = 'Disconnect {$a}';
 $string['editemailmessage'] = 'Edit email message';
 $string['emailbadgerevokedsubject'] = 'Your badge has been revoked';
@@ -149,18 +132,12 @@ $string['emailfooter'] = 'Email footer';
 $string['emailmessage'] = 'Email message';
 $string['emailsubject'] = 'Email subject';
 $string['emailtemplatesaved'] = 'Email template was successfully saved.';
-$string['emailtemplatedescription'] = 'Here you can set the default template for the email that ' .
-        'will be sent to the user receiving this badge. The email can be customized before the ' .
-        'badge is awarded.';
+$string['emailtemplatedescription'] = 'Here you can set the default template for the email that will be sent to the user receiving this badge. The email can be customized before the badge is awarded.';
 $string['eventrevoked'] = 'Event revoked for {$a}.';
 $string['evidence'] = 'Evidence';
 $string['expiresby'] = 'Expires';
 $string['expired'] = 'Expired';
-$string['expiringcertificate'] = 'Open Badge Factory client certificate is expiring in <b>{$a->days}</b> '
-        . 'days. To renew the certificate <a href="{$a->obfurl}">log in to Open Badge Factory</a> '
-        . 'with your organization admin account, go to Admin tools -> Edit Organisation Details '
-        . '-> More settings, generate the certificate signing request token and paste it to Moodle '
-        . '(Open Badges -> Settings -> OBF request token).';
+$string['expiringcertificate'] = 'Open Badge Factory client certificate is expiring in <b>{$a->days}</b> days. To renew the certificate <a href="{$a->obfurl}">log in to Open Badge Factory</a> with your organization admin account, go to Admin tools -> Edit Organisation Details -> More settings, generate the certificate signing request token and paste it to Moodle (Open Badges -> Settings -> OBF request token).';
 $string['expiringcertificatesubject'] = 'Open Badge Factory client certificate is expiring.';
 $string['exportsettings'] = 'Export settings';
 $string['exportextrasettings'] = 'Export settings';
@@ -183,8 +160,7 @@ $string['issuethisbadge'] = 'Issue this badge';
 $string['makeexporteddrafts'] = 'Exported badges are drafts by default';
 $string['messageprovider:revoked'] = 'Issued badge is revoked';
 $string['minimumgrade'] = 'Minimum grade';
-$string['nobackpackgroups'] = 'No public badge groups in your backpack. Create at least one public '
-        . 'group to your backpack.';
+$string['nobackpackgroups'] = 'No public badge groups in your backpack. Create at least one public group to your backpack.';
 $string['nobadgehistory'] = 'This badge hasn\'t been issued yet.';
 $string['nobadges'] = 'No badges yet.';
 $string['nobadgesincourse'] = 'No related badges yet.';
@@ -226,34 +202,14 @@ $string['profilebadgelistobp'] = 'Open Badge Passport badges';
 $string['pubkeyextractionfailed'] = 'There was an error while extracting public key from certificate.';
 $string['pubkeyrequestfailed'] = 'There was an error while requesting the public key from the API';
 $string['readmeenablecompletion'] = 'Badge earning criteria';
-$string['readmeenablecompletion_help'] = '<p>In order for the automatic badge ' .
-        'earning criteria to function properly, ' .
-        'the completion tracking has to be enabled. </p>' .
-        '<p>Easiest way to enable completion tracking is:</p><ol>' .
-        '<li>Locate the "Settings" -block.</li>' .
-        '<li>Type "enablecompletion" into the search box, and hit search.</li>' .
-        '<li>Enable completion tracking: Yes.</li>' .
-        '<li>Optional, but recommended: Enable completion tracking on course default settings.</li>' .
-        '</ol>' .
-        '<strong>Course settings</strong>' .
-        '<p>If completion tracking is not enabled on course default settings, ' .
-        'or course tracking is disabled on a course, ' .
-        'the completion tracking can be enabled via the ' .
-        '<i>Course administration-&gt;Edit settings</i> -page.</p>';
+$string['readmeenablecompletion_help'] = '<p>In order for the automatic badge earning criteria to function properly, the completion tracking has to be enabled. </p><p>Easiest way to enable completion tracking is:</p><ol><li>Locate the "Settings" -block.</li><li>Type "enablecompletion" into the search box, and hit search.</li><li>Enable completion tracking: Yes.</li><li>Optional, but recommended: Enable completion tracking on course default settings.</li></ol><strong>Course settings</strong><p>If completion tracking is not enabled on course default settings, or course tracking is disabled on a course, the completion tracking can be enabled via the <i>Course administration-&gt;Edit settings</i> -page.</p>';
 $string['recipients'] = 'Recipients';
 $string['recipientcandidates'] = 'Users matching the search';
 $string['requesttoken'] = 'OBF request token';
-$string['requesttoken_help'] = '<p>Paste here the token that is used to connect to Open Badge Factory ' .
-        'API.</p><p>' .
-        'To generate the required API key, log in to <a href="https://openbadgefactory.com">Open Badge Factory</a>,  '.
-        'in the \'<i>Admin tools</i>\' -page, open the \'<i>API key</i>\' -link, ' .
-        'and click on \'<i>Generate certificate signing request token</i>\'. ' .
-        'Copy the generated token into Moodle.</p>';
+$string['requesttoken_help'] = '<p>Paste here the token that is used to connect to Open Badge Factory API.</p><p>To generate the required API key, log in to <a href="https://openbadgefactory.com">Open Badge Factory</a>,  in the \'<i>Admin tools</i>\' -page, open the \'<i>API key</i>\' -link, and click on \'<i>Generate certificate signing request token</i>\'. Copy the generated token into Moodle.</p>';
 $string['resetfilter'] = 'Reset filter';
 $string['reviewcriterionaftersave'] = 'Review rule after saving';
-$string['reviewcriterionaftersave_help'] = 'If this checkbox is checked, the rule will be '
-        . 'reviewed after saving and if someone has already met this rule earlier, this badge '
-        . 'will then be automatically awarded.';
+$string['reviewcriterionaftersave_help'] = 'If this checkbox is checked, the rule will be reviewed after saving and if someone has already met this rule earlier, this badge will then be automatically awarded.';
 $string['revoke'] = 'Revoke';
 $string['revokeuserbadges'] = 'Revoke user badges';
 $string['saveconfiguration'] = 'Continue';
@@ -263,8 +219,7 @@ $string['selectactivity'] = 'Select activity';
 $string['selectbadge'] = 'Select badge';
 $string['selectbadgestoexport'] = 'Select badges you want to export to Open Badge Factory';
 $string['selectcourses'] = 'Select courses';
-$string['selectcourses_help'] = 'Select courses that need to be completed to in order to receive '
-        . 'this badge automatically.';
+$string['selectcourses_help'] = 'Select courses that need to be completed to in order to receive this badge automatically.';
 $string['selectcriteriatype'] = 'Select...';
 $string['selectcriteriatype_help'] = 'Select the method, by which the badge is earned.';
 $string['selectcompletionmethod'] = 'Select completion method';
@@ -280,8 +235,7 @@ $string['showcategories'] = 'Display badges from these categories:';
 $string['showconnectionconfig'] = 'I know it\'s working, let me change the token anyway.';
 $string['showmorerecipients'] = 'more';
 $string['toearnthisbadge'] = 'To earn this badge this course has to be completed';
-$string['tokendecryptionfailed'] = 'Decrypting the request token failed. Be sure to paste the '
-        . 'certificate signing request token fully.';
+$string['tokendecryptionfailed'] = 'Decrypting the request token failed. Be sure to paste the certificate signing request token fully.';
 $string['totaraprogram'] = 'Program';
 $string['totaraprogramselectexpires'] = 'Select which setting is used for awarded badges';
 $string['totaraprogramexpiresbybadge'] = 'Expiry from badge properties';
@@ -290,7 +244,4 @@ $string['unknowncriterion'] = 'Incomplete criterion';
 $string['userpreferences'] = 'User-settings';
 $string['userpreferencessaved'] = 'User-settings saved.';
 $string['verification_failed'] = 'Backpack verification failed. Reason: {$a}';
-$string['warningcannoteditafterreview'] = 'Note that if the badge is awarded when these rules are ' .
-        'being reviewed, the rule(s) cannot be edited anymore. Once the badge has been automatically ' .
-        'awarded to at least one person, editing of the rules is prohibited. So make sure the rules ' .
-        'are set correctly before reviewing.';
+$string['warningcannoteditafterreview'] = 'Note that if the badge is awarded when these rules are being reviewed, the rule(s) cannot be edited anymore. Once the badge has been automatically awarded to at least one person, editing of the rules is prohibited. So make sure the rules are set correctly before reviewing.';
