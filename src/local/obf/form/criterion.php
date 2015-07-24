@@ -47,6 +47,7 @@ class obf_criterion_form extends local_obf_form_base implements renderable {
      */
     protected $criterion = null;
 
+
     /**
      * Defines forms elements
      * @see obf_criterion_course::get_form_after_save_options
@@ -56,6 +57,7 @@ class obf_criterion_form extends local_obf_form_base implements renderable {
      */
     protected function definition() {
         global $DB, $OUTPUT;
+        require_once(__DIR__ . '/../class/criterion/unknown.php');
 
         $mform = $this->_form;
         $this->criterion = $this->_customdata['criterion'];
@@ -112,6 +114,57 @@ class obf_criterion_form extends local_obf_form_base implements renderable {
             if ($showbuttons) {
                 $this->add_action_buttons();
             }
+        }
+
+        $elementnames = array();;
+        foreach ($mform->_elements as $elm) {
+            if (property_exists($elm, '_attributes') && is_array($elm->_attributes) && array_key_exists('name', $elm->_attributes)) {
+                $elementnames[] = $elm->_attributes['name'];
+            }
+        }
+        $elementnames = array_merge(array('badgeid' => PARAM_ALPHANUM), $elementnames);
+        $criteriatypeids = array_keys(obf_criterion_unknown::get_criteria_type_options());
+        $toadd = array();
+        foreach ($criteriatypeids as $typeid) {
+            $obj = obf_criterion_item::build_type($typeid);
+            $fields = $obj->get_form_fields();
+            foreach ($fields as $field => $param_type) {
+                if (!in_array($field, $elementnames)) {
+                    $toadd[$field] = $param_type;
+                }
+            }
+        }
+        foreach ($toadd as $key => $param_type) {
+            if (($pos = strpos($key, '[]')) === false) {
+                $mform->addElement('hidden', $key, $_REQUEST[$key]);
+            } else {
+                $simplekey = substr($key,0,$pos);
+                if (!in_array($simplekey, $elementnames) && !in_array($key, $elementnames)) {
+                    $values = array_key_exists($simplekey, $_REQUEST) ? $_REQUEST[$simplekey] : array();
+                    $values = array_filter($values);
+                    $addedkeys = false;
+                    foreach ($values as $key => $value) {
+                        # code...
+                        if (!empty($value)) {
+                            $fullkey = $simplekey.'['.$key.']';
+                            if (!in_array($fullkey, $elementnames)) {
+                                if (is_array($value)) {
+                                    // TODO: Handle date array("day" => "23", "month" => "12", "year" => "2015","enabled" => "1"})
+                                } else {
+                                    $mform->addElement('hidden', $fullkey, $value);
+                                    $mform->setType($fullkey, $param_type);
+                                }
+                                $addedkeys = true;
+                            }
+                        }
+                    }
+                    if ($addedkeys) {
+                        $mform->addElement('hidden', $key);
+                        $mform->setType($key, $param_type);
+                    }
+                }
+            }
+            $mform->setType($key, $param_type);
         }
     }
     /**
@@ -217,5 +270,4 @@ class obf_criterion_form extends local_obf_form_base implements renderable {
 
         return $courselist;
     }
-
 }

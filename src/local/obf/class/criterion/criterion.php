@@ -260,6 +260,14 @@ class obf_criterion {
         return $this->items;
     }
     /**
+     * Set items. (Does not save)
+     * @param obf_criterion_item[] $items Array of items
+     */
+    public function set_items($items) {
+        $this->items = $items;
+        return $this;
+    }
+    /**
      * Set course criterions for this criterion.
      *
      * @param int[] $courseids

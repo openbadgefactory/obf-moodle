@@ -161,13 +161,13 @@ class obf_criterion_unknown extends obf_criterion_item {
      */
     public function get_options(&$mform, &$obj) {
     }
+
     /**
-     * Prints criteria type select for criteria forms.
-     * @param MoodleQuickForm& $mform
-     * @param mixed& $obj
+     * Get options to for criteria types.
+     * @return array An associative array of criteria type options
      */
-    public function get_form_config(&$mform, &$obj) {
-        global $PAGE, $OUTPUT, $CFG;
+    public static function get_criteria_type_options() {
+        global $CFG;
         $optionlist = array(
             obf_criterion_item::CRITERIA_TYPE_UNKNOWN => get_string('selectcriteriatype', 'local_obf'),
             obf_criterion_item::CRITERIA_TYPE_COURSE => get_string('criteriatypecourseset', 'local_obf'),
@@ -182,6 +182,16 @@ class obf_criterion_unknown extends obf_criterion_item {
                 $optionlist[$key] = $val;
             }
         }
+        return  $optionlist;
+    }
+    /**
+     * Prints criteria type select for criteria forms.
+     * @param MoodleQuickForm& $mform
+     * @param mixed& $obj
+     */
+    public function get_form_config(&$mform, &$obj) {
+        global $PAGE, $OUTPUT, $CFG;
+        $optionlist = self::get_criteria_type_options();
 
         if (!empty($this->get_criterionid()) && ($this->get_criterionid() > 0) && !empty($this->get_courseid())) {
             if ($PAGE->pagetype == 'local-obf-badge') {
@@ -202,11 +212,9 @@ class obf_criterion_unknown extends obf_criterion_item {
                 get_string('selectcriteriatype', 'local_obf'), $optionlist);
 
         $select->setSelected(obf_criterion_item::CRITERIA_TYPE_UNKNOWN);
+
         $mform->addElement('hidden', 'picktype', 'yes');
         $mform->setType('picktype', PARAM_TEXT);
-
-        $mform->addElement('hidden', 'course[]', '-1');
-        $mform->setType('course[]', PARAM_RAW);
     }
     /**
      * Print completion options. (Nothing)
@@ -224,6 +232,17 @@ class obf_criterion_unknown extends obf_criterion_item {
     public function get_form_after_save_options(&$mform, &$obj) {
 
     }
+
+    /**
+     * Return all form field names and types, that need to be present on a form,
+     * to make sure form->get_data works.
+     *
+     * @return array An empty array
+     */
+    public function get_form_fields() {
+        return array();
+    }
+
     /**
      * This criteria item supports multiple courses?
      * @return bool False

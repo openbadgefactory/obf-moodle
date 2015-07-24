@@ -70,7 +70,10 @@ switch ($action) {
             'action' => 'save', 'type' => $type));
         $criterion = new obf_criterion();
         $criterion->set_badge($badge);
-        $criterionform = new obf_criterion_form($url, array('criterion' => $criterion, 'addcourse' => $addcourse));
+        $items = $criterion->get_items();
+        $criterionform = new obf_criterion_form($url,
+                array('criterion' => $criterion,
+                'addcourse' => $addcourse));
 
         // Form submission was cancelled.
         if ($criterionform->is_cancelled()) {
@@ -78,48 +81,110 @@ switch ($action) {
                     array('id' => $badge->get_id(), 'action' => 'show', 'show' => 'criteria')));
         } else if (!is_null($data = $criterionform->get_data())) { // Form was successfully submitted.
             $criterion->set_completion_method(obf_criterion::CRITERIA_COMPLETION_ALL);
-
-            // Save the criterion object first.
-            if ($criterion->save() === false) {
-                $content .= $OUTPUT->error_text(get_string('creatingcriterionfailed', 'local_obf'));
-                $content = $PAGE->get_renderer('local_obf')->render($criterionform);
-            } else { // Then add the selected courses.
-                if (property_exists($data, 'criteriatype')) {
-                    $criteriatype = $data->criteriatype;
-                } else {
-                    $criteriatype = obf_criterion_item::CRITERIA_TYPE_UNKNOWN;
-                }
+            if (property_exists($data, 'criteriatype')) {
+                $criteriatype = (int)$data->criteriatype;
+            } else {
+                $criteriatype = obf_criterion_item::CRITERIA_TYPE_UNKNOWN;
+            }
+            if (property_exists($data, 'course') && count($data->course) > 0) {
                 $courseids = $data->course;
-
+                $grades = array();
+                $mingrades = property_exists($data, 'mingrade') ? $data->mingrade : array();
+                foreach ($mingrades as $courseid => $grade) {
+                    if (!empty($grade)) {
+                        $grades[$courseid] = $grade;
+                    }
+                }
+                $completedbys = array();
                 foreach ($courseids as $courseid) {
-                    if ($courseid == -1) {
-                        $courseobj = obf_criterion_item::build_type($data->criteriatype);
-                        $courseobj->set_criterionid($criterion->get_id());
-                        $courseobj->save();
+                    if (empty($courseid)) {
+                        // Do nothing
+                    } else if ($courseid == -1) {
+                        $item = obf_criterion_item::build_type($criteriatype);
+                        $items[] = $item;
                     } else {
                         // Check course id validity.
                         $course = $DB->get_record('course',
                                 array('id' => $courseid, 'enablecompletion' => COMPLETION_ENABLED));
-
                         if ($course !== false) {
-                            // If multiple courses selected, set criteriatype to course since
-                            // multi-course activities are not supported.
-                            if (count($courseids) == 1) {
-                                $objtype = obf_criterion_item::CRITERIA_TYPE_UNKNOWN;
-                            } else {
-                                $objtype = obf_criterion_item::CRITERIA_TYPE_COURSE;
+                            $item = obf_criterion_item::build_type($criteriatype);
+                            if (array_key_exists($courseid, $grades)) {
+                                $item->set_grade($grades[$courseid]);
                             }
-
-                            $courseobj = obf_criterion_item::build_type($objtype);
-                            $courseobj->set_courseid($courseid);
-                            $courseobj->set_criterionid($criterion->get_id());
-                            $courseobj->save();
+                            if (array_key_exists($courseid, $completedbys)) {
+                                $item->set_completedby($completedbys[$courseid]);
+                            }
+                            $item->set_courseid((int)$courseid);
+                            $items[] = $item;
                         }
                     }
                 }
+            }
+            if (count($items) == 0) {
+                if (!empty($criteriatype) && $criteriatype !== obf_criterion_item::CRITERIA_TYPE_UNKNOWN) {
+                    $item = obf_criterion_item::build_type($criteriatype);
+                    if (!$item->requires_field('courseid') && $item->is_createable_with_params($_REQUEST)) {
+                        $items[] = $item;
+                    }
+                }
+            }
+            if (count($items) > 0) {
+                $criterion->set_items($items);
+            }
+            // New for now that courses are set.
+            $criterionform = new obf_criterion_form($url,
+                    array('criterion' => $criterion,
+                    'addcourse' => $addcourse));
+            $data = $criterionform->get_data();
+            // We may now have more data
+            if (!empty($courseids) && is_array($courseids)) {
+                foreach ($courseids as $courseid) {
+                    $completedby = property_exists($data, 'completedby_' . $courseid) ? $data->{'completedby_' . $courseid} : null;
+                    if (!empty($completedby)) {
+                        $completedbys[$courseid] = $completedby;
+                    }
+                }
+            }
 
-                redirect(new moodle_url('/local/obf/criterion.php',
-                        array('badgeid' => $badge->get_id(), 'action' => 'edit', 'id' => $criterion->get_id())));
+            $itemscreateable = true;
+            foreach ($items as $item) {
+                if (!$item->is_createable_with_params($_REQUEST)) {
+                    $itemscreateable = false;
+                }
+            }
+            $notready = (property_exists($data, 'picktype') && $data->picktype == "yes");
+            $notready = ($notready || (property_exists($data, 'addcourse') && !empty($data->addcourse)));
+            $notready = ($notready || !$itemscreateable);
+            if ($notready) {
+                // Do not save yet. Not complete.
+                $criterionform->set_data($data);
+                if (count($items) == 0) {
+                    $item = obf_criterion_item::build_type($data->criteriatype);
+                    $items[] = $item;
+                }
+                $criterion->set_items($items);
+                $criterionform = new obf_criterion_form($url,
+                        array('criterion' => $criterion,
+                        'addcourse' => !(property_exists($data, 'addcourse') && !empty($data->addcourse)) ? $addcourse : ''));
+                $content .= $PAGE->get_renderer('local_obf')->render($criterionform);
+            } else if ($criterion->save() === false) { // Save the criterion object first.
+                $content .= $OUTPUT->error_text(get_string('creatingcriterionfailed', 'local_obf'));
+                $content = $PAGE->get_renderer('local_obf')->render($criterionform);
+            } else { // Then add the selected courses.
+                foreach ($items as $item) {
+                    $item->set_criterionid($criterion->get_id());
+                    if (!empty($courseid) && array_key_exists($courseid, $completedbys)) {
+                        $item->set_completedby($completedbys[$courseid]);
+                    }
+                    $item->save_params($data);
+                }
+
+                if (empty($tourl)) {
+                    $tourl = new moodle_url('/local/obf/badge.php',
+                            array('id' => $badge->get_id(), 'action' => 'show',
+                        'show' => 'criteria'));
+                }
+                redirect($tourl);
             }
         } else {
             $content .= $PAGE->get_renderer('local_obf')->render($criterionform);
@@ -183,7 +248,6 @@ switch ($action) {
         } else if (!is_null($data = $criterionform->get_data())) { // Form was successfully submitted, save data.
             // TODO: wrap into a transaction?
             if (!empty($addcourse)) {
-
                 $courseids = array_filter($data->course, function($courseid) {
                     global $DB;
                     // Check course id validity.
@@ -238,10 +302,17 @@ switch ($action) {
                     $criterioncourse->save_params($data);
                 } else if ($data->criteriatype == obf_criterion_item::CRITERIA_TYPE_COURSE && !$pickingtype) {
                     // ... And then add the criterion attributes.
-                    foreach ($data->mingrade as $criterioncourseid => $grade) {
-                        $criterioncourse = obf_criterion_item::get_instance($criterioncourseid);
+                    foreach ($data->mingrade as $courseid => $grade) {
+                        foreach ($criterion->get_items() as $item) {
+                            if ($item->get_courseid() == $courseid) {
+                                $criterioncourse = $item;
+                                break;
+                            }
+                        }
+                        $criterioncourseid = $criterioncourse->get_id();
                         $criterioncourse->set_grade((int) $grade);
-                        $criterioncourse->set_completedby($data->{'completedby_' . $criterioncourseid});
+                        $completedby = property_exists($data, 'completedby_' . $courseid) ? $data->{'completedby_' . $courseid} : null;
+                        $criterioncourse->set_completedby($completedby);
                         $criterioncourse->set_criteriatype($data->criteriatype);
                         $criterioncourse->save();
                     }

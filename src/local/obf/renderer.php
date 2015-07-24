@@ -715,79 +715,63 @@ class local_obf_renderer extends plugin_renderer_base {
             }
 
             if (!is_null($data = $criterionform->get_data())) {
-                $pickingtype = (!$criterioncourse->exists() ||
+
+                if (!$criterioncourse->exists()) {
+                    $criterion = new obf_criterion();
+                    $criterion->set_badge($badge);
+                    $criterion->set_completion_method(obf_criterion::CRITERIA_COMPLETION_ALL);
+                    $criterion->set_items($criterioncourse);
+                }
+                if (!is_null($courseid)) {
+                    $criterioncourse->set_courseid((int)$courseid);
+                }
+
+                $pickingtype = ((!$criterioncourse->exists() && !$criterioncourse->is_createable_with_params($_REQUEST)) ||
                         $criterioncourse->get_criteriatype() == obf_criterion_item::CRITERIA_TYPE_UNKNOWN ||
                         property_exists($data, 'picktype') && $data->picktype === 'yes');
+
                 if ($pickingtype) {
                     if (!is_null($courseid)) {
-                        if (!$criterioncourse->exists()) {
-                            $criterion = new obf_criterion();
-                            $criterion->set_badge($badge);
-                            $criterion->set_completion_method(obf_criterion::CRITERIA_COMPLETION_ALL);
-                            $criterion->save();
 
-                            $criterioncourse->set_criterionid($criterion->get_id());
-                        }
-                        $criterioncourse->set_courseid($courseid);
-                        $criterioncourse->set_criteriatype($data->criteriatype);
-                        $criterioncourse->save();
-
-                        $redirecturl = new moodle_url('/local/obf/badge.php',
-                                array('id' => $badge->get_id(),
-                            'action' => 'show', 'show' => 'criteria', 'courseid' => $courseid
-                            ));
-                        redirect($redirecturl);
+                        $criterionform = new obf_coursecriterion_form($url,
+                                array('criterioncourse' => $criterioncourse));
                     }
                 } else { // Saving the rule.
-                    if ($data->criteriatype === obf_criterion_item::CRITERIA_TYPE_ACTIVITY) {
-                        if (!$criterioncourse->exists()) {
-                            $criterion = new obf_criterion();
-                            $criterion->set_badge($badge);
-                            $criterion->set_completion_method(obf_criterion::CRITERIA_COMPLETION_ALL);
-                            $criterion->save();
-
-                            $criterioncourse->set_criterionid($criterion->get_id());
-                        }
-                        $criterioncourse->set_courseid($courseid);
-                        $criterioncourse->save_params($data);
-                    } else if ($data->criteriatype === obf_criterion_item::CRITERIA_TYPE_COURSE) {
-                        foreach ($data->mingrade as $key => $value) {
-                            $grade = (int) $data->mingrade[$key];
-                            $completedby = (int) $data->{'completedby_'.$key};
-                        }
-
+                    if (!$criterioncourse->exists()) {
                         // Update or insert criterion course
                         // Object doesn't exist yet, let's create the criterion.
-                        if (!$criterioncourse->exists()) {
-                            $criterion = new obf_criterion();
-                            $criterion->set_badge($badge);
-                            $criterion->set_completion_method(obf_criterion::CRITERIA_COMPLETION_ALL);
-                            $criterion->save();
-
-                            $criterioncourse->set_criterionid($criterion->get_id());
-                        }
-
-                        $criterioncourse->set_courseid($courseid);
-                        $criterioncourse->set_grade($grade);
-                        $criterioncourse->set_completedby($completedby);
-                        $criterioncourse->save();
-
-                        $redirecturl = new moodle_url('/local/obf/badge.php',
-                                array('id' => $badge->get_id(),
-                            'action' => 'show', 'show' => 'criteria', 'courseid' => $courseid,
-                            'msg' => get_string('criterionsaved', 'local_obf')));
-
-                        if ($data->reviewaftersave) {
-                            $crit = $criterioncourse->get_criterion();
-                            $recipientcount = $crit->review_previous_completions();
-                            $redirecturl->param('msg',
-                                    get_string('badgewasautomaticallyissued',
-                                            'local_obf', $recipientcount));
-                        }
-
-                        redirect($redirecturl);
-
+                        $criterion->save();
+                        $criterioncourse->set_criterionid($criterion->get_id());
                     }
+
+                    $midgrades = property_exists($data, 'mingrade') ? $data->mingrade : array();
+                    $grade = null;
+                    $completedby = null;
+                    foreach ($midgrades as $key => $value) {
+                        $grade = (int) $data->mingrade[$key];
+                        if (property_exists($data, 'completedby_'.$key)) {
+                            $completedby = (int) $data->{'completedby_'.$key};
+                        }
+                    }
+                    $criterioncourse->set_grade($grade);
+                    $criterioncourse->set_completedby($completedby);
+
+                    $criterioncourse->save_params($data);
+
+                    $redirecturl = new moodle_url('/local/obf/badge.php',
+                            array('id' => $badge->get_id(),
+                        'action' => 'show', 'show' => 'criteria', 'courseid' => $courseid,
+                        'msg' => get_string('criterionsaved', 'local_obf')));
+
+                    if (property_exists($data, 'reviewaftersave') && $data->reviewaftersave) {
+                        $crit = $criterioncourse->get_criterion();
+                        $recipientcount = $crit->review_previous_completions();
+                        $redirecturl->param('msg',
+                                get_string('badgewasautomaticallyissued',
+                                        'local_obf', $recipientcount));
+                    }
+
+                    redirect($redirecturl);
                 }
             }
 
