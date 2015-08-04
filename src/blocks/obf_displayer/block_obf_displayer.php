@@ -157,7 +157,7 @@ class block_obf_displayer extends block_base {
      * @return boolean True
      */
     public function has_config() {
-        return true;
+        return false;
     }
     /**
      * HTML Attributes.
