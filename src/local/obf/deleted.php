@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Plugin configuration page.
+ * Manage criteria associated to deleted badges.
  *
  * @package    local_obf
  * @copyright  2013-2015, Discendum Oy

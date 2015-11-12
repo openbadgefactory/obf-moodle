@@ -241,14 +241,17 @@ class obf_assertion {
 
         foreach ($arr as $item) {
             $b = is_null($badge) ? $collection->get_badge($item['badge_id']) : $badge;
-            $assertion = self::get_instance();
-            $assertion->set_badge($b)->set_id($item['id'])->set_recipients($item['recipient']);
-            $assertion->set_expires($item['expires'])->set_name($item['name']);
-            $assertion->set_issuedon($item['issued_on'])->set_source(self::ASSERTION_SOURCE_OBF);
-            if (array_key_exists('revoked', $item)) {
-                $assertion->set_revoked($item['revoked']);
+            if (!is_null($badge)) {
+                $assertion = self::get_instance();
+                $assertion->set_badge($b)->set_id($item['id'])->set_recipients($item['recipient']);
+                $assertion->set_expires($item['expires'])->set_name($item['name']);
+                $assertion->set_issuedon($item['issued_on'])->set_source(self::ASSERTION_SOURCE_OBF);
+                if (array_key_exists('revoked', $item)) {
+                    $assertion->set_revoked($item['revoked']);
+                }
+                $assertions[] = $assertion;
             }
-            $assertions[] = $assertion;
+            
         }
 
         // Sort the assertions by date...

@@ -68,7 +68,7 @@ switch ($action) {
         break;
     case 'update':
         if ($data = $form->get_data()) {
-            $newblacklist = array_keys(array_filter($data->blacklist));
+            $newblacklist = property_exists($data, 'blacklist') ? array_keys(array_filter($data->blacklist)) : array();
             $blacklist = new obf_blacklist($USER->id);
             $blacklist->save($newblacklist);
             cache_helper::invalidate_by_event('obf_blacklist_changed', array($USER->id));

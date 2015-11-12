@@ -26,7 +26,8 @@ defined('MOODLE_INTERNAL') || die();
 /**
  * OBF_DEFAULT_ADDRESS - The URL of Open Badge Factory.
  */
-define('OBF_DEFAULT_ADDRESS', 'https://openbadgefactory.com/');
+if ( !defined( 'OBF_DEFAULT_ADDRESS' ) )
+    define('OBF_DEFAULT_ADDRESS', 'https://openbadgefactory.com/');
 
 
 
