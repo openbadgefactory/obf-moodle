@@ -96,6 +96,7 @@ $string['connectionstatus'] = 'Backpack-yhteyden tila';
 $string['coursealreadyincriterion'] = 'Myöntämissääntöä ei voi muokata, sillä tällä kurssilla on jo myöntämissääntö valittuun merkkiin liittyen ja sääntö sisältää muitakin kursseja.';
 $string['coursebadgelisttitle'] = 'Tähän kurssiin liittyvät osaamismerkit';
 $string['coursecompletedby'] = 'Suoritettava viimeistään';
+$string['coursecompletionnotenabled'] = 'Suoritustenseurantaa ei ole otettu käyttöön tälle kurssille. Ota suoritusseuranta käyttöön <a href="{$a}">kurssin asetuksista</a>.';
 $string['courseeventhistory'] = 'Kurssin myöntämishistoria';
 $string['courserequired'] = 'Valitse ainakin yksi kurssi';
 $string['courseobfbadges'] = 'Osaamismerkit';

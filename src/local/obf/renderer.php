@@ -678,6 +678,8 @@ class local_obf_renderer extends plugin_renderer_base {
         }
 
         $canedit = !is_null($criterioncourseid) || !$courseincriterion;
+        $course = get_course($courseid);
+        $completionenabled = !empty($course) ? $course->enablecompletion : false;
 
         // The criteria cannot be modified or added -> show a message to user.
         if (!$canedit) {
@@ -688,6 +690,9 @@ class local_obf_renderer extends plugin_renderer_base {
             }
 
             $html .= $this->output->notification(get_string($error, 'local_obf'));
+        } else if (!$completionenabled) {
+            $courseediturl = new moodle_url('/course/edit.php', array('id' => $courseid));
+            $html .= $this->output->notification(get_string('coursecompletionnotenabled', 'local_obf', (string)$courseediturl));
         } else { // Show the course criteria form.
             $params = array(
                     'criteriatype' => optional_param('criteriatype', obf_criterion_item::CRITERIA_TYPE_UNKNOWN, PARAM_INT),

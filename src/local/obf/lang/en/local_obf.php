@@ -96,6 +96,7 @@ $string['connectionstatus'] = 'Backpack connection status';
 $string['coursealreadyincriterion'] = 'The rule of automatic awarding of this badge in this course cannot be edited, because this course/badge -combination already exists in another rule containing multiple courses.';
 $string['coursebadgelisttitle'] = 'Badges related to this course';
 $string['coursecompletedby'] = 'Completed by';
+$string['coursecompletionnotenabled'] = 'Completion tracking is not enabled on this course. Enable it in <a href="{$a}">course settings</a>.';
 $string['courseeventhistory'] = 'Course awarding history';
 $string['courserequired'] = 'At least one course has to be selected';
 $string['courseuserbadges'] = 'User badges';
