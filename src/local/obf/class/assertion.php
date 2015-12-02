@@ -245,7 +245,7 @@ class obf_assertion {
 
         foreach ($arr as $item) {
             $b = is_null($badge) ? $collection->get_badge($item['badge_id']) : $badge;
-            if (!is_null($badge)) {
+            if (!is_null($b)) {
                 $assertion = self::get_instance();
                 $assertion->set_badge($b)->set_id($item['id'])->set_recipients($item['recipient']);
                 $assertion->set_expires($item['expires'])->set_name($item['name']);
