@@ -78,6 +78,16 @@ class obf_issuer {
     public static function get_instance_from_arr($arr) {
         return self::get_instance()->populate_from_array($arr);
     }
+    
+    /**
+     * Returns a new obf_issuer instance created from a moodle badge stdClass object.
+     *
+     * @param stdClass $moodle_badge An stdClass with the issuer data.
+     * @return obf_issuer The issuer instance.
+     */
+    public static function get_instance_from_moodle_badge($moodle_badge) {
+        return self::get_instance()->populate_from_moodle_badge($moodle_badge);
+    }
 
     /**
      * Returns a new obf_issuer instance created from an array fetched from
@@ -114,6 +124,17 @@ class obf_issuer {
     public function populate_from_array($arr) {
         $this->set_id($arr['id'])->set_description($arr['description']);
         $this->set_email($arr['email'])->set_url($arr['url'])->set_name($arr['name']);
+        return $this;
+    }
+    
+    /**
+     * Populates this instance with the data from the moodle badge stdClass.
+     *
+     * @param stdClass $moodle_badge The issuer data.
+     * @return obf_issuer Returns this instance.
+     */
+    public function populate_from_moodle_badge($moodle_badge) {
+        $this->set_email($moodle_badge->issuercontact)->set_url($moodle_badge->issuerurl)->set_name($moodle_badge->issuername);
         return $this;
     }
 

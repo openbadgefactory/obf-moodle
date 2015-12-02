@@ -80,6 +80,10 @@ class block_obf_displayer extends block_base {
                 $this->content->text .= $renderer->render_user_assertions($assertions, $userid, $large);
             }
         }
+        $moodle_assertions = $this->get_moodle_assertions($userid);
+        if (count($moodle_assertions) > 0) {
+            $this->content->text .= $renderer->render_user_assertions($moodle_assertions, $userid, $large);
+        }
 
         return $this->content;
     }
@@ -112,6 +116,23 @@ class block_obf_displayer extends block_base {
             }
         } else {
             $assertions = new obf_assertion_collection();
+        }
+        return $assertions;
+    }
+    
+    /**
+     * Get assertions.
+     * @param int $userid
+     * @return obf_assertion_collection
+     */
+    private function get_moodle_assertions($userid) {
+        global $CFG;
+        $badgeslib_file = $CFG->libdir.'/badgeslib.php';
+        
+        $assertions = new obf_assertion_collection();
+        if (file_exists($badgeslib_file) && (empty($this->config) || !property_exists($this->config, 'showmoodle') || $this->config->showmoodle)) {
+            require_once($badgeslib_file);
+            $assertions->add_collection(obf_assertion::get_user_moodle_badge_assertions($userid));
         }
         return $assertions;
     }

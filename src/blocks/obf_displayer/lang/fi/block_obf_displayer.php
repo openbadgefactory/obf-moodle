@@ -32,6 +32,7 @@ $string['largebadges'] = 'Käytä suuria osaamismerkkejä';
 $string['providerselect'] = 'Open Badge osaamismerkit jotka näytetään lohkossa';
 $string['showobf'] = 'Kurssien yhteydessä myönnetyt osaamismerkit';
 $string['showobp'] = 'Open Badge Passport osaamismerkit';
+$string['showmoodle'] = 'Moodlen sisäiset osaamismerkit';
 $string['showmoz'] = 'Mozilla Backpack osaamismerkit';
 $string['blocktitle'] = 'Open Badge osaamismerkkini';
 $string['blocktitleobf'] = 'Osaamismerkit';

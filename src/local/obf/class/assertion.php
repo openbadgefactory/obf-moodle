@@ -106,6 +106,10 @@ class obf_assertion {
      * @var Assertion source is Mozilla Backpack.
      */
     const ASSERTION_SOURCE_MOZILLA = 3;
+    /**
+     * @var Assertion source is Moodle Badges issued before installing OBF plugin
+     */
+    const ASSERTION_SOURCE_MOODLE = 4;
 
     /**
      * @var int Source where assertion came was retrieved (OBF, OPB, Backpack, other? or unknown)
@@ -254,6 +258,39 @@ class obf_assertion {
             
         }
 
+        // Sort the assertions by date...
+        usort($assertions,
+                function (obf_assertion $a1, obf_assertion $a2) {
+                    return $a1->get_issuedon() <= $a2->get_issuedon();
+                });
+
+        // ... And limit the result set if that's what we want.
+        if ($limit > 0) {
+            $assertions = array_slice($assertions, 0, $limit);
+        }
+
+        return new obf_assertion_collection($assertions);
+    }
+    
+    public static function get_user_moodle_badge_assertions($user_id = 0, $limit = -1) {
+        global $CFG;
+        $badgeslib_file = $CFG->libdir.'/badgeslib.php';
+        $assertions = array();
+        if (file_exists($badgeslib_file)) {
+            require_once($badgeslib_file);
+            $moodle_badges = badges_get_user_badges($user_id, 0, 0, 0, '', false);
+            foreach ($moodle_badges as $moodle_badge) {
+                $assertion = self::get_instance();
+                $obf_badge = obf_badge::get_instance_from_moodle_badge($moodle_badge);
+                $assertion->set_badge($obf_badge);
+                $assertion->set_issuedon($moodle_badge->dateissued)->set_source(self::ASSERTION_SOURCE_MOODLE);
+                if (!empty($moodle_badge->dateexpire)) {
+                    $assertion->set_expires($moodle_badge->dateexpire);
+                }
+                $assertion->set_recipients(array($moodle_badge->email));
+                $assertions[] = $assertion;
+            }
+        }
         // Sort the assertions by date...
         usort($assertions,
                 function (obf_assertion $a1, obf_assertion $a2) {

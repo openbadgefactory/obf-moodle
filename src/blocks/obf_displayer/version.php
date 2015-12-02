@@ -21,12 +21,12 @@
  * @copyright  2015, Discendum Oy
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-$plugin->version = 2015080400;  // YYYYMMDDHH (year, month, day, 24-hr time).
-$plugin->release = '0.1';
+$plugin->version = 2015120100;  // YYYYMMDDHH (year, month, day, 24-hr time).
+$plugin->release = '0.2';
 $plugin->requires = 2011120511;
 $plugin->component = 'block_obf_displayer';
 $plugin->maturity = MATURITY_ALPHA;
 
 $plugin->dependencies = array(
-    'local_obf' => ANY_VERSION   // The main OBF plugin must be present (any version).
+    'local_obf' => 2015120100   // The main OBF plugin must be present, 2015120100 has more support for Moodle badges.
 );

@@ -214,6 +214,16 @@ class obf_badge {
     public static function get_instance_from_array($arr) {
         return self::get_instance()->populate_from_array($arr);
     }
+    
+    /**
+     * Creates a new instance of the class from a moodle badge object.
+     *
+     * @param stdClass $moodle_badge The badge data as an moodle badge stdClass
+     * @return obf_badge The badge.
+     */
+    public static function get_instance_from_moodle_badge($moodle_badge) {
+        return self::get_instance()->populate_from_moodle_badge($moodle_badge);
+    }
 
     /**
      * Populates the object's properties from an array.
@@ -259,6 +269,50 @@ class obf_badge {
             $email->save($DB);
         }
         !is_null($email) and $this->set_email($email);
+
+        return $this;
+    }
+    
+    /**
+     * Populates the object's properties from a moodle badge object.
+     *
+     * @param stdClass $moodle_badge The badge's data as an moodle badge stdClass
+     * @see get_instance_from_moodle_badge()
+     * @return obf_badge
+     */
+    public function populate_from_moodle_badge($moodle_badge) {
+        global $DB;
+
+        $this->set_description($moodle_badge->description)->set_isdraft((bool) false);
+        
+        //$this->set_id('moodle'.$moodle_badge->id);
+        
+        
+        if (empty($moodle_badge->courseid)) {
+            $context = context_system::instance();
+        } else {
+            $context = context_course::instance($moodle_badge->courseid);
+        }
+        $image_url = moodle_url::make_pluginfile_url($context->id, 'badges', 'badgeimage', $moodle_badge->id, '/', 'f1')->out(false);
+        $this->set_image($image_url);
+                
+        $this->set_created($moodle_badge->timecreated)->set_name($moodle_badge->name);
+
+        $expires_abs = (int) (!empty($moodle_badge->expireperiod) ? time() + $moodle_badge->expireperiod : $moodle_badge->expiredate);
+        if ($expires_abs > 0) {
+            $this->set_expires($expires_abs);
+        }
+
+        $this->set_issuer(obf_issuer::get_instance_from_moodle_badge($moodle_badge));
+        if (isset($moodle_badge->uniquehash)) {
+            $this->set_criteria_url((string)(new moodle_url('/badges/badge.php', array('hash' => $moodle_badge->uniquehash))));
+        }
+
+        $email = new obf_email();
+        $email->set_badge_id($this->get_id());
+
+        $email->set_subject($moodle_badge->messagesubject);
+        $email->set_body($moodle_badge->message);
 
         return $this;
     }

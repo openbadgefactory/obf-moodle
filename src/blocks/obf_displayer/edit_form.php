@@ -37,6 +37,8 @@ class block_obf_displayer_edit_form extends block_edit_form {
         $mform->setDefault('config_showobp', 0);
         $mform->addElement('advcheckbox', 'config_showmoz', get_string('showmoz', 'block_obf_displayer'));
         $mform->setDefault('config_showmoz', 0);
+        $mform->addElement('advcheckbox', 'config_showmoodle', get_string('showmoodle', 'block_obf_displayer'));
+        $mform->setDefault('config_showmoodle', 1);
 
         $this->setExpanded($mform, 'config_providers_header', true);
     }

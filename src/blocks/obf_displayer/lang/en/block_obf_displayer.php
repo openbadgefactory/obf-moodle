@@ -32,6 +32,7 @@ $string['largebadges'] = 'Use large badges';
 $string['providerselect'] = 'Open Badges that will be shown';
 $string['showobf'] = 'Badges awarded for courses on this site';
 $string['showobp'] = 'Open Badge Passport Badges';
+$string['showmoodle'] = 'Moodle\'s internal badges';
 $string['showmoz'] = 'Mozilla Backpack Badges';
 $string['blocktitle'] = 'My Open Badges';
 $string['blocktitleobf'] = 'Badges';
