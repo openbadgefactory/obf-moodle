@@ -39,4 +39,4 @@ YUI.add('moodle-local_obf-submitconfirm', function(Y) {
     M.local_obf.init_submitconfirm = function(config) {
         return new SUBMITCONFIRM(config);
     };
-}, '@VERSION@', {requires: ['base', 'moodle-core-notification-confirm']});
+}, '@VERSION@', {requires: ['base', 'node', 'node-event-simulate', 'moodle-core-notification-confirm']});
