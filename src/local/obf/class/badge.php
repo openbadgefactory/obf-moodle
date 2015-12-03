@@ -355,15 +355,16 @@ class obf_badge {
      * @param string $emailsubject The subject of the email sent to user.
      * @param string $emailbody The body of the email sent to user.
      * @param string $emailfooter The footer of the email sent to user.
+     * @param string $criteriaaddendum The criterai addendum.
      */
     public function issue(array $recipients, $issuedon, $emailsubject,
-                          $emailbody, $emailfooter) {
+                          $emailbody, $emailfooter, $criteriaaddendum = '') {
         if (empty($this->id)) {
             throw new Exception('Invalid or missing badge id');
         }
         $this->get_client()->set_enable_raw_response(true);
         $this->get_client()->issue_badge($this, $recipients, $issuedon,
-                $emailsubject, $emailbody, $emailfooter);
+                $emailsubject, $emailbody, $emailfooter, $criteriaaddendum);
 
         $raw = $this->get_client()->get_raw_response();
         $this->get_client()->set_enable_raw_response(false);

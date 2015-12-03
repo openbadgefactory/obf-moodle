@@ -88,6 +88,11 @@ class obf_assertion {
      * @var string The id of the event.
      */
     private $id = null;
+    
+    /**
+     * @var string The criteria addendum
+     */
+    private $criteriaaddendum = '';
 
 
     /**
@@ -134,7 +139,7 @@ class obf_assertion {
     public function process() {
         try {
             $eventid = $this->badge->issue($this->recipients, $this->issuedon,
-                    $this->emailsubject, $this->emailbody, $this->emailfooter);
+                    $this->emailsubject, $this->emailbody, $this->emailfooter, $this->get_criteria_addendum());
             return $eventid;
         } catch (Exception $e) {
             $this->error = $e->getMessage();
@@ -408,6 +413,24 @@ class obf_assertion {
      */
     public function set_badge($badge) {
         $this->badge = $badge;
+        return $this;
+    }
+
+    /**
+     * Get criteria addendum.
+     * @return string Criteria addendum
+     */
+    public function get_criteria_addendum() {
+        return $this->criteriaaddendum;
+    }
+
+    /**
+     * Set criteria addendum.
+     * @param string $criteriaaddendum
+     * @return \obf_assertion
+     */
+    public function set_criteria_addendum($criteriaaddendum) {
+        $this->criteriaaddendum = $criteriaaddendum;
         return $this;
     }
 

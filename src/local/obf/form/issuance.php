@@ -63,6 +63,7 @@ class obf_issuance_form extends local_obf_form_base {
         $this->add_details_elements();
         $this->add_recipients_elements();
         $this->add_message_elements();
+        $this->add_criteria_addendum_elements();
         $this->add_action_buttons(true, get_string('issue', 'local_obf'));
     }
     /**
@@ -124,6 +125,20 @@ class obf_issuance_form extends local_obf_form_base {
 
         obf_email_template_form::add_email_fields($mform,
                 $this->badge->get_email());
+    }
+    
+    /**
+     * Add message elements.
+     */
+    private function add_criteria_addendum_elements() {
+
+        $mform = $this->_form;
+        $mform->addElement('header', 'badgecriteriaaddendumheader',
+                get_string('criteriaaddendumheader', 'local_obf'));
+
+        $mform->addElement('advcheckbox', 'addcriteriaaddendum', get_string('criteriaaddendumadd', 'local_obf'));
+        $mform->addElement('textarea', 'criteriaaddendum', get_string('criteriaaddendum', 'local_obf'));
+        $mform->addHelpButton('criteriaaddendum', 'criteriaaddendum', 'local_obf');
     }
 
     /**

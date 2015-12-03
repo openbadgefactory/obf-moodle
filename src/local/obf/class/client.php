@@ -442,9 +442,10 @@ class obf_client {
      * @param string $emailsubject The subject of the email.
      * @param string $emailbody The email body.
      * @param string $emailfooter The footer of the email.
+     * @param string $criteriaaddendum The criteria addendum.
      */
     public function issue_badge(obf_badge $badge, $recipients, $issuedon,
-                                $emailsubject, $emailbody, $emailfooter) {
+                                $emailsubject, $emailbody, $emailfooter, $criteriaaddendum = '') {
         $this->require_client_id();
         $params = array(
             'recipient' => $recipients,
@@ -455,6 +456,11 @@ class obf_client {
             'api_consumer_id' => OBF_API_CONSUMER_ID,
             'log_entry' => array('foo' => 'Just testing')
         );
+        if (!empty($criteriaaddendum)) {
+            $badge_override_params = array();
+            $badge_override_params['criteria_add'] = $criteriaaddendum;
+            $params['badge_override'] = $badge_override_params;
+        }
 
         if (!is_null($badge->get_expires()) && $badge->get_expires() > 0) {
             $params['expires'] = $badge->get_expires();

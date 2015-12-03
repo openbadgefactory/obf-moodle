@@ -98,11 +98,18 @@ if ($issuerform->is_cancelled()) {
     foreach ($users as $user) {
         $recipients[] = isset($backpackemails[$user->id]) ? $backpackemails[$user->id] : $user->email;
     }
+    
+    if (isset($data->criteriaaddendum) && isset($data->addcriteriaaddendum) && true == $data->addcriteriaaddendum) {
+        $criteriaaddendum = $data->criteriaaddendum;
+    } else {
+        $criteriaaddendum = '';
+    }
 
     $badge->set_expires($data->expiresby);
     $assertion = obf_assertion::get_instance()->set_badge($badge)->set_emailbody($data->emailbody);
     $assertion->set_emailsubject($data->emailsubject)->set_emailfooter($data->emailfooter);
     $assertion->set_issuedon($data->issuedon)->set_recipients($recipients);
+    $assertion->set_criteria_addendum($criteriaaddendum);
 
     $success = $assertion->process();
 
