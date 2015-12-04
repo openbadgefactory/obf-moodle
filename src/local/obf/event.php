@@ -63,7 +63,7 @@ if ($eventdata) {
         $hasviewpermission = true;
     } else if ($eventdata->has_criterionid()) {
         $criterion = obf_criterion::get_instance($eventdata->get_criterionid());
-        $criterionitems = $criterion->get_items();
+        $criterionitems = !empty($criterion) ? $criterion->get_items() : array();
         $lastindex = count($criterionitems) - 1;
         foreach ($criterionitems as $key => $item) {
             if ($item->has_courseid()) {
