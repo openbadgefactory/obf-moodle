@@ -80,9 +80,20 @@ class obf_criterion {
     private $badgeid = null;
 
     /**
+     * @var bool Use criteria addendum
+     */
+    private $useaddendum = false;
+    
+    /**
+     * @var string The criteria addendum
+     */
+    private $criteriaaddendum = '';
+    
+    /**
      * @var stdClass[] A simple cache for Moodle's courses.
      */
     private static $coursecache = array();
+    
 
     /**
      * Returns the criterion instance identified by $id
@@ -103,6 +114,8 @@ class obf_criterion {
         $obj->set_badgeid($record->badge_id);
         $obj->set_id($record->id);
         $obj->set_completion_method($record->completion_method);
+        $obj->set_criteria_addendum($record->addendum);
+        $obj->set_use_addendum((bool)$record->use_addendum);
 
         return $obj;
     }
@@ -118,6 +131,8 @@ class obf_criterion {
         $obj->id = $this->id;
         $obj->badge_id = $this->get_badgeid();
         $obj->completion_method = $this->completionmethod;
+        $obj->addendum = $this->criteriaaddendum;
+        $obj->use_addendum = $this->useaddendum;
 
         $DB->update_record('local_obf_criterion', $obj);
     }
@@ -133,6 +148,8 @@ class obf_criterion {
         $obj = new stdClass();
         $obj->badge_id = $this->get_badgeid();
         $obj->completion_method = $this->completionmethod;
+        $obj->addendum = $this->criteriaaddendum;
+        $obj->use_addendum = $this->useaddendum;
 
         $id = $DB->insert_record('local_obf_criterion', $obj, true);
 
@@ -533,8 +550,9 @@ class obf_criterion {
                 $badge->set_expires($expiresoverride);
             }
 
+            $criteriaaddendum = $this->get_use_addendum() ? $this->get_criteria_addendum() : '';
             $eventid = $badge->issue($recipientemails, time(), $email->get_subject(),
-                    $email->get_body(), $email->get_footer());
+                    $email->get_body(), $email->get_footer(), $criteriaaddendum);
 
             if ($eventid && !is_bool($eventid)) {
                 $issuevent = new obf_issue_event($eventid, $DB);
@@ -777,5 +795,22 @@ class obf_criterion {
             }
         }
         return $ret;
+    }
+    public function get_use_addendum() {
+        return $this->useaddendum;
+    }
+
+    public function get_criteria_addendum() {
+        return $this->criteriaaddendum;
+    }
+
+    public function set_use_addendum($useaddendum) {
+        $this->useaddendum = $useaddendum;
+        return $this;
+    }
+
+    public function set_criteria_addendum($criteriaaddendum) {
+        $this->criteriaaddendum = $criteriaaddendum;
+        return $this;
     }
 }

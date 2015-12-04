@@ -232,6 +232,10 @@ class obf_criterion_unknown extends obf_criterion_item {
     public function get_form_after_save_options(&$mform, &$obj) {
 
     }
+    
+    public function get_form_criteria_addendum_options(&$mform, &$obj) {
+
+    }
 
     /**
      * Return all form field names and types, that need to be present on a form,

@@ -727,6 +727,14 @@ class local_obf_renderer extends plugin_renderer_base {
                     $criterion->set_completion_method(obf_criterion::CRITERIA_COMPLETION_ALL);
                     $criterion->set_items($criterioncourse);
                 }
+                
+                if (isset($data->criteriaaddendum)) {
+                    $criterion->set_criteria_addendum($data->criteriaaddendum);
+                }
+                if (isset($data->addcriteriaaddendum)) {
+                    $criterion->set_use_addendum($data->addcriteriaaddendum);
+                }
+            
                 if (!is_null($courseid)) {
                     $criterioncourse->set_courseid((int)$courseid);
                 }

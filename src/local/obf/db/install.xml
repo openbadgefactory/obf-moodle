@@ -23,7 +23,9 @@
             <FIELDS>
                 <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true" NEXT="badge_id"/>
                 <FIELD NAME="badge_id" TYPE="text" NOTNULL="true" SEQUENCE="false" PREVIOUS="id" NEXT="completion_method"/>
-                <FIELD NAME="completion_method" TYPE="int" LENGTH="1" NOTNULL="true" SEQUENCE="false" PREVIOUS="badge_id"/>
+                <FIELD NAME="completion_method" TYPE="int" LENGTH="1" NOTNULL="true" SEQUENCE="false" PREVIOUS="badge_id" NEXT="use_addendum"/>
+                <FIELD NAME="use_addendum" TYPE="binary" NOTNULL="false" SEQUENCE="false" PREVIOUS="completion_method" NEXT="addendum"/>
+                <FIELD NAME="addendum" TYPE="text" NOTNULL="false" SEQUENCE="false" PREVIOUS="use_addendum"/>
             </FIELDS>
             <KEYS>
                 <KEY NAME="primary" TYPE="primary" FIELDS="id"/>

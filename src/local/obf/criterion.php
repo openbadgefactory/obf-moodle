@@ -145,6 +145,12 @@ switch ($action) {
                     }
                 }
             }
+            if (isset($data->criteriaaddendum)) {
+                $criterion->set_criteria_addendum($data->criteriaaddendum);
+            }
+            if (isset($data->addcriteriaaddendum)) {
+                $criterion->set_use_addendum($data->addcriteriaaddendum);
+            }
 
             $itemscreateable = true;
             foreach ($items as $item) {
@@ -274,11 +280,18 @@ switch ($action) {
                 } else {
                     $criterioncompletionmethod = obf_criterion::CRITERIA_COMPLETION_ALL;
                 }
+                if (isset($data->criteriaaddendum)) {
+                    $criterion->set_criteria_addendum($data->criteriaaddendum);
+                }
+                if (isset($data->addcriteriaaddendum)) {
+                    $criterion->set_use_addendum($data->addcriteriaaddendum);
+                }
 
                 if ($criterioncompletionmethod != $criterion->get_completion_method()) {
                     $criterion->set_completion_method($criterioncompletionmethod);
-                    $criterion->update();
                 }
+                $criterion->update();
+                
 
                 $courses = $criterion->get_items(true);
                 $criterioncourseid = count($courses) > 0 ? $courses[0]->get_id() : -1;

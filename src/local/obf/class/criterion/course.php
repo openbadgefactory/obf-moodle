@@ -510,6 +510,32 @@ class obf_criterion_course extends obf_criterion_item {
 
         }
     }
+    
+    /**
+     * Prints criteria addendum options to form.
+     *
+     * @param MoodleQuickForm& $mform
+     * @param mixed& $obj Form object
+     */
+    public function get_form_criteria_addendum_options(&$mform, &$obj) {
+        global $OUTPUT;
+        if ($this->show_criteria_addendum_options()) {
+            $mform->addElement('header', 'header_criteria_addendum',
+                    get_string('criteriaaddendumheader', 'local_obf'));
+            if (false) { // TODO: if using addendum expand
+                $obj->setExpanded($mform, 'header_criteria_addendum');
+            }
+            
+            $criterion = $obj->get_criterion();
+            $addendum = !empty($criterion) ? $criterion->get_criteria_addendum() : '';
+            $useaddendum = !empty($criterion) ? $criterion->get_use_addendum() : false;
+            
+            $mform->addElement('advcheckbox', 'addcriteriaaddendum', get_string('criteriaaddendumadd', 'local_obf'));
+            $mform->addElement('textarea', 'criteriaaddendum', get_string('criteriaaddendum', 'local_obf'));
+            $mform->addHelpButton('criteriaaddendum', 'criteriaaddendum', 'local_obf');
+            $mform->setDefaults(array('criteriaaddendum' => $addendum, 'addcriteriaaddendum' => $useaddendum));
+        }
+    }
 
     /**
      * Return all form field names and types, that need to be present on a form,
@@ -618,6 +644,14 @@ class obf_criterion_course extends obf_criterion_item {
      * @return bool True if options should be shown. False otherwise.
      */
     protected function show_review_options() {
+        return $this->courseid != -1 && $this->criteriatype != self::CRITERIA_TYPE_UNKNOWN;
+    }
+    
+    /**
+     * To show criteria addendum options or not?
+     * @return bool True if options should be shown. False otherwise.
+     */
+    protected function show_criteria_addendum_options() {
         return $this->courseid != -1 && $this->criteriatype != self::CRITERIA_TYPE_UNKNOWN;
     }
 }

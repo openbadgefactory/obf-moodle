@@ -109,6 +109,7 @@ class obf_criterion_form extends local_obf_form_base implements renderable {
                 }
                 $criterioncourses[0]->get_form_completion_options($mform, $this, $criterioncourses);
                 $criterioncourses[0]->get_form_after_save_options($mform, $this);
+                $criterioncourses[0]->get_form_criteria_addendum_options($mform, $this);
             }
 
             if ($showbuttons) {

@@ -59,6 +59,7 @@ class obf_coursecriterion_form extends local_obf_form_base {
 
         $mform = $this->_form;
         $this->criterioncourse = $this->_customdata['criterioncourse'];
+        $this->criterion = $this->criterioncourse->get_criterion();
         if ($this->criterioncourse->exists()) {
             $this->criteriatype = $this->criterioncourse->get_criteriatype();
         } else if (array_key_exists('criteriatype', $this->_customdata)) {
@@ -71,6 +72,7 @@ class obf_coursecriterion_form extends local_obf_form_base {
         $this->criterioncourse->get_form_config($mform, $this);
 
         $this->criterioncourse->get_form_after_save_options($mform, $this);
+        $this->criterioncourse->get_form_criteria_addendum_options($mform, $this);
 
         $buttonarray = array();
         $buttonarray[] = &$mform->createElement('submit', 'submitbutton',
@@ -84,5 +86,11 @@ class obf_coursecriterion_form extends local_obf_form_base {
         $mform->addGroup($buttonarray, 'buttonar', '', array(' '), false);
         $mform->closeHeaderBefore('buttonar');
     }
-
+    /**
+     * Get criterion.
+     * @return obf_criterion
+     */
+    public function get_criterion() {
+        return $this->criterion;
+    }
 }
