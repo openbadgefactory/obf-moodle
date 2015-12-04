@@ -74,6 +74,10 @@ table.obf-table th  { width: 120px; }
 .obf-assertion dl.obf-definition-list dt { width: auto; float: none; clear: none; }
 .obf-assertion dl.obf-definition-list dd { clear: none; margin-left: 20px; padding-bottom: 20px; }
 
+.local-obf .obf-badge.expired-assertion .expired-info {
+    position: relative;
+    height: 0;
+}
 
 /**
  * Assertion details (modal)
