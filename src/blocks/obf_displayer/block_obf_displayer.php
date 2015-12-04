@@ -105,7 +105,7 @@ class block_obf_displayer extends block_base {
                     $client = obf_client::get_instance();
                     $blacklist = new obf_blacklist($userid);
                     $assertions->add_collection(obf_assertion::get_assertions(
-                            $client, null, $db->get_record('user', array('id' => $userid))->email ));
+                            $client, null, $db->get_record('user', array('id' => $userid))->email, -1, true ));
                     $assertions->apply_blacklist($blacklist);
                 } catch (Exception $e) {
                     debugging('Getting OBF assertions for user id: ' . $userid . ' failed: ' . $e->getMessage());

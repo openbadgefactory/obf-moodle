@@ -241,15 +241,30 @@ class obf_assertion {
      * @return \obf_assertion_collection The assertions.
      */
     public static function get_assertions(obf_client $client,
-            obf_badge $badge = null, $email = null, $limit = -1) {
+            obf_badge $badge = null, $email = null, $limit = -1, $geteachseparately = false) {
         $badgeid = is_null($badge) ? null : $badge->get_id();
         $arr = $client->get_assertions($badgeid, $email);
         $assertions = array();
-        $collection = new obf_badge_collection($client);
-        $collection->populate();
+        if (!$geteachseparately) {
+            /**
+             * Using populated collection for assertions would result in getting
+             * the latest badge data, might not match issued data. 
+             * (issued badge data with addendums and changes)
+             * 
+             */
+            $collection = new obf_badge_collection($client);
+            $collection->populate(); 
+        }
 
         foreach ($arr as $item) {
-            $b = is_null($badge) ? $collection->get_badge($item['badge_id']) : $badge;
+            if (!is_null($badge)) {
+                $b = $badge;
+            } else if ($geteachseparately && is_null($badge)) {
+                $b = self::get_assertion_badge($client, $item['badge_id'], $item['id']);
+            } else {
+                $b = $collection->get_badge($item['badge_id']);
+            }
+            
             if (!is_null($b)) {
                 $assertion = self::get_instance();
                 $assertion->set_badge($b)->set_id($item['id'])->set_recipients($item['recipient']);
@@ -275,6 +290,29 @@ class obf_assertion {
         }
 
         return new obf_assertion_collection($assertions);
+    }
+    
+    /**
+     * Get badge details for an issued badge.
+     * 
+     * @param type $client The client instance.
+     * @param type $badgeid The badge id.
+     * @param type $eventid The event id.
+     * @return obf_badge
+     */
+    public static function get_assertion_badge($client, $badgeid, $eventid) {
+            $arr = $client->pub_get_badge($badgeid, $eventid);
+            if ($arr) {
+                $badge = obf_badge::get_instance_from_array($arr);
+                $badge->set_id($badgeid);
+                // We can at the moment assume issuer is the same as the defined client.
+                // Because we only get assertions for api_consumer_id
+                // otherwise issuer could also be a suborganisation
+                //$badge->set_issuer_url($arr['issuer']);
+                
+                return $badge;
+            }
+            return null;
     }
     
     public static function get_user_moodle_badge_assertions($user_id = 0, $limit = -1) {

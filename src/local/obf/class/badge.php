@@ -49,6 +49,11 @@ class obf_badge {
      * @var obf_issuer The issuer of the badge.
      */
     private $issuer = null;
+    
+    /**
+     * @var string The issuer URL
+     */
+    private $issuerurl = '';
 
     /**
      * @var obf_email The email template.
@@ -236,10 +241,15 @@ class obf_badge {
         global $DB;
 
         // These should always exist.
-        $this->set_description($arr['description'])->set_id($arr['id'])->set_isdraft((bool) $arr['draft']);
-        $this->set_image($arr['image'])->set_created($arr['ctime'])->set_name($arr['name']);
+        $this->set_description($arr['description'])->set_id($arr['id']);
+        $this->set_image($arr['image'])->set_name($arr['name']);
+        
+        if (isset($arr['draft'])) {
+            $this->set_isdraft((bool) $arr['draft'])->set_created($arr['ctime']);
+        }
+        
 
-        $expires = (int) $arr['expires'];
+        $expires = (int) (isset($arr['expires']) ? $arr['expires'] : 0);
 
         if ($expires > 0) {
             $this->set_expires(strtotime('+ ' . $expires . ' months'));
@@ -340,13 +350,26 @@ class obf_badge {
      * @return obf_issuer The issuer.
      */
     public function get_issuer() {
+        if (is_null($this->issuer) && !empty($this->issuerurl)) {
+            $arr = $this->get_client()->request($this->get_issuer_url());
+            $this->issuer = obf_issuer::get_instance_from_arr($arr);
+        }
         if (is_null($this->issuer)) {
-            $this->issuer = obf_issuer::get_instance_from_arr($this->get_client()->get_issuer());
+            $this->issuer = obf_issuer::get_default_issuer($this->get_client());
         }
 
         return $this->issuer;
     }
+    
+    /**
+     * Returns the issuer url
+     * @return string
+     */
+    public function get_issuer_url() {
+        return $this->issuerurl;
+    }
 
+    
     /**
      * Issues this badge to $recipients.
      *
@@ -552,7 +575,18 @@ class obf_badge {
         $this->issuer = $issuer;
         return $this;
     }
+    
+    /**
+     * Set issuer url.
+     * @param string $issuerurl The issuer url (Issuer JSON)
+     * @return \obf_badge
+     */
+    public function set_issuer_url($issuerurl) {
+        $this->issuerurl = $issuerurl;
+        return $this;
+    }
 
+    
     /**
      * Set email template.
      * @param obf_email $email Email template

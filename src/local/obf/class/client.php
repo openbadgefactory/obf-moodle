@@ -454,7 +454,8 @@ class obf_client {
             'email_body' => $emailbody,
             'email_footer' => $emailfooter,
             'api_consumer_id' => OBF_API_CONSUMER_ID,
-            'log_entry' => array('foo' => 'Just testing')
+            'log_entry' => array('foo' => 'Just testing'),
+            'show_report' => 1
         );
         if (!empty($criteriaaddendum)) {
             $badge_override_params = array();
@@ -614,4 +615,9 @@ class obf_client {
         );
     }
 
+    public function pub_get_badge($badgeid, $eventid) {
+        $params = array('v' => '1.1', 'event' => $eventid);
+        $badge = $this->api_request('/badge/_/' . $badgeid . '.json', 'get', $params);
+        return $badge;
+    }
 }

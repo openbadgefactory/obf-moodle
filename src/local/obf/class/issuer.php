@@ -59,6 +59,8 @@ class obf_issuer {
      * @var string The organization name of the issuer.
      */
     private $organization = '';
+    
+    private static $defaultissuer = null;
 
     /**
      * Returns a new obf_issuer instance.
@@ -114,7 +116,16 @@ class obf_issuer {
 
         return $issuer;
     }
+    
+    public static function get_default_issuer($client) {
+        if (!is_null(self::$defaultissuer)) {
+            return self::$defaultissuer;
+        }
+        self::$defaultissuer = obf_issuer::get_instance_from_arr($client->get_issuer());
+        return self::$defaultissuer;
+    }
 
+    
     /**
      * Populates this instance with the data from the array.
      *

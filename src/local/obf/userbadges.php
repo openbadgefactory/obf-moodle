@@ -37,7 +37,7 @@ $context = context_user::instance($userid);
 $client = obf_client::get_instance();
 $blacklist = new obf_blacklist($userid);
 $assertions = new obf_assertion_collection();
-$assertions->add_collection(obf_assertion::get_assertions($client, null, $DB->get_record('user', array('id' => $userid))->email ));
+$assertions->add_collection(obf_assertion::get_assertions($client, null, $DB->get_record('user', array('id' => $userid))->email, -1, true ));
 $assertions->apply_blacklist($blacklist);
 
 if ((int)$USER->id === $userid) {
