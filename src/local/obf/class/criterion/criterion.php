@@ -387,7 +387,7 @@ class obf_criterion {
         global $DB;
 
         $sql = 'SELECT cc.*, c.id AS criterionid, ' .
-                'c.badge_id, c.completion_method AS crit_completion_method FROM {local_obf_criterion_courses} cc ' .
+                'c.badge_id, c.completion_method AS crit_completion_method, c.use_addendum, c.addendum FROM {local_obf_criterion_courses} cc ' .
                 'LEFT JOIN {local_obf_criterion} c ON cc.obf_criterion_id = c.id';
         $params = array();
         $cols = array();
@@ -413,6 +413,8 @@ class obf_criterion {
                 $obj->set_badgeid($record->badge_id);
                 $obj->set_id($record->criterionid);
                 $obj->set_completion_method($record->crit_completion_method);
+                $obj->set_use_addendum($record->use_addendum);
+                $obj->set_criteria_addendum($record->addendum);
 
                 $ret[$record->criterionid] = $obj;
             }
