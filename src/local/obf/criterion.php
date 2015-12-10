@@ -44,6 +44,8 @@ $PAGE->set_url(new moodle_url('/local/obf/criterion.php',
     'id' => $id, 'badgeid' => $badgeid, 'type' => $type)));
 $PAGE->set_title(get_string('obf', 'local_obf'));
 $PAGE->set_pagelayout('admin');
+$PAGE->requires->jquery_plugin('obf-simplemde', 'local_obf');
+$PAGE->requires->jquery_plugin('obf-criteria-markdown', 'local_obf');
 
 navigation_node::override_active_url(new moodle_url('/local/obf/badge.php',
         array('action' => 'list')));
@@ -384,5 +386,4 @@ switch ($action) {
     case 'list':
         break;
 }
-
 echo $content;

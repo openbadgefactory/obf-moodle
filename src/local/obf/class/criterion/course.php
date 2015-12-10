@@ -522,18 +522,21 @@ class obf_criterion_course extends obf_criterion_item {
         if ($this->show_criteria_addendum_options()) {
             $mform->addElement('header', 'header_criteria_addendum',
                     get_string('criteriaaddendumheader', 'local_obf'));
-            if (false) { // TODO: if using addendum expand
-                $obj->setExpanded($mform, 'header_criteria_addendum');
-            }
             
             $criterion = $obj->get_criterion();
             $addendum = !empty($criterion) ? $criterion->get_criteria_addendum() : '';
             $useaddendum = !empty($criterion) ? $criterion->get_use_addendum() : false;
             
+            if (!empty($addendum)) {
+                $obj->setExpanded($mform, 'header_criteria_addendum');
+            }
+            
             $mform->addElement('advcheckbox', 'addcriteriaaddendum', get_string('criteriaaddendumadd', 'local_obf'));
             $mform->addElement('textarea', 'criteriaaddendum', get_string('criteriaaddendum', 'local_obf'));
+            //$mform->setType('criteriaaddendum', PARAM_RAW);
             $mform->addHelpButton('criteriaaddendum', 'criteriaaddendum', 'local_obf');
             $mform->setDefaults(array('criteriaaddendum' => $addendum, 'addcriteriaaddendum' => $useaddendum));
+            //$mform->setDefaults(array('criteriaaddendum' => array('text' => $addendum, 'format' => FORMAT_MARKDOWN), 'addcriteriaaddendum' => $useaddendum));
         }
     }
 

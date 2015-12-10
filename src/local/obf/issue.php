@@ -52,6 +52,9 @@ $PAGE->set_url(new moodle_url('/local/obf/issue.php', $urlparams));
 $PAGE->set_title(get_string('obf', 'local_obf'));
 $PAGE->set_pagelayout(!is_null($courseid) ? 'course' : 'admin');
 
+$PAGE->requires->jquery_plugin('obf-simplemde', 'local_obf');
+$PAGE->requires->jquery_plugin('obf-criteria-markdown', 'local_obf');
+
 $content = $OUTPUT->header();
 $badge = obf_badge::get_instance($badgeid);
 
