@@ -109,10 +109,10 @@ if ($issuerform->is_cancelled()) {
     }
 
     $badge->set_expires($data->expiresby);
-    $assertion = obf_assertion::get_instance()->set_badge($badge)->set_emailbody($data->emailbody);
-    $assertion->set_emailsubject($data->emailsubject)->set_emailfooter($data->emailfooter);
+    $assertion = obf_assertion::get_instance()->set_badge($badge);
     $assertion->set_issuedon($data->issuedon)->set_recipients($recipients);
     $assertion->set_criteria_addendum($criteriaaddendum);
+    $assertion->get_email_template()->set_subject($data->emailsubject)->set_footer($data->emailfooter)->set_body($data->emailbody)->set_link_text($data->emaillinktext);
 
     $success = $assertion->process();
 

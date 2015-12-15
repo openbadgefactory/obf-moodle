@@ -50,6 +50,11 @@ class obf_email {
      * @var string Email footer.
      */
     private $footer = '';
+    
+    /**
+     * @var string Email link text
+     */
+    private $linktext = '';
 
     /**
      * Returns the email instance related to a badge.
@@ -66,6 +71,7 @@ class obf_email {
             $obj = new self();
             $obj->set_badge_id($badge->get_id())->set_id($record->id);
             $obj->set_subject($record->subject)->set_body($record->body)->set_footer($record->footer);
+            $obj->set_link_text($record->link_text);
             return $obj;
         }
 
@@ -82,6 +88,7 @@ class obf_email {
         $obj->subject = $this->subject;
         $obj->body = $this->body;
         $obj->footer = $this->footer;
+        $obj->link_text = $this->linktext;
         $obj->badge_id = $this->badgeid;
 
         if ($this->id > 0) {
@@ -177,5 +184,15 @@ class obf_email {
         $this->footer = $footer;
         return $this;
     }
+    
+    public function get_link_text() {
+        return $this->linktext;
+    }
+
+    public function set_link_text($linktext) {
+        $this->linktext = $linktext;
+        return $this;
+    }
+
 
 }

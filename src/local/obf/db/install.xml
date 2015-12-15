@@ -36,7 +36,8 @@
                 <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true" NEXT="badge_id"/>
                 <FIELD NAME="badge_id" TYPE="char" LENGTH="20" NOTNULL="true" SEQUENCE="false" PREVIOUS="id" NEXT="subject"/>
                 <FIELD NAME="subject" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" PREVIOUS="badge_id" NEXT="body"/>
-                <FIELD NAME="body" TYPE="text" NOTNULL="true" SEQUENCE="false" PREVIOUS="subject" NEXT="footer"/>
+                <FIELD NAME="body" TYPE="text" NOTNULL="true" SEQUENCE="false" PREVIOUS="subject" NEXT="link_text"/>
+                <FIELD NAME="link_text" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" PREVIOUS="body" NEXT="footer"/>
                 <FIELD NAME="footer" TYPE="text" NOTNULL="true" SEQUENCE="false" PREVIOUS="body"/>
             </FIELDS>
             <KEYS>

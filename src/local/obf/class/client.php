@@ -424,6 +424,7 @@ class obf_client {
             'criteria_html' => $badge->get_criteria_html(),
             'email_subject' => $badge->get_email()->get_subject(),
             'email_body' => $badge->get_email()->get_body(),
+            'email_link_text' => $badge->get_email()->get_link_text(),
             'email_footer' => $badge->get_email()->get_footer(),
             'expires' => '',
             'tags' => array(),
@@ -439,24 +440,25 @@ class obf_client {
      * @param obf_badge $badge The badge to be issued.
      * @param string[] $recipients The recipient list, array of emails.
      * @param int $issuedon The issuance date as a Unix timestamp
-     * @param string $emailsubject The subject of the email.
-     * @param string $emailbody The email body.
-     * @param string $emailfooter The footer of the email.
+     * @param string $email The email to send (template).
      * @param string $criteriaaddendum The criteria addendum.
      */
     public function issue_badge(obf_badge $badge, $recipients, $issuedon,
-                                $emailsubject, $emailbody, $emailfooter, $criteriaaddendum = '') {
+                                $email, $criteriaaddendum = '') {
         $this->require_client_id();
         $params = array(
             'recipient' => $recipients,
             'issued_on' => $issuedon,
-            'email_subject' => $emailsubject,
-            'email_body' => $emailbody,
-            'email_footer' => $emailfooter,
             'api_consumer_id' => OBF_API_CONSUMER_ID,
             'log_entry' => array('foo' => 'Just testing'),
             'show_report' => 1
         );
+        if (!is_null($email)) {
+            $params['email_subject'] = $email->get_subject();
+            $params['email_body'] = $email->get_body();
+            $params['email_footer'] = $email->get_footer();
+            $params['email_link_text'] = $email->get_link_text();
+        }
         if (!empty($criteriaaddendum)) {
             $badge_override_params = array();
             $badge_override_params['criteria_add'] = $criteriaaddendum;

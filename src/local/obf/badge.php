@@ -147,6 +147,7 @@ switch ($action) {
                     $email->set_subject($data->emailsubject);
                     $email->set_body($data->emailbody);
                     $email->set_footer($data->emailfooter);
+                    $email->set_link_text($data->emaillinktext);
                     $email->save($DB);
 
                     $redirecturl = clone $emailurl;

@@ -53,6 +53,12 @@ class obf_assertion {
      * @var string The top part of the email message.
      */
     private $emailbody = '';
+    
+    /**
+     *
+     * @var obf_email The email
+     */
+    private $emailtemplate = null;
 
     /**
      * @var int When the badge was issued, Unix timestamp.
@@ -139,7 +145,7 @@ class obf_assertion {
     public function process() {
         try {
             $eventid = $this->badge->issue($this->recipients, $this->issuedon,
-                    $this->emailsubject, $this->emailbody, $this->emailfooter, $this->get_criteria_addendum());
+                    $this->get_email_template(), $this->get_criteria_addendum());
             return $eventid;
         } catch (Exception $e) {
             $this->error = $e->getMessage();
@@ -206,6 +212,10 @@ class obf_assertion {
         $arr = $client->get_event($id);
         $obj = self::get_instance()->set_emailbody($arr['email_body']);
         $obj->set_emailfooter($arr['email_footer'])->set_emailsubject($arr['email_subject']);
+        if (isset($arr['email_link_text'])) {
+            $obj->get_email_template()->set_link_text($arr['email_link_text']);
+        }
+        
         $obj->set_issuedon($arr['issued_on'])->set_id($arr['id'])->set_name($arr['name']);
         $obj->set_recipients($arr['recipient'])->set_badge(obf_badge::get_instance($arr['badge_id'], $client));
         $obj->set_source(self::ASSERTION_SOURCE_OBF);
@@ -477,7 +487,7 @@ class obf_assertion {
      * @return string Email subject
      */
     public function get_emailsubject() {
-        return $this->emailsubject;
+        return $this->get_email_template()->get_subject();
     }
 
     /**
@@ -485,7 +495,7 @@ class obf_assertion {
      * @param string $emailsubject
      */
     public function set_emailsubject($emailsubject) {
-        $this->emailsubject = $emailsubject;
+        $this->get_email_template()->set_subject($emailsubject);
         return $this;
     }
 
@@ -494,7 +504,7 @@ class obf_assertion {
      * @return string Email footer
      */
     public function get_emailfooter() {
-        return $this->emailfooter;
+        return $this->get_email_template()->get_footer();
     }
 
     /**
@@ -502,7 +512,7 @@ class obf_assertion {
      * @param string $emailfooter Email footer
      */
     public function set_emailfooter($emailfooter) {
-        $this->emailfooter = $emailfooter;
+        $this->get_email_template()->set_footer($emailfooter);
         return $this;
     }
 
@@ -511,7 +521,7 @@ class obf_assertion {
      * @return string Email message body
      */
     public function get_emailbody() {
-        return $this->emailbody;
+        return $this->get_email_template()->get_body();
     }
 
     /**
@@ -519,7 +529,7 @@ class obf_assertion {
      * @param string $emailbody Email message body
      */
     public function set_emailbody($emailbody) {
-        $this->emailbody = $emailbody;
+        $this->get_email_template()->set_body($emailbody);
         return $this;
     }
 
@@ -686,5 +696,19 @@ class obf_assertion {
         }
         return $users;
     }
+    
+    public function get_email_template() {
+        if (is_null($this->emailtemplate)) {
+            $this->emailtemplate = new obf_email();
+        }
+        return $this->emailtemplate;
+    }
+
+    public function set_email_template(obf_email $emailtemplate) {
+        $this->emailtemplate = $emailtemplate;
+        return $this;
+    }
+
+
 
 }

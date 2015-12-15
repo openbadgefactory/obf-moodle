@@ -96,8 +96,7 @@ function local_obf_course_completed(stdClass $eventdata) {
             
             $criteriaaddendum = $criterion->get_use_addendum() ? $criterion->get_criteria_addendum() : '';
 
-            $eventid = $badge->issue($recipients, time(), $email->get_subject(),
-                    $email->get_body(), $email->get_footer(), $criteriaaddendum);
+            $eventid = $badge->issue($recipients, time(), $email, $criteriaaddendum);
             $criterion->set_met_by_user($user->id);
 
             if ($eventid && !is_bool($eventid)) {

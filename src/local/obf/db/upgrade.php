@@ -572,6 +572,20 @@ function xmldb_local_obf_upgrade($oldversion) {
         // Obf savepoint reached.
         upgrade_plugin_savepoint(true, 2015120301, 'local', 'obf');
     }
+    if ($oldversion < 2015121500) {
+
+        // Define field use_addendum to be added to local_obf_criterion.
+        $table = new xmldb_table('local_obf_email_templates');
+        $field = new xmldb_field('link_text', XMLDB_TYPE_CHAR, '255', null, null, null, null, 'body');
+
+        // Conditionally launch add field use_addendum.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+        
+        // Obf savepoint reached.
+        upgrade_plugin_savepoint(true, 2015121500, 'local', 'obf');
+    }
 
     return true;
 }

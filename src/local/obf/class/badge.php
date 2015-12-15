@@ -266,7 +266,7 @@ class obf_badge {
         $email = obf_email::get_by_badge($this, $DB);
 
         // No email template in the local database yet, try to get from the array.
-        $hasemail = isset($arr['email_subject']) || isset($arr['email_footer']) || isset($arr['email_body']);
+        $hasemail = isset($arr['email_subject']) || isset($arr['email_footer']) || isset($arr['email_body']) || isset($arr['email_link_text']);
 
         if (is_null($email) && $hasemail) {
             $email = new obf_email();
@@ -275,6 +275,7 @@ class obf_badge {
             isset($arr['email_subject']) and $email->set_subject($arr['email_subject']);
             isset($arr['email_footer']) and $email->set_footer($arr['email_footer']);
             isset($arr['email_body']) and $email->set_body($arr['email_body']);
+            isset($arr['email_link_text']) and $email->set_link_text($arr['email_link_text']);
 
             $email->save($DB);
         }
@@ -375,19 +376,16 @@ class obf_badge {
      *
      * @param string[] $recipients The email addresses of the recipients.
      * @param int $issuedon When the badge was issued, Unix timestamp.
-     * @param string $emailsubject The subject of the email sent to user.
-     * @param string $emailbody The body of the email sent to user.
-     * @param string $emailfooter The footer of the email sent to user.
+     * @param string $email The email sent to user (template).
      * @param string $criteriaaddendum The criterai addendum.
      */
-    public function issue(array $recipients, $issuedon, $emailsubject,
-                          $emailbody, $emailfooter, $criteriaaddendum = '') {
+    public function issue(array $recipients, $issuedon, $email, $criteriaaddendum = '') {
         if (empty($this->id)) {
             throw new Exception('Invalid or missing badge id');
         }
         $this->get_client()->set_enable_raw_response(true);
         $this->get_client()->issue_badge($this, $recipients, $issuedon,
-                $emailsubject, $emailbody, $emailfooter, $criteriaaddendum);
+                $email, $criteriaaddendum);
 
         $raw = $this->get_client()->get_raw_response();
         $this->get_client()->set_enable_raw_response(false);

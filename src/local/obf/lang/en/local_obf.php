@@ -134,6 +134,7 @@ $string['emailbadgerevokedsubject'] = 'Your badge has been revoked';
 $string['emailbadgerevokedbody'] = 'One of your earned badges ({$a->revokedbadgename}) has been revoked by {$a->revokername}.';
 $string['emailbody'] = 'Email body';
 $string['emailfooter'] = 'Email footer';
+$string['emaillinktext'] = 'Email link text';
 $string['emailmessage'] = 'Email message';
 $string['emailsubject'] = 'Email subject';
 $string['emailtemplatesaved'] = 'Email template was successfully saved.';

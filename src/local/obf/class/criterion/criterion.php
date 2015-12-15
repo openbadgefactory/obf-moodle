@@ -553,8 +553,7 @@ class obf_criterion {
             }
 
             $criteriaaddendum = $this->get_use_addendum() ? $this->get_criteria_addendum() : '';
-            $eventid = $badge->issue($recipientemails, time(), $email->get_subject(),
-                    $email->get_body(), $email->get_footer(), $criteriaaddendum);
+            $eventid = $badge->issue($recipientemails, time(), $email, $criteriaaddendum);
 
             if ($eventid && !is_bool($eventid)) {
                 $issuevent = new obf_issue_event($eventid, $DB);

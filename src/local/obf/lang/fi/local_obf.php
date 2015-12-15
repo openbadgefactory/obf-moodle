@@ -134,6 +134,7 @@ $string['emailbadgerevokedsubject'] = 'Osaamismerkki mitätöity';
 $string['emailbadgerevokedbody'] = 'Aiemmin ansaitsemasi osaamismerkki ({$a->revokedbadgename}) on mitätöity. Osaamismerkin mitätöinyt käyttäjä: {$a->revokername}.';
 $string['emailbody'] = 'Viestin alkuosa';
 $string['emailfooter'] = 'Viestin loppuosa';
+$string['emaillinktext'] = 'Viestin linkin kuvaus';
 $string['emailmessage'] = 'Sähköpostiviesti';
 $string['emailsubject'] = 'Viestin otsikko';
 $string['emailtemplatesaved'] = 'Sähköpostiviesti tallennettu.';
