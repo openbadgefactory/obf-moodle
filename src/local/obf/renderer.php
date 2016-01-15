@@ -324,7 +324,8 @@ class local_obf_renderer extends plugin_renderer_base {
     public function render_badge_modal($badge, $assertion) {
         $issuer = $badge->get_issuer();
         $issuerdetails = html_writer::tag('label', get_string('issuer', 'local_obf'));
-        if (!empty($issuer->get_url())) {
+        $issuerurl = $issuer->get_url();
+        if (!empty($issuerurl)) {
             $issuerdetails .= html_writer::link($issuer->get_url(),
                     $issuer->get_name(), array('class' => 'issuer-url'));
         } else {

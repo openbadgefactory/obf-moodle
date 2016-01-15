@@ -35,7 +35,8 @@ $PAGE->set_context(context_system::instance());
 $PAGE->set_url(new moodle_url('/local/obf/criteriapreview.php', array('badge_id' => $badgeid)));
 $PAGE->set_title(get_string('criteriapreview', 'local_obf'));
 $PAGE->set_pagelayout('popup');
-$badgehascss = !empty($badge->get_criteria_css());
+$criteriacss = $badge->get_criteria_css();
+$badgehascss = !empty($criteriacss);
 $xhrrequest = (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest');
 
 if (!$xhrrequest) {

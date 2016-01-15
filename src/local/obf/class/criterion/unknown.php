@@ -193,7 +193,9 @@ class obf_criterion_unknown extends obf_criterion_item {
         global $PAGE, $OUTPUT, $CFG;
         $optionlist = self::get_criteria_type_options();
 
-        if (!empty($this->get_criterionid()) && ($this->get_criterionid() > 0) && !empty($this->get_courseid())) {
+        $criterionid = $this->get_criterionid();
+        $courseid = $this->get_courseid();
+        if (!empty($criterionid) && ($this->get_criterionid() > 0) && !empty($courseid)) {
             if ($PAGE->pagetype == 'local-obf-badge') {
                 $url = new moodle_url('/local/obf/badge.php',
                         array('id' => $this->get_criterion()->get_badgeid(),
