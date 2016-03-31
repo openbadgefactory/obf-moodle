@@ -23,10 +23,10 @@
  */
 defined('MOODLE_INTERNAL') or die();
 
-$plugin->version    = 2016011500;
+$plugin->version    = 2016031800;
 $plugin->requires   = 2011120511;
 $plugin->cron       = 86400;
 $plugin->component  = 'local_obf';
 $plugin->maturity   = MATURITY_ALPHA;
-$plugin->release    = '0.2.4';
+$plugin->release    = '0.2.5';
 $plugin->dependencies   = array();

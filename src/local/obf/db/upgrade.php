@@ -34,6 +34,13 @@ function xmldb_local_obf_upgrade($oldversion) {
 
     $dbman = $DB->get_manager(); // Loads ddl manager and xmldb classes.
 
+    if ($oldversion < 2016031800) {
+         //set default apiurl https://openbadgefactory.com/
+         set_config('apiurl', "https://openbadgefactory.com/", 'local_obf');
+         // Obf savepoint reached.
+         upgrade_plugin_savepoint(true, 2016031800, 'local', 'obf');
+    }
+
     if ($oldversion < 2013100701) {
 
         // Define table obf_criterion_types to be created.

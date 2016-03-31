@@ -40,8 +40,12 @@ class obf_config_form extends local_obf_form_base implements renderable {
         $mform = $this->_form;
         $client = $this->_customdata['client'];
         $errorcode = $client->test_connection();
-
+        $url = $client->default_url();  //added
         // Connection to API is working.
+
+
+
+        $formdata = $this->get_data();
         if ($errorcode === -1) {
             $expires = userdate($client->get_certificate_expiration_date(),
                     get_string('dateformatdate', 'local_obf'));
@@ -61,14 +65,22 @@ class obf_config_form extends local_obf_form_base implements renderable {
             $mform->addElement('html',
                     $OUTPUT->notification(get_string('apierror' . $errorcode,
                                     'local_obf'), 'redirectmessage'));
+            $urlgroup = array();
+            $urlgroup[] =& $mform->createElement('text', 'url');
+            $urlgroup[] =& $mform->createElement('checkbox', 'availablefromenabled', '', get_string('edit', 'local_obf'));
+            $mform->addGroup($urlgroup, 'urlgroup',  get_string('urlgroup', 'local_obf'), ' ', false);
+            $mform->disabledIf('urlgroup', 'availablefromenabled');
+            $mform->setType('url',  PARAM_TEXT);
+            $mform->setDefault('url', $url);
+            $mform->addHelpButton('urlgroup', 'urlgroup', 'local_obf');;
             $mform->addElement('textarea', 'obftoken',
                     get_string('requesttoken', 'local_obf'), array('rows' => 10));
             $mform->addHelpButton('obftoken', 'requesttoken', 'local_obf');
-
             $buttonarray = array(
                 $mform->createElement('submit', 'submitbutton',
                         get_string('authenticate', 'local_obf')));
             $mform->addGroup($buttonarray, 'buttonar', '', array(' '), false);
+
         }
     }
 

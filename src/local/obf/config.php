@@ -50,16 +50,16 @@ switch ($action) {
         $form = new obf_config_form($FULLME, array('client' => $client));
 
         if (!is_null($data = $form->get_data())) {
-
             // Deauthentication.
             if (isset($data->deauthenticate) && $data->deauthenticate == 1) {
                 $client->deauthenticate();
                 redirect(new moodle_url('/local/obf/config.php'),
                         get_string('deauthenticationsuccess', 'local_obf'));
-            } else if (!empty($data->obftoken)) { // OBF request token is set, (re)do authentication.
+            } else if (!empty($data->obftoken) && !empty($data->url) ) { // OBF request token is set, (re)do authentication.
 
                 try {
-                    $client->authenticate($data->obftoken);
+
+                    $client->authenticate($data->obftoken,$data->url);
 
                     if ($badgesupport) {
                         require_once($CFG->libdir . '/badgeslib.php');

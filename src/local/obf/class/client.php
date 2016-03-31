@@ -71,7 +71,17 @@ class obf_client {
      * @return string The url.
      */
     public static function get_api_url() {
-        return OBF_API_URL;
+        $url = get_config('local_obf', 'apiurl');
+        return self::api_url_maker($url);
+    }
+
+    /**
+     * Returns default url.
+     *
+     * @return string The url.
+     */
+    public static function default_url() {
+        return OBF_DEFAULT_ADDRESS;
     }
 
     /**
@@ -139,8 +149,36 @@ class obf_client {
         @unlink($this->get_pkey_filename());
 
         unset_config('obfclientid', 'local_obf');
+        unset_config('apiurl', 'local_obf');    
     }
 
+    /**
+     * creates apiurl
+     *
+     * @return url
+     */
+    private function url_checker($url) {
+        if (!preg_match("~^(?:f|ht)tps?://~i", $url)) {
+            $url = "https://" . $url;
+        }
+        if (!preg_match("/\/$/", $url)) {
+            $url = $url . "/";
+        }
+
+        return $url;
+    }
+
+    /**
+    * set v1 to end of url.
+    * example: https://openbadgefactory.com/v1
+    *
+    * @param  $url
+    * @return url/v1
+    */
+    private static function api_url_maker($url) {
+        $version = "v1";
+        return $url . $version;
+    }
     /**
      * Tries to authenticate the plugin against OBF API.
      *
@@ -148,7 +186,7 @@ class obf_client {
      * @return boolean Returns true on success.
      * @throws Exception If something goes wrong.
      */
-    public function authenticate($signature) {
+    public function authenticate($signature, $url) { 
         $pkidir = realpath($this->get_pki_dir());
 
         // Certificate directory not writable.
@@ -161,7 +199,11 @@ class obf_client {
         $token = base64_decode($signature);
         $curl = $this->get_transport();
         $curlopts = $this->get_curl_options();
-        $apiurl = self::get_api_url();
+        $url = $this->url_checker($url);
+        
+        
+        $apiurl = $this->api_url_maker($url);
+
 
         // We don't need these now, we haven't authenticated yet.
         unset($curlopts['SSLCERT']);
@@ -203,6 +245,7 @@ class obf_client {
 
         // Yay, we have the client-id. Let's store it somewhere.
         set_config('obfclientid', $json->id, 'local_obf');
+        set_config('apiurl', $url, 'local_obf');
 
         // Create a new private key.
         $config = array('private_key_bits' => 2048, 'private_key_type' => OPENSSL_KEYTYPE_RSA);

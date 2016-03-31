@@ -30,12 +30,6 @@ if ( !defined( 'OBF_DEFAULT_ADDRESS' ) )
     define('OBF_DEFAULT_ADDRESS', 'https://openbadgefactory.com/');
 
 
-
-/**
- * OBF_API_URL - The URL of Open Badge Factory API.
- */
-define('OBF_API_URL', OBF_DEFAULT_ADDRESS . 'v1');
-
 /**
  * OBF_API_CONSUMER_ID - The consumer id used in API requests.
  */
@@ -49,6 +43,7 @@ define('OBF_API_CODE_NO_CERT', 496);
 
 require_once(__DIR__ . '/class/criterion/criterion.php');
 require_once(__DIR__ . '/class/criterion/course.php');
+
 
 /**
  * Reviews the badge criteria and issues the badges (if necessary) when
@@ -428,7 +423,7 @@ function local_obf_cron() {
     $admins = get_admins();
     $textparams = new stdClass();
     $textparams->days = $days;
-    $textparams->obfurl = OBF_DEFAULT_ADDRESS;
+    $textparams->obfurl = get_config('local_obf', 'apiurl');
 
     foreach ($admins as $admin) {
         $eventdata = new object();
