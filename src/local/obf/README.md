@@ -1,4 +1,4 @@
-OBF Moodle plugin
+OBF Moodle/Totara plugin
 =================
 
 This project uses Composer to manage dependencies. If you don't have Composer
@@ -49,12 +49,12 @@ OBF Displayer plugin
 How to install
 --------------
 
-Moodle 2.5:
+Moodle 2.5 / Totara 2.5:
 
 1. Install the zip via Moodle's plugin page. Select "local" as the type of the plugin.
 2. Update the database using the notifications page
 
-Moodle 2.2:
+Moodle 2.2 / Totara 2.2:
 
 1. Unzip the archive to /[MoodleDir]/local/
 2. Give write permissions to web server user on /[MoodleDir]/local/obf/pki
