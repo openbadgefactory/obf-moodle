@@ -106,6 +106,19 @@ function local_obf_course_completed(stdClass $eventdata) {
 }
 
 /**
+ * 
+ * @param stdClass $eventdata
+ * @return boolean Returns true if everything went ok.
+ */
+function local_obf_activity_completion_changed($eventdata) {
+    $context = context_module::instance($eventdata->coursemoduleid);
+    if ($context && $context->get_course_context()) {
+        $eventdata->course = $context->get_course_context()->instanceid;
+        local_obf_course_completed($eventdata);
+    }
+}
+
+/**
  * When the course is deleted, this function deletes also the related badge
  * issuance criteria.
  *
