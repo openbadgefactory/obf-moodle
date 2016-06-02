@@ -21,12 +21,12 @@
  * @copyright  2015, Discendum Oy
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-$plugin->version = 2015120100;  // YYYYMMDDHH (year, month, day, 24-hr time).
+$plugin->version = 2016060300;  // YYYYMMDDHH (year, month, day, 24-hr time).
 $plugin->release = '0.2';
 $plugin->requires = 2011120511;
 $plugin->component = 'block_obf_displayer';
 $plugin->maturity = MATURITY_ALPHA;
 
 $plugin->dependencies = array(
-    'local_obf' => 2015120100   // The main OBF plugin must be present, 2015120100 has more support for Moodle badges.
+    'local_obf' => 2016060300   // The main OBF plugin must be present, 2016060300 has support for user defined Backpacks.
 );

@@ -41,14 +41,15 @@ $PAGE->set_url($url);
 $PAGE->set_pagelayout('standard');
 
 $content = $OUTPUT->header();
-$backpack = obf_backpack::get_instance($USER);
-$obpbackpack = obf_backpack::get_instance($USER, obf_backpack::BACKPACK_PROVIDER_OBP);
 $obfuserpreferences = new obf_user_preferences($USER->id);
 $formurl = new moodle_url('/local/obf/userconfig.php', array('action' => 'update'));
 
 $backpacks = array(
-    $backpack !== false ? $backpack : new obf_backpack(null),
-    $obpbackpack !== false ? $obpbackpack : new obf_backpack(null, obf_backpack::BACKPACK_PROVIDER_OBP));
+    );
+foreach (obf_backpack::get_providers() as $provider) {
+    $existing = obf_backpack::get_instance($USER, $provider);
+    $backpacks[] = $existing ? $existing : new obf_backpack(null, $provider);
+}
 $form = new obf_userconfig_form($formurl,
         array('backpacks' => $backpacks,
               'userpreferences' => $obfuserpreferences));

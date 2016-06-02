@@ -148,12 +148,16 @@ class block_obf_displayer extends block_base {
         if ($backpack === false || count($backpack->get_group_ids()) == 0) {
             return new obf_assertion_collection();
         }
-        $showprop = 'show'.$backpack->get_providershortname();
+        $shortname = $backpack->get_providershortname();
+        $showprop = 'show'.$shortname;
         if (empty($this->config) || !property_exists($this->config, $showprop) || $this->config->{$showprop}) {
-            $cache = cache::make('block_obf_displayer', 'obf_assertions_' . $backpack->get_providershortname());
-            $assertions = $cache->get($userid);
+            $cache = cache::make('block_obf_displayer', 'obf_assertions_backpacks');
+            $userassertions = $cache->get($userid);
 
-            if (!$assertions) {
+            if (!$userassertions || !array_key_exists($shortname, $userassertions)) {
+                if (!is_array($userassertions)) {
+                    $userassertions = array();
+                }
                 // Get user's badges in OBF.
                 $assertions = new obf_assertion_collection();
                 try {
@@ -166,12 +170,13 @@ class block_obf_displayer extends block_base {
                 }
 
                 $assertions->toArray(); // This makes sure issuer objects are populated and cached.
-                $cache->set($userid, $assertions );
+                $userassertions[$shortname] = $assertions;
+                $cache->set($userid, $userassertions );
             }
         } else {
-            $assertions = new obf_assertion_collection();
+            $userassertions[$shortname] = new obf_assertion_collection();
         }
-        return $assertions;
+        return $userassertions[$shortname];
     }
     /**
      * Has config?

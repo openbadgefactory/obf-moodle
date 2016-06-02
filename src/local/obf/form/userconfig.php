@@ -73,7 +73,13 @@ class obf_userconfig_form extends local_obf_form_base {
         $langkey = 'backpack' . (!$backpack->is_connected() ? 'dis' : '') . 'connected';
         $provider = $backpack->get_provider();
         $groupprefix = $backpack->get_providershortname() . 'backpackgroups';
-        if ($provider == obf_backpack::BACKPACK_PROVIDER_MOZILLA) {
+        $providername = obf_backpack::get_providerfullname_by_providerid($provider);
+        
+        $mform->addElement('header', 'header_'.$backpack->get_providershortname().'backpack_fields',
+                    get_string('backpackprovidersettings', 'local_obf', $providername));
+        $this->setExpanded($mform, 'header_'.$backpack->get_providershortname().'backpack_fields', false);
+        
+        /*if ($provider == obf_backpack::BACKPACK_PROVIDER_MOZILLA) {
             $mform->addElement('header', 'header_backpack_fields',
                     get_string('backpacksettings', 'local_obf'));
             $this->setExpanded($mform, 'header_backpack_fields', false);
@@ -81,7 +87,7 @@ class obf_userconfig_form extends local_obf_form_base {
             $mform->addElement('header', 'header_obpbackpack_fields',
                     get_string('obpbackpacksettings', 'local_obf'));
             $this->setExpanded($mform, 'header_obpbackpack_fields', false);
-        }
+        }*/
 
         $statustext = html_writer::tag('span', get_string($langkey, 'local_obf'),
                         array('class' => $langkey));
@@ -126,7 +132,12 @@ class obf_userconfig_form extends local_obf_form_base {
                     get_string('connect', 'local_obf', 'Backpack'),
                             array('class' => 'verifyemail', 'data-provider' => $backpack->get_provider()));
         } else if (!$backpack->is_connected() && !$backpack->requires_email_verification()) {
-            $externaladdhtml = get_string('backpackemailaddexternal'.$backpack->get_providershortname(), 'local_obf', $USER->email);
+            $params = new stdClass();
+            $params->backpackprovidershortname = $backpack->get_providershortname();
+            $params->backpackproviderfullname = $backpack->get_providerfullname();
+            $params->backpackprovidersiteurl = $backpack->get_siteurl();
+            $params->useremail = $USER->email;
+            $externaladdhtml = get_string('backpackemailaddexternalbackpackprovider', 'local_obf', $params);
             $mform->addElement('html', $OUTPUT->notification($externaladdhtml), 'notifyproblem');
         }
 
