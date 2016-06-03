@@ -32,10 +32,15 @@ if ($hassiteconfig) {
     // OBF-settings.
     $settings = new admin_externalpage('obfconfig', get_string('settings', 'local_obf'),
             new moodle_url('/local/obf/config.php'));
+    
+    // Backpack-settings.
+    $backpacksettings = new admin_externalpage('backpackconfig', get_string('backpackconfig', 'local_obf'),
+            new moodle_url('/local/obf/backpackconfig.php'));
 
     // Add pages to navigation.
     $ADMIN->add('root', $obf, 'location');
     $ADMIN->add('obf', $settings);
+    $ADMIN->add('obf', $backpacksettings);
 
     // Badge list -page.
     $badgelist = new admin_externalpage('badgelist', get_string('badgelist', 'local_obf'),

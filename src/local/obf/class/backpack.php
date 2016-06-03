@@ -156,7 +156,7 @@ class obf_backpack {
      * Get API URL.
      * @return string API URL.
      */
-    private function get_apiurl() {
+    public function get_apiurl() {
         self::populate_provider_sources();
         if (!empty($this->provider)) {
             return self::$apiurls[$this->provider];
@@ -448,29 +448,31 @@ class obf_backpack {
         $json = json_decode($output);
         $assertions = new obf_assertion_collection();
 
-        foreach ($json->badges as $item) {
-            $assertion = new obf_assertion();
-            $assertion->set_source($this->get_source());
-            $badge = new obf_badge();
-            $badge->set_name($item->assertion->badge->name);
-            $badge->set_image($item->imageUrl);
-            $badge->set_description($item->assertion->badge->description);
-            $badge->set_criteria_url($item->assertion->badge->criteria);
-            $badge->set_issuer(obf_issuer::get_instance_from_backpack_data($item->assertion->badge->issuer));
+        if (isset($json->badges)) {
+            foreach ($json->badges as $item) {
+                $assertion = new obf_assertion();
+                $assertion->set_source($this->get_source());
+                $badge = new obf_badge();
+                $badge->set_name($item->assertion->badge->name);
+                $badge->set_image($item->imageUrl);
+                $badge->set_description($item->assertion->badge->description);
+                $badge->set_criteria_url($item->assertion->badge->criteria);
+                $badge->set_issuer(obf_issuer::get_instance_from_backpack_data($item->assertion->badge->issuer));
 
-            $assertion->set_badge($badge);
+                $assertion->set_badge($badge);
 
-            if (isset($item->assertion->issued_on)) {
-                $assertion->set_issuedon($item->assertion->issued_on);
-            }
+                if (isset($item->assertion->issued_on)) {
+                    $assertion->set_issuedon($item->assertion->issued_on);
+                }
 
-            $assertions->add_assertion($assertion);
+                $assertions->add_assertion($assertion);
 
-            if ($limit > 0 && count($assertions) == $limit) {
-                break;
+                if ($limit > 0 && count($assertions) == $limit) {
+                    break;
+                }
             }
         }
-
+        
         return $assertions;
     }
 
@@ -707,6 +709,50 @@ class obf_backpack {
     public function get_provider() {
         self::populate_provider_sources();
         return !empty($this->provider) ? $this->provider : self::BACKPACK_PROVIDER_MOZILLA;
+    }
+    
+    /**
+     * Get provider record from the database
+     * @param int $providerid
+     * @return stdClass
+     */
+    public static function get_provider_record($providerid) {
+        global $DB;
+        $record = $DB->get_record('local_obf_backpack_sources', array('id' => $providerid));
+        return $record;
+    }
+    
+    /**
+     * Save backpack provider record.
+     * 
+     * @param type $providerobj
+     * @return boolean|int Record ID on succes. False otherwise.
+     */
+    public static function save_provider_record($providerobj) {
+       global $DB;
+       $id = false;
+       if (!empty($providerobj->id)) {
+           $DB->update_record('local_obf_backpack_sources', $providerobj);
+           $id = $providerobj->id;
+       } else {
+           $id = $DB->insert_record('local_obf_backpack_sources', $providerobj);
+       }
+       return $id;
+    }
+    
+    /**
+     * Delete backpack provider record.
+     * 
+     * @param type $providerobj
+     * @return boolean|int Record ID on succes. False otherwise.
+     */
+    public static function delete_provider_record($providerobj) {
+       global $DB;
+       if (!empty($providerobj->id)) {
+           return $DB->delete_records('local_obf_backpack_sources', array('id' => $providerobj->id));
+       } else {
+           return false;
+       }
     }
     /**
      * Get assertion source
