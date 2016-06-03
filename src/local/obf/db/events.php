@@ -28,6 +28,12 @@ $handlers = array(
         'schedule' => 'instant',
         'internal' => 1
     ),
+    'activity_completion_changed' => array(
+        'handlerfile' => '/local/obf/lib.php',
+        'handlerfunction' => 'local_obf_activity_completion_changed',
+        'schedule' => 'instant',
+        'internal' => 1
+    ),
     'course_deleted' => array(
         'handlerfile' => '/local/obf/lib.php',
         'handlerfunction' => 'local_obf_course_deleted',
