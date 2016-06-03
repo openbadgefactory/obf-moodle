@@ -83,7 +83,9 @@ switch ($action) {
                 if ($backpack->exists()) {
                     $propertyname = $backpack->get_providershortname() . 'backpackgroups';
                     if (isset($data->{$propertyname})) {
-                        $backpack->set_groups(array_keys($data->{$propertyname}));
+                        // advcheckbox returns 0 values for unchecked, so lets use a filter
+                        $groups = array_keys(array_filter($data->{$propertyname}));
+                        $backpack->set_groups($groups);
                     }
 
                     $redirecturl = new moodle_url('/local/obf/userconfig.php', array('action' => 'edit'));

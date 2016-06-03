@@ -114,7 +114,7 @@ class obf_userconfig_form extends local_obf_form_base {
                     $assertions = $backpack->get_group_assertions($group->groupId);
                     $grouphtml = s($group->name) . $OUTPUT->box($this->render_badge_group($assertions),
                                     'generalbox service obf-userconfig-group');
-                    $checkboxes[] = $mform->createElement('checkbox', $group->groupId, '',
+                    $checkboxes[] = $mform->createElement('advcheckbox', $group->groupId, '',
                             $grouphtml);
                 }
 
