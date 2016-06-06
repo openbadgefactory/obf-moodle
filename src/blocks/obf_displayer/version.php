@@ -28,5 +28,5 @@ $plugin->component = 'block_obf_displayer';
 $plugin->maturity = MATURITY_ALPHA;
 
 $plugin->dependencies = array(
-    'local_obf' => 2016060300   // The main OBF plugin must be present, 2016060300 has support for user defined Backpacks.
+    'local_obf' => 2016060601   // The main OBF plugin must be present, 2016060601 has support for user defined Backpacks.
 );
