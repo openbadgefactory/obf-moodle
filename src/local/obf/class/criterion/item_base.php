@@ -116,7 +116,8 @@ abstract class obf_criterion_item {
         $this->courseid = isset($params['courseid']) ? $params['courseid'] : -1;
         $this->criteriatype = isset($params['criteriatype']) ? $params['criteriatype'] : self::CRITERIA_TYPE_UNKNOWN;
         if (isset($params['criterionid'])) {
-            $this->criterion = $this->get_criterion($params['criterionid']);
+            $this->criterionid = $params['criterionid'];
+            $this->criterion = $this->get_criterion();
         }
     }
     /**
