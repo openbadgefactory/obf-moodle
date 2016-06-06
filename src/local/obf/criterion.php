@@ -186,11 +186,17 @@ switch ($action) {
                     }
                     $item->save_params($data);
                 }
-
+                
                 if (empty($tourl)) {
                     $tourl = new moodle_url('/local/obf/badge.php',
                             array('id' => $badge->get_id(), 'action' => 'show',
                         'show' => 'criteria'));
+                }
+                if (property_exists($data, 'reviewaftersave') && $data->reviewaftersave) {
+                    $recipientcount = $criterion->review_previous_completions();
+                    $tourl->param('msg',
+                            get_string('badgewasautomaticallyissued',
+                                    'local_obf', $recipientcount));
                 }
                 redirect($tourl);
             }
