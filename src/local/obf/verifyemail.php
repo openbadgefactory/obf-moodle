@@ -29,7 +29,7 @@ require_once(__DIR__ . '/class/backpack.php');
 require_once($CFG->libdir . '/filelib.php');
 
 $assertion = required_param('assertion', PARAM_TEXT);
-$provider = optional_param('provider', 0, PARAM_INT);
+$provider = optional_param('provider', obf_backpack::get_default_provider(), PARAM_INT);
 $backpack = obf_backpack::get_instance_by_userid($USER->id, $DB, $provider);
 
 if ($backpack === false) {

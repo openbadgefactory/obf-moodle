@@ -41,6 +41,9 @@ class obf_backpack_config extends local_obf_form_base {
         $mform = $this->_form;
         $backpack = $this->_customdata['backpack'];
 
+        $mform->addElement('header', 'header_backpackconfig',
+                get_string('backpackconfig', 'local_obf'));
+
         $mform->addElement('text', 'shortname', get_string('backpackprovidershortname', 'local_obf'));
         $mform->setType('shortname', PARAM_ALPHA);
         $mform->addElement('text', 'fullname', get_string('backpackproviderfullname', 'local_obf'));

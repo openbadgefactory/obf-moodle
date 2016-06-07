@@ -430,7 +430,7 @@ class obf_backpack {
         $output = $curl->get($this->get_apiurl() . $this->get_backpack_id() . '/groups.json');
         $json = json_decode($output);
 
-        return $json->groups;
+        return is_object($json) ? $json->groups : array();
     }
     /**
      * Get assertions in a group.
@@ -692,7 +692,7 @@ class obf_backpack {
         return $this;
     }
     
-    private static function get_default_provider() {
+    public static function get_default_provider() {
         self::populate_provider_sources();
         $default = null;
         foreach(self::$providershortnames as $key => $shortname) {
