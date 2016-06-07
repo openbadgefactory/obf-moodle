@@ -62,6 +62,7 @@ $string['backpackproviderfullname'] = 'Nimi';
 $string['backpackproviderrequirespersonaorg'] = 'Persona tunnistautuminen';
 $string['backpackprovidershortname'] = 'Tunniste';
 $string['backpackproviderurl'] = 'URL';
+$string['backpackproviderurlinvalid'] = 'Osoitteen muoto ei ole sallittu, käytä täyttä osoitteen muotoa, esim. https://openbadgepassport.com/displayer/';
 $string['badgeactions'] = 'Toiminnot';
 $string['badgeblacklist'] = 'Merkkien piilottaminen';
 $string['badgecategories'] = 'Kategoriat';

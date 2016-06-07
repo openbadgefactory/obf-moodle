@@ -62,6 +62,7 @@ $string['backpackproviderfullname'] = 'Full name';
 $string['backpackproviderrequirespersonaorg'] = 'Persona verification';
 $string['backpackprovidershortname'] = 'Short name';
 $string['backpackproviderurl'] = 'URL';
+$string['backpackproviderurlinvalid'] = 'URL is not properly defined, please use the full URL, ie. https://openbadgepassport.com/displayer/';
 $string['badgeactions'] = 'Actions';
 $string['badgeblacklist'] = 'Badge hiding';
 $string['badgecategories'] = 'Categories';

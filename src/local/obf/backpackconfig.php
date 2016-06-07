@@ -30,7 +30,8 @@ $context = context_system::instance();
 $msg = optional_param('msg', '', PARAM_TEXT);
 $action = optional_param('action', 'list', PARAM_TEXT);
 $providerid = optional_param('id', 0, PARAM_NUMBER);
-$url = new moodle_url('/local/obf/backpackconfig.php', array('action' => $action));
+$urlparams = $action == 'list' ? array() : array('action' => $action);
+$url = new moodle_url('/local/obf/backpackconfig.php', $urlparams);
 
 require_login();
 require_capability('local/obf:configure', $context);

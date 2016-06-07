@@ -56,4 +56,17 @@ class obf_backpack_config extends local_obf_form_base {
         
         $this->add_action_buttons();
     }
+    
+    // Perform some extra validation
+    public function validation($data, $files) {
+        $errors = parent::validation($data, $files);
+        if (array_key_exists('url', $data)) {
+            $urlparts = parse_url($data['url']);
+            
+            if (!isset($urlparts['scheme']) || !isset($urlparts['path'])) {
+                $errors['url'] = get_string('backpackproviderurlinvalid', 'local_obf');
+            }
+        }
+        return $errors;
+    }
 }
