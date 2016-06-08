@@ -29,12 +29,31 @@ defined('MOODLE_INTERNAL') || die();
  * @return boolean
  **/
 function xmldb_local_obf_install() {
-    global $CFG;
+    global $CFG, $DB;
     $newpkidir = $CFG->dataroot . '/local_obf/pki/';
 
     if (!is_dir($newpkidir)) {
         mkdir($newpkidir, $CFG->directorypermissions, true);
     }
+    
+    // Set default backpack sources
+    $backpacksources = array();
+    $obj = new stdClass();
+    $obj->url = 'https://backpack.openbadges.org/displayer/';
+    $obj->fullname = 'Backpack';
+    $obj->shortname = 'moz';
+    $obj->requirepersonaorg = 1;
+    $backpacksources[] = clone($obj);
+    $obj->url = 'https://openbadgepassport.com/displayer/';
+    $obj->fullname = 'Open Badge Passport';
+    $obj->shortname = 'obp';
+    $obj->requirepersonaorg = 0;
+    $backpacksources[] = clone($obj);
+    $newids = array();
+    foreach($backpacksources as $key => $backpacksource) {
+        $newids[$obj->shortname] = $DB->insert_record('local_obf_backpack_sources', $backpacksource);
+    }
+    
 
     return true;
 }

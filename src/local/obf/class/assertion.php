@@ -108,7 +108,7 @@ class obf_assertion {
     /**
      * @var Assertion source is Open Badge Factory.
      */
-    const ASSERTION_SOURCE_OBF = 1;
+    const ASSERTION_SOURCE_OBF = -1;
     /**
      * @var Assertion source is Open Badge Passport.
      */
@@ -120,7 +120,7 @@ class obf_assertion {
     /**
      * @var Assertion source is Moodle Badges issued before installing OBF plugin
      */
-    const ASSERTION_SOURCE_MOODLE = 4;
+    const ASSERTION_SOURCE_MOODLE = -2;
 
     /**
      * @var int Source where assertion came was retrieved (OBF, OPB, Backpack, other? or unknown)

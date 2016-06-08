@@ -30,7 +30,7 @@ require_once(__DIR__ . '/class/client.php');
 $context = context_system::instance();
 $msg = optional_param('msg', '', PARAM_TEXT);
 $action = optional_param('action', 'authenticate', PARAM_TEXT);
-$url = new moodle_url('/local/obf/config.php', array('action' => $action));
+$url = new moodle_url('/local/obf/config.php', $action != 'authenticate' ? array('action' => $action) : array());
 $client = obf_client::get_instance();
 $badgesupport = file_exists($CFG->libdir . '/badgeslib.php');
 

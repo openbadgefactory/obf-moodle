@@ -93,51 +93,90 @@ class obf_backpack {
      * @var Array of provider name shortened for use as pre-/postfixes on forms and localisations.
      */
     private static $providershortnames = array(
-        self::BACKPACK_PROVIDER_MOZILLA => 'moz',
-        self::BACKPACK_PROVIDER_OBP => 'obp'
+    );
+    
+    /**
+     * @var Array of provider fullnames for use on forms and localisations.
+     */
+    private static $providerfullnames = array(
     );
     /**
      * @var API urls as array.
      */
     private static $apiurls = array(
-        self::BACKPACK_PROVIDER_MOZILLA => self::BACKPACK_URL,
-        self::BACKPACK_PROVIDER_OBP => self::OPB_URL
     );
+    
     /**
      * @var Array of settings on should email address verification be used,
      *      or should we assume moodle email is configured at the backpack provider.
      */
     private static $providerrequiresemailverification = array(
-        self::BACKPACK_PROVIDER_MOZILLA => true,
-        self::BACKPACK_PROVIDER_OBP => false
     );
     /**
+     * DEPRECATED - Ids should now match on assertion and backpack.
      * @var Associative array to match provider ids to assertion source ids.
      */
     private static $backpackprovidersources = array(
-        self::BACKPACK_PROVIDER_MOZILLA => obf_assertion::ASSERTION_SOURCE_MOZILLA,
-        self::BACKPACK_PROVIDER_OBP => obf_assertion::ASSERTION_SOURCE_OBP
     );
+    
     /**
      * Constructor.
      * @param curl|null $transport
      * @param int $provider
      */
-    public function __construct($transport = null, $provider = self::BACKPACK_PROVIDER_MOZILLA) {
+    public function __construct($transport = null, $provider = null) {
+        if (is_null($provider)) {
+            $provider = self::get_default_provider();
+        }
         $this->set_provider($provider);
         if (!is_null($transport)) {
             $this->set_transport($transport);
+        }
+    }
+    
+    private static function populate_provider_sources($force = false) {
+        if (empty(self::$apiurls) || $force) {
+            self::$providers = array();
+            self::$providershortnames = array();
+            self::$providerfullnames = array();
+            self::$providerrequiresemailverification = array();
+            self::$apiurls = array();
+            global $DB;
+            $records = $DB->get_records('local_obf_backpack_sources');
+            foreach($records as $key => $record) {
+                self::$providers[] = $record->id;
+                self::$providershortnames[$record->id] = $record->shortname;
+                self::$providerfullnames[$record->id] = $record->fullname;
+                self::$apiurls[$record->id] = $record->url;
+                self::$providerrequiresemailverification[$record->id] = (bool)$record->requirepersonaorg;
+            }
         }
     }
     /**
      * Get API URL.
      * @return string API URL.
      */
-    private function get_apiurl() {
+    public function get_apiurl() {
+        self::populate_provider_sources();
         if (!empty($this->provider)) {
             return self::$apiurls[$this->provider];
         }
-        return self::BACKPACK_URL;
+        return array_key_exists(self::get_default_provider(), self::$apiurls) ? self::$apiurls[self::get_default_provider()] : '';
+    }
+    /**
+     * Get site url URL.
+     * @return string API URL.
+     */
+    public function get_siteurl() {
+        self::populate_provider_sources();
+        if (!empty($this->provider)) {
+            $apiurl = self::$apiurls[$this->provider];
+        } else {
+            $apiurl = array_key_exists(self::get_default_provider(), self::$apiurls) ? self::$apiurls[self::get_default_provider()] : '';
+        }
+        $parts = parse_url($apiurl);
+        $siteurl = $parts['scheme'] . '://'.$parts['host'];
+        return $siteurl;
     }
 
     /**
@@ -147,7 +186,10 @@ class obf_backpack {
      * @param int $provider
      * @return self
      */
-    public static function get_instance($user, $provider = self::BACKPACK_PROVIDER_MOZILLA) {
+    public static function get_instance($user, $provider = null) {
+        if (is_null($provider)) {
+            $provider = self::get_default_provider();
+        }
         return self::get_instance_by_fields(array('user_id' => $user->id), $provider);
     }
 
@@ -158,7 +200,10 @@ class obf_backpack {
      * @param int $provider
      * @return \self|boolean
      */
-    protected static function get_instance_by_fields(array $fields, $provider = self::BACKPACK_PROVIDER_MOZILLA) {
+    protected static function get_instance_by_fields(array $fields, $provider = null) {
+        if (is_null($provider)) {
+            $provider = self::get_default_provider();
+        }
         global $DB;
         $fields = array_merge($fields, array('backpack_provider' => $provider));
         $backpackobj = $DB->get_record('local_obf_backpack_emails', $fields, '*',
@@ -202,7 +247,10 @@ class obf_backpack {
      * @param string $email
      * @param int $provider
      */
-    public static function get_instance_by_backpack_email($email, $provider = self::BACKPACK_PROVIDER_MOZILLA) {
+    public static function get_instance_by_backpack_email($email, $provider = null) {
+        if (is_null($provider)) {
+            $provider = self::get_default_provider();
+        }
         return self::get_instance_by_fields(array('email' => $email), $provider);
     }
 
@@ -214,7 +262,10 @@ class obf_backpack {
      * @param int $provider
      * @return self
      */
-    public static function get_instance_by_userid($userid, moodle_database $db, $provider = self::BACKPACK_PROVIDER_MOZILLA) {
+    public static function get_instance_by_userid($userid, moodle_database $db, $provider = null) {
+        if (is_null($provider)) {
+            $provider = self::get_default_provider();
+        }
         return self::get_instance($db->get_record('user', array('id' => $userid)), $provider);
     }
 
@@ -379,7 +430,7 @@ class obf_backpack {
         $output = $curl->get($this->get_apiurl() . $this->get_backpack_id() . '/groups.json');
         $json = json_decode($output);
 
-        return $json->groups;
+        return is_object($json) ? $json->groups : array();
     }
     /**
      * Get assertions in a group.
@@ -397,29 +448,31 @@ class obf_backpack {
         $json = json_decode($output);
         $assertions = new obf_assertion_collection();
 
-        foreach ($json->badges as $item) {
-            $assertion = new obf_assertion();
-            $assertion->set_source($this->get_source());
-            $badge = new obf_badge();
-            $badge->set_name($item->assertion->badge->name);
-            $badge->set_image($item->imageUrl);
-            $badge->set_description($item->assertion->badge->description);
-            $badge->set_criteria_url($item->assertion->badge->criteria);
-            $badge->set_issuer(obf_issuer::get_instance_from_backpack_data($item->assertion->badge->issuer));
+        if (isset($json->badges)) {
+            foreach ($json->badges as $item) {
+                $assertion = new obf_assertion();
+                $assertion->set_source($this->get_source());
+                $badge = new obf_badge();
+                $badge->set_name($item->assertion->badge->name);
+                $badge->set_image($item->imageUrl);
+                $badge->set_description($item->assertion->badge->description);
+                $badge->set_criteria_url($item->assertion->badge->criteria);
+                $badge->set_issuer(obf_issuer::get_instance_from_backpack_data($item->assertion->badge->issuer));
 
-            $assertion->set_badge($badge);
+                $assertion->set_badge($badge);
 
-            if (isset($item->assertion->issued_on)) {
-                $assertion->set_issuedon($item->assertion->issued_on);
-            }
+                if (isset($item->assertion->issued_on)) {
+                    $assertion->set_issuedon($item->assertion->issued_on);
+                }
 
-            $assertions->add_assertion($assertion);
+                $assertions->add_assertion($assertion);
 
-            if ($limit > 0 && count($assertions) == $limit) {
-                break;
+                if ($limit > 0 && count($assertions) == $limit) {
+                    break;
+                }
             }
         }
-
+        
         return $assertions;
     }
 
@@ -611,13 +664,15 @@ class obf_backpack {
      * @return bool True if email verification is required.
      */
     public static function does_provider_require_email_verification($provider) {
-        return self::$providerrequiresemailverification[$provider];
+        return array_key_exists($provider, self::$providerrequiresemailverification) && 
+                self::$providerrequiresemailverification[$provider];
     }
     /**
      * Get list or provider ids.
      * @return int[]
      */
     public static function get_providers() {
+        self::populate_provider_sources();
         return self::$providers;
     }
     /**
@@ -625,7 +680,10 @@ class obf_backpack {
      * @param int $provider
      * @return $this
      */
-    public function set_provider($provider = self::BACKPACK_PROVIDER_MOZILLA) {
+    public function set_provider($provider = null) {
+        if (is_null($provider)) {
+            $provider = self::get_default_provider();
+        }
         if (in_array($provider, self::$providers)) {
             $this->provider = $provider;
         } else {
@@ -633,19 +691,77 @@ class obf_backpack {
         }
         return $this;
     }
+    
+    public static function get_default_provider() {
+        self::populate_provider_sources();
+        $default = null;
+        foreach(self::$providershortnames as $key => $shortname) {
+            if (is_null($default) || $shortname = 'moz') {
+                $default = $key;
+            }
+        }
+        return $default;
+    }
     /**
      * Get provider on the backpack.
      * @return int Provider as self::BACKPACK_PROVIDER_*
      */
     public function get_provider() {
+        self::populate_provider_sources();
         return !empty($this->provider) ? $this->provider : self::BACKPACK_PROVIDER_MOZILLA;
+    }
+    
+    /**
+     * Get provider record from the database
+     * @param int $providerid
+     * @return stdClass
+     */
+    public static function get_provider_record($providerid) {
+        global $DB;
+        $record = $DB->get_record('local_obf_backpack_sources', array('id' => $providerid));
+        return $record;
+    }
+    
+    /**
+     * Save backpack provider record.
+     * 
+     * @param type $providerobj
+     * @return boolean|int Record ID on succes. False otherwise.
+     */
+    public static function save_provider_record($providerobj) {
+       global $DB;
+       $id = false;
+       if (!empty($providerobj->id)) {
+           $DB->update_record('local_obf_backpack_sources', $providerobj);
+           $id = $providerobj->id;
+       } else {
+           $id = $DB->insert_record('local_obf_backpack_sources', $providerobj);
+       }
+       return $id;
+    }
+    
+    /**
+     * Delete backpack provider record.
+     * 
+     * @param type $providerobj
+     * @return boolean|int Record ID on succes. False otherwise.
+     */
+    public static function delete_provider_record($providerobj) {
+       global $DB;
+       if (!empty($providerobj->id)) {
+           $ret = $DB->delete_records('local_obf_backpack_sources', array('id' => $providerobj->id));
+           $DB->delete_records('local_obf_backpack_emails', array('backpack_provider' => $providerobj->id));
+           return $ret;
+       } else {
+           return false;
+       }
     }
     /**
      * Get assertion source
      * @return int
      */
     public function get_source() {
-        return self::$backpackprovidersources[$this->provider];
+        return $this->provider;
     }
     /**
      * Get providers short name.
@@ -653,7 +769,15 @@ class obf_backpack {
      */
     public function get_providershortname() {
         $provider = $this->get_provider();
-        return self::$providershortnames[$provider];
+        return self::get_providershortname_by_providerid($provider);
+    }
+    /**
+     * Get providers full name.
+     * @see self::$providerfullnames
+     */
+    public function get_providerfullname() {
+        $provider = $this->get_provider();
+        return self::get_providerfullname_by_providerid($provider);
     }
     /**
      * Get short name matching provider id.
@@ -662,5 +786,14 @@ class obf_backpack {
      */
     public static function get_providershortname_by_providerid($provider) {
         return self::$providershortnames[$provider];
+    }
+    
+    /**
+     * Get full name matching provider id.
+     * @param int $provider
+     * @see self::$providerfullnames
+     */
+    public static function get_providerfullname_by_providerid($provider) {
+        return self::$providerfullnames[$provider];
     }
 }

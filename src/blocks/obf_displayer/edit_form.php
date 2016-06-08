@@ -22,6 +22,8 @@
 class block_obf_displayer_edit_form extends block_edit_form {
 
     protected function specific_definition($mform) {
+        global $CFG;
+        require_once($CFG->dirroot . '/local/obf/class/backpack.php');
 
         // Section header title according to language file.
         $mform->addElement('header', 'configheader', get_string('blocksettings', 'block'));
@@ -33,10 +35,16 @@ class block_obf_displayer_edit_form extends block_edit_form {
 
         $mform->addElement('advcheckbox', 'config_showobf', get_string('showobf', 'block_obf_displayer'));
         $mform->setDefault('config_showobf', 1);
-        $mform->addElement('advcheckbox', 'config_showobp', get_string('showobp', 'block_obf_displayer'));
-        $mform->setDefault('config_showobp', 0);
-        $mform->addElement('advcheckbox', 'config_showmoz', get_string('showmoz', 'block_obf_displayer'));
-        $mform->setDefault('config_showmoz', 0);
+        $providers = obf_backpack::get_providers();
+        foreach ($providers as $provider) {
+            $shortname = obf_backpack::get_providershortname_by_providerid($provider);
+            $fullname = obf_backpack::get_providerfullname_by_providerid($provider);
+            $mform->addElement('advcheckbox', 'config_show'.$shortname, get_string('showpbackpacksource', 'block_obf_displayer', $fullname));
+            $mform->setDefault('config_show'.$shortname, 0);
+            //$mform->addElement('advcheckbox', 'config_showmoz', get_string('showmoz', 'block_obf_displayer'));
+            //$mform->setDefault('config_showmoz', 0);
+        }
+        
         $mform->addElement('advcheckbox', 'config_showmoodle', get_string('showmoodle', 'block_obf_displayer'));
         $mform->setDefault('config_showmoodle', 1);
 

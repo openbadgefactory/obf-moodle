@@ -50,6 +50,44 @@ class local_obf_renderer extends plugin_renderer_base {
      * @var int normal badge image.
      */
     const BADGE_IMAGE_SIZE_NORMAL = 100;
+    
+    /**
+     * Render the list of backpack providers for backpack config -page.
+     * @param type $backpacks
+     */
+    public function render_backpack_provider_list($backpacks) {
+        $content = '';
+        $table = new html_table();
+        
+        $table->id = 'obf-backpackproviders';
+        $table->attributes = array('class' => 'local-obf generaltable');
+
+        $table->head = array(get_string('backpackprovidershortname', 'local_obf'), get_string('backpackproviderfullname', 'local_obf'),
+            get_string('backpackproviderurl', 'local_obf'), get_string('backpackproviderrequirespersonaorg', 'local_obf'), get_string('backpackprovideractions', 'local_obf'));
+
+        
+        foreach($backpacks as $backpack) {
+            $row = new html_table_row();
+            $editurl = new moodle_url('/local/obf/backpackconfig.php', array('action' => 'edit', 'id' => $backpack->get_provider()));
+            $links = html_writer::link($editurl, get_string('edit'));
+            $actionscell = new html_table_cell($links);
+            $row->cells = array(
+                $backpack->get_providershortname(),
+                $backpack->get_providerfullname(),
+                $backpack->get_apiurl(),
+                $backpack->requires_email_verification() ? get_string('yes') : '',
+                $actionscell
+                );
+            $table->data[] = $row;
+        }
+        $content .= html_writer::table($table);
+        $createurl = new moodle_url('/local/obf/backpackconfig.php', array('action' => 'create'));
+        $content .= html_writer::div(
+                html_writer::link($createurl, get_string('create'), array('class' => 'btn btn-default'))
+                , 
+                'pull-right');
+        return $content;
+    }
 
     /**
      * Renders the list of badges in course context

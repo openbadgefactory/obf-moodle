@@ -593,6 +593,60 @@ function xmldb_local_obf_upgrade($oldversion) {
         // Obf savepoint reached.
         upgrade_plugin_savepoint(true, 2015121500, 'local', 'obf');
     }
+      if ($oldversion < 2016060301) {
+
+        // Define table local_obf_backpack_sources to be created.
+        $table = new xmldb_table('local_obf_backpack_sources');
+
+        // Adding fields to table local_obf_backpack_sources.
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('shortname', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('fullname', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('url', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('requirepersonaorg', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0');
+
+        // Adding keys to table local_obf_backpack_sources.
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
+
+        // Conditionally launch create table for local_obf_backpack_sources.
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+            
+            $backpacksources = array();
+            $obj = new stdClass();
+            $obj->url = 'https://backpack.openbadges.org/displayer/';
+            $obj->fullname = 'Backpack';
+            $obj->shortname = 'moz';
+            $obj->requirepersonaorg = 1;
+            $backpacksources[] = clone($obj);
+            $obj->url = 'https://openbadgepassport.com/displayer/';
+            $obj->fullname = 'Open Badge Passport';
+            $obj->shortname = 'obp';
+            $obj->requirepersonaorg = 0;
+            $backpacksources[] = clone($obj);
+            foreach($backpacksources as $key => $backpacksource) {
+                $newids[$obj->shortname] = $DB->insert_record('local_obf_backpack_sources', $backpacksource);
+            }
+        }
+        $newids = $DB->get_records_menu('local_obf_backpack_sources', null, '', 'shortname,id');
+        
+        // Alter old backpack associations
+        $bpetable = new xmldb_table('local_obf_backpack_emails');
+        $bpefield = new xmldb_field('backpack_provider', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0', 'groups');
+        $dbman->change_field_precision($bpetable, $bpefield);
+        // Update old backpack emails to use new provider definitions
+        $DB->execute(
+                'UPDATE {local_obf_backpack_emails} SET backpack_provider = IF(backpack_provider = 0, ?, ?)',
+                array(
+                    $newids['moz'],
+                    $newids['obp']
+                    )
+                );
+
+        // Obf savepoint reached.
+        upgrade_plugin_savepoint(true, 2016060301, 'local', 'obf');
+    }
+
 
     return true;
 }

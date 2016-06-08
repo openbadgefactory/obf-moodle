@@ -332,7 +332,8 @@ function local_obf_myprofile_navigation(\core_user\output\myprofile\tree $tree, 
             $bpassertions = local_obf_myprofile_get_backpack_badges($user->id, $provider, $DB);
             if ($assertions !== false && count($bpassertions) > 0) {
                 $name = obf_backpack::get_providershortname_by_providerid($provider);
-                $title = get_string('profilebadgelist' . $name, 'local_obf');
+                $fullname = obf_backpack::get_providerfullname_by_providerid($provider);
+                $title = get_string('profilebadgelistbackpackprovider', 'local_obf', $fullname);
                 $renderer = $PAGE->get_renderer('local_obf');
                 $content = $renderer->render_user_assertions($bpassertions, $user, false);
                 $localnode = $mybadges = new core_user\output\myprofile\node('local_obf/badges', 'obfbadges'.$name,
@@ -386,11 +387,15 @@ function local_obf_myprofile_get_backpack_badges($userid, $provider, $db) {
     if ($backpack === false || count($backpack->get_group_ids()) == 0) {
         return new obf_assertion_collection();
     }
-    $cache = cache::make('local_obf', 'obf_assertions_' . $backpack->get_providershortname());
-    $assertions = $cache->get($userid);
+    $cache = cache::make('local_obf', 'obf_assertions_backpacks');
+    $userassertions = $cache->get($userid);
+    $shortname = obf_backpack::get_providershortname_by_providerid($provider);
 
-    if (!$assertions) {
+    if (!$userassertions || !array_key_exists($shortname, $userassertions)) {
         require_once(__DIR__ . '/class/blacklist.php');
+        if (!is_array($userassertions)) {
+            $userassertions = array();
+        }
         $assertions = new obf_assertion_collection();
         try {
             $client = obf_client::get_instance();
@@ -402,10 +407,13 @@ function local_obf_myprofile_get_backpack_badges($userid, $provider, $db) {
         }
 
         $assertions->toArray(); // This makes sure issuer objects are populated and cached.
-        $cache->set($userid, $assertions );
+        $userassertions[$shortname] = $assertions;
+        $cache->set($userid, $userassertions );
+    } else {
+        $userassertions[$shortname] = new obf_assertion_collection();
     }
 
-    return $assertions;
+    return $userassertions[$shortname];
 }
 
 /**
