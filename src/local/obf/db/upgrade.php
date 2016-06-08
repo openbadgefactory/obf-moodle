@@ -614,7 +614,7 @@ function xmldb_local_obf_upgrade($oldversion) {
             
             $backpacksources = array();
             $obj = new stdClass();
-            $obj->url = 'https://beta.openbadges.org/displayer/';
+            $obj->url = 'https://backpack.openbadges.org/displayer/';
             $obj->fullname = 'Backpack';
             $obj->shortname = 'moz';
             $obj->requirepersonaorg = 1;
