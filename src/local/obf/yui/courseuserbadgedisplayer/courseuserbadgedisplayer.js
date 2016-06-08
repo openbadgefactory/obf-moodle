@@ -51,6 +51,11 @@ YUI.add('moodle-local_obf-courseuserbadgedisplayer', function(Y) {
          * Branding images to be displayed.
          */
         branding_urls: {},
+        
+        /**
+         * Data source id for OBF
+         */
+        obf_data_source: -1,
         /**
          * Module initializer
          *
@@ -212,7 +217,7 @@ YUI.add('moodle-local_obf-courseuserbadgedisplayer', function(Y) {
         setup_blacklist_button: function(data) {
             var footer = this.panel.get('footerContent').get('node')[0];
             var button = footer.one('.blacklist-badge');
-            if (this.blacklistable && typeof button === "object" && data.source === 1 && data.badge && data.badge.id.length > 1) {
+            if (this.blacklistable && typeof button === "object" && data.source === this.obf_data_source && data.badge && data.badge.id.length > 1) {
                 button.setAttribute('data-id', data.badge.id);
                 var params = this.blacklist_params;
                 params['badgeid'] = data.badge.id;
