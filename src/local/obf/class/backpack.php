@@ -175,7 +175,7 @@ class obf_backpack {
             $apiurl = array_key_exists(self::get_default_provider(), self::$apiurls) ? self::$apiurls[self::get_default_provider()] : '';
         }
         $parts = parse_url($apiurl);
-        $siteurl = $parts['schema'] . '://'.$parts['host'];
+        $siteurl = $parts['scheme'] . '://'.$parts['host'];
         return $siteurl;
     }
 
