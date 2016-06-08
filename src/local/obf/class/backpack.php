@@ -749,7 +749,9 @@ class obf_backpack {
     public static function delete_provider_record($providerobj) {
        global $DB;
        if (!empty($providerobj->id)) {
-           return $DB->delete_records('local_obf_backpack_sources', array('id' => $providerobj->id));
+           $ret = $DB->delete_records('local_obf_backpack_sources', array('id' => $providerobj->id));
+           $DB->delete_records('local_obf_backpack_emails', array('backpack_provider' => $providerobj->id));
+           return $ret;
        } else {
            return false;
        }

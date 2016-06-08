@@ -23,6 +23,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 require_once(__DIR__ . '/obfform.php');
+require_once(__DIR__ . '/../class/backpack.php');
 /**
  * Email template form -class.
  * @copyright  2013-2015, Discendum Oy
@@ -38,12 +39,24 @@ class obf_backpack_config extends local_obf_form_base {
      * Defines forms elements
      */
     protected function definition() {
+        global $OUTPUT;
         $mform = $this->_form;
         $backpack = $this->_customdata['backpack'];
 
         $mform->addElement('header', 'header_backpackconfig',
                 get_string('backpackconfig', 'local_obf'));
-
+        
+        $backpackuserids = !empty($backpack->id) ? obf_backpack::get_user_ids_with_backpack($backpack->id) : array();
+        
+        if (!empty($backpackuserids)) {
+            $mform->addElement('html',
+                    $OUTPUT->notification(get_string('backpackprovideruserwarning',
+                                    'local_obf', count($backpackuserids)), 'warning'));
+        } else {
+            $mform->addElement('html',
+                    'test');
+        }
+        
         $mform->addElement('text', 'shortname', get_string('backpackprovidershortname', 'local_obf'));
         $mform->setType('shortname', PARAM_ALPHA);
         $mform->addElement('text', 'fullname', get_string('backpackproviderfullname', 'local_obf'));
