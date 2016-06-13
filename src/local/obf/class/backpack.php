@@ -533,6 +533,10 @@ class obf_backpack {
             $id = $DB->insert_record('local_obf_backpack_emails', $obj);
             $this->set_id($id);
         }
+        try {
+            cache_helper::invalidate_by_event('local_obf_userconfig_changed', array($this->get_user_id()) );
+        } catch (\Exception $ex) {
+        }
     }
     /**
      * Delete record. (Disconnect backpack)
