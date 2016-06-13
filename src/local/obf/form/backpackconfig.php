@@ -78,6 +78,12 @@ class obf_backpack_config extends local_obf_form_base {
             
             if (!isset($urlparts['scheme']) || !isset($urlparts['path'])) {
                 $errors['url'] = get_string('backpackproviderurlinvalid', 'local_obf');
+            } else {
+                try {
+                    $reachable = obf_backpack::test_api_url($data['url']);
+                } catch (\Exception $ex) {
+                    $errors['url'] = $ex->getMessage();
+                }
             }
         }
         return $errors;

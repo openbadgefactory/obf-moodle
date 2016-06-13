@@ -648,6 +648,30 @@ class obf_backpack {
     public function set_transport($transport) {
         $this->transport = $transport;
     }
+    
+    /**
+     * Test API is reachable.
+     * 
+     * @return boolean True on success
+     * @throws Exception On API failure.
+     */
+    public static function test_api_url($url) {
+        global $CFG, $USER;
+        require_once($CFG->libdir . '/filelib.php');
+        $email = isset($USER->email) ? $USER->email : 'test@example.com';
+        $curl = new curl();
+        $fullurl = $url. 'convert/email';
+        $output = $curl->post($fullurl,
+                array('email' => $email));
+        $json = json_decode($output);
+        $code = $curl->info['http_code'];
+
+        if (is_null($json) && $code != 200) {
+            throw new Exception(get_string('testbackpackapiurlexception', 'local_obf', $fullurl), $code);
+        }
+
+        return true;
+    }
     /**
      * Backpack connection saved to database?
      * @return bool True if saved.

@@ -42,6 +42,9 @@ $PAGE->set_pagelayout('admin');
 
 $content = '';
 $backpacks = array();
+if (!empty($msg)) {
+    $content .= $OUTPUT->notification($msg);
+}
 foreach (obf_backpack::get_providers() as $provider) {
     $existing = obf_backpack::get_instance($USER, $provider);
     $backpacks[] = $existing ? $existing : new obf_backpack(null, $provider);
