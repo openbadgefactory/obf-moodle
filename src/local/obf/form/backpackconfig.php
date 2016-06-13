@@ -52,9 +52,6 @@ class obf_backpack_config extends local_obf_form_base {
             $mform->addElement('html',
                     $OUTPUT->notification(get_string('backpackprovideruserwarning',
                                     'local_obf', count($backpackuserids)), 'warning'));
-        } else {
-            $mform->addElement('html',
-                    'test');
         }
         
         $mform->addElement('text', 'shortname', get_string('backpackprovidershortname', 'local_obf'));
