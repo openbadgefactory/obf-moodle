@@ -254,7 +254,7 @@ $string['showbadgesonmyprofile'] = 'Näytä osaamismerkit profiilisivulla';
 $string['showcategories'] = 'Suodata merkkejä:';
 $string['showconnectionconfig'] = 'Haluan päivittää valtuutusavaimen siitä huolimatta.';
 $string['showmorerecipients'] = 'lisää';
-$string['testbackpackapiurlexception'] = 'Virhe ladattaessa API osoitetta <a href="{$a}">{$a}</a> !';
+$string['testbackpackapiurlexception'] = 'Virhe ladattaessa API osoitetta <a href="{$a->url}">{$a->url}</a> ! Virhekoodi: {$a->errorcode}.';
 $string['toearnthisbadge'] = 'Osaamismerkin ansaitseminen edellyttää tämän kurssin suorittamista';
 $string['tokendecryptionfailed'] = 'Valtuutusavain on virheellinen. Tarkista, että olet kopioinut ja liittänyt koko valtuutusavaimen.';
 $string['totaraprogram'] = 'Ohjelma';

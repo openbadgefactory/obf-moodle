@@ -667,7 +667,9 @@ class obf_backpack {
         $code = $curl->info['http_code'];
 
         if (is_null($json) && $code != 200) {
-            throw new Exception(get_string('testbackpackapiurlexception', 'local_obf', $fullurl), $code);
+            throw new Exception(get_string('testbackpackapiurlexception', 'local_obf', 
+                    (object)array('url' => $fullurl, 'errorcode' => $code))
+                    , $code);
         }
 
         return true;
