@@ -266,26 +266,28 @@ class obf_assertion {
             $collection->populate(); 
         }
 
-        foreach ($arr as $item) {
-            if (!is_null($badge)) {
-                $b = $badge;
-            } else if ($geteachseparately && is_null($badge)) {
-                $b = self::get_assertion_badge($client, $item['badge_id'], $item['id']);
-            } else {
-                $b = $collection->get_badge($item['badge_id']);
-            }
-            
-            if (!is_null($b)) {
-                $assertion = self::get_instance();
-                $assertion->set_badge($b)->set_id($item['id'])->set_recipients($item['recipient']);
-                $assertion->set_expires($item['expires'])->set_name($item['name']);
-                $assertion->set_issuedon($item['issued_on'])->set_source(self::ASSERTION_SOURCE_OBF);
-                if (array_key_exists('revoked', $item)) {
-                    $assertion->set_revoked($item['revoked']);
+        if (is_array($arr)) {
+            foreach ($arr as $item) {
+                if (!is_null($badge)) {
+                    $b = $badge;
+                } else if ($geteachseparately && is_null($badge)) {
+                    $b = self::get_assertion_badge($client, $item['badge_id'], $item['id']);
+                } else {
+                    $b = $collection->get_badge($item['badge_id']);
                 }
-                $assertions[] = $assertion;
+
+                if (!is_null($b)) {
+                    $assertion = self::get_instance();
+                    $assertion->set_badge($b)->set_id($item['id'])->set_recipients($item['recipient']);
+                    $assertion->set_expires($item['expires'])->set_name($item['name']);
+                    $assertion->set_issuedon($item['issued_on'])->set_source(self::ASSERTION_SOURCE_OBF);
+                    if (array_key_exists('revoked', $item)) {
+                        $assertion->set_revoked($item['revoked']);
+                    }
+                    $assertions[] = $assertion;
+                }
+
             }
-            
         }
 
         // Sort the assertions by date...
