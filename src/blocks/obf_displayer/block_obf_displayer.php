@@ -45,18 +45,28 @@ class block_obf_displayer extends block_base {
       return true;
     }
 
+    protected function get_badge_displaytype() {
+        return !empty($this->config) && property_exists($this->config, 'displaytype') && $this->config->displaytype == 'loggedinuser' ? 'loggedinuser' : 'contextuser';
+    }
     /**
      * Get content.
      * @return stdClass
      */
     public function get_content() {
-        global $DB, $PAGE;
+        global $DB, $PAGE, $USER;
         if ($this->content !== null) {
             return $this->content;
         }
-        $context = $PAGE->context;
+        
+        if ($this->get_badge_displaytype() == 'contextuser') {
+            $context = $PAGE->context;
+        } else if(isloggedin()) {
+            $context = context_user::instance($USER->id);
+        } else {
+            return false;
+        }
 
-        if ($context->contextlevel !== CONTEXT_USER || $PAGE->pagetype !== 'user-profile') {
+        if ($context->contextlevel !== CONTEXT_USER || ($this->get_badge_displaytype() == 'contextuser' && $PAGE->pagetype !== 'user-profile')) {
             return false;
         }
 

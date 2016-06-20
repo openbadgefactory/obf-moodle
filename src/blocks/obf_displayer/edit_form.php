@@ -30,6 +30,22 @@ class block_obf_displayer_edit_form extends block_edit_form {
 
         $mform->addElement('advcheckbox', 'config_largebadges', get_string('largebadges', 'block_obf_displayer'));
         $mform->setDefault('config_largebadges', 0);
+        
+                // Logged in user or profile user
+        $instance = $this->block->instance;
+        $parentcontext = context::instance_by_id($instance->parentcontextid);
+        $displaytypes = array();
+        $isusercontext = $parentcontext->contextlevel == CONTEXT_USER ||
+            (property_exists($instance, 'pagetypepattern') && $instance->pagetypepattern == 'user-profile');
+        if ($isusercontext) {
+            $displaytypes[] = $mform->createElement('radio', 'config_displaytype', '', get_string('displayloggedinuser', 'block_obf_displayer'), 'loggedinuser');
+            $displaytypes[] = $mform->createElement('radio', 'config_displaytype', '', get_string('displaycontextuser', 'block_obf_displayer'), 'contextuser');
+        } else {
+            $displaytypes[] = $mform->createElement('radio', 'config_displaytype', '', get_string('displayloggedinuser', 'block_obf_displayer'), 'loggedinuser');
+            $displaytypes[] = $mform->createElement('radio', 'config_displaytype', '', get_string('displaycontextuser', 'block_obf_displayer'), 'contextuser', array('disabled' => true));
+        }
+        $mform->addGroup($displaytypes, 'config_displaytype_array', '', array(' '), false);
+        $mform->setDefault('config_displaytype', $isusercontext ? 'contextuser' : 'loggedinuser');
 
         $mform->addElement('header', 'config_providers_header', get_string('providerselect', 'block_obf_displayer'));
 
