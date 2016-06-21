@@ -85,6 +85,13 @@ YUI.add('moodle-local_obf-courseuserbadgedisplayer', function(Y) {
             }
         },
         /**
+         * Get panel width based on the window/display size.
+         * @returns int Panel width
+         */
+        get_panel_width: function () {
+            return Y.one('body').get('winWidth') >= 800 ? 800 : (Y.one('body').get('winWidth') * 0.9);
+        },
+        /**
          * Initializes the panel that displays the badges.
          *
          * @returns {undefined}
@@ -96,7 +103,7 @@ YUI.add('moodle-local_obf-courseuserbadgedisplayer', function(Y) {
                 centered: true,
                 modal: true,
                 visible: false,
-                width: Y.one('body').get('winWidth') >= 800 ? 800 : (Y.one('body').get('winWidth') * 0.9),
+                width: this.get_panel_width(),
                 render: true,
                 zIndex: 10,
                 buttons: [
@@ -164,6 +171,7 @@ YUI.add('moodle-local_obf-courseuserbadgedisplayer', function(Y) {
             // Display a single badge
             table.delegate('click', this.display_badge, 'ul.badgelist li', this);
         },
+        close_panel: function(e) { if (this.panel !== null) { this.panel.hide(); } },
         /**
          * Displays the information of a single badge.
          *
@@ -185,8 +193,10 @@ YUI.add('moodle-local_obf-courseuserbadgedisplayer', function(Y) {
             this.setup_panel_branding(data);
 
             Y.one('body').delegate('click', this.display_criteria, '.view-criteria', this);
+            this.panel.set('width', this.get_panel_width());
 
             this.panel.show();
+            Y.one('.yui3-widget-mask').detach('click', this.close_panel).once('click', this.close_panel, this );
         },
         setup_panel_branding: function (data) {
             // Do we want more flexible branding?
