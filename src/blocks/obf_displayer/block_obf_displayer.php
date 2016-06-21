@@ -60,8 +60,10 @@ class block_obf_displayer extends block_base {
         
         if ($this->get_badge_displaytype() == 'contextuser') {
             $context = $PAGE->context;
+            $this->title = get_string('displaycontextuser_blocktitle', 'block_obf_displayer');
         } else if(isloggedin()) {
             $context = context_user::instance($USER->id);
+            $this->title = get_string('displayloggedinuser_blocktitle', 'block_obf_displayer');
         } else {
             return false;
         }
@@ -74,7 +76,7 @@ class block_obf_displayer extends block_base {
 
         $assertions = $this->get_assertions($userid, $DB);
 
-        $this->title = get_string('blocktitle', 'block_obf_displayer');
+        
 
         $this->content = new stdClass;
         $this->content->text = '';

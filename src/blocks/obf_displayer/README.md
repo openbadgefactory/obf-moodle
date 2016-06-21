@@ -4,7 +4,7 @@ OBF Displayer Moodle plugin
 This plugin displays user's OBF Badges in a Moodle block.
 
 
-How to install
+How to install, and set up the block on profile pages
 --------------
 
 Moodle 2.5 and up:

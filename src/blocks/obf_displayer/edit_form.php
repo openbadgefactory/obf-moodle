@@ -44,7 +44,8 @@ class block_obf_displayer_edit_form extends block_edit_form {
             $displaytypes[] = $mform->createElement('radio', 'config_displaytype', '', get_string('displayloggedinuser', 'block_obf_displayer'), 'loggedinuser');
             $displaytypes[] = $mform->createElement('radio', 'config_displaytype', '', get_string('displaycontextuser', 'block_obf_displayer'), 'contextuser', array('disabled' => true));
         }
-        $mform->addGroup($displaytypes, 'config_displaytype_array', '', array(' '), false);
+        $mform->addGroup($displaytypes, 'config_displaytype_array', get_string('displaytypegrouplabel', 'block_obf_displayer'), array(' '), false);
+        $mform->addHelpButton('config_displaytype_array', 'displaytypegrouplabel', 'block_obf_displayer');
         $mform->setDefault('config_displaytype', $isusercontext ? 'contextuser' : 'loggedinuser');
 
         $mform->addElement('header', 'config_providers_header', get_string('providerselect', 'block_obf_displayer'));
@@ -57,8 +58,6 @@ class block_obf_displayer_edit_form extends block_edit_form {
             $fullname = obf_backpack::get_providerfullname_by_providerid($provider);
             $mform->addElement('advcheckbox', 'config_show'.$shortname, get_string('showpbackpacksource', 'block_obf_displayer', $fullname));
             $mform->setDefault('config_show'.$shortname, 0);
-            //$mform->addElement('advcheckbox', 'config_showmoz', get_string('showmoz', 'block_obf_displayer'));
-            //$mform->setDefault('config_showmoz', 0);
         }
         
         $mform->addElement('advcheckbox', 'config_showmoodle', get_string('showmoodle', 'block_obf_displayer'));

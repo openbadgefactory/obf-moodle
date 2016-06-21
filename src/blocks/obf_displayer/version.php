@@ -21,7 +21,7 @@
  * @copyright  2015, Discendum Oy
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-$plugin->version = 2016060300;  // YYYYMMDDHH (year, month, day, 24-hr time).
+$plugin->version = 2016062100;  // YYYYMMDDHH (year, month, day, 24-hr time).
 $plugin->release = '0.3';
 $plugin->requires = 2011120511;
 $plugin->component = 'block_obf_displayer';
