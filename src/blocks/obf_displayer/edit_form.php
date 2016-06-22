@@ -22,7 +22,7 @@
 class block_obf_displayer_edit_form extends block_edit_form {
 
     protected function specific_definition($mform) {
-        global $CFG;
+        global $CFG, $OUTPUT;
         require_once($CFG->dirroot . '/local/obf/class/backpack.php');
 
         // Section header title according to language file.
@@ -49,6 +49,12 @@ class block_obf_displayer_edit_form extends block_edit_form {
         $mform->setDefault('config_displaytype', $isusercontext ? 'contextuser' : 'loggedinuser');
 
         $mform->addElement('header', 'config_providers_header', get_string('providerselect', 'block_obf_displayer'));
+
+        $connectionstatus = obf_client::get_instance()->test_connection();
+        if ($connectionstatus >= 0) {
+            $mform->addElement('html', $OUTPUT->notification(get_string('apierror' . $connectionstatus,
+                                    'local_obf'), 'warning'));
+        }
 
         $mform->addElement('advcheckbox', 'config_showobf', get_string('showobf', 'block_obf_displayer'));
         $mform->setDefault('config_showobf', 1);
