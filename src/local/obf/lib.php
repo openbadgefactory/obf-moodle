@@ -314,7 +314,8 @@ function local_obf_add_obf_user_badge_blacklist_link(&$branch) {
 function local_obf_myprofile_navigation(\core_user\output\myprofile\tree $tree, $user, $iscurrentuser, $course) {
     require_once(__DIR__ . '/class/user_preferences.php');
     global $PAGE, $DB;
-    $show = obf_user_preferences::get_user_preference($user->id, 'badgesonprofile') == 1;
+    $clientid = obf_client::get_api_url();
+    $show = !empty($clientid) && obf_user_preferences::get_user_preference($user->id, 'badgesonprofile') == 1;
     if ($show) {
         $category = new core_user\output\myprofile\category('local_obf/badges', get_string('profilebadgelist', 'local_obf'), null);
         $tree->add_category($category);

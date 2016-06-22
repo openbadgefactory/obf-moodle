@@ -106,7 +106,8 @@ class block_obf_displayer extends block_base {
      * @return obf_assertion_collection
      */
     private function get_assertions($userid, $db) {
-        if (empty($this->config) || !property_exists($this->config, 'showobf') || $this->config->showobf) {
+        $clientid = obf_client::get_client_id();
+        if (!empty($clientid) && (empty($this->config) || !property_exists($this->config, 'showobf') || $this->config->showobf)) {
             $cache = cache::make('block_obf_displayer', 'obf_assertions');
             $assertions = $cache->get($userid);
 
