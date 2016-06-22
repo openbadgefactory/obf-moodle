@@ -64,6 +64,11 @@ class obf_client {
     public static function get_client_id() {
         return get_config('local_obf', 'obfclientid');
     }
+    
+    public static function has_client_id() {
+        $clientid = self::get_client_id();
+        return !empty($clientid);
+    }
 
     /**
      * Returns the url of the OBF API.

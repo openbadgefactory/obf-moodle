@@ -47,9 +47,18 @@ class obf_blacklist_form extends local_obf_form_base {
         $this->blacklist = $this->_customdata['blacklist'];
         $user = $this->_customdata['user'];
         $client = new obf_client();
-        $assertions = obf_assertion::get_assertions($client, null, $user->email);
         $uniqueassertions = new obf_assertion_collection();
-        $uniqueassertions->add_collection($assertions);
+        if (obf_client::has_client_id()) {
+            try {
+                $assertions = obf_assertion::get_assertions($client, null, $user->email);
+            } catch (Exception $ex) {
+                $mform->addElement('html', $OUTPUT->notification($ex->getMessage(), 'warning') );
+                return;
+            }
+            
+            $uniqueassertions->add_collection($assertions);
+        }
+        
 
         $this->render_badges($uniqueassertions, $mform);
 
