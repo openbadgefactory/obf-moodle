@@ -25,6 +25,7 @@ defined('MOODLE_INTERNAL') or die();
 
 require_once(__DIR__ . '/obfform.php');
 require_once(__DIR__ . '/../renderer.php');
+$PAGE->requires->jquery_plugin('obf-emailverifier', 'local_obf');
 /**
  * User config form.
  *
@@ -43,6 +44,7 @@ class obf_userconfig_form extends local_obf_form_base {
         $mform = $this->_form;
         $backpacks = $this->_customdata['backpacks'];
         $userpreferences = $this->_customdata['userpreferences'];
+
 
         $mform->addElement('header', 'header_userprefeferences_fields',
                 get_string('userpreferences', 'local_obf'));
@@ -74,11 +76,11 @@ class obf_userconfig_form extends local_obf_form_base {
         $provider = $backpack->get_provider();
         $groupprefix = $backpack->get_providershortname() . 'backpackgroups';
         $providername = obf_backpack::get_providerfullname_by_providerid($provider);
-        
+
         $mform->addElement('header', 'header_'.$backpack->get_providershortname().'backpack_fields',
                     get_string('backpackprovidersettings', 'local_obf', $providername));
         $this->setExpanded($mform, 'header_'.$backpack->get_providershortname().'backpack_fields', false);
-        
+
         /*if ($provider == obf_backpack::BACKPACK_PROVIDER_MOZILLA) {
             $mform->addElement('header', 'header_backpack_fields',
                     get_string('backpacksettings', 'local_obf'));

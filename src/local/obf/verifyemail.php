@@ -27,8 +27,10 @@ define('AJAX_SCRIPT', true);
 require_once(__DIR__ . '/../../config.php');
 require_once(__DIR__ . '/class/backpack.php');
 require_once($CFG->libdir . '/filelib.php');
+require_once(__DIR__ . '/class/user_email.php');
 
 $assertion = required_param('assertion', PARAM_TEXT);
+$action = optional_param('action', 'persona', PARAM_TEXT);
 $provider = optional_param('provider', obf_backpack::get_default_provider(), PARAM_INT);
 $backpack = obf_backpack::get_instance_by_userid($USER->id, $DB, $provider);
 
@@ -38,11 +40,87 @@ if ($backpack === false) {
     $backpack->set_provider($provider);
 }
 
-try {
-    $email = $backpack->verify($assertion);
-    $backpack->connect($email);
-} catch (Exception $e) {
-    die(json_encode(array('error' => $e->getMessage())));
-}
+$return = array('error' => '');
 
-echo json_encode(array('error' => ''));
+function parse_json_assertion($assertion) {
+    global $USER;
+    try {
+        $object = json_decode($assertion);
+        $email = property_exists($object, 'email') ? $object->email : '';
+        $userid = $USER->id;
+        // TODO: OBF defined capabilities ?
+        if (!empty($object->userid)) {
+            $context = context_user::instance($object->userid);
+            if (has_capability('moodle/user:editprofile', $context)) {
+                $userid = $object->userid;
+            }
+        }
+        $token = property_exists($object, 'token') ? $object->token : null;
+        return array($userid, $email, $token);
+    } catch (Exception $e) {
+        throw $e;
+    }
+}
+switch($action) {
+    case 'persona':
+        try {
+            $email = $backpack->verify($assertion);
+            $backpack->connect($email);
+        } catch (Exception $e) {
+            $return['error'] = $e->getMessage();
+            //die(json_encode(array('error' => $e->getMessage())));
+        }
+
+        break;
+    case 'check_status':
+        try {
+            list($userid, $email) = parse_json_assertion($assertion);
+            $status = obf_user_email::is_user_email_verified($userid, $email);
+            $return['status'] = $status;
+        } catch (Exception $e) {
+            $return['error'] = $e->getMessage();
+        }
+
+        break;
+    case 'verify_token':
+        // TODO: Capability check, is user allowed to verify emails
+        try {
+            list($userid, $email, $token) = parse_json_assertion($assertion);
+            $status = obf_user_email::is_user_email_verified($userid, $email, $token);
+            $return['status'] = $status;
+        } catch (Exception $e) {
+            $return['error'] = $e->getMessage();
+        }
+        break;
+    case 'create_token':
+        try {
+            list($userid, $email) = parse_json_assertion($assertion);
+            if (!obf_user_email::is_user_email_verified($userid, $email)) {
+                $status = obf_user_email::create_user_email_token($userid, $email, true);
+                $return['verified'] = false;
+            } else {
+                $status = true;
+                $return['verified'] = true;
+            }
+            $return['status'] = (bool)$status;
+        } catch (Exception $e) {
+            $return['error'] = $e->getMessage();
+        }
+        break;
+    case 'connect_email':
+        try {
+            list($userid, $email) = parse_json_assertion($assertion);
+            if (obf_user_email::is_user_email_verified($userid, $email)) {
+                $backpack->connect($email);
+                $status = true;
+            } else {
+                $status = false;
+            }
+            $return['status'] = (bool)$status;
+        } catch (Exception $e) {
+            $return['message'] = $e->getMessage();
+        }
+        break;
+    default:
+}
+echo json_encode($return);

@@ -50,7 +50,7 @@ class local_obf_renderer extends plugin_renderer_base {
      * @var int normal badge image.
      */
     const BADGE_IMAGE_SIZE_NORMAL = 100;
-    
+
     /**
      * Render the list of backpack providers for backpack config -page.
      * @param type $backpacks
@@ -58,14 +58,14 @@ class local_obf_renderer extends plugin_renderer_base {
     public function render_backpack_provider_list($backpacks) {
         $content = '';
         $table = new html_table();
-        
+
         $table->id = 'obf-backpackproviders';
         $table->attributes = array('class' => 'local-obf generaltable');
 
         $table->head = array(get_string('backpackprovidershortname', 'local_obf'), get_string('backpackproviderfullname', 'local_obf'),
             get_string('backpackproviderurl', 'local_obf'), get_string('backpackproviderrequirespersonaorg', 'local_obf'), get_string('backpackprovideractions', 'local_obf'));
 
-        
+
         foreach($backpacks as $backpack) {
             $row = new html_table_row();
             $editurl = new moodle_url('/local/obf/backpackconfig.php', array('action' => 'edit', 'id' => $backpack->get_provider()));
@@ -84,7 +84,7 @@ class local_obf_renderer extends plugin_renderer_base {
         $createurl = new moodle_url('/local/obf/backpackconfig.php', array('action' => 'create'));
         $content .= html_writer::div(
                 html_writer::link($createurl, get_string('create'), array('class' => 'btn btn-default'))
-                , 
+                ,
                 'pull-right');
         return $content;
     }
@@ -766,14 +766,14 @@ class local_obf_renderer extends plugin_renderer_base {
                     $criterion->set_completion_method(obf_criterion::CRITERIA_COMPLETION_ALL);
                     $criterion->set_items($criterioncourse);
                 }
-                
+
                 if (isset($data->criteriaaddendum)) {
                     $criterion->set_criteria_addendum($data->criteriaaddendum);
                 }
                 if (isset($data->addcriteriaaddendum)) {
                     $criterion->set_use_addendum($data->addcriteriaaddendum);
                 }
-            
+
                 if (!is_null($courseid)) {
                     $criterioncourse->set_courseid((int)$courseid);
                 }
@@ -1181,10 +1181,23 @@ class local_obf_renderer extends plugin_renderer_base {
         $html .= $form->render();
         $url = new moodle_url('/local/obf/verifyemail.php');
 
-        $this->page->requires->js(new moodle_url('https://login.persona.org/include.js'));
-        $this->page->requires->yui_module('moodle-local_obf-backpackconfigurator',
-                'M.local_obf.init_backpackconfigurator',
-                array(array('url' => $url->out())));
+        require_once(__DIR__ . '/form/useremail.php');
+        $verifyform = new obf_user_email_form();
+
+        //$this->page->requires->js(new moodle_url('https://login.persona.org/include.js'));
+        /*$this->page->requires->yui_module('moodle-local_obf-emailverifier',
+                'M.local_obf.init_emailverifier',
+                array(array('url' => $url->out(), 'verifyform' => $verifyform->render())));*/
+        //$this->page->requires->jquery_plugin('obf-emailverifier', 'local_obf');
+        $params = array(array(
+            'url' => $url->out(),
+            'selector' => '.verifyemail,.verifyobpemail',
+            'verifyform' => $verifyform->render()
+        ));
+        if (method_exists($this->page->requires, 'js_call_amd')) {
+            //$this->page->requires->js_call_amd('local_obf/emailverifier', 'initialise', $params);
+        }
+        $this->page->requires->js_init_call('LOCAL_OBF_EMAILVERIFIER.initialise', $params);
 
         return $html;
     }
