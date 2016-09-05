@@ -45,15 +45,16 @@ class obf_backpack_config extends local_obf_form_base {
 
         $mform->addElement('header', 'header_backpackconfig',
                 get_string('backpackconfig', 'local_obf'));
-        
+
         $backpackuserids = !empty($backpack->id) ? obf_backpack::get_user_ids_with_backpack($backpack->id) : array();
-        
+
         if (!empty($backpackuserids)) {
             $mform->addElement('html',
                     $OUTPUT->notification(get_string('backpackprovideruserwarning',
                                     'local_obf', count($backpackuserids)), 'warning'));
         }
         
+
         $mform->addElement('text', 'shortname', get_string('backpackprovidershortname', 'local_obf'));
         $mform->setType('shortname', PARAM_ALPHA);
         $mform->addElement('text', 'fullname', get_string('backpackproviderfullname', 'local_obf'));
@@ -62,20 +63,20 @@ class obf_backpack_config extends local_obf_form_base {
         $mform->setType('url', PARAM_URL);
         $mform->addElement('advcheckbox', 'requirepersonaorg', get_string('backpackproviderrequirespersonaorg', 'local_obf'));
         $mform->setType('requirepersonaorg', PARAM_TEXT);
-        
+
         if (!empty($backpack->id)) {
             $mform->addElement('submit', 'deletebutton', get_string("delete"), array('class' => 'delete'));
         }
-        
+
         $this->add_action_buttons();
     }
-    
+
     // Perform some extra validation
     public function validation($data, $files) {
         $errors = parent::validation($data, $files);
         if (array_key_exists('url', $data)) {
             $urlparts = parse_url($data['url']);
-            
+
             if (!isset($urlparts['scheme']) || !isset($urlparts['path'])) {
                 $errors['url'] = get_string('backpackproviderurlinvalid', 'local_obf');
             } else {

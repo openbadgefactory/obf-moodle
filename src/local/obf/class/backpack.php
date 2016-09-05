@@ -94,7 +94,7 @@ class obf_backpack {
      */
     private static $providershortnames = array(
     );
-    
+
     /**
      * @var Array of provider fullnames for use on forms and localisations.
      */
@@ -105,7 +105,7 @@ class obf_backpack {
      */
     private static $apiurls = array(
     );
-    
+
     /**
      * @var Array of settings on should email address verification be used,
      *      or should we assume moodle email is configured at the backpack provider.
@@ -118,7 +118,7 @@ class obf_backpack {
      */
     private static $backpackprovidersources = array(
     );
-    
+
     /**
      * Constructor.
      * @param curl|null $transport
@@ -133,7 +133,7 @@ class obf_backpack {
             $this->set_transport($transport);
         }
     }
-    
+
     private static function populate_provider_sources($force = false) {
         if (empty(self::$apiurls) || $force) {
             self::$providers = array();
@@ -417,8 +417,11 @@ class obf_backpack {
             $this->save();
         } else {
             $this->disconnect();
+            $args = new stdClass();
+            $args->email = s($email);
+            $args->provider = $this->get_providerfullname();
             throw new Exception(get_string('backpackemailnotfound', 'local_obf',
-                    s($email)));
+                    $args));
         }
     }
     /**
@@ -472,7 +475,7 @@ class obf_backpack {
                 }
             }
         }
-        
+
         return $assertions;
     }
 
@@ -694,7 +697,7 @@ class obf_backpack {
      * @return bool True if email verification is required.
      */
     public static function does_provider_require_email_verification($provider) {
-        return array_key_exists($provider, self::$providerrequiresemailverification) && 
+        return array_key_exists($provider, self::$providerrequiresemailverification) &&
                 self::$providerrequiresemailverification[$provider];
     }
     /**
@@ -721,7 +724,7 @@ class obf_backpack {
         }
         return $this;
     }
-    
+
     public static function get_default_provider() {
         self::populate_provider_sources();
         $default = null;
@@ -740,7 +743,7 @@ class obf_backpack {
         self::populate_provider_sources();
         return !empty($this->provider) ? $this->provider : self::BACKPACK_PROVIDER_MOZILLA;
     }
-    
+
     /**
      * Get provider record from the database
      * @param int $providerid
@@ -751,10 +754,10 @@ class obf_backpack {
         $record = $DB->get_record('local_obf_backpack_sources', array('id' => $providerid));
         return $record;
     }
-    
+
     /**
      * Save backpack provider record.
-     * 
+     *
      * @param type $providerobj
      * @return boolean|int Record ID on succes. False otherwise.
      */
@@ -769,10 +772,10 @@ class obf_backpack {
        }
        return $id;
     }
-    
+
     /**
      * Delete backpack provider record.
-     * 
+     *
      * @param type $providerobj
      * @return boolean|int Record ID on succes. False otherwise.
      */
@@ -817,7 +820,7 @@ class obf_backpack {
     public static function get_providershortname_by_providerid($provider) {
         return self::$providershortnames[$provider];
     }
-    
+
     /**
      * Get full name matching provider id.
      * @param int $provider
