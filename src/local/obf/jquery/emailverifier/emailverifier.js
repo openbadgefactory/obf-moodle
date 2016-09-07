@@ -19,6 +19,10 @@ var LOCAL_OBF_EMAILVERIFIER = {};
             var modal = $(that.modal_template());
             modal.addClass('modal');
             parent.prepend(modal);
+            modal.find('.modal-body * div.step').each(function() {
+                var $t = $(this);
+                $t.detach().appendTo(modal.find('.modal-body:first'));
+            });
             modal.toggleClass('fade', false);
             that.modal_binding(that, modal);
         },

@@ -148,7 +148,7 @@ class obf_backpack {
                 self::$providershortnames[$record->id] = $record->shortname;
                 self::$providerfullnames[$record->id] = $record->fullname;
                 self::$apiurls[$record->id] = $record->url;
-                self::$providerrequiresemailverification[$record->id] = (bool)$record->requirepersonaorg;
+                self::$providerrequiresemailverification[$record->id] = (bool)$record->configureableaddress;
             }
         }
     }

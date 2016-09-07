@@ -53,7 +53,7 @@ class obf_backpack_config extends local_obf_form_base {
                     $OUTPUT->notification(get_string('backpackprovideruserwarning',
                                     'local_obf', count($backpackuserids)), 'warning'));
         }
-        
+
 
         $mform->addElement('text', 'shortname', get_string('backpackprovidershortname', 'local_obf'));
         $mform->setType('shortname', PARAM_ALPHA);
@@ -61,8 +61,8 @@ class obf_backpack_config extends local_obf_form_base {
         $mform->setType('fullname', PARAM_TEXT);
         $mform->addElement('text', 'url', get_string('backpackproviderurl', 'local_obf'));
         $mform->setType('url', PARAM_URL);
-        $mform->addElement('advcheckbox', 'requirepersonaorg', get_string('backpackproviderrequirespersonaorg', 'local_obf'));
-        $mform->setType('requirepersonaorg', PARAM_TEXT);
+        $mform->addElement('advcheckbox', 'configureableaddress', get_string('backpackprovideremailconfigureable', 'local_obf'));
+        $mform->setType('configureableaddress', PARAM_TEXT);
 
         if (!empty($backpack->id)) {
             $mform->addElement('submit', 'deletebutton', get_string("delete"), array('class' => 'delete'));

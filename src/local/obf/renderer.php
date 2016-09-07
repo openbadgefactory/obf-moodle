@@ -63,7 +63,7 @@ class local_obf_renderer extends plugin_renderer_base {
         $table->attributes = array('class' => 'local-obf generaltable');
 
         $table->head = array(get_string('backpackprovidershortname', 'local_obf'), get_string('backpackproviderfullname', 'local_obf'),
-            get_string('backpackproviderurl', 'local_obf'), get_string('backpackproviderrequirespersonaorg', 'local_obf'), get_string('backpackprovideractions', 'local_obf'));
+            get_string('backpackproviderurl', 'local_obf'), get_string('backpackprovideremailconfigureable', 'local_obf'), get_string('backpackprovideractions', 'local_obf'));
 
 
         foreach($backpacks as $backpack) {

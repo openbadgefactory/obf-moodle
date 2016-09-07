@@ -35,25 +35,25 @@ function xmldb_local_obf_install() {
     if (!is_dir($newpkidir)) {
         mkdir($newpkidir, $CFG->directorypermissions, true);
     }
-    
+
     // Set default backpack sources
     $backpacksources = array();
     $obj = new stdClass();
     $obj->url = 'https://backpack.openbadges.org/displayer/';
     $obj->fullname = 'Backpack';
     $obj->shortname = 'moz';
-    $obj->requirepersonaorg = 1;
+    $obj->configureableaddress = 1;
     $backpacksources[] = clone($obj);
     $obj->url = 'https://openbadgepassport.com/displayer/';
     $obj->fullname = 'Open Badge Passport';
     $obj->shortname = 'obp';
-    $obj->requirepersonaorg = 0;
+    $obj->configureableaddress = 1;
     $backpacksources[] = clone($obj);
     $newids = array();
     foreach($backpacksources as $key => $backpacksource) {
         $newids[$obj->shortname] = $DB->insert_record('local_obf_backpack_sources', $backpacksource);
     }
-    
+
 
     return true;
 }

@@ -568,7 +568,7 @@ function xmldb_local_obf_upgrade($oldversion) {
         if (!$dbman->field_exists($table, $field)) {
             $dbman->add_field($table, $field);
         }
-        
+
         $addendumfield = new xmldb_field('addendum', XMLDB_TYPE_TEXT, null, null, null, null, null, 'use_addendum');
 
         // Conditionally launch add field addendum.
@@ -589,7 +589,7 @@ function xmldb_local_obf_upgrade($oldversion) {
         if (!$dbman->field_exists($table, $field)) {
             $dbman->add_field($table, $field);
         }
-        
+
         // Obf savepoint reached.
         upgrade_plugin_savepoint(true, 2015121500, 'local', 'obf');
     }
@@ -611,7 +611,7 @@ function xmldb_local_obf_upgrade($oldversion) {
         // Conditionally launch create table for local_obf_backpack_sources.
         if (!$dbman->table_exists($table)) {
             $dbman->create_table($table);
-            
+
             $backpacksources = array();
             $obj = new stdClass();
             $obj->url = 'https://backpack.openbadges.org/displayer/';
@@ -629,7 +629,7 @@ function xmldb_local_obf_upgrade($oldversion) {
             }
         }
         $newids = $DB->get_records_menu('local_obf_backpack_sources', null, '', 'shortname,id');
-        
+
         // Alter old backpack associations
         $bpetable = new xmldb_table('local_obf_backpack_emails');
         $bpefield = new xmldb_field('backpack_provider', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0', 'groups');
@@ -648,11 +648,9 @@ function xmldb_local_obf_upgrade($oldversion) {
     }
     if ($oldversion < 2016062200) {
 
-        // Define field use_addendum to be added to local_obf_criterion.
         $table = new xmldb_table('local_obf_backpack_sources');
         $field = new xmldb_field('requirepersonaorg', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0', 'url');
 
-        // Conditionally launch add field use_addendum.
         if (!$dbman->field_exists($table, $field)) {
             $dbman->add_field($table, $field);
         }
@@ -682,6 +680,18 @@ function xmldb_local_obf_upgrade($oldversion) {
 
         // Obf savepoint reached.
         upgrade_plugin_savepoint(true, 2016081000, 'local', 'obf');
+    }
+    if ($oldversion < 2016090700) {
+        // Define table local_obf_user_emails to be created.
+        $table = new xmldb_table('local_obf_backpack_sources');
+        $oldfield = $table->add_field('requirepersonaorg', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0');
+
+        if (!$dbman->field_exists($table, 'configureableaddress')) {
+            $dbman->rename_field($table, $oldfield, 'configureableaddress');
+        }
+
+        // Obf savepoint reached.
+        upgrade_plugin_savepoint(true, 2016090700, 'local', 'obf');
     }
 
     return true;

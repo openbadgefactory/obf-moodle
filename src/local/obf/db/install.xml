@@ -78,7 +78,7 @@
                 <FIELD NAME="shortname" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false"/>
                 <FIELD NAME="fullname" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false"/>
                 <FIELD NAME="url" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false"/>
-                <FIELD NAME="requirepersonaorg" TYPE="int" LENGTH="2" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+                <FIELD NAME="configureableaddress" TYPE="int" LENGTH="2" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
             </FIELDS>
             <KEYS>
                 <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
@@ -110,6 +110,19 @@
             <INDEXES>
                 <INDEX NAME="idx_name" UNIQUE="false" FIELDS="name"/>
             </INDEXES>
+        </TABLE>
+        <TABLE NAME="local_obf_user_emails" COMMENT="local_obf_user_emails table retrofitted from MySQL">
+            <FIELDS>
+                <FIELD NAME="id" TYPE="int" LENGTH="18" NOTNULL="true" SEQUENCE="true"/>
+                <FIELD NAME="email" TYPE="char" LENGTH="255" NOTNULL="true" DEFAULT="" SEQUENCE="false"/>
+                <FIELD NAME="token" TYPE="char" LENGTH="255" NOTNULL="true" DEFAULT="" SEQUENCE="false"/>
+                <FIELD NAME="verified" TYPE="binary" NOTNULL="false" SEQUENCE="false"/>
+                <FIELD NAME="user_id" TYPE="int" LENGTH="18" NOTNULL="false" SEQUENCE="false"/>
+                <FIELD NAME="timestamp" TYPE="int" LENGTH="9" NOTNULL="true" SEQUENCE="false"/>
+            </FIELDS>
+            <KEYS>
+                <KEY NAME="idx_obf_user_emails" TYPE="unique" FIELDS="user_id, email"/>
+            </KEYS>
         </TABLE>
         <TABLE NAME="local_obf_badge_blacklists" COMMENT="Default comment for the table, please edit me">
             <FIELDS>
