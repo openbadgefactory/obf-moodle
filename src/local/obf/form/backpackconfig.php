@@ -44,7 +44,7 @@ class obf_backpack_config extends local_obf_form_base {
         $backpack = $this->_customdata['backpack'];
 
         $mform->addElement('header', 'header_backpackconfig',
-                get_string('backpackconfig', 'local_obf'));
+                get_string('badgerepositories', 'local_obf'));
 
         $backpackuserids = !empty($backpack->id) ? obf_backpack::get_user_ids_with_backpack($backpack->id) : array();
 

@@ -34,7 +34,7 @@ if ($hassiteconfig) {
             new moodle_url('/local/obf/config.php'));
     
     // Backpack-settings.
-    $backpacksettings = new admin_externalpage('backpackconfig', get_string('backpackconfig', 'local_obf'),
+    $backpacksettings = new admin_externalpage('badgerepositories', get_string('badgerepositories', 'local_obf'),
             new moodle_url('/local/obf/backpackconfig.php'));
 
     // Add pages to navigation.

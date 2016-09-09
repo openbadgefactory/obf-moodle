@@ -145,7 +145,7 @@ class obf_userconfig_form extends local_obf_form_base {
 
         if ($backpack->is_connected() && $backpack->requires_email_verification()) {
             $mform->addElement('cancel', 'cancelbackpack'.$backpack->get_providershortname(),
-                    get_string('disconnect', 'local_obf', 'Backpack'));
+                    get_string('disconnect', 'local_obf', $backpack->get_providerfullname()));
         }
     }
     /**

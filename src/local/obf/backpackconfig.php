@@ -78,7 +78,7 @@ function local_obf_backpackconfig_update_backpack_from_form($form, $backpack, &$
 
 switch ($action) {
     case 'list':
-        $content .= $PAGE->get_renderer('local_obf')->print_heading('backpackconfig');
+        $content .= $PAGE->get_renderer('local_obf')->print_heading('badgerepositories');
         $content .= $PAGE->get_renderer('local_obf')->render_backpack_provider_list($backpacks);
         break;
     case 'create':
