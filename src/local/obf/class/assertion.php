@@ -274,6 +274,9 @@ class obf_assertion {
                     $b = self::get_assertion_badge($client, $item['badge_id'], $item['id']);
                 } else {
                     $b = $collection->get_badge($item['badge_id']);
+                    if (is_null($b)) { // Required for deleted and draft badges
+                        $b = self::get_assertion_badge($client, $item['badge_id'], $item['id']);
+                    }
                 }
 
                 if (!is_null($b)) {
@@ -313,7 +316,13 @@ class obf_assertion {
      * @return obf_badge
      */
     public static function get_assertion_badge($client, $badgeid, $eventid) {
-            $arr = $client->pub_get_badge($badgeid, $eventid);
+            $cache = cache::make('local_obf', 'obf_pub_badge');
+            $cacheid = $badgeid .'/'. $eventid;
+            $arr = $cache->get($cacheid);
+            if (!$arr) {
+                $arr = $client->pub_get_badge($badgeid, $eventid);
+                $cache->set($cacheid, $arr);
+            }
             if ($arr) {
                 $badge = obf_badge::get_instance_from_array($arr);
                 $badge->set_id($badgeid);

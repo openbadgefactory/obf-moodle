@@ -27,6 +27,11 @@ $definitions = array(
         'ttl' => (24 * 60 * 60), // TODO: Remove ttl? -- It's recommended to use event driven cache invalidation.
         'invalidationevents' => array('new_obf_assertion', 'obf_blacklist_changed', 'local_obf_userconfig_changed')
     ),
+    'obf_pub_badge' => array(
+        'mode' => cache_store::MODE_APPLICATION,
+        'ttl' => (30 * 24 * 60 * 60), // TODO: Remove ttl? -- It's recommended to use event driven cache invalidation.
+        'invalidationevents' => array('clear_obf_badge_cache')
+    ),
     'obf_assertions_backpacks' => array(
         'mode' => cache_store::MODE_APPLICATION,
         'ttl' => (24 * 60 * 60), // TODO: Remove ttl? -- It's recommended to use event driven cache invalidation.
