@@ -114,8 +114,8 @@
         <TABLE NAME="local_obf_user_emails" COMMENT="local_obf_user_emails table retrofitted from MySQL">
             <FIELDS>
                 <FIELD NAME="id" TYPE="int" LENGTH="18" NOTNULL="true" SEQUENCE="true"/>
-                <FIELD NAME="email" TYPE="char" LENGTH="255" NOTNULL="true" DEFAULT="" SEQUENCE="false"/>
-                <FIELD NAME="token" TYPE="char" LENGTH="255" NOTNULL="true" DEFAULT="" SEQUENCE="false"/>
+                <FIELD NAME="email" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false"/>
+                <FIELD NAME="token" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false"/>
                 <FIELD NAME="verified" TYPE="binary" NOTNULL="false" SEQUENCE="false"/>
                 <FIELD NAME="user_id" TYPE="int" LENGTH="18" NOTNULL="false" SEQUENCE="false"/>
                 <FIELD NAME="timestamp" TYPE="int" LENGTH="9" NOTNULL="true" SEQUENCE="false"/>
