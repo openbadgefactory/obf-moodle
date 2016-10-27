@@ -18,26 +18,24 @@
  * See https://docs.moodle.org/dev/Events_API for details.
  *
  * @package    local_obf
- * @copyright  2013-2015, Discendum Oy
+ * @copyright  2013-2016, Discendum Oy
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 $handlers = array(
-    'course_completed' => array(
-        'handlerfile' => '/local/obf/lib.php',
-        'handlerfunction' => 'local_obf_course_completed',
-        'schedule' => 'instant',
-        'internal' => 1
+    /* Deprecated in 2.7 */
+);
+
+$observers = array(
+    array(
+        'eventname'   => '\core\event\course_completed',
+        'callback'    => 'local_obf_observer::course_completed',
     ),
-    'activity_completion_changed' => array(
-        'handlerfile' => '/local/obf/lib.php',
-        'handlerfunction' => 'local_obf_activity_completion_changed',
-        'schedule' => 'instant',
-        'internal' => 1
+    array(
+        'eventname'   => '\core\event\course_module_completion_updated',
+        'callback'    => 'local_obf_observer::course_module_completion_updated',
     ),
-    'course_deleted' => array(
-        'handlerfile' => '/local/obf/lib.php',
-        'handlerfunction' => 'local_obf_course_deleted',
-        'schedule' => 'instant',
-        'internal' => 1
-    )
+    array(
+        'eventname'   => '\core\event\course_deleted',
+        'callback'    => 'local_obf_observer::course_deleted',
+    ),
 );
