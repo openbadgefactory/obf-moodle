@@ -329,58 +329,6 @@ function local_obf_myprofile_get_backpack_badges($userid, $provider, $db) {
     return $userassertions[$shortname];
 }
 
-/**
- * Checks the certificate expiration of the OBF-client and sends a message to admin if the
- * certificate is expiring. This function is called periodically when Moodle's cron job is run.
- * The interval is defined in version.php.
- *
- * @return boolean
- */
-function local_obf_cron() {
-    global $CFG;
-
-    require_once($CFG->libdir . '/messagelib.php');
-    require_once($CFG->libdir . '/datalib.php');
-
-    $certexpiresin = obf_client::get_instance()->get_certificate_expiration_date();
-    $diff = $certexpiresin - time();
-    $days = floor($diff / (60 * 60 * 24));
-
-    // Notify only if there's certain amount of days left before the certification expires.
-    $notify = in_array($days, array(30, 25, 20, 15, 10, 5, 4, 3, 2, 1));
-
-    if (!$notify) {
-        return true;
-    }
-
-    $severity = $days <= 5 ? 'errors' : 'notices';
-    $admins = get_admins();
-    $textparams = new stdClass();
-    $textparams->days = $days;
-    $textparams->obfurl = get_config('local_obf', 'apiurl');
-
-    foreach ($admins as $admin) {
-        $eventdata = new object();
-        $eventdata->component = 'moodle';
-        $eventdata->name = $severity;
-        $eventdata->userfrom = $admin;
-        $eventdata->userto = $admin;
-        $eventdata->subject = get_string('expiringcertificatesubject',
-                'local_obf');
-        $eventdata->fullmessage = get_string('expiringcertificate', 'local_obf',
-                $textparams);
-        $eventdata->fullmessageformat = FORMAT_PLAIN;
-        $eventdata->fullmessagehtml = get_string('expiringcertificate',
-                'local_obf', $textparams);
-        $eventdata->smallmessage = get_string('expiringcertificatesubject',
-                'local_obf');
-
-        $result = message_send($eventdata);
-    }
-
-    return true;
-}
-
 // Moodle 2.2 -support.
 if (!function_exists('users_order_by_sql')) {
 

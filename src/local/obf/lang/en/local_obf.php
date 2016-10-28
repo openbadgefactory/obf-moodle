@@ -99,6 +99,7 @@ $string['cancel'] = 'Cancel';
 $string['cannoteditcriterion'] = 'This rule cannot be edited, because the badge has already been awarded automatically based on this rule.';
 $string['categorysettings'] = 'Category settings';
 $string['certrequestfailed'] = 'There was an error while requesting the certificate from the API';
+$string['certificateexpirationremindertask'] = 'Certificate expiration reminder';
 $string['closepopup'] = 'Close';
 $string['completedbycriterion'] = 'by <strong>{$a}</strong>';
 $string['configurecriteria'] = 'Configure';

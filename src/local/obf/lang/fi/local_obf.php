@@ -99,6 +99,7 @@ $string['cancel'] = 'Peruuta';
 $string['cannoteditcriterion'] = 'Tämän säännön muokkaus ei ole mahdollista, sillä valittu osaamismerkki on jo myönnetty tämän säännön perusteella.';
 $string['categorysettings'] = 'Merkkikategoriat';
 $string['certrequestfailed'] = 'Sertifikaatin haku OBF-palvelusta epäonnistui.';
+$string['certificateexpirationremindertask'] = 'Sertifikaatin vanhenemismuistutus';
 $string['closepopup'] = 'Sulje';
 $string['completedbycriterion'] = '<strong>{$a}</strong> mennessä';
 $string['configurecriteria'] = 'Muokkaa';
