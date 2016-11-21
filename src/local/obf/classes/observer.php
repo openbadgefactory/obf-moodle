@@ -70,7 +70,6 @@ class local_obf_observer {
     private static function course_user_completion_review(stdClass $eventdata) {
         global $DB;
         self::requires(array('/class/event.php'));
-        error_log("eventdata: " . var_export($eventdata, true));
         $user = $DB->get_record('user', array('id' => $eventdata->userid));
         $backpack = obf_backpack::get_instance($user);
 
