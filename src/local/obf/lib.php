@@ -322,8 +322,6 @@ function local_obf_myprofile_get_backpack_badges($userid, $provider, $db) {
         $assertions->toArray(); // This makes sure issuer objects are populated and cached.
         $userassertions[$shortname] = $assertions;
         $cache->set($userid, $userassertions );
-    } else {
-        $userassertions[$shortname] = new obf_assertion_collection();
     }
 
     return $userassertions[$shortname];
