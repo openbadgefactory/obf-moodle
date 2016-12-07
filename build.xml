@@ -9,12 +9,14 @@
 
     <fileset dir="${srcdir}" id="srcfiles">
         <include name="**"/>
-        <exclude name="pki/*"/>
+        <exclude name="pki/*.key"/>
+        <exclude name="pki/*.pem"/>
+        <exclude name="node_modules/**"/>
+        <exclude name="node_modules"/>
     </fileset>
 
     <fileset dir="${block_srcdir}" id="block_srcfiles">
         <include name="**"/>
-        <exclude name="README.md"/>
     </fileset>
 
 
