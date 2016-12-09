@@ -145,7 +145,8 @@ class local_obf_observer {
         global $DB;
         self::requires();
         $course = $event->get_record_snapshot('course', $event->objectid);
-        $course->context = $event->context;
+        $course->context = new stdClass();
+        $course->context->id = $event->courseid;
 
         obf_criterion_course::delete_by_course($course, $DB);
         return true;
