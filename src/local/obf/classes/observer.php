@@ -144,7 +144,7 @@ class local_obf_observer {
     public static function course_deleted(\core\event\course_deleted $event) {
         global $DB;
         self::requires();
-        $course = $event->get_record_snapshot('course', $this->objectid);
+        $course = $event->get_record_snapshot('course', $event->objectid);
         $course->context = $event->context;
 
         obf_criterion_course::delete_by_course($course, $DB);
