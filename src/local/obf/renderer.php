@@ -1329,7 +1329,19 @@ class local_obf_renderer extends plugin_renderer_base {
         $params['criteria_baseurl'] = $criteriaurl->out();
 
         $brandingurl = new moodle_url('/local/obf/pix/branding-obf-45px.png');
-        $params['branding_urls'] = array(obf_assertion::ASSERTION_SOURCE_OBF => $brandingurl->out());
+        
+        $isverified = get_config('local_obf', 'verified_client');
+        $verifiedbyurl = get_config('local_obf','verified_by_image_url');
+        $issuedbyurl = get_config('local_obf','issued_by_image_url');
+        
+        $brandingurl = $isverified == 1 && !empty($verifiedbyurl) ? 
+                $verifiedbyurl : 
+                (!empty($issuedbyurl) ? $issuedbyurl : $brandingurl->out());
+        
+        $params['branding_urls'] = array(obf_assertion::ASSERTION_SOURCE_OBF => $brandingurl);
+        $params['verified_by_image_url'] = $verifiedbyurl;
+        $params['issued_by_image_url'] = $issuedbyurl;
+        $params['obf_api_url'] = obf_client::get_api_url();
 
         if (!empty($userid) && $userid == $USER->id) {
             $blacklisturl = new moodle_url('/local/obf/blacklist.php');

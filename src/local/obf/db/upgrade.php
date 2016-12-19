@@ -693,6 +693,27 @@ function xmldb_local_obf_upgrade($oldversion) {
         // Obf savepoint reached.
         upgrade_plugin_savepoint(true, 2016090700, 'local', 'obf');
     }
-
+    if ($oldversion < 2016121900) {
+        require_once(__DIR__ . '/../class/client.php');
+        if (class_exists('obf_client') && 
+                method_exists('obf_client', 'get_client_info') && 
+                method_exists('obf_client', 'get_branding_image_url')
+        ) {
+            try {
+                if (obf_client::has_client_id()) {
+                    $client = obf_client::get_instance();
+                    $client_info = $client->get_client_info();
+                    $images = array('verified_by', 'issued_by');
+                    set_config('verified_client', $client_info['verified'] == 1, 'local_obf');
+                    foreach($images as $imagename) {
+                        $imageurl = $client->get_branding_image_url($imagename);
+                        set_config($imagename . '_image_url', $imageurl, 'local_obf');
+                    }
+                }
+            } catch (Exception $ex) {
+            }
+        }
+        upgrade_plugin_savepoint(true, 2016121900, 'local', 'obf');
+    }
     return true;
 }

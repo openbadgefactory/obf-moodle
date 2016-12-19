@@ -65,6 +65,11 @@ class obf_client {
         return get_config('local_obf', 'obfclientid');
     }
     
+    public function get_client_info() {
+        $this->require_client_id();
+        return $this->api_request('/client/' . self::get_client_id());
+    }
+    
     public static function has_client_id() {
         $clientid = self::get_client_id();
         return !empty($clientid);
@@ -183,6 +188,21 @@ class obf_client {
     private static function api_url_maker($url) {
         $version = "v1";
         return $url . $version;
+    }
+    
+    public function get_branding_image_url($imagename = 'issued_by') {
+        return $this->get_api_url() . '/badge/_/' . $imagename . '.png';
+    }
+    
+    public function get_branding_image($imagename = 'issued_by') {
+        $curl = $this->get_transport();
+        $curlopts = $this->get_curl_options();
+        $curlopts['FOLLOWLOCATION'] = true;
+        $image = $curl->get( $this->get_branding_image_url($imagename), array(), $curlopts);
+        if ($curl->info['http_code'] !== 200) {
+            return null;
+        }
+        return $image;
     }
     /**
      * Tries to authenticate the plugin against OBF API.

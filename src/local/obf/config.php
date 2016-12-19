@@ -56,16 +56,27 @@ switch ($action) {
                 redirect(new moodle_url('/local/obf/config.php'),
                         get_string('deauthenticationsuccess', 'local_obf'));
             } else if (!empty($data->obftoken) && !empty($data->url) ) { // OBF request token is set, (re)do authentication.
-
                 try {
 
                     $client->authenticate($data->obftoken,$data->url);
-
+                    
+                    try {
+                        $client_info = $client->get_client_info();
+                        $images = array('verified_by', 'issued_by');
+                        set_config('verified_client', $client_info['verified'] == 1, 'local_obf');
+                        foreach($images as $imagename) {
+                            $imageurl = $client->get_branding_image_url($imagename);
+                            set_config($imagename . '_image_url', $imageurl, 'local_obf');
+                        }
+                    } catch (Exception $ex) {
+                        error_log(var_export($ex, true));
+                    }
                     if ($badgesupport) {
                         require_once($CFG->libdir . '/badgeslib.php');
 
                         $badges = array_merge(badges_get_badges(BADGE_TYPE_COURSE),
                                 badges_get_badges(BADGE_TYPE_SITE));
+                        
 
                         // Redirect to page where the user can export existing
                         // badges to OBF and change some settings.
