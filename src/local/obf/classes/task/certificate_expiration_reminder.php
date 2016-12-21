@@ -61,7 +61,8 @@ class certificate_expiration_reminder extends \core\task\scheduled_task  {
         $admins = get_admins();
         $textparams = new stdClass();
         $textparams->days = $days;
-        $textparams->obfurl = obf_client::get_api_url();
+        $textparams->obfurl = obf_client::get_site_url();
+        $textparams->configurl = (string)(new \moodle_url('/local/obf/config.php'));
 
         foreach ($admins as $admin) {
             $eventdata = new object();

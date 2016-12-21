@@ -162,7 +162,7 @@ $string['eventrevoked'] = 'Tapahtuma mitätöity ({$a} osoitteiden osalta.)';
 $string['evidence'] = 'Todiste';
 $string['expiresby'] = 'Vanhenee';
 $string['expired'] = 'Vanhentunut';
-$string['expiringcertificate'] = 'Open Badge Factoryn sertifikaatti vanhenee <b>{$a->days}</b> päivän kuluttua. Voit uusia sertifikaatin <a href="{$a->obfurl}">kirjautumalla Open Badge Factoryyn</a> organisaatiosi ylläpitotunnuksella ja menemällä Admin tools -> Edit Organisation Details -> More settings -kohtaan. Sen jälkeen luo valtuutusavain ja liitä se Moodleen OBF-asetussivulla.';
+$string['expiringcertificate'] = 'Open Badge Factoryn API-avain vanhenee <b>{$a->days}</b> päivän kuluttua. Voit uusia avaimen <a href="{$a->obfurl}">kirjautumalla Open Badge Factoryyn</a> organisaatiosi ylläpitotunnuksella ja menemällä Admin tools -> Edit Organisation Details -> More settings -kohtaan. Sen jälkeen luo valtuutusavain ja liitä se <a href="{$a->configurl}">OBF-asetussivulla</a>.';
 $string['expiringcertificatesubject'] = 'Open Badge Factoryn sertifikaatti on vanhentumassa.';
 $string['exportsettings'] = 'Vientiasetukset';
 $string['exportextrasettings'] = 'Vientiasetukset';

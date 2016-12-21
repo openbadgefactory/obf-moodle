@@ -162,7 +162,7 @@ $string['eventrevoked'] = 'Event revoked for {$a}.';
 $string['evidence'] = 'Evidence';
 $string['expiresby'] = 'Expires';
 $string['expired'] = 'Expired';
-$string['expiringcertificate'] = 'Open Badge Factory client certificate is expiring in <b>{$a->days}</b> days. To renew the certificate <a href="{$a->obfurl}">log in to Open Badge Factory</a> with your organization admin account, go to Admin tools -> Edit Organisation Details -> More settings, generate the certificate signing request token and paste it to Moodle (Open Badges -> Settings -> OBF request token).';
+$string['expiringcertificate'] = 'Open Badge Factory API key is expiring in <b>{$a->days}</b> days. To renew the API key <a href="{$a->obfurl}">log in to Open Badge Factory</a> with your organization admin account, go to Admin tools -> Edit Organisation Details -> More settings, generate the certificate signing request token and renew the API key at <a href="{$a->configurl}">Open Badges -> Settings -> OBF request token</a>.';
 $string['expiringcertificatesubject'] = 'Open Badge Factory client certificate is expiring.';
 $string['exportsettings'] = 'Export settings';
 $string['exportextrasettings'] = 'Export settings';

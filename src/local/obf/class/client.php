@@ -84,6 +84,17 @@ class obf_client {
         $url = get_config('local_obf', 'apiurl');
         return self::api_url_maker($url);
     }
+    
+    /**
+     * Returns the url of the OBF site.
+     *
+     * @return string The url.
+     */
+    public static function get_site_url()
+    {
+        $siteurl = get_config('local_obf', 'obf_site_url');
+        return !empty($siteurl) ? $siteurl : substr(self::get_api_url(), 0, strrpos(self::get_api_url(), '/'));
+    }
 
     /**
      * Returns default url.
