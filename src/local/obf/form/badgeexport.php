@@ -77,6 +77,11 @@ class obf_badge_export_form extends local_obf_form_base {
                 get_string('disablemoodlebadges', 'local_obf'));
         $mform->addHelpButton('disablemoodlebadges', 'disablemoodlebadges', 'local_obf');
         $mform->setDefault('disablemoodlebadges', true);
+        
+        $mform->addElement('advcheckbox', 'displaymoodlebadges', '',
+                get_string('displaymoodlebadges', 'local_obf'));
+        $mform->addHelpButton('displaymoodlebadges', 'displaymoodlebadges', 'local_obf');
+        $mform->setDefault('displaymoodlebadges', (boolean)get_config('local_obf', 'displaymoodlebadges'));
 
         $this->add_action_buttons(false,
                 get_string('saveconfiguration', 'local_obf'));

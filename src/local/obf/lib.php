@@ -226,7 +226,7 @@ function local_obf_add_obf_user_badge_blacklist_link(&$branch) {
  */
 function local_obf_myprofile_navigation(\core_user\output\myprofile\tree $tree, $user, $iscurrentuser, $course) {
     require_once(__DIR__ . '/class/user_preferences.php');
-    global $PAGE, $DB;
+    global $PAGE, $DB, $CFG;
     $show = obf_client::has_client_id() && obf_user_preferences::get_user_preference($user->id, 'badgesonprofile') == 1;
     if ($show) {
         $category = new core_user\output\myprofile\category('local_obf/badges', get_string('profilebadgelist', 'local_obf'), null);
@@ -254,6 +254,27 @@ function local_obf_myprofile_navigation(\core_user\output\myprofile\tree $tree, 
                 $tree->add_node($localnode);
             }
         }
+        $badgeslib_file = $CFG->libdir.'/badgeslib.php';
+        
+        if (file_exists($badgeslib_file) && true !== get_config('enablebadges') && get_config('local_obf', 'displaymoodlebadges')) {
+            $moodleassertions = new obf_assertion_collection();
+            require_once($badgeslib_file);
+            $moodleassertions->add_collection(obf_assertion::get_user_moodle_badge_assertions($user->id));
+                
+            if (count($moodleassertions) > 0) {
+                $renderer = $PAGE->get_renderer('local_obf');
+                $site = get_site();
+                $sitename = $site ? format_string($site->fullname) : 'Moodle';
+                $title = get_string('profilebadgelistbackpackprovider', 'local_obf', $sitename);
+                $content = $renderer->render_user_assertions($moodleassertions, $user, false);
+                $localnode = $mybadges = new core_user\output\myprofile\node('local_obf/badges', 'obfbadgesmoodle',
+                            $title, null, null, $content, null, 'local-obf');
+                $tree->add_node($localnode);
+            }
+            
+        }
+        
+        
     }
 }
 /**

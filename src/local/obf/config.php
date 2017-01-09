@@ -166,6 +166,9 @@ switch ($action) {
             if ($data->disablemoodlebadges) {
                 set_config('enablebadges', 0);
             }
+            if (isset($data->displaymoodlebadges)) {
+                set_config('displaymoodlebadges', $data->displaymoodlebadges, 'local_obf');
+            }
             $url->param('action', 'authenticate');
             redirect($url);
         }
