@@ -29,7 +29,10 @@ class block_obf_displayer_edit_form extends block_edit_form {
         $mform->addElement('header', 'configheader', get_string('blocksettings', 'block'));
 
         $mform->addElement('advcheckbox', 'config_largebadges', get_string('largebadges', 'block_obf_displayer'));
+        
+        $mform->addElement('advcheckbox', 'config_disableassertioncache', get_string('disableassertioncache', 'block_obf_displayer'));
         $mform->setDefault('config_largebadges', 0);
+        $mform->setDefault('config_disableassertioncache', 0);
         
                 // Logged in user or profile user
         $instance = $this->block->instance;

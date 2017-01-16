@@ -1145,11 +1145,25 @@ class local_obf_renderer extends plugin_renderer_base {
      * @return string HTML
      */
     public function render_obf_config_form(obf_config_form $form) {
+        $html = $this->print_heading('obfconnectionconfig', 2);
+        $html .= $form->render();
+
+        return $html;
+    }
+    
+    /**
+     * Renders the OBF configuration form
+     *
+     * @param obf_config_form $form
+     * @return string HTML
+     */
+    public function render_obf_settings_form(obf_settings_form $form) {
         $html = $this->print_heading('settings', 2);
         $html .= $form->render();
 
         return $html;
     }
+
 
     /**
      * Renders the badge exporter form.

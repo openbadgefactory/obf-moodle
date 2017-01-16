@@ -54,6 +54,10 @@ class obf_user_preferences {
      * @var $optionalpreferences What may be defined in preferences.
      */
     private $optionalpreferences = array('openbadgepassport');
+    
+    const USERS_CAN_MANAGE_DISPLAY_OF_BADGES = 0;
+    const USERS_FORCED_TO_DISPLAY_BADGES = 1;
+    const USERS_NOT_ALLOWED_TO_DISPLAY_BADGES = 2;
 
     /**
      * Constructor.

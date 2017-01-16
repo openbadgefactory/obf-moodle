@@ -46,12 +46,23 @@ class obf_userconfig_form extends local_obf_form_base {
         $userpreferences = $this->_customdata['userpreferences'];
 
 
-        $mform->addElement('header', 'header_userprefeferences_fields',
+        $usersdisplaybadges = get_config('local_obf', 'usersdisplaybadges');
+        if ($usersdisplaybadges != obf_user_preferences::USERS_FORCED_TO_DISPLAY_BADGES &&
+            $usersdisplaybadges != obf_user_preferences::USERS_NOT_ALLOWED_TO_DISPLAY_BADGES) {
+            // Users can manage displayment of badges
+            $mform->addElement('header', 'header_userprefeferences_fields',
                 get_string('userpreferences', 'local_obf'));
-        $this->setExpanded($mform, 'header_userprefeferences_fields');
+            $this->setExpanded($mform, 'header_userprefeferences_fields');
 
-        $mform->addElement('advcheckbox', 'badgesonprofile', get_string('showbadgesonmyprofile', 'local_obf'));
-        $mform->setDefault('badgesonprofile', $userpreferences->get_preference('badgesonprofile'));
+            $mform->addElement('advcheckbox', 'badgesonprofile', get_string('showbadgesonmyprofile', 'local_obf'));
+            $mform->setDefault('badgesonprofile', $userpreferences->get_preference('badgesonprofile'));
+        } else {
+            // Users cannot modify the value
+            $displaybadges = $usersdisplaybadges == obf_user_preferences::USERS_FORCED_TO_DISPLAY_BADGES;
+            $mform->addElement('hidden', 'badgesonprofile', $displaybadges);
+            $mform->setType('badgesonprofile', PARAM_INT);
+        }
+        
 
         foreach ($backpacks as $backpack) {
             $this->render_backpack_settings($mform, $backpack);

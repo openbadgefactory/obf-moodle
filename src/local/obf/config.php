@@ -24,6 +24,7 @@
 require_once(__DIR__ . '/../../config.php');
 require_once($CFG->libdir . '/adminlib.php');
 require_once(__DIR__ . '/form/config.php');
+require_once(__DIR__ . '/form/settings.php');
 require_once(__DIR__ . '/form/badgeexport.php');
 require_once(__DIR__ . '/class/client.php');
 
@@ -48,7 +49,13 @@ switch ($action) {
     // Handle authentication.
     case 'authenticate':
         $form = new obf_config_form($FULLME, array('client' => $client));
-
+        if ($client->has_client_id()) {
+            $settings = new stdClass();
+            $settings->disableassertioncache = get_config('local_obf', 'disableassertioncache');
+            $settings->usersdisplaybadges = get_config('local_obf', 'usersdisplaybadges');
+            $settingsform = new obf_settings_form($FULLME, array('settings' => $settings));
+        }
+        
         if (!is_null($data = $form->get_data())) {
             // Deauthentication.
             if (isset($data->deauthenticate) && $data->deauthenticate == 1) {
@@ -95,12 +102,24 @@ switch ($action) {
                 redirect(new moodle_url('/local/obf/config.php'));
             }
         }
-
+        
         if (!empty($msg)) {
             $content .= $OUTPUT->notification(s($msg), 'notifysuccess');
         }
 
         $content .= $PAGE->get_renderer('local_obf')->render($form);
+        
+        if (isset($settingsform)) {
+            if (!is_null($data = $settingsform->get_data())) {
+                set_config('disableassertioncache', $data->disableassertioncache, 'local_obf');
+                set_config('usersdisplaybadges', $data->usersdisplaybadges, 'local_obf');
+                redirect(new moodle_url('/local/obf/config.php',
+                            array('msg' => get_string('settingssaved',
+                                'local_obf'))));
+            }
+            $content .= $PAGE->get_renderer('local_obf')->render($settingsform);
+        }
+        
         break;
 
     // Let the user select the badges that can be exported to OBF.

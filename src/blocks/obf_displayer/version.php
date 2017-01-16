@@ -21,11 +21,11 @@
  * @copyright  2015, Discendum Oy
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-$plugin->version = 2016090700;  // YYYYMMDDHH (year, month, day, 24-hr time).
-$plugin->release = '0.4';
+$plugin->version = 2017011600;  // YYYYMMDDHH (year, month, day, 24-hr time).
+$plugin->release = '0.5';
 $plugin->requires = 2011120511;
 $plugin->component = 'block_obf_displayer';
-$plugin->maturity = MATURITY_ALPHA;
+$plugin->maturity = MATURITY_STABLE;
 
 $plugin->dependencies = array(
     'local_obf' => 2016060800   // The main OBF plugin must be present, 2016060601 has support for user defined Backpacks.

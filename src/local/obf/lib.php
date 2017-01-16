@@ -227,7 +227,14 @@ function local_obf_add_obf_user_badge_blacklist_link(&$branch) {
 function local_obf_myprofile_navigation(\core_user\output\myprofile\tree $tree, $user, $iscurrentuser, $course) {
     require_once(__DIR__ . '/class/user_preferences.php');
     global $PAGE, $DB, $CFG;
-    $show = obf_client::has_client_id() && obf_user_preferences::get_user_preference($user->id, 'badgesonprofile') == 1;
+    $usersdisplaybadges = get_config('local_obf', 'usersdisplaybadges');
+    $show = obf_client::has_client_id() &&
+            (
+            $usersdisplaybadges == obf_user_preferences::USERS_FORCED_TO_DISPLAY_BADGES ||
+            $usersdisplaybadges != obf_user_preferences::USERS_NOT_ALLOWED_TO_DISPLAY_BADGES &&
+            obf_user_preferences::get_user_preference($user->id, 'badgesonprofile') == 1
+            )
+            ;
     if ($show) {
         $category = new core_user\output\myprofile\category('local_obf/badges', get_string('profilebadgelist', 'local_obf'), null);
         $tree->add_category($category);
@@ -278,7 +285,7 @@ function local_obf_myprofile_navigation(\core_user\output\myprofile\tree $tree, 
     }
 }
 /**
- * Returns cached assertions for user
+ * Returns (cached) assertions for user
  *
  * @param int $userid
  * @param moodle_database $db
@@ -286,7 +293,7 @@ function local_obf_myprofile_navigation(\core_user\output\myprofile\tree $tree, 
  */
 function local_obf_myprofile_get_assertions($userid, $db) {
     $cache = cache::make('local_obf', 'obf_assertions');
-    $assertions = $cache->get($userid);
+    $assertions = get_config('local_obf', 'disableassertioncache') ? null : $cache->get($userid);
 
     if (!$assertions) {
         require_once(__DIR__ . '/class/blacklist.php');
@@ -309,7 +316,7 @@ function local_obf_myprofile_get_assertions($userid, $db) {
 }
 
 /**
- * Returns cached backpack badges for user
+ * Returns (cached) backpack badges for user
  *
  * @param int $userid
  * @param int $provider Backpack provider. obf_backpack::BACKPACK_PROVIDER_*.
@@ -322,7 +329,7 @@ function local_obf_myprofile_get_backpack_badges($userid, $provider, $db) {
         return new obf_assertion_collection();
     }
     $cache = cache::make('local_obf', 'obf_assertions_backpacks');
-    $userassertions = $cache->get($userid);
+    $userassertions = get_config('local_obf', 'disableassertioncache') ? null : $cache->get($userid);
     $shortname = obf_backpack::get_providershortname_by_providerid($provider);
 
     if (!$userassertions || !array_key_exists($shortname, $userassertions)) {
