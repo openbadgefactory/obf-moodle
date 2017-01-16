@@ -113,6 +113,7 @@ class local_obf_observer {
                    $issuevent->set_criterionid($criterionid);
                    $issuevent->save($DB);
                }
+               cache_helper::invalidate_by_event('new_obf_assertion', array($user->id));
            }
        }
        return true;
