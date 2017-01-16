@@ -112,8 +112,8 @@ class block_obf_displayer extends block_base {
     private function get_assertions($userid, $db) {
         $clientid = obf_client::get_client_id();
         if (!empty($clientid) && (empty($this->config) || !property_exists($this->config, 'showobf') || $this->config->showobf)) {
-            $cache = !$this->is_cache_assertions_enabled() ? null : cache::make('block_obf_displayer', 'obf_assertions');
-            $assertions = $cache->get($userid);
+            $cache = cache::make('block_obf_displayer', 'obf_assertions');
+            $assertions = !$this->is_cache_assertions_enabled() ? null : $cache->get($userid);
 
             if (!$assertions) {
                 // Get user's badges in OBF.
@@ -168,8 +168,8 @@ class block_obf_displayer extends block_base {
         $shortname = $backpack->get_providershortname();
         $showprop = 'show'.$shortname;
         if (empty($this->config) || !property_exists($this->config, $showprop) || $this->config->{$showprop}) {
-            $cache = !$this->is_cache_assertions_enabled() ? null : cache::make('block_obf_displayer', 'obf_assertions_backpacks');
-            $userassertions = $cache->get($userid);
+            $cache = cache::make('block_obf_displayer', 'obf_assertions_backpacks');
+            $userassertions = !$this->is_cache_assertions_enabled() ? null : $cache->get($userid);
 
             if (!$userassertions || !array_key_exists($shortname, $userassertions)) {
                 if (!is_array($userassertions)) {
