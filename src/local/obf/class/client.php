@@ -222,7 +222,7 @@ class obf_client {
      * @return boolean Returns true on success.
      * @throws Exception If something goes wrong.
      */
-    public function authenticate($signature, $url) { 
+    public function authenticate($signature, $url) {
         $pkidir = realpath($this->get_pki_dir());
 
         // Certificate directory not writable.
@@ -407,13 +407,16 @@ class obf_client {
      * @param string[] $categories Filter badges by these categories.
      * @return array The badges data.
      */
-    public function get_badges(array $categories = array()) {
+    public function get_badges(array $categories = array(), $query = '') {
         $params = array('draft' => 0);
 
         $this->require_client_id();
 
         if (count($categories) > 0) {
             $params['category'] = implode('|', $categories);
+        }
+        if (!empty($query)) {
+            $params['query'] = $query;
         }
 
         return $this->api_request('/badge/' . self::get_client_id(), 'get',
@@ -482,9 +485,17 @@ class obf_client {
     /**
      * Deletes all client badges. Use with caution.
      */
+    public function delete_badge($badgeid) {
+        $this->require_client_id();
+        return $this->api_request('/badge/' . self::get_client_id() . '/' . $badgeid, 'delete');
+    }
+    
+    /**
+     * Deletes all client badges. Use with caution.
+     */
     public function delete_badges() {
         $this->require_client_id();
-        $this->api_request('/badge/' . self::get_client_id(), 'delete');
+        return $this->api_request('/badge/' . self::get_client_id(), 'delete');
     }
 
     /**
