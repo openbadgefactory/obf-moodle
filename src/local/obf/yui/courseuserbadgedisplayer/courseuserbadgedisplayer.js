@@ -195,7 +195,7 @@ YUI.add('moodle-local_obf-courseuserbadgedisplayer', function(Y) {
             Y.one('body').delegate('click', this.display_criteria, '.view-criteria', this);
             this.panel.set('width', this.get_panel_width());
 
-            this.panel.show();
+            this.panel.render().show().centered();
             Y.one('.yui3-widget-mask').detach('click', this.close_panel).once('click', this.close_panel, this );
         },
         setup_panel_branding: function (data) {
