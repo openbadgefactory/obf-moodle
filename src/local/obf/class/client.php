@@ -300,6 +300,14 @@ class obf_client {
         if (openssl_csr_export($csr, $csrout) === false) {
             throw new Exception(get_string('csrexportfailed', 'local_obf'));
         }
+        
+        if (empty($csrout)) {
+            $opensslerrors = 'CSR output empty.';
+            while (($opensslerror = openssl_error_string()) !== false) {
+                $opensslerrors .= $opensslerror . " \n ";
+            }
+            throw new Exception($opensslerrors);
+        }
 
         $postdata = json_encode(array('signature' => $signature, 'request' => $csrout));
         $cert = $curl->post($apiurl . '/client/' . $json->id . '/sign_request',
