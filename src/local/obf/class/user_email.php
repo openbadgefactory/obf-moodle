@@ -133,7 +133,7 @@ class obf_user_email {
             $record->token = $token;
             $record->timestamp = time();
             $DB->update_record($table, $record);
-        } else if($record->verified != 1) {
+        } else if(!$record) {
             $record = new stdClass();
             $record->user_id = $userid;
             $record->email = $email;

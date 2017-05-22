@@ -24,6 +24,7 @@ var LOCAL_OBF_EMAILVERIFIER = {};
                 $t.detach().appendTo(modal.find('.modal-body:first'));
             });
             modal.toggleClass('fade', false);
+            modal.css('display', 'block');
             that.modal_binding(that, modal);
         },
         modal_binding: function (that, modal) {

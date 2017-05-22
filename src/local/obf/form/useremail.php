@@ -42,6 +42,7 @@ class obf_user_email_form extends local_obf_form_base {
         $mform = $this->_form;
 
         $modal_title = get_string('addemailheader', 'local_obf');
+        $mform->addElement('html', '<div class="modal-dialog"><div class="modal-content">');
         $mform->addElement('html', '<div class="modal-header">'.
             '<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>'.
             '<h4 class="modal-title" id="verifyEmailModalLabel">'.$modal_title.'</h4>'.
@@ -71,5 +72,6 @@ class obf_user_email_form extends local_obf_form_base {
         $mform->setType('token', PARAM_TEXT);
 
         $mform->addElement('html', '</div>'); // modal-body
+        $mform->addElement('html', '</div></div>'); // modal-content + modal-dialog
     }
 }

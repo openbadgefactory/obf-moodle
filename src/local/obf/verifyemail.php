@@ -29,6 +29,11 @@ require_once(__DIR__ . '/class/backpack.php');
 require_once($CFG->libdir . '/filelib.php');
 require_once(__DIR__ . '/class/user_email.php');
 
+
+require_login();
+$usercontext = context_user::instance($USER->id);
+$PAGE->set_context($usercontext);
+
 $assertion = required_param('assertion', PARAM_TEXT);
 $action = optional_param('action', 'persona', PARAM_TEXT);
 $provider = optional_param('provider', obf_backpack::get_default_provider(), PARAM_INT);
