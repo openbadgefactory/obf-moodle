@@ -44,6 +44,7 @@ $capabilities = array(
 
     // Can see the badges of the participants of the same course.
     'local/obf:seeparticipantbadges' => array(
+        'riskbitmask'   => RISK_PERSONAL,
         'captype'       => 'read',
         'contextlevel'  => CONTEXT_COURSE,
         'archetypes'    => array(
@@ -69,6 +70,7 @@ $capabilities = array(
 
     // Can issue a badge.
     'local/obf:issuebadge' => array(
+        'riskbitmask'   => RISK_SPAM,
         'captype'       => 'write',
         'contextlevel'  => CONTEXT_COURSE,
         'archetypes'    => array(
@@ -103,6 +105,7 @@ $capabilities = array(
 
     // Can view issuance history.
     'local/obf:viewhistory' => array(
+        'riskbitmask'   => RISK_PERSONAL,
         'captype'       => 'read',
         'contextlevel'  => CONTEXT_COURSE,
         'archetypes'    => array(
@@ -136,6 +139,7 @@ $capabilities = array(
 
     // Can view backpack.
     'local/obf:viewbackpack' => array(
+        'riskbitmask'   => RISK_PERSONAL,
         'captype'       => 'read',
         'contextlevel'  => CONTEXT_USER,
         'archetypes'    => array(
@@ -164,6 +168,7 @@ $capabilities = array(
 
     // Can view all events.
     'local/obf:viewallevents' => array(
+        'riskbitmask'   => RISK_PERSONAL,
         'captype'       => 'read',
         'contextlevel'  => CONTEXT_SYSTEM,
         'archetypes'    => array(
@@ -176,6 +181,7 @@ $capabilities = array(
 
     // Can revoke a badge, which was automatically issued based on course criteria.
     'local/obf:viewcourseevents' => array(
+        'riskbitmask'   => RISK_PERSONAL,
         'captype'       => 'read',
         'contextlevel'  => CONTEXT_COURSE,
         'archetypes'    => array(
@@ -188,6 +194,7 @@ $capabilities = array(
 
     // Can edit badge criterion.
     'local/obf:editcriterion' => array(
+        'riskbitmask'   => RISK_CONFIG,
         'captype'       => 'write',
         'contextlevel'  => CONTEXT_SYSTEM,
         'archetypes'    => array(
