@@ -182,6 +182,32 @@ class obf_criterion {
         return ($DB->count_records('local_obf_criterion_met',
                         array('obf_criterion_id' => $this->id)) > 0);
     }
+    
+    public function issue_and_set_met($user, $recipients = null) {
+        global $DB;
+        $badge = $this->get_badge();
+        if (is_null($recipients)) {
+            $passport = obf_backpack::get_instance($user);
+
+            // If the user has configured a passport connection,
+            // use that instead of the default email.
+            $recipients = array($passport === false ? $user->email : $passport->get_email());
+        }
+        $email = is_null($badge->get_email()) ? new obf_email() : $badge->get_email();
+
+        $criteriaaddendum = $this->get_use_addendum() ? $this->get_criteria_addendum() : '';
+
+        $eventid = $badge->issue($recipients, time(), $email, $criteriaaddendum);
+        $this->set_met_by_user($user->id);
+
+        if ($eventid && !is_bool($eventid)) {
+            $issuevent = new obf_issue_event($eventid, $DB);
+            $issuevent->set_criterionid($this->get_id());
+            $issuevent->save($DB);
+        }
+        cache_helper::invalidate_by_event('new_obf_assertion', array($user->id));
+        return $eventid;
+    }
 
     /**
      * Deletes this criterion from the database.

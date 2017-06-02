@@ -171,7 +171,8 @@ class obf_criterion_unknown extends obf_criterion_item {
         $optionlist = array(
             obf_criterion_item::CRITERIA_TYPE_UNKNOWN => get_string('selectcriteriatype', 'local_obf'),
             obf_criterion_item::CRITERIA_TYPE_COURSE => get_string('criteriatypecourseset', 'local_obf'),
-            obf_criterion_item::CRITERIA_TYPE_ACTIVITY => get_string('criteriatypeactivity', 'local_obf')
+            obf_criterion_item::CRITERIA_TYPE_ACTIVITY => get_string('criteriatypeactivity', 'local_obf'),
+            obf_criterion_item::CRITERIA_TYPE_PROFILE => get_string('criteriatypeprofile', 'local_obf')
         );
         if (property_exists($CFG, 'totara_build')) {
             $totaraoptions = array(

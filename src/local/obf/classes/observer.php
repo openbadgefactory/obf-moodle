@@ -100,20 +100,7 @@ class local_obf_observer {
 
            // Criterion was met, issue the badge.
            if ($criterionmet) {
-               $badge = $criterion->get_badge();
-               $email = is_null($badge->get_email()) ? new obf_email() : $badge->get_email();
-
-               $criteriaaddendum = $criterion->get_use_addendum() ? $criterion->get_criteria_addendum() : '';
-
-               $eventid = $badge->issue($recipients, time(), $email, $criteriaaddendum);
-               $criterion->set_met_by_user($user->id);
-
-               if ($eventid && !is_bool($eventid)) {
-                   $issuevent = new obf_issue_event($eventid, $DB);
-                   $issuevent->set_criterionid($criterionid);
-                   $issuevent->save($DB);
-               }
-               cache_helper::invalidate_by_event('new_obf_assertion', array($user->id));
+               $criterion->issue_and_set_met($user, $recipients);
            }
        }
        return true;
@@ -151,5 +138,38 @@ class local_obf_observer {
 
         obf_criterion_course::delete_by_course($course, $DB);
         return true;
+    }
+    
+    /**
+     * Triggered when 'user_updated' event happens.
+     *
+     * @param \core\event\user_updated $event event generated when user profile is updated.
+     */
+    public static function profile_criteria_review(\core\event\user_updated $event) {
+        global $DB, $CFG;
+        self::requires(array('/class/event.php', '/class/criterion/item_base.php'));
+        
+        $userid = $event->objectid;
+
+        if ($rs = $DB->get_records('local_obf_criterion_courses', array('criteria_type' => obf_criterion_item::CRITERIA_TYPE_PROFILE))) {
+            $user = $DB->get_record('user', array('id' => $userid));
+            foreach($rs as $critres) {
+                $critarr = (array)$critres;
+                $crit = obf_criterion_item::build($critarr);
+                $criterion = $crit->get_criterion();
+                if ($criterion->is_met_by_user($user)) {
+                    continue;
+                }
+                
+                
+                // Review & issue
+                $criterionmet = $crit->review_for_user($user, $criterion);
+
+                // Criterion was met, issue the badge.
+                if ($criterionmet) {
+                    $criterion->issue_and_set_met($user);
+                }
+            }
+        }
     }
 }

@@ -62,7 +62,8 @@ class obf_criterion_course extends obf_criterion_item {
         global $DB;
 
         $record = $DB->get_record('local_obf_criterion_courses', array('id' => $id));
-        $obj = new self();
+        $class = get_called_class();
+        $obj = new $class();
 
         return $obj->populate_from_record($record);
     }
@@ -359,6 +360,7 @@ class obf_criterion_course extends obf_criterion_item {
         $this->save();
 
         if (!property_exists($this, 'optionalparams') || !property_exists($this, 'requiredparam')) {
+            error_log('No optionalparams or requiredparams, exiting. ' . var_export(get_class($this),true));
             return;
         }
 
@@ -372,7 +374,7 @@ class obf_criterion_course extends obf_criterion_item {
                     return $a .'_';
                 }, $match));
         $requiredkeys = preg_grep('/^('.$regex.').*$/', array_keys($params));
-
+        
         $paramtable = 'local_obf_criterion_params';
 
         $existing = $DB->get_fieldset_select($paramtable, 'name', 'obf_criterion_id = ?', array($this->get_criterionid()));

@@ -38,4 +38,8 @@ $observers = array(
         'eventname'   => '\core\event\course_deleted',
         'callback'    => 'local_obf_observer::course_deleted',
     ),
+    array(
+        'eventname'   => 'core\event\user_updated',
+        'callback'    => 'local_obf_observer::profile_criteria_review',
+    )
 );

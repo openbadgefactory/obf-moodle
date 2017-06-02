@@ -107,4 +107,56 @@ class local_obf_criterion_testcase extends advanced_testcase {
         $rule->delete_items();
         $this->assertCount(0, $rule->get_items());
     }
+    
+    /**
+     * @group profile
+     */
+    public function test_profile_criterion() {
+        require_once(__DIR__ . '/../class/event.php');
+        require_once(__DIR__ .'/lib/obf_mock_curl.php');
+        $this->resetAfterTest();
+        $curl = obf_mock_curl::get_mock_curl($this);
+        set_config('obfclientid', 'PHPUNIT', 'local_obf');
+        $client = obf_client::get_instance($curl);
+        $client->set_transport($curl);
+        $user = $this->getDataGenerator()->create_user();
+        
+        
+        
+        $badge = new obf_badge();
+        $badge->set_image(obf_mock_curl::$emptypngdata);
+        $badge->set_id('TESTBADGE');
+        obf_mock_curl::add_get_badge($this, $curl, 'PHPUNIT', $badge);
+        $criterion = new obf_criterion();
+        $criterion->set_badge($badge);
+        $criterion->set_badgeid($badge->get_id());
+        $criterion->set_completion_method(obf_criterion::CRITERIA_COMPLETION_ALL);
+        
+        $criterion->save();
+        $rule = obf_criterion_item::build(array(
+            'criteriatype' => obf_criterion_item::CRITERIA_TYPE_PROFILE,
+            'criterionid' => $criterion->get_id()
+                ));
+        $rule->save();
+        $params = array('field_phone1' => 'phone1', 'field_city' => 'city');
+        $rule->save_params($params);
+        
+        obf_mock_curl::add_issue_badge($this, $curl, 'PHPUNIT');
+        $criterionevents = obf_issue_event::get_criterion_events($criterion);
+        $this->assertCount(0, $criterionevents);
+        
+        $user->phone1 = '0401234567';
+        user_update_user($user, false, true);
+        
+        
+        $criterionevents = obf_issue_event::get_criterion_events($criterion);
+        $this->assertCount(0, $criterionevents);
+        
+        $user->city = 'Oulu';
+        user_update_user($user, false, true);
+        
+        $criterionevents = obf_issue_event::get_criterion_events($criterion);
+        $this->assertCount(1, $criterionevents);
+
+    }
 }

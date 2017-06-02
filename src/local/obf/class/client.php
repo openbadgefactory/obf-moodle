@@ -642,8 +642,9 @@ class obf_client {
         // Codes 2xx should be ok.
         if (is_numeric($this->httpcode) && ($this->httpcode < 200 || $this->httpcode >= 300)) {
             $this->error = isset($response['error']) ? $response['error'] : '';
+            $appendtoerror = defined('PHPUNIT_TEST') && PHPUNIT_TEST ? ' ' . $method . ' ' . $url : '';
             throw new Exception(get_string('apierror' . $this->httpcode, 'local_obf',
-                    $this->error), $this->httpcode);
+                    $this->error) . $appendtoerror, $this->httpcode);
         }
 
         return $response;

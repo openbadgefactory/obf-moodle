@@ -47,6 +47,11 @@ abstract class obf_criterion_item {
      * Criteria is associated to activities.
      */
     const CRITERIA_TYPE_ACTIVITY = 2;
+    /**
+     * Criteria is associated to user profile
+     */
+    const CRITERIA_TYPE_PROFILE = 3;
+
 
     /**
      * Criteria is associated with a totara program.
@@ -102,6 +107,7 @@ abstract class obf_criterion_item {
         self::CRITERIA_TYPE_UNKNOWN => 'unknown',
         self::CRITERIA_TYPE_COURSE => 'course',
         self::CRITERIA_TYPE_ACTIVITY => 'activity',
+        self::CRITERIA_TYPE_PROFILE => 'profile',
         self::CRITERIA_TYPE_TOTARA_PROGRAM => 'totaraprogram',
         self::CRITERIA_TYPE_TOTARA_CERTIF => 'totaraprogram'
     );
@@ -115,8 +121,9 @@ abstract class obf_criterion_item {
         $this->id = isset($params['id']) ? $params['id'] : -1;
         $this->courseid = isset($params['courseid']) ? $params['courseid'] : -1;
         $this->criteriatype = isset($params['criteriatype']) ? $params['criteriatype'] : self::CRITERIA_TYPE_UNKNOWN;
-        if (isset($params['criterionid'])) {
-            $this->criterionid = $params['criterionid'];
+        $criterionid = isset($params['criterionid']) ? $params['criterionid'] : (isset($params['obf_criterion_id']) ? $params['obf_criterion_id'] : null);
+        if (!is_null($criterionid)) {
+            $this->criterionid = $criterionid;
             $this->criterion = $this->get_criterion();
         }
     }
@@ -124,13 +131,13 @@ abstract class obf_criterion_item {
      * Build criteria object based on params.
      *
      * @param array $params
-     * @return mixed Returns obf_criterion_(course|activity|unknown)
+     * @return obf_criterion_base|mixed Returns obf_criterion_(course|activity|unknown)
      *         based on what criteriatype was passed in params.
      * @see self::$obfbadgecriteriatypeclasses
      */
     public static function build($params) {
-        $typeid = $params['criteriatype'];
-        if (!isset($typeid) || !isset(self::$obfbadgecriteriatypeclasses[$typeid])) {
+        $typeid = isset($params['criteriatype']) ? $params['criteriatype'] : (isset($params['criteria_type']) ? $params['criteria_type'] : null);
+        if (!isset($typeid) || is_null($typeid) || !isset(self::$obfbadgecriteriatypeclasses[$typeid])) {
             throw new Exception("Error Building criterion." . $params['criteriatype']);
         }
         $type = self::$obfbadgecriteriatypeclasses[$typeid];

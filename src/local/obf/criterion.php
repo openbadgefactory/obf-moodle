@@ -337,7 +337,9 @@ switch ($action) {
                         $criterioncourse->set_criteriatype($data->criteriatype);
                         $criterioncourse->save();
                     }
-                } else if (($data->criteriatype == obf_criterion_item::CRITERIA_TYPE_TOTARA_PROGRAM ||
+                } else if ((
+                        $data->criteriatype == obf_criterion_item::CRITERIA_TYPE_PROFILE ||
+                        $data->criteriatype == obf_criterion_item::CRITERIA_TYPE_TOTARA_PROGRAM ||
                         $data->criteriatype == obf_criterion_item::CRITERIA_TYPE_TOTARA_CERTIF) && !$pickingtype) {
                     $criterioncourse = obf_criterion_item::get_instance($criterioncourseid);
                     if (!$criterioncourse->exists()) {

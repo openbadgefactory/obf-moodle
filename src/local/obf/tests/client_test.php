@@ -34,32 +34,9 @@ class local_obf_client_testcase extends advanced_testcase {
     public function test_request() {
         $this->resetAfterTest();
 
-        // Create the mock object.
-        $curl = $this->getMock('curl', array('post', 'get', 'delete'));
-
-        // Mock HTTP POST.
-        $curl->expects($this->once())->method(
-                'post')->with($this->stringEndsWith('/test/'), $this->anything(),
-                        $this->anything())->will(
-                                $this->returnValue(json_encode(array('post' => 'works!'))));
-
-        // Mock HTTP GET.
-        $curl->expects($this->any())->method('get')->with($this->logicalOr(
-                                $this->stringEndsWith('/test/'),
-                                $this->stringEndsWith('/doesnotexist/')),
-                        $this->anything(), $this->anything())->will($this->returnCallback(
-                        function ($path, $arg1, $arg2) {
-                            // This url exists, return a success message.
-                            if ($path == "/test/") {
-                                return json_encode(array('get' => 'works!'));
-                            }
-
-                            return false; // Return false on failure (invalid url).
-                        }));
-
-        // Mock HTTP DELETE.
-        $curl->expects($this->once())->method('delete')->with($this->stringEndsWith('/test/'), $this->anything(),
-                        $this->anything())->will($this->returnValue(json_encode(array('delete' => 'works!'))));
+        require_once(__DIR__ .'/lib/obf_mock_curl.php');
+        $curl = obf_mock_curl::get_mock_curl($this);
+        obf_mock_curl::add_client_test_methods($this, $curl);
 
         $client = obf_client::get_instance($curl);
 

@@ -78,6 +78,21 @@ class obf_issue_event {
         }
         return $this;
     }
+    
+    public static function get_criterion_events($criterion) {
+        global $DB;
+        $criterionid = is_number($criterion) ? $criterion : $criterion->get_id();
+        $records = $DB->get_records('local_obf_issue_events', array('obf_criterion_id' => $criterionid ));
+        if (false == $records) {
+            return array();
+        }
+        $events = array();
+        foreach($records as $record) {
+            $obj = new self();
+            $events[] = $obj->populate_from_record($record);
+        }
+        return $events;
+    }
     /**
      * Get all events that were issued by a criterion that is related to a course.
      * @param int $courseid
@@ -109,12 +124,19 @@ class obf_issue_event {
         $obj->obf_criterion_id = $this->criterionid;
         $obj->event_id = $this->eventid;
 
+        $id = $this->id > 0 ? $this->id : false;
         if ($this->id > 0) {
             $obj->id = $this->id;
             $db->update_record('local_obf_issue_events', $obj);
         } else {
-            $db->insert_record('local_obf_issue_events', $obj);
+            $id = $db->insert_record('local_obf_issue_events', $obj, true);
         }
+        
+        if ($id === false) {
+            return false;
+        }
+
+        $this->set_id($id);
     }
 
     /**
