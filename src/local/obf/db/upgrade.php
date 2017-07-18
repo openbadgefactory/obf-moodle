@@ -719,5 +719,9 @@ function xmldb_local_obf_upgrade($oldversion) {
         set_config('displaymoodlebadges', 0, 'local_obf');
         upgrade_plugin_savepoint(true, 2017010900, 'local', 'obf');
     }
+    if ($oldversion < 2017060800) {
+        set_config('apidataretrieve', 'local', 'local_obf');
+        upgrade_plugin_savepoint(true, 2017060800, 'local', 'obf');
+    }
     return true;
 }

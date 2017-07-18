@@ -55,6 +55,12 @@ class obf_settings_form extends local_obf_form_base implements renderable {
         );
         $mform->addElement('select', 'usersdisplaybadges', get_string('usersdisplaybadges', 'local_obf'), $badgedisplayoptions);
         
+        $apiassertionoptions = array(
+            obf_client::RETRIEVE_ALL => get_string('apidataretrieveall', 'local_obf'),
+            obf_client::RETRIEVE_LOCAL => get_string('apidataretrievelocal', 'local_obf')
+        );
+        $mform->addElement('select', 'apidataretrieve', get_string('apidataretrieve', 'local_obf'), $apiassertionoptions);
+        
         $mform->addElement('submit', 'submitbutton',
                 get_string('savesettings', 'local_obf'));
         $this->set_data($settings);
