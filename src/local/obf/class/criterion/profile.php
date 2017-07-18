@@ -272,6 +272,8 @@ class obf_criterion_profile extends obf_criterion_course {
               $none = false;
           }
       }
+      $obj->setExpanded($mform, 'first_header', true);
+
 
       return array($none, get_string('noparamstoadd', 'badges'));
     }
