@@ -383,4 +383,11 @@ class obf_criterion_profile extends obf_criterion_course {
         
         return $criterioncompleted;
     }
+    /**
+     * This does not support multiple courses.
+     * @return boolean false
+     */
+    public function criteria_supports_multiple_courses() {
+        return false;
+    }
 }
