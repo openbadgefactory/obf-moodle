@@ -141,22 +141,41 @@ class local_obf_criterion_testcase extends advanced_testcase {
         $params = array('field_phone1' => 'phone1', 'field_city' => 'city');
         $rule->save_params($params);
         
+        $criterion2 = new obf_criterion();
+        $criterion2->set_badge($badge);
+        $criterion2->set_badgeid($badge->get_id());
+        $criterion2->set_completion_method(obf_criterion::CRITERIA_COMPLETION_ANY);
+        
+        $criterion2->save();
+        $rule2 = obf_criterion_item::build(array(
+            'criteriatype' => obf_criterion_item::CRITERIA_TYPE_PROFILE,
+            'criterionid' => $criterion2->get_id()
+                ));
+        $rule2->save();
+        $params = array('field_phone1' => 'phone1', 'field_city' => 'city');
+        $rule2->save_params($params);
+        
         obf_mock_curl::add_issue_badge($this, $curl, 'PHPUNIT');
         $criterionevents = obf_issue_event::get_criterion_events($criterion);
+        $this->assertCount(0, $criterionevents);
+        
+        $criterionevents = obf_issue_event::get_criterion_events($criterion2); // Any
         $this->assertCount(0, $criterionevents);
         
         $user->phone1 = '0401234567';
         user_update_user($user, false, true);
         
-        
         $criterionevents = obf_issue_event::get_criterion_events($criterion);
-        $this->assertCount(0, $criterionevents);
+        $this->assertCount(0, $criterionevents, 'All aggregation fired event');
+        
+        $criterionevents = obf_issue_event::get_criterion_events($criterion2); // Any
+        $this->assertCount(1, $criterionevents, 'Any aggregation did not fire event');
         
         $user->city = 'Oulu';
         user_update_user($user, false, true);
         
         $criterionevents = obf_issue_event::get_criterion_events($criterion);
-        $this->assertCount(1, $criterionevents);
+        $this->assertCount(1, $criterionevents, 'All aggregation did not fire event after all criteria met');
 
     }
 }

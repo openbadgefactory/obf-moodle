@@ -211,71 +211,69 @@ class obf_criterion_profile extends obf_criterion_course {
      * @param mixed[] $items
      */
     public function get_options(&$mform, &$obj = null) {
-        if ($this->get_criterion()) {
-            global $DB;
+      global $DB;
 
-            $none = true;
-            $existing = array();
-            $missing = array();
+      $none = true;
+      $existing = array();
+      $missing = array();
 
-            // Note: cannot use user_get_default_fields() here because it is not possible to decide which fields user can modify.
-            $dfields = array('firstname', 'lastname', 'email', 'address', 'phone1', 'phone2', 'icq', 'skype', 'yahoo',
-                             'aim', 'msn', 'department', 'institution', 'description', 'city', 'url', 'country');
+      // Note: cannot use user_get_default_fields() here because it is not possible to decide which fields user can modify.
+      $dfields = array('firstname', 'lastname', 'email', 'address', 'phone1', 'phone2', 'icq', 'skype', 'yahoo',
+                       'aim', 'msn', 'department', 'institution', 'description', 'city', 'url', 'country');
 
-            $sql = "SELECT uf.id as fieldid, uf.name as name, ic.id as categoryid, ic.name as categoryname, uf.datatype
-                    FROM {user_info_field} uf
-                    JOIN {user_info_category} ic
-                    ON uf.categoryid = ic.id AND uf.visible <> 0
-                    ORDER BY ic.sortorder ASC, uf.sortorder ASC";
+      $sql = "SELECT uf.id as fieldid, uf.name as name, ic.id as categoryid, ic.name as categoryname, uf.datatype
+              FROM {user_info_field} uf
+              JOIN {user_info_category} ic
+              ON uf.categoryid = ic.id AND uf.visible <> 0
+              ORDER BY ic.sortorder ASC, uf.sortorder ASC";
 
-            // Get custom fields.
-            $cfields = $DB->get_records_sql($sql);
-            $cfids = array_map(create_function('$o', 'return $o->fieldid;'), $cfields);
+      // Get custom fields.
+      $cfields = $DB->get_records_sql($sql);
+      $cfids = array_map(create_function('$o', 'return $o->fieldid;'), $cfields);
 
-            if ($this->id !== 0) {
-                $existing = array_keys($this->get_params());
-                $missing = array_diff($existing, array_merge($dfields, $cfids));
-            }
+      if ($this->id !== 0) {
+          $existing = array_keys($this->get_params());
+          $missing = array_diff($existing, array_merge($dfields, $cfids));
+      }
 
-            if (!empty($missing)) {
-                $mform->addElement('header', 'category_errors', get_string('criterror', 'badges'));
-                $mform->addHelpButton('category_errors', 'criterror', 'badges');
-                foreach ($missing as $m) {
-                    $this->config_options($mform, array('id' => $m, 'checked' => true, 'name' => get_string('error:nosuchfield', 'badges'), 'error' => true));
-                    $none = false;
-                }
-            }
+      if (!empty($missing)) {
+          $mform->addElement('header', 'category_profile', get_string('criteriaprofileheader', 'local_obf'));
+          $mform->addHelpButton('category_profile', 'criteriaprofileheader', 'local_obf');
+          foreach ($missing as $m) {
+              $this->config_options($mform, array('id' => $m, 'checked' => true, 'name' => get_string('error:nosuchfield', 'local_obf'), 'error' => true));
+              $none = false;
+          }
+      }
 
-            if (!empty($dfields)) {
-                $mform->addElement('header', 'first_header', $this->get_name());
-                $mform->addHelpButton('first_header', 'criteria_' . $this->criteriatype, 'badges');
-                foreach ($dfields as $field) {
-                    $checked = false;
-                    if (in_array($field, $existing)) {
-                        $checked = true;
-                    }
-                    $this->config_options($mform, array('id' => $field, 'checked' => $checked, 'name' => get_user_field_name($field), 'error' => false));
-                    $none = false;
-                }
-            }
+      if (!empty($dfields)) {
+          $mform->addElement('header', 'first_header', $this->get_name());
+          $mform->addHelpButton('first_header', 'criteria_' . $this->criteriatype, 'local_obf');
+          foreach ($dfields as $field) {
+              $checked = false;
+              if (in_array($field, $existing)) {
+                  $checked = true;
+              }
+              $this->config_options($mform, array('id' => $field, 'checked' => $checked, 'name' => get_user_field_name($field), 'error' => false));
+              $none = false;
+          }
+      }
 
-            if (!empty($cfields)) {
-                foreach ($cfields as $field) {
-                    if (!isset($currentcat) || $currentcat != $field->categoryid) {
-                        $currentcat = $field->categoryid;
-                        $mform->addElement('header', 'category_' . $currentcat, format_string($field->categoryname));
-                    }
-                    $checked = false;
-                    if (in_array($field->fieldid, $existing)) {
-                        $checked = true;
-                    }
-                    $this->config_options($mform, array('id' => $field->fieldid, 'checked' => $checked, 'name' => $field->name, 'error' => false));
-                    $none = false;
-                }
-            }
+      if (!empty($cfields)) {
+          foreach ($cfields as $field) {
+              if (!isset($currentcat) || $currentcat != $field->categoryid) {
+                  $currentcat = $field->categoryid;
+                  $mform->addElement('header', 'category_' . $currentcat, format_string($field->categoryname));
+              }
+              $checked = false;
+              if (in_array($field->fieldid, $existing)) {
+                  $checked = true;
+              }
+              $this->config_options($mform, array('id' => $field->fieldid, 'checked' => $checked, 'name' => $field->name, 'error' => false));
+              $none = false;
+          }
+      }
 
-            return array($none, get_string('noparamstoadd', 'badges'));
-        }
+      return array($none, get_string('noparamstoadd', 'badges'));
     }
     
     /**
@@ -286,23 +284,25 @@ class obf_criterion_profile extends obf_criterion_course {
      * @param mixed[] $items
      */
     public function get_form_completion_options(&$mform, $obj = null, $items = null) {
-        if ($this->get_criterion()) {
-            // Radiobuttons to select whether this criterion is completed
-            // when any of the fields are completed or all of them.
-            $radiobuttons = array();
-            $radiobuttons[] = $mform->createElement('radio', 'completion_method', '',
-                    get_string('criteriacompletionmethodprofileall', 'local_obf'),
-                    obf_criterion::CRITERIA_COMPLETION_ALL);
-            $radiobuttons[] = $mform->createElement('radio', 'completion_method', '',
-                    get_string('criteriacompletionmethodprofileany', 'local_obf'),
-                    obf_criterion::CRITERIA_COMPLETION_ANY);
+      // Radiobuttons to select whether this criterion is completed
+      // when any of the fields are completed or all of them.
+      $radiobuttons = array();
+      $radiobuttons[] = $mform->createElement('radio', 'completion_method', '',
+              get_string('criteriacompletionmethodprofileall', 'local_obf'),
+              obf_criterion::CRITERIA_COMPLETION_ALL);
+      $radiobuttons[] = $mform->createElement('radio', 'completion_method', '',
+              get_string('criteriacompletionmethodprofileany', 'local_obf'),
+              obf_criterion::CRITERIA_COMPLETION_ANY);
 
-            $mform->addElement('header', 'header_completion_method',
-                    get_string('criteriacompletedwhen', 'local_obf'));
-            $obj->setExpanded($mform, 'header_completion_method');
-            $mform->addGroup($radiobuttons, 'radioar', '', '<br />', false);
-            $mform->setDefault('completion_method', $this->get_criterion()->get_completion_method());
-        }
+      $mform->addElement('header', 'header_completion_method',
+              get_string('criteriacompletedwhen', 'local_obf'));
+      $obj->setExpanded($mform, 'header_completion_method');
+      $mform->addGroup($radiobuttons, 'radioar', '', '<br />', false);
+      $criterion = $this->get_criterion();
+      if ($criterion) {
+        $mform->setDefault('completion_method', $criterion->get_completion_method());
+      }
+      
     }
     /**
      * Check if criteria is reviewable.
