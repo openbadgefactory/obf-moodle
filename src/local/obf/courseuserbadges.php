@@ -28,6 +28,7 @@ $courseid = required_param('courseid', PARAM_INT);
 $action = optional_param('action', 'badges', PARAM_ALPHANUM);
 $url = new moodle_url('/local/obf/courseuserbadges.php',
         array('courseid' => $courseid, 'action' => $action));
+$curr_page = optional_param('page', '0', PARAM_INT);
 $context = context_course::instance($courseid);
 
 require_login($courseid);
@@ -49,7 +50,7 @@ switch ($action) {
         require_capability('local/obf:viewhistory', $context);
         $relatedevents = obf_issue_event::get_events_in_course($courseid, $DB);
         $client = new obf_client();
-        $content .= $PAGE->get_renderer('local_obf')->print_badge_info_history($client, null, $context, 0, $relatedevents);
+        $content .= $PAGE->get_renderer('local_obf')->print_badge_info_history($client, null, $context, $curr_page, $relatedevents);
         break;
 }
 

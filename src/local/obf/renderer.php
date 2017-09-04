@@ -930,6 +930,7 @@ class local_obf_renderer extends plugin_renderer_base {
                                              obf_badge $badge = null,
                                              context $context, $currentpage = 0,
                                              $eventfilter = null) {
+        global $PAGE;
         $singlebadgehistory = !is_null($badge);
         $history = $singlebadgehistory ? $badge->get_assertions() : obf_assertion::get_assertions($client);
         if (!is_null($eventfilter)) {
@@ -957,9 +958,20 @@ class local_obf_renderer extends plugin_renderer_base {
         } else {
             // Paging settings.
             $perpage = 10; // TODO: Hard-coded here.
-            $path = '/local/obf/badge.php';
-            $url = $singlebadgehistory ? new moodle_url($path, array('action' => 'show', 'id' => $badge->get_id(),
-                    'show' => 'history')) : new moodle_url($path, array('action' => 'history'));
+            if ($PAGE->pagetype == 'local-obf-courseuserbadges') {
+              $path = '/local/obf/courseuserbadges.php';
+            } else {
+              $path = '/local/obf/badge.php';
+            }
+            
+            $urlparams = $singlebadgehistory ? array('action' => 'show', 'id' => $badge->get_id(),
+                    'show' => 'history') : array('action' => 'history');
+            if (!$singlebadgehistory && $context instanceof context_course) {
+              $urlparams['courseid'] = $context->instanceid;
+            }
+            /*$url = $singlebadgehistory ? new moodle_url($path, array('action' => 'show', 'id' => $badge->get_id(),
+                    'show' => 'history')) : new moodle_url($path, array('action' => 'history'));*/
+            $url = new moodle_url($path, $urlparams);
             $pager = new paging_bar($historysize, $currentpage, $perpage, $url,
                     'page');
             $htmlpager = $this->render($pager);
