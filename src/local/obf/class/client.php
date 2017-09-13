@@ -413,6 +413,85 @@ class obf_client {
     }
 
     /**
+     * Get earnable badges.
+     *
+     * @param string $badgeId
+     * @param string $approvalMethod ""|review|instant|secret|peer
+     * @param type $visible null|1|0
+     * @return array
+     */
+    public function get_earnable_badges($badgeId = "", $approvalMethod = "", $visible = null) {
+        $this->require_client_id();
+        $params = array_filter(array(
+            'badge_id' => $badgeId,
+            'approval_method' => $approvalMethod,
+            ));
+        if (!is_null($visible)) {
+            $params['visible'] = $visible;
+        }
+        return $this->api_request('/earnablebadge/' . $this->get_client_id() . '/', 'get', $params,
+                function ($output) {
+                    return '[' . implode(',', array_filter(explode("\n", $output))). ']';
+                }
+                );
+    }
+    /**
+     * Get earnable badge.
+     *
+     * @param string $earnableId
+     * @return array
+     */
+    public function get_earnable_badge($earnableId, $form_html = null) {
+        $this->require_client_id();
+        $params = array();
+        if (!is_null($form_html)) {
+          $params['form_html'] = $form_html;
+        }
+        $return = $this->api_request('/earnablebadge/' . $this->get_client_id() . '/' . $earnableId, 'get', $params);
+        return $return;
+    }
+
+    /**
+     * Post earnable badge application.
+     *
+     * @param string $earnableId
+     * @return array
+     */
+    public function earnable_badge_apply($earnableId, $form_data = null, $files = null) {
+        $this->require_client_id();
+        $params = array();
+        if (!is_null($form_data)) {
+          $params = $form_data;
+        }
+        $return = $this->api_request('/earnablebadge/' . $this->get_client_id() . '/' . $earnableId . '/apply', 'post', $params, null, $files, true);
+        return $return;
+    }
+
+    /**
+     * Get a list of applications.
+     *
+     * @param string $earnableId
+     * @param string $status ""|approved|pending|rejected
+     * @return type
+     */
+    public function get_earnable_badge_applications($earnableId, $status = "") {
+        $this->require_client_id();
+        $params = array_filter(array('status' => $status));
+        return $this->api_request('/earnablebadge/' . $this->get_client_id() . '/' . $earnableId . '/application', 'get', $params);
+    }
+
+    /**
+     * Get an application.
+     *
+     * @param string $earnableId
+     * @param string $applicationId
+     */
+    public function get_earnable_badge_application($earnableId, $applicationId) {
+        $this->require_client_id();
+        return $this->api_request('/earnablebadge/' . $this->get_client_id() . '/' . $earnableId . '/application/' . $applicationId, 'get');
+    }
+
+    /**
      * Get all the badges from the API.
      *
      * @param string[] $categories Filter badges by these categories.
@@ -592,6 +671,19 @@ class obf_client {
                 'delete');
     }
 
+    public static function files_array_is_empty($files) {
+        if (!is_array($files)) {
+            return true;
+        }
+        $files =  array_filter ( $files, function($val) {
+            if (empty($val['name']) && empty($val['tmp_name'])) {
+                return false;
+            }
+            return true;
+        } );
+        return empty($files);
+    }
+
     /**
      * A wrapper for obf_client::request, prefixing $path with the API url.
      *
@@ -604,9 +696,10 @@ class obf_client {
      */
     protected function api_request($path, $method = 'get',
                                    array $params = array(),
-                                   Closure $preformatter = null) {
+                                   Closure $preformatter = null, $files = null, $force_multipart = false) {
+        $json_post = self::files_array_is_empty($files) && !$force_multipart;
         return $this->request(self::get_api_url() . $path, $method, $params,
-                        $preformatter);
+                        $preformatter, $files, $json_post);
     }
 
     /**
