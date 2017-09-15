@@ -572,6 +572,58 @@ class local_obf_renderer extends plugin_renderer_base {
 
         return html_writer::empty_tag("img", $params);
     }
+    
+    public function print_earnable_badge(obf_earnable_badge $earnable, $large = false) {
+      /*
+       * $html = '';
+       * $badge = $this->print_badge_image($earnable->get_badge(), self::BADGE_IMAGE_SIZE_SMALL);
+       * $html .= html_writer::div(
+       *           html_writer::div($badge, 'badge') .
+       *           html_writer::div($earnable->get_description(), 'description').
+       *           html_writer::div($earnable->get_name(), 'name'),
+       *       'earnable-badge');
+       */
+      
+      //
+      $badge = $earnable->get_badge();
+      $badgeimage = $this->print_badge_image($badge, -1);
+      $badgename = html_writer::tag('p', s($badge->get_name()), array('class' => 'badgename'));
+      $earnablename = $earnable->get_name();
+      //$badgedescription = html_writer::tag('p', s($badge->get_description()), array('class' => 'description'));
+      $extra = '';
+      $divclass = 'obf-badge';
+      $divclass .= $large ? ' large' : ' small';
+      $html = local_obf_html::div($extra . $badgeimage . local_obf_html::div(
+              $earnablename
+              , 'body'), $divclass, 
+              array(
+                  'data-id' => $earnable->get_id(), 
+                  'data-name' => $earnable->get_name(), 
+                  'data-description' => $earnable->get_description()
+              )
+              );
+      //
+        
+      return $html;
+    }
+    
+    public function print_earnable_badge_form(obf_earnable_badge $earnable) {
+      global $USER;
+      $user = null;
+      if ($USER) {
+        $user = clone($USER);
+        $user->fullname = fullname($user);
+      }
+      
+      $html = '';
+      $badge = $this->print_badge_image($earnable->get_badge(), self::BADGE_IMAGE_SIZE_NORMAL);
+      $html .= html_writer::div(
+                  html_writer::div($badge, 'earnablebadge-image') .
+                  html_writer::div($earnable->get_full_form_html('#', $user), 'form')
+                  ,
+              'earnable-badge');
+      return $html;
+    }
 
     /**
      * Generates the HTML for a heading.
@@ -1515,9 +1567,9 @@ class local_obf_html {
      * @param string $classes
      * @return string HTML.
      */
-    public static function div($content, $classes = '') {
+    public static function div($content, $classes = '', $attributes = array()) {
         return html_writer::tag('div', $content,
-                        empty($classes) ? array() : array('class' => $classes));
+                        empty($classes) ? array_merge(array(), $attributes) : array_merge(array('class' => $classes),$attributes));
     }
 
 }

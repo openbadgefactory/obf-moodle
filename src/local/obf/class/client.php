@@ -683,6 +683,28 @@ class obf_client {
         } );
         return empty($files);
     }
+    
+    /**
+     * Get request params
+     * @param string $method get|post|put|delete
+     * @param array $param body parameters
+     * @param array $files Files (optional). As supplied on $_FILES.$_COOKIE
+     * @param boolean $json_post Format body as json
+     * @return array An array of parameters suitable for the request type.
+     */
+    private function get_request_params($method, $params, $files = null, $json_post = true) {
+      if (!empty($files)) {
+        foreach($files as $key => $filearr) {
+          $params[$key] = '@'.$filearr['tmp_name'] .
+              ';filename=' . $filearr['name'] .
+              ';type=' . $filearr['type'];
+        }
+      }
+      if ($json_post && ($method == 'post' || $method == 'put')) {
+        $params = json_encode($params);
+      }
+      return $params;
+    }
 
     /**
      * A wrapper for obf_client::request, prefixing $path with the API url.
@@ -715,15 +737,15 @@ class obf_client {
      * @throws Exception In case something goes wrong.
      */
     public function request($url, $method = 'get', array $params = array(),
-                            Closure $preformatter = null) {
+                            Closure $preformatter = null, $files, $json_post) {
         $curl = $this->get_transport();
         $options = $this->get_curl_options();
         if ($method == 'get') {
-            $output = $curl->get($url, $params, $options);
+            $output = $curl->get($url, $this->get_request_params($method, $params, $files, $json_post), $options);
         } else if ($method == 'delete') {
-            $output = $curl->delete($url, $params, $options);
+            $output = $curl->delete($url, $this->get_request_params($method, $params, $files, $json_post), $options);
         } else {
-            $output = $curl->post($url, json_encode($params), $options);
+            $output = $curl->post($url, $this->get_request_params($method, $params, $files, $json_post), $options);
         }
 
         if ($output !== false) {

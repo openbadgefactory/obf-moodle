@@ -98,6 +98,8 @@ class obf_earnable_badge {
      * @var obf_client $_client
      */
     protected $_client;
+    
+    protected $_badge;
 
     public function get_description() {
       return $this->description;
@@ -166,6 +168,20 @@ class obf_earnable_badge {
     public function get_badge_id() {
       return $this->badge_id;
     }
+    
+    public function get_badge() {
+      if (!is_null($this->_badge)) {
+        return $this->_badge;
+      }
+      if (!is_null($this->badge_id)) {
+        $badge = obf_badge::get_instance($this->get_badge_id(), $this->_get_client());
+        if ($badge) {
+          $this->_badge;
+          return $badge;
+        }
+        return null;
+      }
+    }
 
     public function get_approval_method() {
       return $this->approval_method;
@@ -173,6 +189,115 @@ class obf_earnable_badge {
 
     public function get_form_html() {
       return $this->form_html;
+    }
+    
+    /**
+     * 
+     * @param string $formposturl
+     * @param \Discendum\LtiBundle\Entity\LtiUser $user
+     * @return string
+     */
+    public function get_full_form_html($formposturl = '#', $user = null) {
+      $form = $this->get_form_html();
+      if (empty($form)) {
+        return '';
+      }
+      $fullform = '';
+      
+      $fullform .= '<form action="' . $formposturl . '" method="post" enctype="multipart/form-data" id="earnable-form" accept-charset="utf-8" class="form-horizontal">';
+        $secret_token_fields = '';
+        if ($this->get_approval_method() == 'secret') {
+            $secret_token_fields = '<div class="form-group">
+              <label class="control-label col-md-4">'
+                    .
+                    get_string('earnablebadgeformclaimcode', 'local_obf')
+                    .
+                    ' <span class="red">*</span></label>
+              <div class="col-md-4">
+                <input name="secret_token" class="form-control" required="" maxlength="255" type="text"><p class="help-block">'
+                    .
+                    get_string('earnablebadgeforminputclaimcode', 'local_obf')
+                    .
+                    '</p>
+              </div>
+            </div>';
+        }
+        if ($this->get_attach_evidence() == 'optional') {
+            $attach_evidence_field = '<div class="form-group">
+            <div class="col-md-8 col-md-offset-4">
+                <div class="checkbox">
+                    <label>
+                        <input type="checkbox" name="attach_evidence" value="1" checked>
+                       '
+                    . 
+                    get_string('earnablebadgeformattachapplication', 'local_obf')
+                    .
+                    '
+                    </label>
+                </div>
+            </div>
+        </div>';
+        } else {
+            $attach_evidence_field = '<input type="hidden" name="attach_evidence" value="' . ($this->get_attach_evidence() == 'yes' ? 1 : 0) . '">';
+        }
+        $fullform .= '<input type="hidden" name="sesskey" value="' . sesskey() . '">';
+
+        $fullform .= '<fieldset>
+    <div class="form-group">
+          <div class="col-md-6 col-md-offset-4">
+            
+
+
+          </div>
+        </div>
+
+        <hr>
+    ' . $secret_token_fields . $attach_evidence_field . '
+        
+
+        <div class="form-group">
+          <label class="control-label col-md-4">'
+                .
+                get_string('earnablebadgeformyourname', 'local_obf')
+                .
+                ' <span class="red">*</span></label>
+          <div class="col-md-4">
+            <input name="applicant" class="form-control" required="" pattern="^[^\r\n]+$" maxlength="255" type="text">
+    </div>
+        </div>
+
+        <div class="form-group">
+          <label class="control-label col-md-4">'
+                .
+                get_string('earnablebadgeformyouremail', 'local_obf')
+                .
+                ' <span class="red">*</span></label>
+          <div class="col-md-4">
+            <input name="email" class="form-control" required="" maxlength="255" type="email">
+    </div>
+        </div>
+
+        
+    </fieldset>';
+        $fullform .= '<hr>';
+
+
+
+        $fullform .= $form;
+        $fullform .= '';
+        $fullform .= '<input class="btn btn-primary" name="replace" value="Submit your application now" type="submit">';
+        $fullform .= '</form>';
+        $customscript = '';
+
+        if (!is_null($user) && $user instanceof stdClass) {
+            $customscript .= 'jQuery("input[name=\'applicant\'").val("' . $user->fullname . '");';
+            $customscript .= 'jQuery("input[name=\'email\'").val("' . $user->email . '");';
+        }
+
+
+        $fullform .= '<script type="text/javascript">' . $customscript . '</script>';        
+        
+      return $fullform;
     }
 
     public function get_attach_evidence() {
@@ -292,6 +417,9 @@ class obf_earnable_badge {
      * @return obf_client
      */
     protected function _get_client() {
+      if (is_null($this->_client)) {
+        $this->_client = obf_client::get_instance();
+      }
       return $this->_client;
     }
 
@@ -326,7 +454,7 @@ class obf_earnable_badge {
             $obj->_set_client($client);
           }
           $obj->set_id($id);
-          $arr = $obj->_get_client()->get_earn($this->id);
+          $arr = $obj->_get_client()->get_earnable_badge($id);
           return $obj->populate_from_array($arr);
         }
         return $obj;
