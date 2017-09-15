@@ -119,7 +119,7 @@ class obf_badge {
      * @var string[] The categories of the badge.
      */
     private $categories = array();
-
+    
     /**
      * Returns an instance of the class. If <code>$id</code> isn't set, this
      * will return a new instance.
@@ -128,7 +128,7 @@ class obf_badge {
      * @param obf_client $client
      * @return obf_badge
      */
-    public static function get_instance($id = null, $client = null) {
+    public static function get_instance($id = null, $client = null, $preferred_language = null) {
         $obj = null;
 
         if (is_null($id)) {
@@ -136,7 +136,7 @@ class obf_badge {
         } else if (!isset(self::$badgecache[$id])) {
             $obj = new self();
 
-            if ($obj->set_id($id)->populate() !== false) {
+            if ($obj->set_id($id)->populate($preferred_language) !== false) {
                 self::$badgecache[$id] = $obj;
             }
         } else {
@@ -237,7 +237,7 @@ class obf_badge {
      * @see get_instance_from_array()
      * @return obf_badge
      */
-    public function populate_from_array($arr) {
+    public function populate_from_array($arr, $preferred_language = null) {
         global $DB;
 
         // These should always exist.
@@ -261,6 +261,22 @@ class obf_badge {
         isset($arr['css']) and $this->set_criteria_css($arr['css']);
         isset($arr['criteria_html']) and $this->set_criteria_html($arr['criteria_html']);
         isset($arr['criteria']) and preg_match('/^https?:\/\//', $arr['criteria']) and $this->set_criteria_url($arr['criteria']);
+        
+        if (!empty($preferred_language) && !empty($arr['alt_language'][$preferred_language])) {
+            $larr = $arr['alt_language'][$preferred_language];
+            if (!empty($larr['description'])) {
+                $this->set_description($larr['description']);
+            }
+            if (!empty($larr['name'])) {
+                $this->set_name($larr['name']);
+            }
+            if (!empty($larr['tags'])) {
+                $this->set_tags($larr['tags']);
+            }
+            if (!empty($larr['criteria'])) {
+                $this->set_criteria_html($larr['criteria']);
+            }
+        }
 
         // Try to get the email template from the local database first.
         $email = obf_email::get_by_badge($this, $DB);
@@ -457,10 +473,10 @@ class obf_badge {
      *
      * @return obf_badge|boolean Returns the badge on success, false otherwise.
      */
-    public function populate() {
+    public function populate($preferred_language = null) {
         try {
             $arr = $this->get_client()->get_badge($this->id);
-            return $this->populate_from_array($arr);
+            return $this->populate_from_array($arr, $preferred_language);
         } catch (Exception $exc) {
             return false;
         }

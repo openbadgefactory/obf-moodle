@@ -315,7 +315,7 @@ class obf_assertion {
      * @param type $eventid The event id.
      * @return obf_badge
      */
-    public static function get_assertion_badge($client, $badgeid, $eventid) {
+    public static function get_assertion_badge($client, $badgeid, $eventid, $preferred_language = null) {
             $cache = cache::make('local_obf', 'obf_pub_badge');
             $cacheid = $badgeid .'/'. $eventid;
             $arr = $cache->get($cacheid);
@@ -324,7 +324,7 @@ class obf_assertion {
                 $cache->set($cacheid, $arr);
             }
             if ($arr) {
-                $badge = obf_badge::get_instance_from_array($arr);
+                $badge = obf_badge::get_instance_from_array($arr, $preferred_language);
                 $badge->set_id($badgeid);
                 // We can at the moment assume issuer is the same as the defined client.
                 // Because we only get assertions for api_consumer_id

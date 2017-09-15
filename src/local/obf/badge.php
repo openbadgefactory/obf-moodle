@@ -34,7 +34,8 @@ $message = optional_param('msg', '', PARAM_TEXT);
 $context = empty($courseid) ? context_system::instance() : context_course::instance($courseid);
 
 $url = new moodle_url('/local/obf/badge.php', array('action' => $action));
-$badge = empty($badgeid) ? null : obf_badge::get_instance($badgeid);
+$lang = current_language();
+$badge = empty($badgeid) ? null : obf_badge::get_instance($badgeid, null, $lang);
 
 if (!empty($badgeid)) {
     $url->param('id', $badgeid);
