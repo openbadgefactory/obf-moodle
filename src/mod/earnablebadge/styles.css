@@ -1,0 +1,38 @@
+.path-mod-earnablebadge .resourcecontent {text-align: center;}
+.path-mod-earnablebadge .obf-badge.small img { height: 100px; width: 100px; }
+
+.path-mod-earnablebadge #fgroup_id_earnable fieldset > .felement > * {
+    float: left;
+    display: inline-block;
+    width: 120px;
+}
+.path-mod-earnablebadge #fgroup_id_earnable fieldset > .felement .box {
+  width: 100px;
+  height: 140px;
+  overflow: hidden;
+}
+
+.path-mod-earnablebadge #fgroup_id_earnable .felement input[type="radio"] {
+  visibility: hidden;
+}
+.path-mod-earnablebadge #fgroup_id_earnable .felement input[type="radio"]:checked + label > .box {
+  background: #0001;
+}
+.path-mod-earnablebadge #fgroup_id_earnable .felement span {
+  text-align: center;
+  border: 1px solid #0003;
+  margin: 0.5em;
+  padding: 0.2em;
+}
+.path-mod-earnablebadge .obfearnablebadgebox {
+    margin-left: auto;
+    margin-right: auto;
+    text-align: center;
+}
+.path-mod-earnablebadge #earnable-form input,
+.path-mod-earnablebadge #earnable-form select {
+  max-width: 400px;
+}
+.path-mod-earnablebadge #earnable-form .radio .felement {
+    display: block;
+}
