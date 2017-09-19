@@ -4,6 +4,7 @@
     <property name="builddir" value="build"/>
     <property name="srcdir" value="src/local/obf"/>
     <property name="block_srcdir" value="src/blocks/obf_displayer"/>
+    <property name="mod_srcdir" value="src/mod/earnablebadge"/>
     <property name="moodledir" value="/var/www/moodle"/>
     <property name="testdir" value="src/local/obf/tests"/>
 
@@ -18,6 +19,9 @@
     <fileset dir="${block_srcdir}" id="block_srcfiles">
         <include name="**"/>
     </fileset>
+    <fileset dir="${mod_srcdir}" id="mod_srcfiles">
+        <include name="**"/>
+    </fileset>
 
 
     <target name="build">
@@ -29,14 +33,18 @@
         <zip destfile="${builddir}/obf_displayer.zip" prefix="obf_displayer/" includeemptydirs="true">
             <fileset refid="block_srcfiles"/>
         </zip>
+        <echo msg="Compressing the source files into a zip-archive..."/>
+        <zip destfile="${builddir}/mod_earnablebadge.zip" prefix="earnablebadge/" includeemptydirs="true">
+            <fileset refid="mod_srcfiles"/>
+        </zip>
     </target>
 
     <target name="test">
-        <phpunit bootstrap="${moodledir}/lib/phpunit/bootstrap.php" printsummary="true" haltonfailure="true">
+        <phpunit bootstrap="${moodledir}/admin/tool/phpunit/cli/init.php" printsummary="true" haltonfailure="true">
             <formatter type="plain" usefile="false"/>
             <batchtest>
                 <fileset dir="${testdir}">
-                    <include name="**/*_test.php"/>
+                    <include name="*_test.php"/>
                 </fileset>
             </batchtest>
         </phpunit>
@@ -48,6 +56,9 @@
         </copy>
         <copy todir="${moodledir}/blocks/obf_displayer/" overwrite="true">
             <fileset refid="block_srcfiles" />
+        </copy>
+        <copy todir="${moodledir}/mod/earnablebadge/" overwrite="true">
+            <fileset refid="mod_srcfiles" />
         </copy>
     </target>
 
