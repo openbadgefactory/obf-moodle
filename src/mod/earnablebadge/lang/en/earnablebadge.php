@@ -47,20 +47,16 @@ $string['framesize'] = 'Frame height';
 $string['invalidstoredearnablebadge'] = 'Cannot display this resource, earnable badge is invalid.';
 $string['chooseavariable'] = 'Choose a variable...';
 $string['invalidearnablebadge'] = 'Entered earnable badge is invalid';
-$string['modulename'] = 'earnable badge';
-$string['modulename_help'] = 'The earnable badge module enables a teacher to provide a web link as a course resource. Anything that is freely available online, such as documents or images, can be linked to; the earnable badge doesn’t have to be the home page of a website. The earnable badge of a particular web page may be copied and pasted or a teacher can use the file picker and choose a link from a repository such as Flickr, YouTube or Wikimedia (depending upon which repositories are enabled for the site).
-
-There are a number of display options for the earnable badge, such as embedded or opening in a new window and advanced options for passing information, such as a student\'s name, to the earnable badge if required.
-
-Note that earnable badges can also be added to any other resource or activity type through the text editor.';
+$string['modulename'] = 'Earnable badge';
+$string['modulename_help'] = 'The earnable badge module enables a teacher to provide a badge application as a course resource. Any badge application available in openbadgefactory.com, can be embedded.';
 $string['modulename_link'] = 'mod/earnablebadge/view';
-$string['modulenameplural'] = 'earnable badges';
+$string['modulenameplural'] = 'Earnable badges';
 $string['page-mod-earnablebadge-x'] = 'Any earnable badge module page';
 $string['parameterinfo'] = '&amp;parameter=variable';
 $string['parametersheader'] = 'earnable badge variables';
 $string['parametersheader_help'] = 'Some internal Totara variables may be automatically appended to the earnable badge. Type your name for the parameter into each text box(es) and then select the required matching variable.';
 $string['pluginadministration'] = 'earnable badge module administration';
-$string['pluginname'] = 'earnable badge';
+$string['pluginname'] = 'Earnable badge';
 $string['pickearnableheader'] = 'Earnable';
 $string['popupheight'] = 'Pop-up height (in pixels)';
 $string['popupheightexplain'] = 'Specifies default height of popup windows.';
