@@ -26,9 +26,10 @@ M.mod_earnablebadge.init_view = function(Y) {
 };
 
 M.mod_earnablebadge.init_view_bootstrap_form = function(Y) {
-  jQuery('label').parent().toggleClass('fitem', true);
-  jQuery('label').toggleClass('fitemtitle', true);
-  jQuery('select,input').parent().toggleClass('felement', true).toggleClass('col-md-4', false);
-  jQuery('form').toggleClass('mform', true);
-  jQuery('fieldset').toggleClass('fcontainer', true);
+  var form = jQuery('#earnable-form');
+  form.find('label').parent().toggleClass('fitem', true).toggleClass('clearfix', true);
+  form.find('label').toggleClass('fitemtitle', true);
+  form.find('select,input').parent().toggleClass('felement', true);//.toggleClass('col-md-4', false);
+  form.toggleClass('mform', true);
+  form.find('fieldset').toggleClass('fcontainer', true);
 }
