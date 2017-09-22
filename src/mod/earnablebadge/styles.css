@@ -1,26 +1,31 @@
 .path-mod-earnablebadge .resourcecontent {text-align: center;}
 .path-mod-earnablebadge .obf-badge.small img { height: 100px; width: 100px; }
 
-.path-mod-earnablebadge #fgroup_id_earnable fieldset > .felement > * {
+.path-mod-earnablebadge #id_pickearnable fieldset .felement > *,.path-mod-earnablebadge fieldset#id_pickearnable .felement > * {
     float: left;
     display: inline-block;
     width: 120px;
 }
-.path-mod-earnablebadge #fgroup_id_earnable fieldset > .felement .box {
+.path-mod-earnablebadge #id_pickearnable fieldset .felement .box,
+.path-mod-earnablebadge fieldset#id_pickearnable .felement .box{
   width: 100px;
   height: 140px;
   overflow: hidden;
 }
 
-.path-mod-earnablebadge #fgroup_id_earnable .felement input[type="radio"] {
+.path-mod-earnablebadge #id_pickearnable .felement input[type="radio"] {
   visibility: hidden;
 }
-.path-mod-earnablebadge #fgroup_id_earnable .felement input[type="radio"]:checked + label > .box {
-  background: #0001;
+.path-mod-earnablebadge #id_pickearnable .felement input[type="radio"]:checked + label > .box,
+.path-mod-earnablebadge #id_pickearnable .felement input[type="radio"]:checked + .box{
+  /*background: #0001;*/
+  background: rgba(0,0,0,0.04);
+  border-radius: 0.5em;
 }
-.path-mod-earnablebadge #fgroup_id_earnable .felement span {
+.path-mod-earnablebadge #id_pickearnable .felement > * {
   text-align: center;
-  border: 1px solid #0003;
+  /*border: 1px solid #0003;*/
+  border: 1px solid rgba(0,0,0,0.12);
   margin: 0.5em;
   padding: 0.2em;
 }

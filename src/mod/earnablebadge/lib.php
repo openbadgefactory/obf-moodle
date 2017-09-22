@@ -289,38 +289,3 @@ function earnablebadge_export_contents($cm, $baseearnablebadge) {
 
     return $contents;
 }
-
-/**
- * Register the ability to handle drag and drop file uploads
- * @return array containing details of the files / types the mod can handle
- */
-function earnablebadge_dndupload_register() {
-    return array('types' => array(
-                     array('identifier' => 'earnablebadge', 'message' => get_string('createearnablebadge', 'earnablebadge'))
-                 ));
-}
-
-/**
- * Handle a file that has been uploaded
- * @param object $uploadinfo details of the file / content that has been uploaded
- * @return int instance id of the newly created mod
- */
-function earnablebadge_dndupload_handle($uploadinfo) {
-    // Gather all the required data.
-    $data = new stdClass();
-    $data->course = $uploadinfo->course->id;
-    $data->name = $uploadinfo->displayname;
-    $data->intro = '<p>'.$uploadinfo->displayname.'</p>';
-    $data->introformat = FORMAT_HTML;
-    $data->externalearnablebadge = clean_param($uploadinfo->content, PARAM_earnablebadge);
-    $data->timemodified = time();
-
-    // Set the display options to the site defaults.
-    $config = get_config('earnablebadge');
-    $data->display = $config->display;
-    $data->popupwidth = $config->popupwidth;
-    $data->popupheight = $config->popupheight;
-    $data->printintro = $config->printintro;
-
-    return earnablebadge_add_instance($data, null);
-}
