@@ -34,3 +34,14 @@ Moodle 2.5 and up:
    (Optionally position it where you want it, by setting the default region)
 
 (Steps 6-8 are required to ensure the block is visible in every users profile page)
+
+
+Totara 11.0 and greater
+
+Totara Learn does not include an add-on installer, all additional plugins must be installed manually by server administrators. 
+
+1. Download plugin from https://moodle.org/plugins/local_obf
+2. Unzip the file into the Totara installation directory. 
+3. By using a site administrator account, go to Site administration → Notifications and upgrade Totara database
+
+Follow Moodle instructions 3-8
