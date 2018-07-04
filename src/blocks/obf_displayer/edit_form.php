@@ -34,7 +34,7 @@ class block_obf_displayer_edit_form extends block_edit_form {
         $mform->setDefault('config_largebadges', 0);
         $mform->setDefault('config_disableassertioncache', 0);
         
-                // Logged in user or profile user
+        // Logged in user or profile user
         $instance = $this->block->instance;
         $parentcontext = context::instance_by_id($instance->parentcontextid);
         $displaytypes = array();
