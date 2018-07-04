@@ -18,14 +18,14 @@
  * Version information. See https://docs.moodle.org/dev/version.php for more info.
  *
  * @package    local_obf
- * @copyright  2013-2017, Discendum Oy
+ * @copyright  2013-2018, Discendum Oy
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 defined('MOODLE_INTERNAL') or die();
 
-$plugin->version    = 2017090500;
+$plugin->version    = 2018070400;
 $plugin->requires   = 2014051200;
 $plugin->component  = 'local_obf';
 $plugin->maturity   = MATURITY_STABLE;
-$plugin->release    = '0.2.14';
+$plugin->release    = '0.2.2';
 $plugin->dependencies   = array();

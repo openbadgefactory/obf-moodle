@@ -19,6 +19,15 @@ Moodle 2.7, 2.9, 3.0, 3.1 and up:
 2. Update the database using the notifications page
 3. Complete the [Post install steps](README.md#post-install)
 
+Totara 11.0 and greater
+
+Totara Learn does not include an add-on installer, all additional plugins must be installed manually by server administrators. 
+
+1. Download plugin from https://moodle.org/plugins/local_obf
+2. Unzip the file into the Totara installation directory. 
+3. By using a site administrator account, go to Site administration → Notifications and upgrade Totara database
+4. Complete the [Post install steps](README.md#post-install)
+
 Post install
 ------------------
 
