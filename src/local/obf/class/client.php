@@ -453,7 +453,6 @@ class obf_client {
         if ($this->is_only_local_events_enabled()) {
             $params = array_merge($params, array('api_consumer_id' => OBF_API_CONSUMER_ID));
         }
-        
 
         $this->require_client_id();
 
@@ -461,8 +460,10 @@ class obf_client {
             $params['badge_id'] = $badgeid;
         }
 
-        if (!is_null($email)) {
+        if (!is_null($email) && $email != "") {
             $params['email'] = $email;
+        } elseif(is_null($badgeid) && !is_null($email)) {
+            return "";
         }
 
         // When getting assertions via OBF API the returned JSON isn't valid.
