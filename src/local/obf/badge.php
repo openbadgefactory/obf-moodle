@@ -40,6 +40,7 @@ if (!empty($badgeid)) {
     $url->param('id', $badgeid);
 }
 
+
 // Site context.
 if (empty($courseid)) {
     require_login();
