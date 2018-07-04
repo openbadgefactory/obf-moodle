@@ -146,7 +146,7 @@ class local_obf_renderer extends plugin_renderer_base {
      * @return string
      */
     public function render_badgelist($badges, $hasissuecapability,
-                                     context $context, $message = '') {
+                                     context $context, $message = '') { 
         $html = $this->print_heading('badgelisttitle', 2);
 
         if (!empty($message)) {
@@ -359,7 +359,7 @@ class local_obf_renderer extends plugin_renderer_base {
      * @param obf_assertion $assertion
      * @return string HTML-string.
      */
-    public function render_badge_modal($badge, $assertion) {
+    public function render_badge_modal($badge, $assertion) { 
         $issuer = $badge->get_issuer();
         $issuerdetails = html_writer::tag('label', get_string('issuer', 'local_obf'));
         $issuerurl = $issuer->get_url();
@@ -442,7 +442,7 @@ class local_obf_renderer extends plugin_renderer_base {
                                       $page = 0, $message = '') {
         $methodprefix = 'print_badge_info_';
         $rendererfunction = $methodprefix . $tab;
-        $html = '';
+        $html = ''; 
 
         if (!method_exists($this, $rendererfunction)) {
             $html .= $this->output->notification(get_string('invalidtab',
@@ -721,14 +721,71 @@ class local_obf_renderer extends plugin_renderer_base {
         $completionenabled = !empty($course) ? $course->enablecompletion : false;
 
         // The criteria cannot be modified or added -> show a message to user.
-        if (!$canedit) {
+        if (!$canedit) { 
             if (!is_null($coursewithcriterion) && $coursewithcriterion->is_met()) {
                 $items = $coursewithcriterion->get_items();
+               /* $html .= html_writer::tag('p',
+                                $items[0]->get_text_for_single_course()); */
                 $html .= html_writer::tag('p',
-                                $items[0]->get_text_for_single_course());
+                            get_string('badgeissuedwhen', 'local_obf'));
+                
+                foreach ($criteria as $id => $criterion) {
+                        $criterionhtml = '';
+                        $attributelist = array();
+                        $criterionitems = $criterion->get_items();
+                        
+                        $courseincriterion = $criterion->has_course($courseid); /* fixit */
+                        
+                        if (!$courseincriterion) {
+                            continue;
+                        }
+                        
+                        if (count($criterionitems) == 1) {
+                            $criteriontype = obf_criterion_item::get_criterion_type_text($criterionitems[0]->get_criteriatype());
+                        }
+                        $groupname = get_string('criteriatype' . $criteriontype, 'local_obf');
+
+                        if ($criterionitems[0]->get_criteriatype() == obf_criterion_item::CRITERIA_TYPE_TOTARA_CERTIF) {
+                            $groupname = get_string('criteriatypetotaracertif', 'local_obf');
+                        }
+
+                        foreach ($criterionitems as $item) {
+                            $attributelist = array_merge($attributelist, $item->get_text_array());
+                        }
+
+                        // The criterion can be edited if the criterion hasn't already been met.
+                        $canedit = !$criterion->is_met();
+                        $heading = $groupname;
+
+                        // If the criterion can be edited, show the edit-icon.
+                        if ($canedit) {
+                            $editurl = new moodle_url($file,
+                                    array('badgeid' => $badge->get_id(),
+                                'action' => 'edit', 'id' => $id));
+                            $heading .= local_obf_html::icon($editurl, 't/edit', 'edit');
+                        }
+
+                        $criterionhtml .= $this->output->heading(local_obf_html::div($heading), 3);
+
+                        if (!$canedit) {
+                            $criterionhtml .= $this->output->notification(get_string('cannoteditcriterion',
+                                            'local_obf'));
+                        }
+
+                        if (count($criterionitems) > 1) {
+                            $method = $criterion->get_completion_method() == obf_criterion::CRITERIA_COMPLETION_ALL ? 'all' : 'any';
+                            $criterionhtml .= html_writer::tag('p',
+                                            get_string('criteriacompletedwhen' . $method,
+                                                    'local_obf'));
+                        }
+
+                        $criterionhtml .= html_writer::alist($attributelist);
+                        $html .= $this->output->box($criterionhtml, 'generalbox service');
+                    }
+        
+        
             }
 
-            $html .= $this->output->notification(get_string($error, 'local_obf'));
         } else if (!$completionenabled) {
             $courseediturl = new moodle_url('/course/edit.php', array('id' => $courseid));
             $html .= $this->output->notification(get_string('coursecompletionnotenabled', 'local_obf', (string)$courseediturl));
