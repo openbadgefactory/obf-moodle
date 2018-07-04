@@ -481,7 +481,7 @@ class obf_badge {
      * @return int The expiration date as a Unix timestamp.
      */
     public function get_default_expiration_date() {
-        return (strtotime('+ ' . $this->expiresby . ' months'));
+        return $this->expiresby;
     }
 
     /**
