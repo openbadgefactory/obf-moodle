@@ -52,11 +52,20 @@ and Selenium.
 How to install (issuer plugin)
 --------------
 
-Moodle 2.7 / Totara 2.7 and up:
+Moodle 2.7 and up:
 
 1. Install the zip via Moodle's plugin page. Select "local" as the type of the plugin.
 2. Update the database using the notifications page
 3. Complete the [Post install steps](README.md#post-install)
+
+Totara 11.0 and greater
+
+Totara Learn does not include an add-on installer, all additional plugins must be installed manually by server administrators. 
+
+1. Download plugin from https://moodle.org/plugins/local_obf
+2. Unzip the file into the Totara installation directory. 
+3. By using a site administrator account, go to Site administration → Notifications and upgrade Totara database
+
 
 Post install
 ------------
