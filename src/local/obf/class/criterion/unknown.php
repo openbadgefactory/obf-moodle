@@ -166,7 +166,7 @@ class obf_criterion_unknown extends obf_criterion_item {
      * Get options to for criteria types.
      * @return array An associative array of criteria type options
      */
-    public static function get_criteria_type_options() {
+    public static function get_criteria_type_options() { 
         global $CFG;
         $optionlist = array(
             obf_criterion_item::CRITERIA_TYPE_UNKNOWN => get_string('selectcriteriatype', 'local_obf'),

@@ -29,6 +29,8 @@
  * @author jsuorsa
  */
 class local_obf_observer {
+    
+    
     /**
      * Require common libs.
      *
@@ -53,12 +55,16 @@ class local_obf_observer {
      * @return boolean Returns true if everything went ok.
      * @see self::course_user_completion_review()
      */
-    public static function course_completed(\core\event\course_completed $event) {
+        public static function course_completed(\core\event\course_completed $event) {
         $eventdata = new stdClass();
         $eventdata->userid = $event->relateduserid;
         $eventdata->course = $event->courseid;
         return self::course_user_completion_review($eventdata);
    }
+   
+    
+   
+  
 
     /**
      * Reviews the badge criteria and issues the badges (if necessary) when
@@ -139,6 +145,29 @@ class local_obf_observer {
         obf_criterion_course::delete_by_course($course, $DB);
         return true;
     }
+    
+     /**
+     * When the course is reset, this function deletes the related badge 
+     * issuance criteria.
+     *
+     * @param \core\event\course_reset_ended $event
+     * returns boolean
+     */
+    public static function course_reset_start(\core\event\course_reset_started $event) { 
+        global $DB;
+        self::requires();
+        
+        if (get_config('local_obf','coursereset')) {
+            $course = $event->get_record_snapshot('course', $event->courseid);
+            $course->context = new stdClass();
+            $course->context->id = $event->courseid;
+            
+            obf_criterion_course::delete_by_course($course, $DB);
+        }
+        return true;
+   }
+
+   
     
     /**
      * Triggered when 'user_updated' event happens.

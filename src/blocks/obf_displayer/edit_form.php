@@ -49,7 +49,8 @@ class block_obf_displayer_edit_form extends block_edit_form {
         }
         $mform->addGroup($displaytypes, 'config_displaytype_array', get_string('displaytypegrouplabel', 'block_obf_displayer'), array(' '), false);
         $mform->addHelpButton('config_displaytype_array', 'displaytypegrouplabel', 'block_obf_displayer');
-        $mform->setDefault('config_displaytype', $isusercontext ? 'contextuser' : 'loggedinuser');
+       // $mform->setDefault('config_displaytype', $isusercontext ? 'contextuser' : 'loggedinuser');
+        $mform->setDefault('config_displaytype', 'loggedinuser');
 
         $mform->addElement('header', 'config_providers_header', get_string('providerselect', 'block_obf_displayer'));
 
@@ -61,6 +62,7 @@ class block_obf_displayer_edit_form extends block_edit_form {
 
         $mform->addElement('advcheckbox', 'config_showobf', get_string('showobf', 'block_obf_displayer'));
         $mform->setDefault('config_showobf', 1);
+        
         $providers = obf_backpack::get_providers();
         foreach ($providers as $provider) {
             $shortname = obf_backpack::get_providershortname_by_providerid($provider);

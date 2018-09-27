@@ -13,5 +13,4 @@ jQuery(document).ready(function($) {
                 spellChecker: false,
             }
     );
-}
 );

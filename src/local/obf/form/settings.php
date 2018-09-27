@@ -48,6 +48,10 @@ class obf_settings_form extends local_obf_form_base implements renderable {
         $mform->setType('disableassertioncache', PARAM_INT);
         $mform->addHelpButton('disableassertioncache', 'disableassertioncache', 'local_obf');
         
+        $mform->addElement('advcheckbox', 'coursereset', get_string('coursereset', 'local_obf'));
+        $mform->setType('coursereset', PARAM_INT);
+        
+        
         $badgedisplayoptions = array(
             obf_user_preferences::USERS_CAN_MANAGE_DISPLAY_OF_BADGES => get_string('userscanmanagedisplayofbadges', 'local_obf'),
             obf_user_preferences::USERS_FORCED_TO_DISPLAY_BADGES => get_string('usersforcedtodisplaybadges', 'local_obf'),
@@ -56,8 +60,9 @@ class obf_settings_form extends local_obf_form_base implements renderable {
         $mform->addElement('select', 'usersdisplaybadges', get_string('usersdisplaybadges', 'local_obf'), $badgedisplayoptions);
         
         $apiassertionoptions = array(
-            obf_client::RETRIEVE_ALL => get_string('apidataretrieveall', 'local_obf'),
-            obf_client::RETRIEVE_LOCAL => get_string('apidataretrievelocal', 'local_obf')
+            obf_client::RETRIEVE_LOCAL => get_string('apidataretrievelocal', 'local_obf'),
+            obf_client::RETRIEVE_ALL => get_string('apidataretrieveall', 'local_obf')
+            
         );
         $mform->addElement('select', 'apidataretrieve', get_string('apidataretrieve', 'local_obf'), $apiassertionoptions);
         

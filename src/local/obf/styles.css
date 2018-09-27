@@ -161,3 +161,48 @@ ul.obf-categories li button.active { -webkit-box-shadow: inset 0 3px 5px rgba(0,
     config form
 */
 #page-local-obf-config #id_url { width: 90%;}
+
+
+
+
+
+/* Displayer in Moodle Boost theme */
+
+.block_obf_displayer .badgelist li {
+    list-style-type: none;
+    display: inline-block;
+    margin: 0 1em;
+    text-align: center;
+    max-width: 25%;
+    vertical-align: top;
+}
+
+.block_obf_displayer .badgelist li img {
+    max-width: 100%;
+    height: 125px;
+    margin-bottom: 1em;
+}
+
+.block_obf_displayer .badgelist li .large img {
+    max-width: 100%;
+    height: 200px;
+}
+
+/* Sidebar view */
+
+#block-region-side-pre .block_obf_displayer .badgelist li {
+    margin: 0 6px;
+}
+
+#block-region-side-pre .block_obf_displayer .badgelist li .badgename {
+    font-size: 10px;
+}
+
+#block-region-side-pre .block_obf_displayer .badgelist li img{
+    width: auto;
+    height: auto;
+}
+
+#block-region-side-pre .block_obf_displayer .badgelist li .description {
+    display: none;
+} 

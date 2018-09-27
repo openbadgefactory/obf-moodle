@@ -38,12 +38,14 @@ function xmldb_local_obf_install() {
 
     // Set default backpack sources
     $backpacksources = array();
+    /*
     $obj = new stdClass();
     $obj->url = 'https://backpack.openbadges.org/displayer/';
     $obj->fullname = 'Backpack';
     $obj->shortname = 'moz';
     $obj->configureableaddress = 1;
     $backpacksources[] = clone($obj);
+     */
     $obj->url = 'https://openbadgepassport.com/displayer/';
     $obj->fullname = 'Open Badge Passport';
     $obj->shortname = 'obp';

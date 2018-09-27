@@ -57,6 +57,7 @@ class local_obf_renderer extends plugin_renderer_base {
      */
     public function render_backpack_provider_list($backpacks) {
         $content = '';
+        
         $table = new html_table();
 
         $table->id = 'obf-backpackproviders';
@@ -551,7 +552,7 @@ class local_obf_renderer extends plugin_renderer_base {
             $html .= html_writer::tag('ul', $items,
                             array('class' => 'badgelist'));
         }
-
+ 
         return $html;
     }
 
@@ -663,7 +664,7 @@ class local_obf_renderer extends plugin_renderer_base {
      */
     public function print_badge_info_criteria(obf_client $client,
                                               obf_badge $badge, context $context) {
-        $html = '';
+        $html = ''; 
 
         if ($context instanceof context_course) {
             $html .= $this->render_badge_criteria_course($badge,
@@ -715,17 +716,17 @@ class local_obf_renderer extends plugin_renderer_base {
                 break;
             }
         }
+        
 
         $canedit = !is_null($criterioncourseid) || !$courseincriterion;
         $course = get_course($courseid);
         $completionenabled = !empty($course) ? $course->enablecompletion : false;
 
         // The criteria cannot be modified or added -> show a message to user.
-        if (!$canedit) { 
-            if (!is_null($coursewithcriterion) && $coursewithcriterion->is_met()) {
+        if (!$canedit) {                         
+            if (!is_null($coursewithcriterion) && $coursewithcriterion->is_met()) { 
                 $items = $coursewithcriterion->get_items();
-               /* $html .= html_writer::tag('p',
-                                $items[0]->get_text_for_single_course()); */
+
                 $html .= html_writer::tag('p',
                             get_string('badgeissuedwhen', 'local_obf'));
                 
@@ -782,11 +783,17 @@ class local_obf_renderer extends plugin_renderer_base {
                         $criterionhtml .= html_writer::alist($attributelist);
                         $html .= $this->output->box($criterionhtml, 'generalbox service');
                     }
-        
-        
+            } else {
+
+                if (!is_null($coursewithcriterion) ) {
+                     $html .= html_writer::tag('p',
+                                            get_string('criteriapartofcourseset',
+                                                    'local_obf'));
+                }
+
             }
 
-        } else if (!$completionenabled) {
+        } else if (!$completionenabled) { 
             $courseediturl = new moodle_url('/course/edit.php', array('id' => $courseid));
             $html .= $this->output->notification(get_string('coursecompletionnotenabled', 'local_obf', (string)$courseediturl));
         } else { // Show the course criteria form.
@@ -874,7 +881,12 @@ class local_obf_renderer extends plugin_renderer_base {
 
                     if (property_exists($data, 'reviewaftersave') && $data->reviewaftersave) {
                         $crit = $criterioncourse->get_criterion();
-                        $recipientcount = $crit->review_previous_completions();
+                        if ($crit) {
+                            $recipientcount = $crit->review_previous_completions(); 
+                        } else {
+                            $recipientcount = 0;
+                        }
+                        
                         $redirecturl->param('msg',
                                 get_string('badgewasautomaticallyissued',
                                         'local_obf', $recipientcount));
@@ -913,28 +925,48 @@ class local_obf_renderer extends plugin_renderer_base {
             $html .= html_writer::tag('p',
                             get_string('badgeissuedwhen', 'local_obf'));
         }
+            
+            
+            
 
         foreach ($criteria as $id => $criterion) {
+            
             $criterionhtml = '';
             $attributelist = array();
             $criteriontype = 'courseset';
             $criterionitems = $criterion->get_items();
+            $multiplecourseactivities = 0;
+            
             if (count($criterionitems) == 1) {
                 $criteriontype = obf_criterion_item::get_criterion_type_text($criterionitems[0]->get_criteriatype());
             }
+            
+            // if activities from multiple courses
+            if (count($criterionitems) > 1 && get_class($criterionitems[0]) == "obf_criterion_activity") {
+                $criteriontype = obf_criterion_item::get_criterion_type_text($criterionitems[0]->get_criteriatype());
+                $multiplecourseactivities = 1;
+            }
+            
             $groupname = get_string('criteriatype' . $criteriontype, 'local_obf');
 
             if ($criterionitems[0]->get_criteriatype() == obf_criterion_item::CRITERIA_TYPE_TOTARA_CERTIF) {
                 $groupname = get_string('criteriatypetotaracertif', 'local_obf');
             }
+            
 
-            foreach ($criterionitems as $item) {
-                $attributelist = array_merge($attributelist, $item->get_text_array());
+            if ($multiplecourseactivities) {
+                $attributelist = $criterionitems[0]->get_text_array();
+            } else {
+                foreach ($criterionitems as $item) { 
+                    $attributelist = array_merge($attributelist, $item->get_text_array());
+                }  
             }
 
             // The criterion can be edited if the criterion hasn't already been met.
             $canedit = !$criterion->is_met();
             $heading = $groupname;
+
+            
 
             $deleteurl = new moodle_url($file,
                     array('badgeid' => $badge->get_id(),
@@ -949,24 +981,48 @@ class local_obf_renderer extends plugin_renderer_base {
                 $heading .= local_obf_html::icon($editurl, 't/edit', 'edit');
             }
 
+            
             $criterionhtml .= $this->output->heading(local_obf_html::div($heading), 3);
+            
+            if ($multiplecourseactivities) {
+              global $DB;
+                foreach ($criterionitems as $item) { 
+                    $course = $DB->get_record('course', array('id' => $courseid = $item->get_courseid()));
+                    $criterionhtml .= $this->output->heading(local_obf_html::div($course->fullname), 5);
+                }
+            } elseif ($criteriontype == "activity") {
+              global $DB;
+              $course = $DB->get_record('course', array('id' => $courseid = $item->get_courseid()));
+              $criterionhtml .= $this->output->heading(local_obf_html::div($course->fullname), 5); 
+
+            } 
+
+           
 
             if (!$canedit) {
                 $criterionhtml .= $this->output->notification(get_string('cannoteditcriterion',
                                 'local_obf'));
             }
 
-            if (count($criterionitems) > 1) {
+            if (count($criterionitems) > 1 && !$multiplecourseactivities) {
+                
                 $method = $criterion->get_completion_method() == obf_criterion::CRITERIA_COMPLETION_ALL ? 'all' : 'any';
                 $criterionhtml .= html_writer::tag('p',
                                 get_string('criteriacompletedwhen' . $method,
                                         'local_obf'));
+          
+   
             }
-
+            
             $criterionhtml .= html_writer::alist($attributelist);
+
+            
             $html .= $this->output->box($criterionhtml, 'generalbox service');
         }
+        
 
+
+        
         $html .= $this->output->single_button($url,
                 get_string('addcriteria', 'local_obf'));
 

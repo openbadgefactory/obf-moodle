@@ -213,7 +213,7 @@ class MoodleQuickForm_userselector extends HTML_QuickForm_element {
      * @param array $options
      * @param array $attributes
      */
-    public function MoodleQuickForm_userselector($name = null,
+    public function __construct($name = null,
             $label = null, $options = null, $attributes = null) {
         parent::HTML_QuickForm_element($name, $label, $attributes);
         $this->setName($name);

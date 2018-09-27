@@ -52,6 +52,7 @@ switch ($action) {
         if ($client->has_client_id()) {
             $settings = new stdClass();
             $settings->disableassertioncache = get_config('local_obf', 'disableassertioncache');
+            $settings->coursereset = get_config('local_obf', 'coursereset');
             $settings->usersdisplaybadges = get_config('local_obf', 'usersdisplaybadges');
             $settingsform = new obf_settings_form($FULLME, array('settings' => $settings));
         }
@@ -109,9 +110,10 @@ switch ($action) {
 
         $content .= $PAGE->get_renderer('local_obf')->render($form);
         
-        if (isset($settingsform)) {
+        if (isset($settingsform)) { 
             if (!is_null($data = $settingsform->get_data())) {
                 set_config('disableassertioncache', $data->disableassertioncache, 'local_obf');
+                set_config('coursereset', $data->coursereset, 'local_obf');
                 set_config('usersdisplaybadges', $data->usersdisplaybadges, 'local_obf');
                 redirect(new moodle_url('/local/obf/config.php',
                             array('msg' => get_string('settingssaved',
@@ -183,8 +185,13 @@ switch ($action) {
 
             // Disable Moodle's own badge system.
             if ($data->disablemoodlebadges) {
+                set_config('enablebadges', 1);
+                set_config('disablemoodlebadges', 1, 'local_obf');
+            } else {
                 set_config('enablebadges', 0);
+                set_config('disablemoodlebadges', 0, 'local_obf');
             }
+            
             if (isset($data->displaymoodlebadges)) {
                 set_config('displaymoodlebadges', $data->displaymoodlebadges, 'local_obf');
             }

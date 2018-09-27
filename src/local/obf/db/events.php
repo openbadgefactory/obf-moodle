@@ -41,5 +41,9 @@ $observers = array(
     array(
         'eventname'   => 'core\event\user_updated',
         'callback'    => 'local_obf_observer::profile_criteria_review',
+    ),
+    array(
+        'eventname'   => '\core\event\course_reset_started',
+        'callback'    => 'local_obf_observer::course_reset_start'
     )
 );
