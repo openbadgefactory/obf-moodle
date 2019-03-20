@@ -26,7 +26,6 @@
 namespace local_obf\task;
 use \obf_client;
 use \stdClass;
-use \object;
 
 /**
  * Description of certificate_expiration_reminder
@@ -65,7 +64,7 @@ class certificate_expiration_reminder extends \core\task\scheduled_task  {
         $textparams->configurl = (string)(new \moodle_url('/local/obf/config.php'));
 
         foreach ($admins as $admin) {
-            $eventdata = new object();
+            $eventdata = new stdClass();
             $eventdata->component = 'moodle';
             $eventdata->name = $severity;
             $eventdata->userfrom = $admin;
