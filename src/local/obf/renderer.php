@@ -1095,6 +1095,11 @@ class local_obf_renderer extends plugin_renderer_base {
         $historytable = new html_table();
         $historytable->attributes = array('class' => 'local-obf generaltable historytable');
         $html = $this->print_heading('history', 2);
+
+        if($PAGE->url->get_param('action') != 'history') {
+            $csvbutton = $this->render_button($badge, null, 'createcsv');
+            $html .= $csvbutton;
+        }
         $historysize = count($history);
         $langkey = $singlebadgehistory ? 'nobadgehistory' : 'nohistory';
 
