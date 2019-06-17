@@ -66,6 +66,11 @@ class obf_assertion {
     private $issuedon = null;
 
     /**
+     * @var array
+     */
+    private $log_entry = array();
+
+    /**
      * @var string[] An array of recipient emails.
      */
     private $recipients = array();
@@ -282,6 +287,9 @@ class obf_assertion {
                 if (!is_null($b)) {
                     $assertion = self::get_instance();
                     $assertion->set_badge($b)->set_id($item['id'])->set_recipients($item['recipient']);
+                    if (isset($item['log_entry'])){
+                        $assertion->set_log_entry($item['log_entry']);
+                    }
                     $assertion->set_expires($item['expires'])->set_name($item['name']);
                     $assertion->set_issuedon($item['issued_on'])->set_source(self::ASSERTION_SOURCE_OBF);
                     if (array_key_exists('revoked', $item)) {
@@ -558,6 +566,23 @@ class obf_assertion {
      */
     public function set_issuedon($issuedon) {
         $this->issuedon = $issuedon;
+        return $this;
+    }
+
+    /**
+     * @param $key
+     * @return mixed
+     */
+    public function get_log_entry($key) {
+        return $this->log_entry[$key];
+    }
+
+    /**
+     * @param $log_entry
+     * @return $this
+     */
+    public function set_log_entry($log_entry) {
+        $this->log_entry = $log_entry;
         return $this;
     }
 
