@@ -514,10 +514,6 @@ class local_obf_renderer extends plugin_renderer_base {
         if ($context instanceof context_course) {
             $issueurl->param('courseid', $context->instanceid);
         }
-
-        $heading .= $this->output->single_button($issueurl,
-                get_string('issuethisbadge', 'local_obf'), 'get');
-
         return local_obf_html::div($heading, 'badgeheading');
     }
 
