@@ -1174,6 +1174,9 @@ class local_obf_renderer extends plugin_renderer_base {
     private function render_historytable_row(obf_assertion $assertion,
                                              $singlebadgehistory, $path,
                                              array $users) {
+
+        global $PAGE;
+
         $expirationdate = $assertion->has_expiration_date() ? userdate($assertion->get_expires(),
                         get_string('dateformatdate', 'local_obf')) : '-';
         $row = new html_table_row();
@@ -1196,8 +1199,19 @@ class local_obf_renderer extends plugin_renderer_base {
         }
 
         $recipienthtml = '';
+        $badge_id = $PAGE->url->get_param('id');
+        $logs = $assertion->get_log_entry('course_id');
+        $activity = $assertion->get_log_entry('activity_name');
 
-        if (count($users) > 3) {
+        if (!empty($logs)) {
+            $courses = $this->get_course_name($logs);
+            if (!empty($activity)){
+                $courses .=   ' (' . $activity .')';
+            }
+        }
+        else {$courses = 'Manual issuing';}
+
+        if (count($users) > 1) {
             $recipienthtml .= html_writer::tag('p',
                             get_string('historyrecipients', 'local_obf',
                                     count($users)),
@@ -1211,6 +1225,7 @@ class local_obf_renderer extends plugin_renderer_base {
         $row->cells[] = userdate($assertion->get_issuedon(),
                 get_string('dateformatdate', 'local_obf'));
         $row->cells[] = $expirationdate;
+        $row->cells[] = $courses;
         $row->cells[] = html_writer::link(new moodle_url('/local/obf/event.php',
                         array('id' => $assertion->get_id())),
                         get_string('showassertion', 'local_obf'));
