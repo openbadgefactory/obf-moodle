@@ -440,7 +440,7 @@ class local_obf_renderer extends plugin_renderer_base {
      */
     public function page_badgedetails(obf_client $client, obf_badge $badge,
                                       context $context, $tab = 'details',
-                                      $page = 0, $message = '') {
+                                      $page = 0, $message = '', $onlydetailstab = null) {
         $methodprefix = 'print_badge_info_';
         $rendererfunction = $methodprefix . $tab;
         $html = ''; 
@@ -453,7 +453,7 @@ class local_obf_renderer extends plugin_renderer_base {
                 $html .= $this->output->notification($message, 'notifysuccess');
             }
 
-            $html .= $this->print_badge_tabs($badge->get_id(), $context, $tab);
+            $html .= $this->print_badge_tabs($badge->get_id(), $context, $tab, $onlydetailstab);
             $html .= call_user_func(array($this, $rendererfunction), $client,
                     $badge, $context, $page);
         }
@@ -1216,8 +1216,11 @@ class local_obf_renderer extends plugin_renderer_base {
      * @return string HTML
      */
     public function print_badge_tabs($badgeid, context $context,
-                                     $selectedtab = 'details') {
-        $tabdata = array('details', 'criteria');
+                                     $selectedtab = 'details', $onlydetailstab = null) {
+
+        if ($onlydetailstab != 1) {
+            $tabdata = array('details', 'criteria');
+        }
         $tabs = array();
 
         if ($context instanceof context_system) {
