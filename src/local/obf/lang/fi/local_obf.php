@@ -145,6 +145,7 @@ $string['criterionsaved'] = 'Myöntämissääntö tallennettu';
 $string['criteria_3'] = 'Profiilikentät';
 $string['criteria_3_help'] = 'Mitkä kentät käyttäjän tarvitsee täyttää, jotta osaamismerkin myöntäminen tapahtuu.';
 $string['csrexportfailed'] = 'Sertifikaatin valtuutuksessa tapahtui virhe';
+$string['createcsv'] = 'Lataa CSV';
 $string['dateformatdate'] = '%d.%m.%Y';
 $string['deauthenticate'] = 'Katkaise yhteys';
 $string['deauthenticationsuccess'] = 'Yhteys Open Badge Factoryyn katkaistu.';
@@ -187,6 +188,7 @@ $string['issuancedetails'] = 'Myöntämistiedot';
 $string['issuebadge'] = 'Myönnä osaamismerkki';
 $string['issueandexpiration'] = 'Myöntämis- ja vanhenemisaika';
 $string['issuedon'] = 'Myönnetty';
+$string['issuedfrom'] = 'Myönnetty suoritteesta';
 $string['issuer'] = 'Myöntäjä';
 $string['issuerdescription'] = 'Kuvaus';
 $string['issuerdetails'] = 'Myöntäjän tiedot';
@@ -275,6 +277,9 @@ $string['showbadgesonmyprofile'] = 'Näytä osaamismerkit profiilisivulla';
 $string['showcategories'] = 'Suodata merkkejä:';
 $string['showconnectionconfig'] = 'Haluan päivittää valtuutusavaimen siitä huolimatta.';
 $string['showmorerecipients'] = 'lisää';
+
+$string['siteadmin'] = 'Sivuston hallinta';
+
 $string['testbackpackapiurlexception'] = 'Virhe ladattaessa API osoitetta <a href="{$a->url}">{$a->url}</a> ! Virhekoodi: {$a->errorcode}.';
 $string['toearnthisbadge'] = 'Osaamismerkin ansaitseminen edellyttää tämän kurssin suorittamista';
 $string['tokendecryptionfailed'] = 'Valtuutusavain on virheellinen. Tarkista, että olet kopioinut ja liittänyt koko valtuutusavaimen.';
@@ -285,6 +290,9 @@ $string['totaraprogramexpiresbycertificate'] = 'Vanhenee sertifikaattiasetusten 
 $string['urlgroup'] = 'Osoite';
 $string['urlgroup_help'] = '<p>Jos et käytä oletuspalvelinta, openbadgefactory.com, aseta osoite tähän.</p>';
 $string['unknowncriterion'] = 'Keskeneräinen kriteeri';
+
+$string['useremailupdater'] = 'Käyttäjän sähköpostin päivitys';
+
 $string['userpreferences'] = 'Käyttäjä-asetukset';
 $string['userpreferencessaved'] = 'Käyttäjä-asetukset tallennettu.';
 $string['usersdisplaybadges'] = 'Käyttäjien merkkien näyttäminen';
