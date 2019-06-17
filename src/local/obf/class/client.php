@@ -542,7 +542,6 @@ class obf_client {
 
         $this->api_request('/badge/' . self::get_client_id(), 'post', $params);
     }
-
     /**
      * Issues a badge.
      *
@@ -552,14 +551,21 @@ class obf_client {
      * @param string $email The email to send (template).
      * @param string $criteriaaddendum The criteria addendum.
      */
+
     public function issue_badge(obf_badge $badge, $recipients, $issuedon,
-                                $email, $criteriaaddendum = '') {
+                                $email, $criteriaaddendum = '', $course, $activity) {
+        global $CFG;
+        $course_name = $badge->get_course_name($course);
+
         $this->require_client_id();
         $params = array(
             'recipient' => $recipients,
             'issued_on' => $issuedon,
             'api_consumer_id' => OBF_API_CONSUMER_ID,
-            'log_entry' => array('foo' => 'Just testing'),
+            'log_entry' => array('course_id' => $course,
+                                'course_name' => $course_name,
+                                'activity_name' => $activity,
+                                'wwwroot' => $CFG->wwwroot),
             'show_report' => 1
         );
         if (!is_null($email)) {
