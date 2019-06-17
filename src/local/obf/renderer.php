@@ -1234,6 +1234,80 @@ class local_obf_renderer extends plugin_renderer_base {
     }
 
     /**
+     * @param $course_id
+     * @return mixed
+     * @throws dml_exception
+     */
+    private function get_course_name($course_id)
+    {
+        global $DB;
+        $result = $DB->get_record('course', array('id' => $course_id));
+        return $result->fullname;
+    }
+    /**
+     * @throws coding_exception
+     * @throws dml_exception
+     */
+    private function create_csv() {
+        global $PAGE;
+        $badgeid = $PAGE->url->get_param('id');
+        $badge = obf_badge::get_instance($badgeid);
+        $history = $badge->get_assertions();
+        $assertion_count = $badge->get_assertions()->count();
+        $filename = $badge->get_name() . '.csv';
+
+        header("Content-Type: text/csv");
+        header('Content-Disposition: attachment; filename="' . $filename . '"');
+        $file = fopen('php://output', 'w');
+        fputcsv($file, array(get_string('recipients', 'local_obf'),
+                get_string('issuedon', 'local_obf'),
+                get_string('expiresby', 'local_obf'),
+                get_string('issuedfrom', 'local_obf')
+            )
+        );
+        $data = array();
+
+        for ($i = 0; $i < $assertion_count; $i++){
+            try {
+                $assertion = $history->get_assertion($i);
+            }
+            catch (Exception $e) {
+                echo $e->getMessage();
+            }
+            $users = $history->get_assertion_users($assertion);
+            $name = $this->render_userlist($users, false);
+            $data['name'] = $name;
+            $issued_on = userdate($assertion->get_issuedon(),
+                get_string('dateformatdate', 'local_obf'));
+            $data['issuedon'] = $issued_on;
+            $expires = $assertion->get_expires();
+
+            if ($expires != null){
+                $expires = userdate($expires,
+                    get_string('dateformatdate', 'local_obf'));
+            }
+            else { $expires = "-"; }
+
+            $data['expires'] = $expires;
+            $course = $assertion->get_log_entry("course_id");
+            $course_name = $this->get_course_name($course);
+            $activity = $assertion->get_log_entry('activity_name');
+
+            if ($course_name !== null) {
+                $data['course'] = $course_name;
+                if (!empty($activity)){
+                    $data['course'] .= ' (' . $activity . ')';
+                }
+            }
+
+            else { $data['course'] = 'Manual issuing'; }
+            fputcsv($file, $data);
+        }
+        fclose($file);
+        exit();
+    }
+
+    /**
      * Renders a list of users.
      *
      * @param array $users
