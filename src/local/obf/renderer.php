@@ -462,6 +462,43 @@ class local_obf_renderer extends plugin_renderer_base {
     }
 
     /**
+     * @param obf_badge|null $badge
+     * @param context|null $context
+     * @param string $label
+     * @return string
+     * @throws coding_exception
+     * @throws moodle_exception
+     */
+    public function render_button(obf_badge $badge = null, context $context = null, $label = '') {
+        global $PAGE;
+        if (!is_null($badge)){
+            $issueurl = new moodle_url('/local/obf/issue.php',
+            array('id' => $badge->get_id()));
+            if ($label === 'createcsv'){
+                $issueurl = new moodle_url('/local/obf/badge.php',
+                    array('id' => $badge->get_id(),
+                        'action' => 'show',
+                        'show'   => 'history',
+                        'csv'    => '1'));
+            }
+        }
+
+        if ($context instanceof context_course) {
+            $issueurl->param('courseid', $context->instanceid);
+        }
+
+        $button = $this->output->single_button($issueurl,
+                get_string($label, 'local_obf'), 'get');
+
+        if ($_GET['csv'] == 1){
+            $this->create_csv();
+        }
+
+
+        return local_obf_html::div($button);
+    }
+
+    /**
      * Renders the heading element in badge-details -page.
      *
      * @param obf_badge $badge
