@@ -22,14 +22,18 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 require_once(__DIR__ . '/../../config.php');
+require_once(__DIR__ . '/class/badge.php');
 require_once(__DIR__ . '/class/event.php');
 
-$courseid = required_param('courseid', PARAM_INT);
+$badgeid = optional_param('id', '', PARAM_ALPHANUM);
+$courseid = optional_param('courseid', 1, PARAM_INT);
 $action = optional_param('action', 'badges', PARAM_ALPHANUM);
 $url = new moodle_url('/local/obf/courseuserbadges.php',
         array('courseid' => $courseid, 'action' => $action));
 $curr_page = optional_param('page', '0', PARAM_INT);
 $context = context_course::instance($courseid);
+$badge = empty($badgeid) ? null : obf_badge::get_instance($badgeid);
+$onlydetailstab = 1;
 
 require_login($courseid);
 
@@ -37,9 +41,35 @@ $PAGE->set_context($context);
 $PAGE->set_url($url);
 $PAGE->set_pagelayout('standard');
 
-$content = $OUTPUT->header();
-
 switch ($action) {
+    // Display badge info.
+    case 'show':
+        require_capability('local/obf:viewdetails', $context);
+        $client = obf_client::get_instance();
+        $show = optional_param('show', 'details', PARAM_ALPHANUM);
+        $coursebadgeurl =  new moodle_url('/local/obf/courseuserbadges.php',
+            array('action' => 'show', 'id' => $badgeid));
+
+        $PAGE->navbar->add(get_string('siteadmin', 'local_obf'),
+            new moodle_url('/admin/search.php'));
+        $PAGE->navbar->add(get_string('obf', 'local_obf'),
+            new moodle_url('/admin/category.php', array('category' => 'obf')));
+        $PAGE->navbar->add(get_string('badgelist', 'local_obf'),
+            new moodle_url('/local/obf/badge.php', array('action' => 'list')));
+
+        $PAGE->navbar->add($badge->get_name(), $coursebadgeurl);
+        
+        $content .= $PAGE->get_renderer('local_obf')->render_badge_heading($badge,
+            $context);
+
+        switch ($show) {
+            // Badge details.
+            case 'details':
+                $content .= $PAGE->get_renderer('local_obf')->page_badgedetails(
+                    $client, $badge, $context, $show, $page, $message, $onlydetailstab);
+        }
+        break;
+
     case 'badges':
         require_capability('local/obf:seeparticipantbadges', $context);
         $participants = get_enrolled_users($context, 'local/obf:earnbadge', 0, 'u.*', null, 0, 0, true);
@@ -50,10 +80,22 @@ switch ($action) {
         require_capability('local/obf:viewhistory', $context);
         $relatedevents = obf_issue_event::get_events_in_course($courseid, $DB);
         $client = new obf_client();
+        $allevents = $client->get_assertions();
+        $events = array();
+
+        foreach ($allevents as $event) {
+            if($event["log_entry"]["course_id"] == $courseid ) {
+                $events[] = $event["id"];
+            }
+        }
+
+        if (count($events) >= 1) {
+            $relatedevents = obf_issue_event::get_course_related_events($events, $DB);
+        }
         $content .= $PAGE->get_renderer('local_obf')->print_badge_info_history($client, null, $context, $curr_page, $relatedevents);
         break;
 }
 
+echo $OUTPUT->header();
 $content .= $OUTPUT->footer();
-
 echo $content;

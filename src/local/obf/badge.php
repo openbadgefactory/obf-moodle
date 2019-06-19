@@ -174,6 +174,11 @@ switch ($action) {
 
                 $content .= $PAGE->get_renderer('local_obf')->page_badgedetails(
                         $client, $badge, $context, $show, $page, $message);
+
+                $content .= $PAGE->get_renderer('local_obf')->render_button($badge,
+                    $context, 'issue');
+
+
                 break;
 
             // Badge criteria.

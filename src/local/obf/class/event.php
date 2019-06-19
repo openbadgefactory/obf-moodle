@@ -114,6 +114,29 @@ class obf_issue_event {
     }
 
     /**
+     * @param $events
+     * @param moodle_database $db
+     * @return array
+     */
+    public static function get_course_related_events($events, moodle_database $db) {
+        $ret = array();
+        try {
+            list($insql, $inparams) = $db->get_in_or_equal($events);
+            $sql = "SELECT evt.* FROM {local_obf_issue_events} 
+                AS evt WHERE evt.event_id $insql";
+            $records = $db->get_records_sql($sql, $inparams);
+            foreach ($records as $record) {
+                $obj = new self();
+                $ret[] = $obj->populate_from_record($record);
+            }
+        }
+        catch (Exception $e) {
+            echo $e->getMessage();
+        }
+        return $ret;
+    }
+
+    /**
      * Saves this email instance.
      *
      * @param moodle_database $db

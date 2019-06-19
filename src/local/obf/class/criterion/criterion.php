@@ -185,6 +185,7 @@ class obf_criterion {
     
     public function issue_and_set_met($user, $recipients = null) {
         global $DB;
+
         $badge = $this->get_badge();
         if (is_null($recipients)) {
             $passport = obf_backpack::get_instance($user);
@@ -197,7 +198,7 @@ class obf_criterion {
 
         $criteriaaddendum = $this->get_use_addendum() ? $this->get_criteria_addendum() : '';
 
-        $eventid = $badge->issue($recipients, time(), $email, $criteriaaddendum);
+        $eventid = $badge->issue($recipients, time(), $email, $criteriaaddendum, $this->items);
         $this->set_met_by_user($user->id);
 
         if ($eventid && !is_bool($eventid)) {

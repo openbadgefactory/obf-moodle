@@ -148,6 +148,7 @@ $string['criteriapartofcourseset'] = 'Part of criteria with several courses';
 $string['criteria_3'] = 'Profile fields';
 $string['criteria_3_help'] = 'Which profile field(s) need to be filled, to trigger badge awarding.';
 $string['csrexportfailed'] = 'There was an error while trying to export the certificate signing request';
+$string['createcsv'] = 'Download Badge History CSV';
 $string['dateformatdate'] = '%Y-%m-%d';
 $string['deauthenticate'] = 'Disconnect';
 $string['deauthenticationsuccess'] = 'Successfully disconnected from Open Badge Factory.';
@@ -190,6 +191,7 @@ $string['issuancedetails'] = 'Issuance details';
 $string['issuebadge'] = 'Issue a badge';
 $string['issueandexpiration'] = 'Issue and expiration dates';
 $string['issuedon'] = 'Issued on';
+$string['issuedfrom'] = 'Issued from';
 $string['issuer'] = 'Issuer';
 $string['issuerdescription'] = 'Description';
 $string['issuerdetails'] = 'Issuer details';
@@ -278,6 +280,7 @@ $string['showbadgesonmyprofile'] = 'Show badges on profile page';
 $string['showcategories'] = 'Display badges from these categories:';
 $string['showconnectionconfig'] = 'I know it\'s working, let me change the token anyway.';
 $string['showmorerecipients'] = 'more';
+$string['siteadmin'] = 'Site Administration';
 $string['testbackpackapiurlexception'] = 'Error testing API via <a href="{$a->url}">{$a->url}</a> ! Error-code: {$a->errorcode}.';
 $string['toearnthisbadge'] = 'To earn this badge this course has to be completed';
 $string['tokendecryptionfailed'] = 'Decrypting the request token failed. Be sure to paste the certificate signing request token fully.';
@@ -288,6 +291,10 @@ $string['totaraprogramexpiresbycertificate'] = 'Expiry from certificate properti
 $string['unknowncriterion'] = 'Incomplete criterion';
 $string['urlgroup'] = 'URL';
 $string['urlgroup_help'] = '<p>If you are not using the default openbadgefactory.com server. Set the service address here.</p>';
+
+$string['useremailupdater'] = 'User email updater';
+
+
 $string['userpreferences'] = 'User-settings';
 $string['userpreferencessaved'] = 'User-settings saved.';
 $string['usersdisplaybadges'] = 'Display of user badges';

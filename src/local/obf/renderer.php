@@ -440,7 +440,7 @@ class local_obf_renderer extends plugin_renderer_base {
      */
     public function page_badgedetails(obf_client $client, obf_badge $badge,
                                       context $context, $tab = 'details',
-                                      $page = 0, $message = '') {
+                                      $page = 0, $message = '', $onlydetailstab = null) {
         $methodprefix = 'print_badge_info_';
         $rendererfunction = $methodprefix . $tab;
         $html = ''; 
@@ -453,12 +453,49 @@ class local_obf_renderer extends plugin_renderer_base {
                 $html .= $this->output->notification($message, 'notifysuccess');
             }
 
-            $html .= $this->print_badge_tabs($badge->get_id(), $context, $tab);
+            $html .= $this->print_badge_tabs($badge->get_id(), $context, $tab, $onlydetailstab);
             $html .= call_user_func(array($this, $rendererfunction), $client,
                     $badge, $context, $page);
         }
 
         return $html;
+    }
+
+    /**
+     * @param obf_badge|null $badge
+     * @param context|null $context
+     * @param string $label
+     * @return string
+     * @throws coding_exception
+     * @throws moodle_exception
+     */
+    public function render_button(obf_badge $badge = null, context $context = null, $label = '') {
+        global $PAGE;
+        if (!is_null($badge)){
+            $issueurl = new moodle_url('/local/obf/issue.php',
+            array('id' => $badge->get_id()));
+            if ($label === 'createcsv'){
+                $issueurl = new moodle_url('/local/obf/badge.php',
+                    array('id' => $badge->get_id(),
+                        'action' => 'show',
+                        'show'   => 'history',
+                        'csv'    => '1'));
+            }
+        }
+
+        if ($context instanceof context_course) {
+            $issueurl->param('courseid', $context->instanceid);
+        }
+
+        $button = $this->output->single_button($issueurl,
+                get_string($label, 'local_obf'), 'get');
+
+        if ($_GET['csv'] == 1){
+            $this->create_csv();
+        }
+
+
+        return local_obf_html::div($button);
     }
 
     /**
@@ -477,10 +514,6 @@ class local_obf_renderer extends plugin_renderer_base {
         if ($context instanceof context_course) {
             $issueurl->param('courseid', $context->instanceid);
         }
-
-        $heading .= $this->output->single_button($issueurl,
-                get_string('issuethisbadge', 'local_obf'), 'get');
-
         return local_obf_html::div($heading, 'badgeheading');
     }
 
@@ -1062,6 +1095,11 @@ class local_obf_renderer extends plugin_renderer_base {
         $historytable = new html_table();
         $historytable->attributes = array('class' => 'local-obf generaltable historytable');
         $html = $this->print_heading('history', 2);
+
+        if($PAGE->url->get_param('action') != 'history') {
+            $csvbutton = $this->render_button($badge, null, 'createcsv');
+            $html .= $csvbutton;
+        }
         $historysize = count($history);
         $langkey = $singlebadgehistory ? 'nobadgehistory' : 'nohistory';
 
@@ -1098,12 +1136,13 @@ class local_obf_renderer extends plugin_renderer_base {
                 $headingrow[] = new local_obf_table_header('badgename');
                 $historytable->headspan = array(2, 1, 1, 1, 1);
             } else {
-                $historytable->headspan = array(1, 1, 2);
+                $historytable->headspan = array();
             }
 
             $headingrow[] = new local_obf_table_header('recipients');
             $headingrow[] = new local_obf_table_header('issuedon');
             $headingrow[] = new local_obf_table_header('expiresby');
+            $headingrow[] = new local_obf_table_header('issuedfrom');
             $headingrow[] = new html_table_cell();
             $historytable->head = $headingrow;
 
@@ -1135,6 +1174,9 @@ class local_obf_renderer extends plugin_renderer_base {
     private function render_historytable_row(obf_assertion $assertion,
                                              $singlebadgehistory, $path,
                                              array $users) {
+
+        global $PAGE;
+
         $expirationdate = $assertion->has_expiration_date() ? userdate($assertion->get_expires(),
                         get_string('dateformatdate', 'local_obf')) : '-';
         $row = new html_table_row();
@@ -1157,8 +1199,19 @@ class local_obf_renderer extends plugin_renderer_base {
         }
 
         $recipienthtml = '';
+        $badge_id = $PAGE->url->get_param('id');
+        $logs = $assertion->get_log_entry('course_id');
+        $activity = $assertion->get_log_entry('activity_name');
 
-        if (count($users) > 3) {
+        if (!empty($logs)) {
+            $courses = $this->get_course_name($logs);
+            if (!empty($activity)){
+                $courses .=   ' (' . $activity .')';
+            }
+        }
+        else {$courses = 'Manual issuing';}
+
+        if (count($users) > 1) {
             $recipienthtml .= html_writer::tag('p',
                             get_string('historyrecipients', 'local_obf',
                                     count($users)),
@@ -1172,11 +1225,86 @@ class local_obf_renderer extends plugin_renderer_base {
         $row->cells[] = userdate($assertion->get_issuedon(),
                 get_string('dateformatdate', 'local_obf'));
         $row->cells[] = $expirationdate;
+        $row->cells[] = $courses;
         $row->cells[] = html_writer::link(new moodle_url('/local/obf/event.php',
                         array('id' => $assertion->get_id())),
                         get_string('showassertion', 'local_obf'));
 
         return $row;
+    }
+
+    /**
+     * @param $course_id
+     * @return mixed
+     * @throws dml_exception
+     */
+    private function get_course_name($course_id)
+    {
+        global $DB;
+        $result = $DB->get_record('course', array('id' => $course_id));
+        return $result->fullname;
+    }
+    /**
+     * @throws coding_exception
+     * @throws dml_exception
+     */
+    private function create_csv() {
+        global $PAGE;
+        $badgeid = $PAGE->url->get_param('id');
+        $badge = obf_badge::get_instance($badgeid);
+        $history = $badge->get_assertions();
+        $assertion_count = $badge->get_assertions()->count();
+        $filename = $badge->get_name() . '.csv';
+
+        header("Content-Type: text/csv");
+        header('Content-Disposition: attachment; filename="' . $filename . '"');
+        $file = fopen('php://output', 'w');
+        fputcsv($file, array(get_string('recipients', 'local_obf'),
+                get_string('issuedon', 'local_obf'),
+                get_string('expiresby', 'local_obf'),
+                get_string('issuedfrom', 'local_obf')
+            )
+        );
+        $data = array();
+
+        for ($i = 0; $i < $assertion_count; $i++){
+            try {
+                $assertion = $history->get_assertion($i);
+            }
+            catch (Exception $e) {
+                echo $e->getMessage();
+            }
+            $users = $history->get_assertion_users($assertion);
+            $name = $this->render_userlist($users, false);
+            $data['name'] = $name;
+            $issued_on = userdate($assertion->get_issuedon(),
+                get_string('dateformatdate', 'local_obf'));
+            $data['issuedon'] = $issued_on;
+            $expires = $assertion->get_expires();
+
+            if ($expires != null){
+                $expires = userdate($expires,
+                    get_string('dateformatdate', 'local_obf'));
+            }
+            else { $expires = "-"; }
+
+            $data['expires'] = $expires;
+            $course = $assertion->get_log_entry("course_id");
+            $course_name = $this->get_course_name($course);
+            $activity = $assertion->get_log_entry('activity_name');
+
+            if ($course_name !== null) {
+                $data['course'] = $course_name;
+                if (!empty($activity)){
+                    $data['course'] .= ' (' . $activity . ')';
+                }
+            }
+
+            else { $data['course'] = 'Manual issuing'; }
+            fputcsv($file, $data);
+        }
+        fclose($file);
+        exit();
     }
 
     /**
@@ -1216,8 +1344,11 @@ class local_obf_renderer extends plugin_renderer_base {
      * @return string HTML
      */
     public function print_badge_tabs($badgeid, context $context,
-                                     $selectedtab = 'details') {
-        $tabdata = array('details', 'criteria');
+                                     $selectedtab = 'details', $onlydetailstab = null) {
+
+        if ($onlydetailstab != 1) {
+            $tabdata = array('details', 'criteria');
+        }
         $tabs = array();
 
         if ($context instanceof context_system) {

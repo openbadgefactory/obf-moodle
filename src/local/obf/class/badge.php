@@ -379,13 +379,21 @@ class obf_badge {
      * @param string $email The email sent to user (template).
      * @param string $criteriaaddendum The criterai addendum.
      */
-    public function issue(array $recipients, $issuedon, $email, $criteriaaddendum = '') {
+    public function issue(array $recipients, $issuedon, $email, $criteriaaddendum = '', $items = null) {
         if (empty($this->id)) {
             throw new Exception('Invalid or missing badge id');
         }
+
+        if (!empty($items)) {
+            $course = $items[0]->get_courseid();
+            if ($items[0] instanceof obf_criterion_activity){
+                $activity = $items[0]->get_name();
+            }
+        }
+
         $this->get_client()->set_enable_raw_response(true);
         $this->get_client()->issue_badge($this, $recipients, $issuedon,
-                $email, $criteriaaddendum);
+                $email, $criteriaaddendum, $course, $activity);
 
         $raw = $this->get_client()->get_raw_response();
         $this->get_client()->set_enable_raw_response(false);
@@ -749,6 +757,19 @@ class obf_badge {
      */
     public function get_created() {
         return $this->created;
+    }
+
+    /**
+     * Get course related to badge issuing
+     * @param $course_id
+     * @return mixed
+     * @throws dml_exception
+     */
+    public function get_course_name($course_id)
+    {
+        global $DB;
+        $result = $DB->get_record('course', array('id' => $course_id));
+        return $result->fullname;
     }
 
     /**
