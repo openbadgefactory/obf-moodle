@@ -302,8 +302,23 @@ function local_obf_myprofile_get_assertions($userid, $db) {
         try {
             $client = obf_client::get_instance();
             $blacklist = new obf_blacklist($userid);
+            $deletedemailscount = $db->count_records('local_obf_deleted_emails', array('user_id' => $userid));
+            $deletedemails = $db->get_records('local_obf_deleted_emails', array('user_id' => $userid), '', 'email');
+            $deleted = array();
+            foreach ($deletedemails as $key => $email) {
+                $deleted[] = $key;
+            }
             $assertions->add_collection(obf_assertion::get_assertions($client,
                     null, $db->get_record('user', array('id' => $userid))->email, -1, true ));
+
+            //Get badges issued with previous emails
+            if ($deletedemailscount >= 1) {
+                foreach ($deleted as $email) {
+                    $assertions->add_collection(obf_assertion::get_assertions($client, null,
+                        $db->get_record('local_obf_deleted_emails',
+                            array('user_id' => $userid, 'email' => $email))->email, -1, true));
+                }
+            }
             $assertions->apply_blacklist($blacklist);
         } catch (Exception $e) {
             debugging('Getting OBF assertions for user id: ' . $userid . ' failed: ' . $e->getMessage());
