@@ -63,12 +63,18 @@ switch ($action) {
         break;
 
     case 'update':
+        global $DB;
         // Disconnect-button was pressed.
         if ($form->is_cancelled()) {
             $submitteddata = $form->get_submitted_data();
+            $content = new stdClass();
             foreach ($backpacks as $backpack) {
                 if (property_exists($submitteddata, 'cancelbackpack' . $backpack->get_providershortname())) {
-                    if ($backpack->exists()) {
+                    if ($backpack->exists() && $backpack->requires_email_verification()) {
+                        $content->user_id = $backpack->get_user_id();
+                        $content->email = $backpack->get_email();
+                        $content->ts = time();
+                        $DB->insert_record('local_obf_deleted_emails', $content);
                         $backpack->disconnect();
                     }
                 }
