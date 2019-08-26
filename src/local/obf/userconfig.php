@@ -73,7 +73,7 @@ switch ($action) {
                     if ($backpack->exists() && $backpack->requires_email_verification()) {
                         $content->user_id = $backpack->get_user_id();
                         $content->email = $backpack->get_email();
-                        $content->ts = time();
+                        $content->timestamp = time();
                         $DB->insert_record('local_obf_deleted_emails', $content);
                         $backpack->disconnect();
                     }

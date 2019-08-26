@@ -157,7 +157,7 @@
             <FIELDS>
                 <FIELD NAME="id" TYPE="int" LENGTH="18" NOTNULL="true" SEQUENCE="true"/>
                 <FIELD NAME="user_id" TYPE="int" LENGTH="18" NOTNULL="true" SEQUENCE="false"/>
-                <FIELD NAME="email" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false"/>
+                <FIELD NAME="email" TYPE="char" LENGTH="191" NOTNULL="true" SEQUENCE="false"/>
                 <FIELD NAME="timestamp" TYPE="int" LENGTH="9" NOTNULL="true" SEQUENCE="false"/>
             </FIELDS>
             <KEYS>
