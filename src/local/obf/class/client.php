@@ -554,7 +554,22 @@ class obf_client {
 
     public function issue_badge(obf_badge $badge, $recipients, $issuedon,
                                 $email, $criteriaaddendum = '', $course, $activity) {
-        global $CFG;
+        global $CFG, $DB;
+        $userdata = new stdClass();
+        $users = $DB->get_records_list('user', 'email',
+            $recipients, '', 'id, email');
+
+        foreach ($users as $key => $user) {
+            $record = $DB->get_record('local_obf_deleted_emails',
+                array('user_id' => $key,'email' => $user->email));
+            if(!$record) {
+                $userdata->user_id = $key;
+                $userdata->email = $user->email;
+                $userdata->timestamp = time();
+                $DB->insert_record('local_obf_deleted_emails', $userdata);
+            }
+        }
+
         $course_name = $badge->get_course_name($course);
 
         $this->require_client_id();
