@@ -153,7 +153,7 @@
             </KEYS>
         </TABLE>
 
-        <TABLE NAME="local_obf_deleted_emails" COMMENT="Table for deleted backpack data">
+        <TABLE NAME="local_obf_history_emails" COMMENT="Table for changed user emails">
             <FIELDS>
                 <FIELD NAME="id" TYPE="int" LENGTH="18" NOTNULL="true" SEQUENCE="true"/>
                 <FIELD NAME="user_id" TYPE="int" LENGTH="18" NOTNULL="true" SEQUENCE="false"/>

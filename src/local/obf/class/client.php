@@ -560,13 +560,13 @@ class obf_client {
             $recipients, '', 'id, email');
 
         foreach ($users as $key => $user) {
-            $record = $DB->get_record('local_obf_deleted_emails',
+            $record = $DB->get_record('local_obf_history_emails',
                 array('user_id' => $key,'email' => $user->email));
             if(!$record) {
                 $userdata->user_id = $key;
                 $userdata->email = $user->email;
                 $userdata->timestamp = time();
-                $DB->insert_record('local_obf_deleted_emails', $userdata);
+                $DB->insert_record('local_obf_history_emails', $userdata);
             }
         }
 

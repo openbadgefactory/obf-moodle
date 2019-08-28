@@ -302,8 +302,8 @@ function local_obf_myprofile_get_assertions($userid, $db) {
         try {
             $client = obf_client::get_instance();
             $blacklist = new obf_blacklist($userid);
-            $deletedemailscount = $db->count_records('local_obf_deleted_emails', array('user_id' => $userid));
-            $deletedemails = $db->get_records('local_obf_deleted_emails', array('user_id' => $userid), '', 'email');
+            $deletedemailscount = $db->count_records('local_obf_history_emails', array('user_id' => $userid));
+            $deletedemails = $db->get_records('local_obf_history_emails', array('user_id' => $userid), '', 'email');
             $deleted = array();
             foreach ($deletedemails as $key => $email) {
                 $deleted[] = $key;
@@ -315,7 +315,7 @@ function local_obf_myprofile_get_assertions($userid, $db) {
             if ($deletedemailscount >= 1) {
                 foreach ($deleted as $email) {
                     $assertions->add_collection(obf_assertion::get_assertions($client, null,
-                        $db->get_record('local_obf_deleted_emails',
+                        $db->get_record('local_obf_history_emails',
                             array('user_id' => $userid, 'email' => $email))->email, -1, true));
                 }
             }
