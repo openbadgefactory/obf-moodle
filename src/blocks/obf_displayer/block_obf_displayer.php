@@ -114,6 +114,13 @@ class block_obf_displayer extends block_base {
         if (!empty($clientid) && (empty($this->config) || !property_exists($this->config, 'showobf') || $this->config->showobf)) {
             $cache = cache::make('block_obf_displayer', 'obf_assertions');
             $assertions = !$this->is_cache_assertions_enabled() ? null : $cache->get($userid);
+            $deletedemailscount = $db->count_records('local_obf_history_emails', array('user_id' => $userid));
+            $deletedemails = $db->get_records('local_obf_history_emails', array('user_id' => $userid), '', 'email');
+
+            $deleted = array();
+            foreach ($deletedemails as $key => $email) {
+                $deleted[] = $key;
+            }
 
             if (!$assertions) {
                 // Get user's badges in OBF.
@@ -121,9 +128,21 @@ class block_obf_displayer extends block_base {
                 try {
                     $client = obf_client::get_instance();
                     $blacklist = new obf_blacklist($userid);
-                    $assertions->add_collection(obf_assertion::get_assertions(
-                            $client, null, $db->get_record('user', array('id' => $userid))->email, -1, true ));
+
+                    //Get badges issued with previous emails
+                   if ($deletedemailscount >= 1) {
+                        foreach ($deleted as $email) {
+                            $assertions->add_collection(obf_assertion::get_assertions($client, null,
+                                $db->get_record('local_obf_history_emails',
+                                    array('user_id' => $userid, 'email' => $email))->email, -1, true));
+                        }
+                    }
+
+                  $assertions->add_collection(obf_assertion::get_assertions(
+                        $client, null, $db->get_record('user', array('id' => $userid))->email, -1, true));
                     $assertions->apply_blacklist($blacklist);
+
+
                 } catch (Exception $e) {
                     debugging('Getting OBF assertions for user id: ' . $userid . ' failed: ' . $e->getMessage());
                 }

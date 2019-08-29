@@ -34,6 +34,24 @@ function xmldb_local_obf_upgrade($oldversion) {
 
     $dbman = $DB->get_manager(); // Loads ddl manager and xmldb classes.
 
+    if ($oldversion < 2019082500) {
+        $table = new xmldb_table('local_obf_history_emails');
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('user_id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('email', XMLDB_TYPE_CHAR, '191', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('timestamp', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
+        $table->add_key('idx_local_obf_history_emails', XMLDB_KEY_UNIQUE, array('user_id', 'email'));
+
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        // Obf savepoint reached.
+        upgrade_plugin_savepoint(true, 2019082500, 'local', 'obf');
+    }
+
     if ($oldversion < 2016031800) {
          //set default apiurl https://openbadgefactory.com/
          set_config('apiurl', "https://openbadgefactory.com/", 'local_obf');
