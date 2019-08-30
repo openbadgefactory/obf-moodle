@@ -18,15 +18,15 @@
  * Version information. See https://docs.moodle.org/dev/version.php for more info.
  *
  * @package    block_obf_displayer
- * @copyright  2015-2018, Discendum Oy
+ * @copyright  2015-2019, Discendum Oy
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-$plugin->version = 2018092700;  // YYYYMMDDHH (year, month, day, 24-hr time).
-$plugin->release = '0.7';
+$plugin->version = 2019082900;  // YYYYMMDDHH (year, month, day, 24-hr time).
+$plugin->release = '0.7.1';
 $plugin->requires = 2011120511;
 $plugin->component = 'block_obf_displayer';
 $plugin->maturity = MATURITY_STABLE;
 
 $plugin->dependencies = array(
-    'local_obf' => 2018092700   // The main OBF plugin must be present
+    'local_obf' => 2019082900   // The main OBF plugin must be present
 );
