@@ -27,5 +27,5 @@ $plugin->version    = 2019082900;
 $plugin->requires   = 2014051200;
 $plugin->component  = 'local_obf';
 $plugin->maturity   = MATURITY_STABLE;
-$plugin->release    = '0.2.7';
+$plugin->release    = '0.3';
 $plugin->dependencies   = array(); 
