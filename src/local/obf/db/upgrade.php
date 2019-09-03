@@ -48,8 +48,8 @@ function xmldb_local_obf_upgrade($oldversion) {
             $dbman->create_table($table);
         }
 
-        $DB->execute('INSERT IGNORE INTO local_obf_history_emails (user_id, email, timestamp)
-                           SELECT id, email, timemodified FROM user');
+        $DB->execute('INSERT IGNORE INTO {local_obf_history_emails} (user_id, email, timestamp)
+                           SELECT id, email, timemodified FROM {user}');
 
         // Obf savepoint reached.
         upgrade_plugin_savepoint(true, 2019090300, 'local', 'obf');
