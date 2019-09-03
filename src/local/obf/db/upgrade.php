@@ -34,11 +34,11 @@ function xmldb_local_obf_upgrade($oldversion) {
 
     $dbman = $DB->get_manager(); // Loads ddl manager and xmldb classes.
 
-    if ($oldversion < 2019090300) {
+    if ($oldversion < 2019090310) {
         $table = new xmldb_table('local_obf_history_emails');
         $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
         $table->add_field('user_id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
-        $table->add_field('email', XMLDB_TYPE_CHAR, '191', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('email', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null);
         $table->add_field('timestamp', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
 
         $table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
@@ -49,10 +49,10 @@ function xmldb_local_obf_upgrade($oldversion) {
         }
 
         $DB->execute('INSERT IGNORE INTO {local_obf_history_emails} (user_id, email, timestamp)
-                           SELECT id, email, timemodified FROM {user}');
+                           SELECT id, email, timemodified FROM {user} WHERE deleted = 0');
 
         // Obf savepoint reached.
-        upgrade_plugin_savepoint(true, 2019090300, 'local', 'obf');
+        upgrade_plugin_savepoint(true, 2019090310, 'local', 'obf');
     }
 
     if ($oldversion < 2016031800) {
