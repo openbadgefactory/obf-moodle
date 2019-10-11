@@ -25,6 +25,8 @@ require_once(__DIR__ . '/../../config.php');
 require_once($CFG->libdir . '/adminlib.php');
 require_once(__DIR__ . '/class/backpack.php');
 require_once(__DIR__ . '/form/criteriaimport.php');
+require_once(__DIR__ . '/class/criterion/course.php');
+require_once(__DIR__ . '/class/criterion/criterion.php');
 
 
 $context = context_system::instance();
@@ -65,31 +67,17 @@ function local_obf_insert_criteria_from_form($form, $backpack, &$content) {
 
     if (!$form->is_cancelled()) {
         if ($data = $form->get_data()) {
-            $result = $DB->get_records('local_obf_criterion_courses', array('courseid' => $data->fromcourse));
-            //var_dump($result);
-            if ($result) {
-                foreach ($result as $key => $criteria) {
-                    //var_dump($criteria->obf_criterion_id);
-                    //die();
-                    $crit = $DB->get_record('local_obf_criterion', array('id' => $criteria->obf_criterion_id));
-
-                    $criteriadata->badge_id = $crit->badge_id;
-                    $criteriadata->completion_method = $crit->completion_method;
-                    $criteriadata->use_addendum = $crit->use_addendum;
-                    $criteriadata->addendum = $crit->addendum;
-
-                    $count = $DB->count_records('local_obf_criterion') + 1;
-
-                    $criteriato->obf_criterion_id = $count;
-                    $criteriato->courseid = $data->tocourse;
-                    $criteriato->obf_grade = $criteria->grade;
-                    $criteriato->completed_by = $criteria->completed_by;
-                    $criteriato->criteria_type = $criteria->criteria_type;
-
-                    $DB->insert_record('local_obf_criterion', $criteriadata);
-                    $DB->insert_record('local_obf_criterion_courses', $criteriato);
+            $courses = $DB->get_records('local_obf_criterion_courses', array('courseid' => $data->fromcourse));
+            if ($courses) {
+                foreach ($courses as $key => $criteria) {
+                    $course = obf_criterion_course::get_instance($criteria->id);
+                    $criteria =  obf_criterion::get_instance($course->get_id());
+                    $course->set_id(0);
+                    $course->set_criterionid($criteria->get_id() + 1);
+                    $course->set_courseid($data->tocourse);
+                    $course->save();
+                    $criteria->save();
                 }
-                die();
             }
         } else {
             $form->set_data($backpack);
