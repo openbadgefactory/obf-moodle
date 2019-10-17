@@ -27,6 +27,7 @@ require_once(__DIR__ . '/class/backpack.php');
 require_once(__DIR__ . '/form/criteriaimport.php');
 require_once(__DIR__ . '/class/criterion/course.php');
 require_once(__DIR__ . '/class/criterion/criterion.php');
+require_once(__DIR__ . '/class/criterion/activity.php');
 
 
 $context = context_system::instance();
@@ -48,10 +49,6 @@ $backpacks = array();
 if (!empty($msg)) {
     $content .= $OUTPUT->notification($msg);
 }
-foreach (obf_backpack::get_providers() as $provider) {
-    $existing = obf_backpack::get_instance($USER, $provider);
-    $backpacks[] = $existing ? $existing : new obf_backpack(null, $provider);
-}
 
 /**
  * @param $form
@@ -60,46 +57,63 @@ foreach (obf_backpack::get_providers() as $provider) {
  * @throws dml_exception
  * @throws moodle_exception
  */
-function local_obf_insert_criteria_from_form($form, $backpack, &$content) {
-    global $DB;
-    $criteriadata = new stdClass();
-    $criteriato = new stdClass();
-
+function local_obf_insert_criteria_from_form($form, &$content) {
+    global $DB, $OUTPUT;
     if (!$form->is_cancelled()) {
         if ($data = $form->get_data()) {
-            $courses = $DB->get_records('local_obf_criterion_courses', array('courseid' => $data->fromcourse));
-            if ($courses) {
-                foreach ($courses as $key => $criteria) {
-                    $course = obf_criterion_course::get_instance($criteria->id);
-                    $criteria =  obf_criterion::get_instance($course->get_id());
-                    $course->set_id(0);
-                    $course->set_criterionid($criteria->get_id() + 1);
-                    $course->set_courseid($data->tocourse);
-                    $course->save();
-                    $criteria->save();
+            try {
+                $courses = $DB->get_records('local_obf_criterion_courses', array('courseid' => $data->fromcourse));
+                if ($courses) {
+                    $badge = new obf_criterion();
+                    foreach ($courses as $crit) {
+                        $course = obf_criterion_course::get_instance($crit->id);
+                        $criteria = obf_criterion::get_instance($course->get_criterionid());
+                        $act = $DB->get_records('local_obf_criterion_params', array('obf_criterion_id' => $course->get_criterionid()));
+                        $badge = $criteria;
+                        $badge->save();
+
+                        if(!empty($act)) {
+                            $activity = new stdClass();
+                            foreach ($act as $a) {
+                                $activity->obf_criterion_id = $badge->get_id();
+                                $activity->name = $a->name;
+                                $activity->value = $a->value;
+                                $DB->insert_record('local_obf_criterion_params', $activity);
+                            }
+                        }
+                        $course->set_id(0);
+                        $course->set_courseid($data->tocourse);
+                        $course->set_criterionid($badge->get_id());
+                        $course->save();
+                    }
                 }
+                $content .= $OUTPUT->notification(get_string('addedcriteria', 'local_obf'), \core\output\notification::NOTIFY_SUCCESS);
+
+            } catch (Exception $e) {
+                $content .= $OUTPUT->notification($e->getMessage());
             }
         } else {
-            $form->set_data($backpack);
+            $form->set_data($data);
         }
         $content .= $form->render();
     } else {
-        $redirecturl = new moodle_url('/local/obf/criteriaimport.php');
+        $redirecturl = new moodle_url('/admin/search.php');
         redirect($redirecturl);
     }
 }
 
 switch ($action) {
     case 'list':
-        $content .= $PAGE->get_renderer('local_obf')->print_heading('importbadgecriteria');
-        $content .= $PAGE->get_renderer('local_obf')->render_backpack_provider_list($backpacks, $url);
+        $formurl = new moodle_url('/local/obf/criteriaimport.php', array('action' => 'create'));
+        $form = new obf_criteria_import($formurl);
+        local_obf_insert_criteria_from_form($form,$content);
         break;
 
     case 'create':
-        $backpack = new stdClass();
+        //$backpack = new stdClass();
         $formurl = new moodle_url('/local/obf/criteriaimport.php', array('action' => 'create'));
-        $form = new obf_criteria_import($formurl, array('backpack' => $backpack));
-        local_obf_insert_criteria_from_form($form, $backpack, $content);
+        $form = new obf_criteria_import($formurl);
+        local_obf_insert_criteria_from_form($form, $content);
         break;
 }
 
