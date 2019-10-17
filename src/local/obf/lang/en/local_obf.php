@@ -24,6 +24,7 @@
 $string['activitycompletedby'] = 'Completed by';
 $string['addcourses'] = 'Add selected courses';
 $string['addcriteria'] = 'Create new awarding rule';
+$string['addedcriteria'] = 'Criteria added to course';
 $string['addemaildescription'] = 'Type your email address. If the address has not been verified, a verification code will be sent to that address.';
 $string['addemailheader'] = 'Add and verify you email address';
 $string['addnewcriterion'] = 'Add course';
@@ -91,7 +92,13 @@ $string['badgelist'] = 'Badge list';
 $string['badgelisttitle'] = 'All badges';
 $string['badgename'] = 'Name';
 $string['badgetags'] = 'Tags';
+
+
 $string['personalbadgecloudservices'] = 'Displayer badge source';
+
+$string['importbadgecriteria'] = 'Import badge criteria';
+
+
 $string['badgewasautomaticallyissued'] = 'After reviewing the badge was awarded to {$a} recipient(s).';
 $string['blacklistbadge'] = 'Don\'t show badge';
 $string['blacklistsaved'] = 'Blacklist saved.';
@@ -264,7 +271,15 @@ $string['selectactivity'] = 'Select activity';
 $string['selectbadge'] = 'Select badge';
 $string['selectbadgestoexport'] = 'Select badges you want to export to Open Badge Factory';
 $string['selectcourses'] = 'Select courses';
+
+
 $string['selectcourses_help'] = 'Select courses that need to be completed to in order to receive this badge automatically.';
+
+
+$string['selectimportedcriteria_help'] = 'Select course you want to import badge criteria from.';
+$string['selectexportedcriteria_help'] = 'Select course you want to import badge criteria to.';
+
+
 $string['selectcriteriatype'] = 'Select...';
 $string['selectcriteriatype_help'] = 'Select the method, by which the badge is earned.';
 $string['selectcompletionmethod'] = 'Select completion method';

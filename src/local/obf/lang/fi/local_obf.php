@@ -24,6 +24,7 @@
 $string['activitycompletedby'] = 'Suoritettava viimeistään';
 $string['addcourses'] = 'Lisää valitut kurssit';
 $string['addcriteria'] = 'Luo uusi myöntämissääntö';
+$string['addedcriteria'] = 'Myöntämisääntö lisätty kurssille';
 $string['addemaildescription'] = 'Syötä sähköpostiosoitteesi. Mikäli kyseessä on vahvistamaton osoite, vahvistuskoodi lähetetään osoitteeseesi.';
 $string['addemailheader'] = 'Lisää ja vahvista sähköpostiosoitteesi';
 $string['addnewcriterion'] = 'Lisää kurssi';
@@ -91,7 +92,13 @@ $string['badgelist'] = 'Osaamismerkit';
 $string['badgelisttitle'] = 'Osaamismerkit';
 $string['badgename'] = 'Nimi';
 $string['badgetags'] = 'Tagit';
+
+
 $string['personalbadgecloudservices'] = 'Merkkien tallennuspalvelut';
+
+$string['importbadgecriteria'] = 'Tuo merkkien myöntämiskriteerit';
+
+
 $string['badgewasautomaticallyissued'] = 'Osaamismerkki myönnettiin {$a}:lle henkilölle.';
 $string['blacklistbadge'] = 'Älä näytä merkkiä';
 $string['blacklistsaved'] = 'Muutokset tallennettu.';
@@ -261,7 +268,14 @@ $string['selectatleastonerecipient'] = 'Valitse ainakin yksi vastaanottaja';
 $string['selectbadge'] = 'Valitse osaamismerkki';
 $string['selectbadgestoexport'] = 'Valitse Open Badge Factoryyn vietävät osaamismerkit';
 $string['selectcourses'] = 'Valitse kurssit';
+
+
 $string['selectcourses_help'] = 'Valitse kurssit, jotka käyttäjän on suoritettava tämän osaamismerkin ansaitakseen.';
+
+$string['selectimportedcriteria_help'] = 'Valitse kurssi, jolta haluat siirtää merkkien myöntämiskriteerit.';
+$string['selectexportedcriteria_help'] = 'Valitse kurssi, johon haluat siirtää merkkien myöntämiskriteerit.';
+
+
 $string['selectcriteriatype'] = 'Valitse...';
 $string['selectcriteriatype_help'] = 'Valitse tapa, jola osaamismerkki ansaitaan.';
 $string['selectcompletionmethod'] = 'Valitse suoritustapa';
