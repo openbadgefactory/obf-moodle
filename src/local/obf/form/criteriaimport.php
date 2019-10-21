@@ -30,10 +30,6 @@ require_once(__DIR__ . '/../class/backpack.php');
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class obf_criteria_import extends local_obf_form_base {
-    /**
-     * @var obf_badge $badge The badge the template is for.
-     */
-    private $badge = null;
 
     /**
      * Defines forms elements
@@ -41,19 +37,8 @@ class obf_criteria_import extends local_obf_form_base {
     protected function definition() {
         global $DB;
         $mform = $this->_form;
-
         $courses = $DB->get_records('course');
-        $criteriacourses = $DB->get_records('local_obf_criterion_courses');
-
-        $critcourses = array();
         $allcourses = array();
-
-        // Criteria courses
-      /*  foreach($criteriacourses as $course) {
-            $key = $course->id;
-            $value = $course->courseid;
-            $critcourses[$key] = $value;
-        }*/
 
         foreach($courses as $course) {
             $key = $course->id;
@@ -70,26 +55,6 @@ class obf_criteria_import extends local_obf_form_base {
         $select = $mform->addElement('select', 'tocourse',
             get_string('selectexportedcriteria_help', 'local_obf'), $allcourses);
 
-
         $this->add_action_buttons();
-    }
-
-    // Perform some extra validation
-    public function validation($data, $files) {
-        $errors = parent::validation($data, $files);
-        if (array_key_exists('url', $data)) {
-            $urlparts = parse_url($data['url']);
-
-            if (!isset($urlparts['scheme']) || !isset($urlparts['path'])) {
-                $errors['url'] = get_string('backpackproviderurlinvalid', 'local_obf');
-            } else {
-                try {
-                    $reachable = obf_backpack::test_api_url($data['url']);
-                } catch (\Exception $ex) {
-                    $errors['url'] = $ex->getMessage();
-                }
-            }
-        }
-        return $errors;
     }
 }
