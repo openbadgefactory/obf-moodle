@@ -32,14 +32,35 @@ require_once(__DIR__ . '/../class/backpack.php');
 class obf_criteria_import extends local_obf_form_base {
 
     /**
+     * @var null
+     */
+    //protected $criterion = null;
+
+    /**
      * Defines forms elements
      */
     protected function definition() {
         global $DB;
         $mform = $this->_form;
+        $coursetable = 'local_obf_criterion_courses';
         $courses = $DB->get_records('course');
+        $criteriacourses = $DB->get_records($coursetable);
         $allcourses = array();
+        $critcourses = array();
 
+        $count = 0;
+        // Criteria courses
+        foreach($criteriacourses as $course) {
+            //$key = $course->id;
+            $critcourse = obf_criterion_course::get_instance($course->id);
+            $key = $critcourse->get_courseid();
+            $value = $critcourse->get_name();
+            $count = $DB->count_records($coursetable, array('obf_criterion_id' => $critcourse->get_criterionid()));
+
+            if($count === 1) {
+                $critcourses[$key] = $value;
+            }
+        }
         foreach($courses as $course) {
             $key = $course->id;
             $value = $course->fullname;
@@ -50,7 +71,7 @@ class obf_criteria_import extends local_obf_form_base {
             get_string('importbadgecriteria', 'local_obf'));
 
         $select = $mform->addElement('select', 'fromcourse', get_string('selectimportedcriteria_help',
-            'local_obf'), $allcourses);
+            'local_obf'), $critcourses);
 
         $select = $mform->addElement('select', 'tocourse',
             get_string('selectexportedcriteria_help', 'local_obf'), $allcourses);
