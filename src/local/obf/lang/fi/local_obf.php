@@ -260,6 +260,9 @@ $string['reviewcriterionaftersave'] = 'Tarkista sääntö tallennettaessa';
 $string['reviewcriterionaftersave_help'] = 'Jos automaattinen tarkistus on valittu, tämä sääntö tarkistetaan tallennuksen yhteydessä ja valittu merkki myönnetään kaikille käyttäjille, jotka ovat säännön kurssit suorittaneet.';
 $string['revoke'] = 'Peruuta';
 $string['revokeuserbadges'] = 'Peruuta käyttäjille myönnettyjä merkkejä';
+
+$string['samecriteriaerror'] = 'Kurssit eivät voi olla samoja';
+
 $string['saveconfiguration'] = 'Jatka';
 $string['savecriteria'] = 'Tallenna';
 $string['savesettings'] = 'Tallenna';

@@ -263,6 +263,9 @@ $string['reviewcriterionaftersave'] = 'Review rule after saving';
 $string['reviewcriterionaftersave_help'] = 'If this checkbox is checked, the rule will be reviewed after saving and if someone has already met this rule earlier, this badge will then be automatically awarded.';
 $string['revoke'] = 'Revoke';
 $string['revokeuserbadges'] = 'Revoke user badges';
+
+$string['samecriteriaerror'] = 'From and to courses cannot be the same';
+
 $string['saveconfiguration'] = 'Continue';
 $string['savecriteria'] = 'Save';
 $string['savesettings'] = 'Save';
