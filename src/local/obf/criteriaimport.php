@@ -62,8 +62,16 @@ function local_obf_insert_criteria_from_form($form, &$content) {
                             $course = obf_criterion_course::get_instance($crit->id);
                             $criteria = obf_criterion::get_instance($course->get_criterionid());
                             $act = $DB->get_records($paramtable, array('obf_criterion_id' => $course->get_criterionid()));
-                            $badge = $criteria;
-                            $badge->save();
+                            $count = $DB->count_records($coursetable, array('obf_criterion_id' => $course->get_criterionid()));
+
+                            if($count === 1) {
+                                $badge = $criteria;
+                                $badge->save();
+                                $course->set_id(0);
+                                $course->set_courseid($data->tocourse);
+                                $course->set_criterionid($badge->get_id());
+                                $course->save();
+                            }
 
                             if (!empty($act)) {
                                 $activity = new stdClass();
@@ -75,14 +83,15 @@ function local_obf_insert_criteria_from_form($form, &$content) {
                                 }
                             }
 
-                            $count = $DB->count_records($coursetable, array('obf_criterion_id' => $course->get_criterionid()));
-                            if($count === 1) {
+                            //$count = $DB->count_records($coursetable, array('obf_criterion_id' => $course->get_criterionid()));
+                         /*   if($count === 1) {
                                 $course->set_id(0);
                                 $course->set_courseid($data->tocourse);
                                 $course->set_criterionid($badge->get_id());
                                 $course->save();
-                            }
+                            }*/
                         }
+
                         $content .= $OUTPUT->notification(get_string('addedcriteria', 'local_obf'),
                             \core\output\notification::NOTIFY_SUCCESS);
                         //redirect(new moodle_url('/local/obf/criteriaimport.php'));
