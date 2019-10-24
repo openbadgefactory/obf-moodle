@@ -82,14 +82,6 @@ function local_obf_insert_criteria_from_form($form, &$content) {
                                     $DB->insert_record($paramtable, $activity);
                                 }
                             }
-
-                            //$count = $DB->count_records($coursetable, array('obf_criterion_id' => $course->get_criterionid()));
-                         /*   if($count === 1) {
-                                $course->set_id(0);
-                                $course->set_courseid($data->tocourse);
-                                $course->set_criterionid($badge->get_id());
-                                $course->save();
-                            }*/
                         }
 
                         $content .= $OUTPUT->notification(get_string('addedcriteria', 'local_obf'),
