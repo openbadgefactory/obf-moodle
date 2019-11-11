@@ -38,10 +38,16 @@ if ($hasobfconfig) {
     $backpacksettings = new admin_externalpage('personalbadgecloudservices', get_string('personalbadgecloudservices', 'local_obf'),
             new moodle_url('/local/obf/backpackconfig.php'), 'local/obf:configure');
 
+    // Badge criteria import
+    $badgeimportsettings = new admin_externalpage('importbadgecriteria', get_string('importbadgecriteria', 'local_obf'),
+        new moodle_url('/local/obf/criteriaimport.php'), 'local/obf:configure');
+
+
     // Add pages to navigation.
     $ADMIN->add('root', $obf, 'location');
     $ADMIN->add('obf', $settings);
     $ADMIN->add('obf', $backpacksettings);
+    $ADMIN->add('obf', $badgeimportsettings);
 
     // Badge list -page.
     $badgelist = new admin_externalpage('badgelist', get_string('badgelist', 'local_obf'),
