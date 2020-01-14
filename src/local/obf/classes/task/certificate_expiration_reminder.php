@@ -64,7 +64,7 @@ class certificate_expiration_reminder extends \core\task\scheduled_task  {
         $textparams->configurl = (string)(new \moodle_url('/local/obf/config.php'));
 
         foreach ($admins as $admin) {
-            $eventdata = new stdClass();
+            $eventdata = new \core\message\message();
             $eventdata->component = 'moodle';
             $eventdata->name = $severity;
             $eventdata->userfrom = $admin;
@@ -86,3 +86,4 @@ class certificate_expiration_reminder extends \core\task\scheduled_task  {
     }
 
 }
+
