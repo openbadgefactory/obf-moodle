@@ -58,8 +58,8 @@ switch ($action) {
             new moodle_url('/local/obf/badge.php', array('action' => 'list')));
 
         $PAGE->navbar->add($badge->get_name(), $coursebadgeurl);
-        
-        $content .= $PAGE->get_renderer('local_obf')->render_badge_heading($badge,
+
+        $content = $PAGE->get_renderer('local_obf')->render_badge_heading($badge,
             $context);
 
         switch ($show) {
@@ -73,7 +73,7 @@ switch ($action) {
     case 'badges':
         require_capability('local/obf:seeparticipantbadges', $context);
         $participants = get_enrolled_users($context, 'local/obf:earnbadge', 0, 'u.*', null, 0, 0, true);
-        $content .= $PAGE->get_renderer('local_obf')->render_course_participants($courseid, $participants);
+        $content = $PAGE->get_renderer('local_obf')->render_course_participants($courseid, $participants);
         break;
 
     case 'history':
@@ -84,7 +84,7 @@ switch ($action) {
         $events = array();
 
         foreach ($allevents as $event) {
-            if($event["log_entry"]["course_id"] == $courseid ) {
+            if (isset($event["log_entry"]["course_id"]) && $event["log_entry"]["course_id"] == $courseid) {
                 $events[] = $event["id"];
             }
         }
@@ -92,7 +92,7 @@ switch ($action) {
         if (count($events) >= 1) {
             $relatedevents = obf_issue_event::get_course_related_events($events, $DB);
         }
-        $content .= $PAGE->get_renderer('local_obf')->print_badge_info_history($client, null, $context, $curr_page, $relatedevents);
+        $content = $PAGE->get_renderer('local_obf')->print_badge_info_history($client, null, $context, $curr_page, $relatedevents);
         break;
 }
 

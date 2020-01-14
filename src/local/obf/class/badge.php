@@ -384,6 +384,8 @@ class obf_badge {
             throw new Exception('Invalid or missing badge id');
         }
 
+        $course   = null;
+        $activity = null;
         if (!empty($items)) {
             $course = $items[0]->get_courseid();
             if ($items[0] instanceof obf_criterion_activity){
@@ -709,9 +711,6 @@ class obf_badge {
      * @return $this
      */
     public function set_criteria_html($criteria) {
-        if (count($criteria) <= 2) {
-            $this->criteriahtml = $criteria;
-        }
         $this->criteriahtml = markdown_to_html($criteria);
         return $this;
     }
@@ -769,7 +768,7 @@ class obf_badge {
     {
         global $DB;
         $result = $DB->get_record('course', array('id' => $course_id));
-        return $result->fullname;
+        return isset($result->fullname) ? $result->fullname : null;
     }
 
     /**

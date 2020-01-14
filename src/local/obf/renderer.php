@@ -490,7 +490,7 @@ class local_obf_renderer extends plugin_renderer_base {
         $button = $this->output->single_button($issueurl,
                 get_string($label, 'local_obf'), 'get');
 
-        if ($_GET['csv'] == 1){
+        if (optional_param('csv', null, PARAM_INT)) {
             $this->create_csv();
         }
 
@@ -1242,7 +1242,7 @@ class local_obf_renderer extends plugin_renderer_base {
     {
         global $DB;
         $result = $DB->get_record('course', array('id' => $course_id));
-        return $result->fullname;
+        return isset($result->fullname) ?  $result->fullname : null;
     }
     /**
      * @throws coding_exception

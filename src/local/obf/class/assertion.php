@@ -574,7 +574,7 @@ class obf_assertion {
      * @return mixed
      */
     public function get_log_entry($key) {
-        return $this->log_entry[$key];
+        return isset($this->log_entry[$key]) ? $this->log_entry[$key] : null;
     }
 
     /**
@@ -644,7 +644,7 @@ class obf_assertion {
      * @return array Array of revocation details as array(array(email-address => unix-timestamp),...)
      */
     public function get_revoked(obf_client $client = null) {
-        if (!is_null($client) && count($this->revoked < 1)) {
+        if (!is_null($client) && count($this->revoked) < 1) {
             try {
                 $arr = $client->get_revoked($this->id);
                 if (array_key_exists('revoked', $arr)) {
