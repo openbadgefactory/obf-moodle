@@ -18,26 +18,21 @@
  * Criterion form.
  *
  * @package    local_obf
- * @copyright  2013-2015, Discendum Oy
+ * @copyright  2013-2020, Discendum Oy
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 defined('MOODLE_INTERNAL') or die();
 
 global $CFG;
 
-if (file_exists($CFG->libdir . '/coursecatlib.php')) {
-    require_once($CFG->libdir . '/coursecatlib.php');
-} else { // Moodle 2.2.
-    require_once($CFG->dirroot . '/course/lib.php');
-}
-
+require_once($CFG->dirroot . '/course/lib.php');
 require_once(__DIR__ . '/obfform.php');
 require_once($CFG->libdir . '/completionlib.php');
 
 /**
  * Criterion form.
  *
- * @copyright  2013-2015, Discendum Oy
+ * @copyright  2013-2020, Discendum Oy
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class obf_criterion_form extends local_obf_form_base implements renderable {
@@ -180,8 +175,8 @@ class obf_criterion_form extends local_obf_form_base implements renderable {
         if (count($courses) > 0) {
             $categories = array();
 
-            if (method_exists('coursecat', 'make_categories_list')) {
-                $categories = coursecat::make_categories_list();
+            if (method_exists('core_course_category', 'make_categories_list')) {
+                $categories = core_course_category::make_categories_list();
             } else { // Moodle 2.2.
                 $parents = array();
                 make_categories_list($categories, $parents);
