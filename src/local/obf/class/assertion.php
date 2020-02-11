@@ -183,11 +183,7 @@ class obf_assertion {
         global $CFG;
         require_once($CFG->dirroot . '/message/lib.php');
         foreach ($users as $userto) {
-            if (preg_match('/^2.9/', $CFG->release)) {
-                $message = new \core\message\message();
-            } else {
-                $message = new stdClass();
-            }
+            $message = new \core\message\message();
             $badge = $this->get_badge();
             $messageparams = new stdClass();
             $messageparams->revokername = fullname($revoker);
