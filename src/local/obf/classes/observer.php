@@ -83,12 +83,14 @@ class local_obf_observer {
         // default email.
         $recipients = array($backpack === false ? $user->email : $backpack->get_email());
 
+/*
         // No capability -> no badge.
         if (!has_capability('local/obf:earnbadge',
                        context_course::instance($eventdata->course),
                        $eventdata->userid)) {
            return true;
         }
+*/
 
         // Get all criteria related to course completion.
         $criteria = obf_criterion::get_course_criterion($eventdata->course);
