@@ -168,16 +168,19 @@ class obf_criterion_form extends local_obf_form_base implements renderable {
      * @param MoodleQuickForm $mform
      */
     private function get_courses($mform) {
-        global $DB, $OUTPUT;
+        global $DB, $OUTPUT, $CFG;
+        require_once($CFG->libdir. '/coursecatlib.php');
         // Get only courses with course completion enabled (= can be completed somehow).
         $courses = $DB->get_records('course', array('enablecompletion' => COMPLETION_ENABLED));
 
         if (count($courses) > 0) {
             $categories = array();
 
-            if (method_exists('core_course_category', 'make_categories_list')) {
+            if (method_exists('core_course_category', 'make_categories_list')) {// Moodle 3.9
                 $categories = core_course_category::make_categories_list();
-            } else { // Moodle 2.2.
+            } elseif (method_exists('coursecat', 'make_categories_list')) { // Moodle 3.5
+                $categories = coursecat::make_categories_list();
+            }else { // Moodle 2.2.
                 $parents = array();
                 make_categories_list($categories, $parents);
             }
