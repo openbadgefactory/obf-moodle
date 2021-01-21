@@ -18,7 +18,7 @@
  * User config form.
  *
  * @package    local_obf
- * @copyright  2013-2015, Discendum Oy
+ * @copyright  2013-2020, Open Badge Factory Oy
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 defined('MOODLE_INTERNAL') or die();
@@ -31,7 +31,7 @@ $PAGE->requires->jquery_plugin('obf-emailverifier', 'local_obf');
  *
  * Configurin user's preferences and backpacks.
  *
- * @copyright  2013-2015, Discendum Oy
+ * @copyright  2013-2020, Open Badge Factory Oy
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class obf_userconfig_form extends local_obf_form_base {

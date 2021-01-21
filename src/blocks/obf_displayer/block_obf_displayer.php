@@ -16,7 +16,7 @@
 
 /**
  * @package    block_obf_displayer
- * @copyright  2015, Discendum Oy
+ * @copyright  2020, Open Badge Factory Oy Oy
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 require_once($CFG->dirroot . '/local/obf/class/backpack.php');
@@ -26,7 +26,7 @@ require_once($CFG->dirroot . '/local/obf/renderer.php');
 /**
  * OBF displayer block.
  *
- * @copyright  2015, Discendum Oy
+ * @copyright  2020, Open Badge Factory Oy Oy
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class block_obf_displayer extends block_base {

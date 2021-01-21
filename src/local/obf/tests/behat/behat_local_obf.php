@@ -18,7 +18,7 @@
  * Behat.
  *
  * @package    local_obf
- * @copyright  2013-2015, Discendum Oy
+ * @copyright  2013-2020, Open Badge Factory Oy
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 use Behat\Behat\Context\Step\Given;
@@ -33,7 +33,7 @@ use Behat\Mink\Session;
  * Currently requires modification to iEnterAValidRequestTokenTo, and usage
  * of demo OBF accounts as tests delete all badges on OBF after running.
  *
- * @copyright  2013-2015, Discendum Oy
+ * @copyright  2013-2020, Open Badge Factory Oy
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class behat_local_obf extends behat_base {

@@ -18,7 +18,7 @@
  * A collection of badges.
  *
  * @package    local_obf
- * @copyright  2013-2015, Discendum Oy
+ * @copyright  2013-2020, Open Badge Factory Oy
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 require_once(__DIR__ . '/badge.php');
@@ -27,7 +27,7 @@ require_once(__DIR__ . '/client.php');
 /**
  * Class for storing the badges fetched from Open Badge Factory.
  *
- * @copyright  2013-2015, Discendum Oy
+ * @copyright  2013-2020, Open Badge Factory Oy
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class obf_badge_collection {

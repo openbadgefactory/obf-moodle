@@ -18,7 +18,7 @@
  * Totara program and certificate completion criterion.
  *
  * @package    local_obf
- * @copyright  2013-2015, Discendum Oy
+ * @copyright  2013-2020, Open Badge Factory Oy
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 global $CFG;
@@ -30,7 +30,7 @@ require_once($CFG->dirroot . '/user/lib.php');
 /**
  * Totara program and certificate completion criterion -class.
  *
- * @copyright  2013-2015, Discendum Oy
+ * @copyright  2013-2020, Open Badge Factory Oy
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class obf_criterion_totaraprogram extends obf_criterion_course {
@@ -87,12 +87,59 @@ class obf_criterion_totaraprogram extends obf_criterion_course {
      */
     public function populate_from_record(\stdClass $record) {
         $this->set_id($record->id)->set_criterionid($record->obf_criterion_id);
-        $this->set_courseid($record->courseid)->set_completedby($record->completed_by);
+        $this->set_courseid(-1);
         $this->set_criteriatype($record->criteria_type);
+        $this->set_completedby_program($record->obf_criterion_id);
+
         // TODO:  Params?
         return $this;
     }
 
+    private function set_completedby_program($criterion_id) {
+        global $DB;
+
+        $sql = "SELECT value FROM {local_obf_criterion_params} WHERE obf_criterion_id = $criterion_id AND name LIKE 'completedby_%'";
+        $record = $DB->get_record_sql($sql);
+
+        if (isset($record->value)) {
+            $this->completedby = $record->value;
+        }
+    }
+
+     /**
+     * Saves this program criterion to database. If it exists already, the
+     * existing record will be updated.
+     *
+     * @return mixed Returns this object if everything went ok, false otherwise.
+     */
+    public function save() {
+        global $DB;
+
+        if ($this->get_criterionid() == -1) {
+            throw new Exception("Invalid criterion id", $this->get_criterionid());
+        }
+        $obj = new stdClass();
+        $obj->obf_criterion_id = $this->criterionid;
+        $obj->courseid = -1;
+        $obj->completed_by = $this->has_completion_date() ? $this->completedby : null;
+        $obj->criteria_type = $this->criteriatype;
+
+        // Updating existing record.
+        if ($this->id > 0) {
+            $obj->id = $this->id;
+            $DB->update_record('local_obf_criterion_courses', $obj);
+        } else { // Inserting a new record.
+            $id = $DB->insert_record('local_obf_criterion_courses', $obj);
+
+            if (!$id) {
+                return false;
+            }
+
+            $this->set_id($id);
+        }
+
+        return $this;
+    }
 
 
     /**

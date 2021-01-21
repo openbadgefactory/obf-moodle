@@ -15,4 +15,9 @@ $plugins = array(
             'simplemde/simplemde.min.js',
         ),
     ),
+    'obf-chooseprogram' => array(
+        'files' => array(
+            'chooseprogram/chooseprogram.js',
+        ),
+    )
 );

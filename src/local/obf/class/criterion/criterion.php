@@ -18,7 +18,7 @@
  * Criterion.
  *
  * @package    local_obf
- * @copyright  2013-2015, Discendum Oy
+ * @copyright  2013-2020, Open Badge Factory Oy
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 global $CFG;
@@ -37,7 +37,7 @@ require_once($CFG->libdir . '/completionlib.php');
  * Class representing a criterion which the student has to complete to earn
  * a badge. One criterion can contain multiple courses or other items.
  *
- * @copyright  2013-2015, Discendum Oy
+ * @copyright  2013-2020, Open Badge Factory Oy
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class obf_criterion {
@@ -405,6 +405,22 @@ class obf_criterion {
     }
 
     /**
+     * Returns all criteria containing program identified by $program.
+     *
+     * @param int $program The id of the course.
+     * @return obf_criterion[] The matching criteria.
+     */
+    public static function get_program_criterion($programid) {
+        $where = 'c.id IN (SELECT cp.obf_criterion_id
+        FROM {local_obf_criterion_params} cp
+        INNER JOIN {local_obf_criterion_courses} cou ON cp.obf_criterion_id = cou.obf_criterion_id
+        WHERE (cou.criteria_type= ' . obf_criterion_item::CRITERIA_TYPE_TOTARA_PROGRAM . ' OR cou.criteria_type= ' . obf_criterion_item::CRITERIA_TYPE_TOTARA_CERTIF . ')
+        AND cp.value = ' . intval($programid) . ')';
+
+        return self::get_criteria($where);
+    }
+
+    /**
      * Returns all criteria matching $conditions.
      *
      * @param array|string $conditions The conditions after WHERE clause in SQL.
@@ -714,6 +730,55 @@ class obf_criterion {
         }
 
         return $datepassed && $gradepassed;
+    }
+
+    public function review_prog($userid, $programid, $criterioncourses = null) {
+
+        if (is_null($criterioncourses)) {
+            $criterioncourses = $this->get_items(true);
+        }
+
+        # TODO allow multiple programs
+        //$requireall = $this->get_completion_method() == self::CRITERIA_COMPLETION_ALL;
+
+        $criterioncompleted = false;
+
+        foreach ($criterioncourses as $criterioncourse) { 
+            $coursecompleted = $this->review_program($criterioncourse, $userid, $programid);
+
+            if ($coursecompleted) {
+                return true;
+            } else {
+                $criterioncompleted = false;
+            }
+        }
+
+        return $criterioncompleted;
+    }   
+
+    protected function review_program(obf_criterion_totaraprogram $criterionprogram, $userid, $programid) {
+
+        global $DB;
+
+        $datepassed = false;
+    
+        $query = "SELECT timecompleted FROM {prog_completion} WHERE programid = ? AND userid = ? LIMIT 1 ";
+        $program_completed = $DB->get_records_sql($query, array($programid, $userid)); 
+        $completedat = reset($program_completed);
+        $completiondate = $completedat->timecompleted;
+
+        // Check completion date.
+
+        if ($criterionprogram->has_completion_date()) {
+  
+            if ($completiondate <= $criterionprogram->get_completedby()) {
+                $datepassed = true;
+            }
+        } else {
+            $datepassed = true;
+        }
+
+        return $datepassed;
     }
 
     /**

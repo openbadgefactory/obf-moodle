@@ -18,7 +18,7 @@
  * Unknown criterion.
  *
  * @package    local_obf
- * @copyright  2013-2015, Discendum Oy
+ * @copyright  2013-2020, Open Badge Factory Oy
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 defined('MOODLE_INTERNAL') or die();
@@ -31,7 +31,7 @@ require_once(__DIR__ . '/course.php');
  * Unknown criterion handles some initial criterion form function,
  * like listing criterion item types to choose from.
  *
- * @copyright  2013-2015, Discendum Oy
+ * @copyright  2013-2020, Open Badge Factory Oy
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class obf_criterion_unknown extends obf_criterion_item {

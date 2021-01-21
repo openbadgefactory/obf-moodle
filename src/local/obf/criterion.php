@@ -18,7 +18,7 @@
  * Page for handling the CRUD of a badge criterion.
  *
  * @package    local_obf
- * @copyright  2013-2015, Discendum Oy
+ * @copyright  2013-2020, Open Badge Factory Oy
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -59,6 +59,7 @@ $PAGE->navbar->add(get_string('badgecriteria', 'local_obf'),
         array('action' => 'show',
     'show' => 'criteria', 'id' => $badgeid)));
 $PAGE->navbar->add(get_string('configurecriteria', 'local_obf'));
+$PAGE->requires->jquery_plugin('obf-chooseprogram', 'local_obf');
 
 switch ($action) {
 

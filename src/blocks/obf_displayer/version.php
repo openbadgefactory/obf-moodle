@@ -18,7 +18,7 @@
  * Version information. See https://docs.moodle.org/dev/version.php for more info.
  *
  * @package    block_obf_displayer
- * @copyright  2015-2019, Discendum Oy
+ * @copyright  2015-2020, Open Badge Factory Oy Oy
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 $plugin->version = 2019082900;  // YYYYMMDDHH (year, month, day, 24-hr time).

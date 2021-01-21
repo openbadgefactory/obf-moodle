@@ -18,7 +18,7 @@
  * Finnish locale for local_obf.
  *
  * @package    local_obf
- * @copyright  2015, Discendum Oy
+ * @copyright  2020, Open Badge Factory Oy
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 $string['activitycompletedby'] = 'Suoritettava viimeistään';
@@ -131,7 +131,7 @@ $string['criteriacompletedwhenall'] = 'Kaikki seuraavat kurssit on suoritettu:';
 $string['criteriacompletedwhenany'] = 'Mikä tahansa seuraavista kursseista on suoritettu:';
 $string['criteriacompletionmethodall'] = 'Kaikki valitut kurssit on suoritettu';
 $string['criteriacompletionmethodany'] = 'Mikä tahansa valituista kursseista on suoritettu';
-$string['criteriacourses'] = 'Tähän sääntöön liittyvät kurssit';
+$string['criteriacourses'] = 'Tähän sääntöön liittyvät kriteerit';
 $string['criteriapreview'] = 'Osaamismerkin myöntämiskriteeri';
 $string['criteriatypeactivity'] = 'Suoritusmerkintä aktiviteeteista';
 $string['criteriatypecourse'] = 'Suoritusmerkintä kursseista';

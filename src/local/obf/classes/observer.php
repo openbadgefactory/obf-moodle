@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2016 Discendum Oy
+ * Copyright (c) 2020 Open Badge Factory Oy
 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -61,10 +61,6 @@ class local_obf_observer {
         $eventdata->course = $event->courseid;
         return self::course_user_completion_review($eventdata);
    }
-   
-    
-   
-  
 
     /**
      * Reviews the badge criteria and issues the badges (if necessary) when
@@ -110,6 +106,63 @@ class local_obf_observer {
            if ($criterionmet) {
                $criterion->issue_and_set_met($user, $recipients);
            }
+       }
+       return true;
+    }
+
+    /**
+     * Program completed observer
+     *
+     * @param \totara_program\event\program_completed $eventdata
+     * @return boolean Returns true if everything went ok.
+     * @see self::program_completed_review()
+     */ 
+    public static function program_completed(\totara_program\event\program_completed $event) {
+        $eventdata = new stdClass();
+        $eventdata->userid = $event->userid;
+        $eventdata->programid = $event->objectid;
+
+        return self::program_completed_review($eventdata);
+    }    
+
+
+    /**
+     * Reviews the badge criteria and issues the badges (if necessary) when
+     * a program is completed.
+     *
+     * @param \core\event\program_completed $eventdata
+     * @return boolean Returns true if everything went ok.
+     */
+    private static function program_completed_review(stdClass $eventdata) {
+
+        global $DB;
+        
+        self::requires(array('/class/event.php', '/class/criterion/item_base.php'));
+        
+        $user = $DB->get_record('user', array('id' => $eventdata->userid));
+
+        $backpack = obf_backpack::get_instance($user);
+
+        // If the user has configured the backpack settings, use the backpack email instead of the default email.
+        $recipients = array($backpack === false ? $user->email : $backpack->get_email());
+
+        // Get all criteria related to program completion.
+        $criteria = obf_criterion::get_program_criterion($eventdata->programid);
+
+        foreach ($criteria as $criterionid => $criterion) {
+
+            // User has already met this criterion.
+            if ($criterion->is_met_by_user($user)) {
+                continue;
+            }
+
+            $criterionmet = $criterion->review_prog($eventdata->userid, $eventdata->programid);
+
+            // Criterion was met, issue the badge.
+            if ($criterionmet) {
+                $criterion->issue_and_set_met($user, $recipients);
+            }
+
        }
        return true;
     }
