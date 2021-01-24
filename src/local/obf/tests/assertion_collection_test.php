@@ -18,14 +18,14 @@
  * Assertion collection test.
  *
  * @package    local_obf
- * @copyright  2013-2015, Discendum Oy
+ * @copyright  2013-2020, Open Badge Factory Oy
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 /**
  * Description of assertion_collection_test
  *
  * @author olli
- * @copyright  2013-2015, Discendum Oy
+ * @copyright  2013-2020, Open Badge Factory Oy
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class local_obf_assertion_collection_testcase extends advanced_testcase {

@@ -18,14 +18,14 @@
  * Backpack testcase.
  *
  * @package    local_obf
- * @copyright  2013-2015, Discendum Oy
+ * @copyright  2013-2020, Open Badge Factory Oy
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 /**
  * Backpack testcase.
  *
  * @group obf
- * @copyright  2013-2015, Discendum Oy
+ * @copyright  2013-2020, Open Badge Factory Oy
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class local_obf_backpack_testcase extends advanced_testcase {

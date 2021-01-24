@@ -18,7 +18,7 @@
  * Base OBF Form to extend from.
  *
  * @package    local_obf
- * @copyright  2013-2015, Discendum Oy
+ * @copyright  2013-2020, Open Badge Factory Oy
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 defined('MOODLE_INTERNAL') or die();
@@ -27,7 +27,7 @@ require_once($CFG->libdir . '/formslib.php');
 
 /**
  * This class is just to add support for older versions of Moodle.
- * @copyright  2013-2015, Discendum Oy
+ * @copyright  2013-2020, Open Badge Factory Oy
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 abstract class local_obf_form_base extends moodleform {

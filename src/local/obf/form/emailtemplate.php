@@ -17,7 +17,7 @@
 /**
  * Email template form.
  * @package    local_obf
- * @copyright  2013-2015, Discendum Oy
+ * @copyright  2013-2020, Open Badge Factory Oy
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 defined('MOODLE_INTERNAL') || die();
@@ -25,7 +25,7 @@ defined('MOODLE_INTERNAL') || die();
 require_once(__DIR__ . '/obfform.php');
 /**
  * Email template form -class.
- * @copyright  2013-2015, Discendum Oy
+ * @copyright  2013-2020, Open Badge Factory Oy
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class obf_email_template_form extends local_obf_form_base {

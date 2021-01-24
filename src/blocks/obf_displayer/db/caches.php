@@ -18,7 +18,7 @@
  * See https://docs.moodle.org/dev/Cache_API for details.
  *
  * @package    block_obf_displayer
- * @copyright  2015, Discendum Oy
+ * @copyright  2020, Open Badge Factory Oy Oy
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 $definitions = array(

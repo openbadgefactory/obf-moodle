@@ -17,7 +17,7 @@
 /**
  * Assertion.
  * @package    local_obf
- * @copyright  2013-2015, Discendum Oy
+ * @copyright  2013-2020, Open Badge Factory Oy
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 require_once(__DIR__ . '/client.php');
@@ -29,7 +29,7 @@ require_once(__DIR__ . '/assertion_collection.php');
  * Represents a single event in OBF.
  *
  * @author olli
- * @copyright  2013-2015, Discendum Oy
+ * @copyright  2013-2020, Open Badge Factory Oy
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class obf_assertion {

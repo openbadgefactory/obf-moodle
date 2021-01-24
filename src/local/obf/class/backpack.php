@@ -18,7 +18,7 @@
  * Backpack. Supports Open Badge Passport and Mozilla Backpack.
  *
  * @package    local_obf
- * @copyright  2013-2015, Discendum Oy
+ * @copyright  2013-2020, Open Badge Factory Oy
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 require_once(__DIR__ . '/assertion.php');
@@ -27,7 +27,7 @@ require_once(__DIR__ . '/assertion_collection.php');
 /**
  * Class for handling the communication between the plugin and Mozilla Backpack.
  *
- * @copyright  2013-2015, Discendum Oy
+ * @copyright  2013-2020, Open Badge Factory Oy
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class obf_backpack {

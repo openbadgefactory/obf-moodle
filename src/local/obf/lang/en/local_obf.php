@@ -18,7 +18,7 @@
  * English locale for local_obf.
  *
  * @package    local_obf
- * @copyright  2015, Discendum Oy
+ * @copyright  2020, Open Badge Factory Oy
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 $string['activitycompletedby'] = 'Completed by';
@@ -133,7 +133,7 @@ $string['criteriacompletionmethodall'] = 'All of these courses are completed';
 $string['criteriacompletionmethodany'] = 'Any of these courses is completed';
 $string['criteriacompletionmethodprofileall'] = 'All of the selected profile fields have been completed';
 $string['criteriacompletionmethodprofileany'] = 'Any of the selected profile fields has been completed';
-$string['criteriacourses'] = 'Courses in this rule';
+$string['criteriacourses'] = 'Criteria in this rule';
 $string['criteriapreview'] = 'Badge criteria preview';
 $string['criteriatypeactivity'] = 'Completing a set of activities';
 $string['criteriatypecourse'] = 'Completing a set of courses';

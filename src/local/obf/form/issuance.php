@@ -18,7 +18,7 @@
  * Issuance form.
  *
  * @package    local_obf
- * @copyright  2013-2015, Discendum Oy
+ * @copyright  2013-2020, Open Badge Factory Oy
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 defined('MOODLE_INTERNAL') or die();
@@ -32,7 +32,7 @@ require_once('HTML/QuickForm/element.php');
 /**
  * Manual issue form.
  *
- * @copyright  2013-2015, Discendum Oy
+ * @copyright  2013-2020, Open Badge Factory Oy
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class obf_issuance_form extends local_obf_form_base {
@@ -185,7 +185,7 @@ class obf_issuance_form extends local_obf_form_base {
 /**
  * User selector form element.
  *
- * @copyright  2013-2015, Discendum Oy
+ * @copyright  2013-2020, Open Badge Factory Oy
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class MoodleQuickForm_userselector extends HTML_QuickForm_element {
@@ -263,7 +263,7 @@ class MoodleQuickForm_userselector extends HTML_QuickForm_element {
 /**
  * Badge recipient selector.
  *
- * @copyright  2013-2015, Discendum Oy
+ * @copyright  2013-2020, Open Badge Factory Oy
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class badge_recipient_selector extends user_selector_base {

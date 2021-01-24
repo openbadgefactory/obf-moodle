@@ -1,7 +1,7 @@
 <?php
 
 /* 
- * Copyright (c) 2017 Discendum Oy
+ * Copyright (c) 2020 Open Badge Factory Oy
 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -32,7 +32,7 @@ require_once($CFG->dirroot . '/user/lib.php');
 /**
  * Totara program and certificate completion criterion -class.
  *
- * @copyright  2013-2015, Discendum Oy
+ * @copyright  2013-2020, Open Badge Factory Oy
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class obf_criterion_profile extends obf_criterion_course {

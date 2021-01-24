@@ -18,7 +18,7 @@
  * See https://docs.moodle.org/dev/Events_API for details.
  *
  * @package    local_obf
- * @copyright  2013-2016, Discendum Oy
+ * @copyright  2013-2020, Open Badge Factory Oy
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 $handlers = array(
@@ -45,5 +45,9 @@ $observers = array(
     array(
         'eventname'   => '\core\event\course_reset_started',
         'callback'    => 'local_obf_observer::course_reset_start'
-    )
+    ),
+    array(
+        'eventname'   => '\totara_program\event\program_completed',
+        'callback'    => 'local_obf_observer::program_completed',
+    ),    
 );

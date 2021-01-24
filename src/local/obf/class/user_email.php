@@ -19,7 +19,7 @@
  * Validation of user emails.
  *
  * @package    local_obf
- * @copyright  2013-2016, Discendum Oy
+ * @copyright  2013-2020, Open Badge Factory Oy
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -27,7 +27,7 @@
  * User email -class.
  * Validation of user emails.
  *
- * @copyright  2013-2016, Discendum Oy
+ * @copyright  2013-2020, Open Badge Factory Oy
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class obf_user_email {

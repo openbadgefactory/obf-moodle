@@ -18,7 +18,7 @@
  * Abstract criterion item base.
  *
  * @package    local_obf
- * @copyright  2013-2015, Discendum Oy
+ * @copyright  2013-2020, Open Badge Factory Oy
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 require_once(__DIR__ . '/criterion.php');
@@ -26,7 +26,7 @@ require_once(__DIR__ . '/criterion.php');
 /**
  * Abstract criterion item base.
  *
- * @copyright  2013-2015, Discendum Oy
+ * @copyright  2013-2020, Open Badge Factory Oy
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 abstract class obf_criterion_item {

@@ -18,7 +18,7 @@
  * User's badge blacklist form.
  *
  * @package    local_obf
- * @copyright  2013-2015, Discendum Oy
+ * @copyright  2013-2020, Open Badge Factory Oy
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 defined('MOODLE_INTERNAL') or die();
@@ -28,7 +28,7 @@ require_once(__DIR__ . '/../renderer.php');
 /**
  * Badge blacklisting form.
  *
- * @copyright  2013-2015, Discendum Oy
+ * @copyright  2013-2020, Open Badge Factory Oy
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class obf_blacklist_form extends local_obf_form_base {

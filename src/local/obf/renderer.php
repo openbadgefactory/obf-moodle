@@ -18,7 +18,7 @@
  * Renderer for Open Badge Factory -plugin
  *
  * @package    local_obf
- * @copyright  2013-2015, Discendum Oy
+ * @copyright  2013-2020, Open Badge Factory Oy
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 defined('MOODLE_INTERNAL') || die();
@@ -34,7 +34,7 @@ require_once(__DIR__ . '/class/backpack.php');
  * HTML output renderer for local_obf-plugin
  *
  * @package    local_obf
- * @copyright  2013-2015, Discendum Oy
+ * @copyright  2013-2020, Open Badge Factory Oy
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class local_obf_renderer extends plugin_renderer_base {
@@ -1653,7 +1653,7 @@ class local_obf_renderer extends plugin_renderer_base {
  * Badge renderer.
  *
  * @package    local_obf
- * @copyright  20013-2015 Discendum Oy
+ * @copyright  20013-2020 Open Badge Factory Oy
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @todo Check if deprecated.
  */
@@ -1715,7 +1715,7 @@ class local_obf_badge_renderer extends plugin_renderer_base {
  * Table header -class.
  *
  * @package    local_obf
- * @copyright  20013-2015 Discendum Oy
+ * @copyright  20013-2020 Open Badge Factory Oy
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class local_obf_table_header extends html_table_cell {
@@ -1734,7 +1734,7 @@ class local_obf_table_header extends html_table_cell {
  * Class for some custom html function.
  *
  * @package    local_obf
- * @copyright  20013-2015 Discendum Oy
+ * @copyright  20013-2020 Open Badge Factory Oy
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class local_obf_html {
