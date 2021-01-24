@@ -18,7 +18,7 @@
  * Criterion form.
  *
  * @package    local_obf
- * @copyright  2013-2020, Discendum Oy
+ * @copyright  2013-2020 Open Badge Factory Oy
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 defined('MOODLE_INTERNAL') or die();
@@ -32,7 +32,7 @@ require_once($CFG->libdir . '/completionlib.php');
 /**
  * Criterion form.
  *
- * @copyright  2013-2020, Discendum Oy
+ * @copyright  2013-2020 Open Badge Factory Oy
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class obf_criterion_form extends local_obf_form_base implements renderable {
@@ -169,7 +169,7 @@ class obf_criterion_form extends local_obf_form_base implements renderable {
      */
     private function get_courses($mform) {
         global $DB, $OUTPUT, $CFG;
-        require_once($CFG->libdir. '/coursecatlib.php');
+
         // Get only courses with course completion enabled (= can be completed somehow).
         $courses = $DB->get_records('course', array('enablecompletion' => COMPLETION_ENABLED));
 
