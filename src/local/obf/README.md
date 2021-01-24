@@ -21,10 +21,10 @@ Moodle 2.7, 2.9, 3.0, 3.1 and up:
 
 Totara 11.0 and greater
 
-Totara Learn does not include an add-on installer, all additional plugins must be installed manually by server administrators. 
+Totara Learn does not include an add-on installer, all additional plugins must be installed manually by server administrators.
 
 1. Download plugin from https://moodle.org/plugins/local_obf
-2. Unzip the file into the Totara installation directory. 
+2. Unzip the file into the Totara installation directory.
 3. By using a site administrator account, go to Site administration → Notifications and upgrade Totara database
 4. Complete the [Post install steps](README.md#post-install)
 
@@ -36,3 +36,12 @@ To connect to Open Badge Factory, the plugin needs a request token or API key.
 To generate the required API key, log in to Open Badge Factory. When logged in, navigate to `Admin tools > API key`. On the API key -page click on `Generate certificate signing request token`.
 
 Copy the generated token into OBF Moodle plugin settings, in `Site administration > Open Badges > Settings`.
+
+Changelog
+------------------
+
+0.4
+
+Fixed problem with Moodle 3.10.1
+
+Added support for Totara program and certications
