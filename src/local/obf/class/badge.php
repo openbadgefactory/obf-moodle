@@ -66,6 +66,11 @@ class obf_badge {
     private $id = null;
 
     /**
+     * @var string The client id of the badge
+     */
+    private $client_id = null;
+
+    /**
      * @var string The name of the badge
      */
     private $name = '';
@@ -243,11 +248,12 @@ class obf_badge {
         // These should always exist.
         $this->set_description($arr['description'])->set_id($arr['id']);
         $this->set_image($arr['image'])->set_name($arr['name']);
-        
+
+        $this->set_client_id($arr['client_id']);
+
         if (isset($arr['draft'])) {
             $this->set_isdraft((bool) $arr['draft'])->set_created($arr['ctime']);
         }
-        
 
         $expires = (int) (isset($arr['expires']) ? $arr['expires'] : 0);
 
@@ -388,7 +394,7 @@ class obf_badge {
         $activity = null;
         if (!empty($items)) {
             $course = $items[0]->get_courseid();
-            if ($items[0] instanceof obf_criterion_activity){
+            if ($items[0] instanceof obf_criterion_activity) {
                 $activity = $items[0]->get_name();
             }
         }
@@ -619,6 +625,24 @@ class obf_badge {
      */
     public function set_id($id) {
         $this->id = $id;
+        return $this;
+    }
+
+    /**
+     * Get client id.
+     * @return string
+     */
+    public function get_client_id() {
+        return $this->client_id;
+    }
+
+    /**
+     * Set client id.
+     * @param string $client_id
+     * @return $this
+     */
+    public function set_client_id($client_id) {
+        $this->client_id = $client_id;
         return $this;
     }
 

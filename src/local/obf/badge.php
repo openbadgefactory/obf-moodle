@@ -26,6 +26,10 @@ require_once(__DIR__ . '/../../config.php');
 require_once(__DIR__ . '/class/badge.php');
 require_once($CFG->libdir . '/adminlib.php');
 
+$clientid = optional_param('clientid', null, PARAM_ALPHANUM);
+
+obf_client::connect($clientid);
+
 $badgeid = optional_param('id', '', PARAM_ALPHANUM);
 $action = optional_param('action', 'list', PARAM_ALPHANUM);
 $courseid = optional_param('courseid', null, PARAM_INT);
@@ -40,7 +44,6 @@ if (!empty($badgeid)) {
     $url->param('id', $badgeid);
 }
 
-
 // Site context.
 if (empty($courseid)) {
     require_login();
@@ -54,6 +57,7 @@ $PAGE->set_url($url);
 $PAGE->set_pagelayout(empty($courseid) ? 'admin' : 'course');
 $PAGE->set_title(get_string('obf', 'local_obf'));
 $PAGE->add_body_class('local-obf');
+
 
 $content = '';
 $hasissuecapability = has_capability('local/obf:issuebadge', $context);
@@ -79,6 +83,8 @@ switch ($action) {
     case 'list':
         require_capability('local/obf:viewallbadges', $context);
 
+        $content .= $PAGE->get_renderer('local_obf')->render_client_selector($url, $clientid);
+
         try {
             $badges = obf_badge::get_badges();
 
@@ -103,15 +109,15 @@ switch ($action) {
         $page = optional_param('page', 0, PARAM_INT);
         $show = optional_param('show', 'details', PARAM_ALPHANUM);
         $baseurl = new moodle_url('/local/obf/badge.php',
-                array('action' => 'show', 'id' => $badgeid));
+                array('action' => 'show', 'id' => $badgeid, 'clientid' => $clientid));
 
         if ($context instanceof context_system) {
             navigation_node::override_active_url(new moodle_url('/local/obf/badge.php',
-                    array('action' => 'list')));
+                    array('action' => 'list', 'clientid' => $clientid)));
             $PAGE->navbar->add($badge->get_name(), $baseurl);
         } else {
             navigation_node::override_active_url(new moodle_url('/local/obf/badge.php',
-                    array('action' => 'list', 'courseid' => $courseid)));
+                    array('action' => 'list', 'courseid' => $courseid, 'clientid' => $clientid)));
             $coursebadgeurl = clone $baseurl;
             $coursebadgeurl->param('courseid', $courseid);
             $PAGE->navbar->add($badge->get_name(), $coursebadgeurl);
@@ -128,7 +134,7 @@ switch ($action) {
 
                 $emailurl = new moodle_url(
                         '/local/obf/badge.php', array('id' => $badge->get_id(),
-                    'action' => 'show', 'show' => 'email'));
+                    'action' => 'show', 'show' => 'email', 'clientid' => $clientid));
 
                 $PAGE->navbar->add(
                         get_string('badgeemail', 'local_obf'), $emailurl);

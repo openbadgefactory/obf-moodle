@@ -99,7 +99,12 @@ class obf_assertion {
      * @var string The id of the event.
      */
     private $id = null;
-    
+
+    /**
+     * @var string The client id of the event.
+     */
+    private $client_id = null;
+
     /**
      * @var string The criteria addendum
      */
@@ -283,6 +288,8 @@ class obf_assertion {
                 if (!is_null($b)) {
                     $assertion = self::get_instance();
                     $assertion->set_badge($b)->set_id($item['id'])->set_recipients($item['recipient']);
+                    $assertion->set_client_id($client->client_id());
+
                     if (isset($item['log_entry'])){
                         $assertion->set_log_entry($item['log_entry']);
                     }
@@ -450,6 +457,23 @@ class obf_assertion {
      */
     public function set_id($id) {
         $this->id = $id;
+        return $this;
+    }
+
+    /**
+     * Get client id.
+     * @return string
+     */
+    public function get_client_id() {
+        return $this->client_id;
+    }
+
+    /**
+     * Set client id
+     * @param string $id
+     */
+    public function set_client_id($client_id) {
+        $this->client_id = $client_id;
         return $this;
     }
 

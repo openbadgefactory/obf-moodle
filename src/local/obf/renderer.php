@@ -18,7 +18,7 @@
  * Renderer for Open Badge Factory -plugin
  *
  * @package    local_obf
- * @copyright  2013-2020, Open Badge Factory Oy
+ * @copyright  2013-2021, Open Badge Factory Oy
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 defined('MOODLE_INTERNAL') || die();
@@ -453,7 +453,7 @@ class local_obf_renderer extends plugin_renderer_base {
                 $html .= $this->output->notification($message, 'notifysuccess');
             }
 
-            $html .= $this->print_badge_tabs($badge->get_id(), $context, $tab, $onlydetailstab);
+            $html .= $this->print_badge_tabs($badge, $context, $tab, $onlydetailstab);
             $html .= call_user_func(array($this, $rendererfunction), $client,
                     $badge, $context, $page);
         }
@@ -473,10 +473,11 @@ class local_obf_renderer extends plugin_renderer_base {
         global $PAGE;
         if (!is_null($badge)){
             $issueurl = new moodle_url('/local/obf/issue.php',
-            array('id' => $badge->get_id()));
+                array('id' => $badge->get_id(), 'clientid' => $badge->get_client_id()));
+
             if ($label === 'createcsv'){
                 $issueurl = new moodle_url('/local/obf/badge.php',
-                    array('id' => $badge->get_id(),
+                    array('id' => $badge->get_id(), 'clientid' => $badge->get_client_id(),
                         'action' => 'show',
                         'show'   => 'history',
                         'csv'    => '1'));
@@ -570,7 +571,7 @@ class local_obf_renderer extends plugin_renderer_base {
                 $badgename = html_writer::tag('p', s($badge->get_name()), array('class' => 'badgename'));
 
                 $url = new moodle_url('/local/obf/badge.php',
-                        array('id' => $badge->get_id(), 'action' => 'show'));
+                        array('clientid' => $badge->get_client_id(), 'id' => $badge->get_id(), 'action' => 'show'));
 
                 if ($context instanceof context_course) {
                     $url->param('courseid', $context->instanceid);
@@ -1227,7 +1228,7 @@ class local_obf_renderer extends plugin_renderer_base {
         $row->cells[] = $expirationdate;
         $row->cells[] = $courses;
         $row->cells[] = html_writer::link(new moodle_url('/local/obf/event.php',
-                        array('id' => $assertion->get_id())),
+                        array('id' => $assertion->get_id(), 'clientid' => $assertion->get_client_id())),
                         get_string('showassertion', 'local_obf'));
 
         return $row;
@@ -1336,14 +1337,30 @@ class local_obf_renderer extends plugin_renderer_base {
     }
 
     /**
+     * Renders inline form for OAuth2 client select.
+     *
+     * @param string $target form submit target
+     * @param array $params additional form params
+     * @return string client form as HTML
+     */
+    public function render_client_selector($url, $clientid) {
+        $clients = obf_client::get_available_clients();
+        if (count($clients) < 2) {
+            //return '';
+        }
+        $selected = empty($clientid) ? array_key_first($clients) : $clientid;
+        return html_writer::div($this->single_select($url, 'clientid', $clients, $selected, null), 'obf-category-wrapper');
+    }
+
+    /**
      * Renders the tabs in badge-page.
      *
-     * @param string|int $badgeid
+     * @param obf_badge $badge
      * @param context $context
      * @param string $selectedtab
      * @return string HTML
      */
-    public function print_badge_tabs($badgeid, context $context,
+    public function print_badge_tabs($badge, context $context,
                                      $selectedtab = 'details', $onlydetailstab = null) {
 
         if ($onlydetailstab != 1) {
@@ -1357,9 +1374,9 @@ class local_obf_renderer extends plugin_renderer_base {
         }
 
         foreach ($tabdata as $tabname) {
-            $url = new moodle_url('/local/obf/badge.php',
-                    array('id' => $badgeid, 'action' => 'show',
-                'show' => $tabname));
+            $url = new moodle_url('/local/obf/badge.php', array(
+                'clientid' => $badge->get_client_id(), 'id' => $badge->get_id(),
+                'action' => 'show', 'show' => $tabname));
 
             if ($context instanceof context_course) {
                 $url->param('courseid', $context->instanceid);
@@ -1408,7 +1425,7 @@ class local_obf_renderer extends plugin_renderer_base {
     }
     
     /**
-     * Renders the OBF configuration form
+     * Renders the OBF settings form
      *
      * @param obf_config_form $form
      * @return string HTML
@@ -1611,7 +1628,7 @@ class local_obf_renderer extends plugin_renderer_base {
         $params['branding_urls'] = array(obf_assertion::ASSERTION_SOURCE_OBF => $brandingurl);
         $params['verified_by_image_url'] = $verifiedbyurl;
         $params['issued_by_image_url'] = $issuedbyurl;
-        $params['obf_api_url'] = obf_client::get_api_url();
+        $params['obf_api_url'] = obf_client::get_api_url(); //FIXME missing client id
 
         if (!empty($userid) && $userid == $USER->id) {
             $blacklisturl = new moodle_url('/local/obf/blacklist.php');
@@ -1660,18 +1677,19 @@ class local_obf_renderer extends plugin_renderer_base {
 class local_obf_badge_renderer extends plugin_renderer_base {
     /**
      * Generates the HTML for the badge tabs.
-     * @param string $badgeid
+     * @param obf_badge $badge
      * @param string $selectedtab
      * @return string HTML
      */
-    public function tabs($badgeid, $selectedtab = 'details') {
+    public function tabs($badge, $selectedtab = 'details') {
         $tabdata = array('details', 'criteria', 'email', 'history');
         $tabs = array();
 
         foreach ($tabdata as $tabname) {
-            $url = new moodle_url('/local/obf/badge.php',
-                    array('id' => $badgeid, 'action' => 'show',
-                'show' => $tabname));
+            $url = new moodle_url('/local/obf/badge.php', array(
+                'clientid' => $badge->get_client_id(), 'id' => $badge->get_id(),
+                'action' => 'show', 'show' => $tabname));
+
             $tabs[] = new tabobject($tabname, $url,
                     get_string('badge' . $tabname, 'local_obf'));
         }
@@ -1691,7 +1709,7 @@ class local_obf_badge_renderer extends plugin_renderer_base {
      * @return string HTML
      */
     public function page(obf_badge $badge, $tab, $content) {
-        $html = $this->tabs($badge->get_id(), $tab);
+        $html = $this->tabs($badge, $tab);
         $html .= $content;
 
         return $html;

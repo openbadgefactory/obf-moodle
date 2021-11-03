@@ -28,6 +28,10 @@ require_once(__DIR__ . '/form/issuance.php');
 require_once($CFG->dirroot . '/user/lib.php');
 require_once(__DIR__ . '/class/event.php');
 
+$clientid = optional_param('clientid', null, PARAM_ALPHANUM);
+
+obf_client::connect($clientid);
+
 $badgeid = required_param('id', PARAM_ALPHANUM);
 $courseid = optional_param('courseid', null, PARAM_INT);
 $context = !is_null($courseid) ? context_course::instance($courseid) : context_system::instance();

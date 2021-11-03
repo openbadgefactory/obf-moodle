@@ -34,6 +34,10 @@ require_login();
 
 $eventid = required_param('id', PARAM_ALPHANUM);
 
+$clientid = optional_param('clientid', null, PARAM_ALPHANUM);
+
+obf_client::connect($clientid);
+
 $courseid = optional_param('course_id', '', PARAM_INT);
 $action = optional_param('action', 'view', PARAM_ALPHANUM);
 $show = optional_param('show', '', PARAM_ALPHANUM);

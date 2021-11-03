@@ -79,7 +79,7 @@ switch ($action) {
     case 'history':
         require_capability('local/obf:viewhistory', $context);
         $relatedevents = obf_issue_event::get_events_in_course($courseid, $DB);
-        $client = new obf_client();
+        $client = obf_client::get_instance();
         $allevents = $client->get_assertions();
         $events = array();
 
