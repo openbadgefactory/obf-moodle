@@ -34,34 +34,6 @@ function xmldb_local_obf_upgrade($oldversion) {
 
     $dbman = $DB->get_manager(); // Loads ddl manager and xmldb classes.
 
-    if ($oldversion < 2019090310) {
-        $table = new xmldb_table('local_obf_history_emails');
-        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
-        $table->add_field('user_id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
-        $table->add_field('email', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null);
-        $table->add_field('timestamp', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
-
-        $table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
-        $table->add_key('idx_local_obf_history_emails', XMLDB_KEY_UNIQUE, array('user_id', 'email'));
-
-        if (!$dbman->table_exists($table)) {
-            $dbman->create_table($table);
-        }
-
-        $DB->execute('INSERT IGNORE INTO {local_obf_history_emails} (user_id, email, timestamp)
-                           SELECT id, email, timemodified FROM {user} WHERE deleted = 0');
-
-        // Obf savepoint reached.
-        upgrade_plugin_savepoint(true, 2019090310, 'local', 'obf');
-    }
-
-    if ($oldversion < 2016031800) {
-         //set default apiurl https://openbadgefactory.com/
-         set_config('apiurl', "https://openbadgefactory.com/", 'local_obf');
-         // Obf savepoint reached.
-         upgrade_plugin_savepoint(true, 2016031800, 'local', 'obf');
-    }
-
     if ($oldversion < 2013100701) {
 
         // Define table obf_criterion_types to be created.
@@ -614,7 +586,15 @@ function xmldb_local_obf_upgrade($oldversion) {
         // Obf savepoint reached.
         upgrade_plugin_savepoint(true, 2015121500, 'local', 'obf');
     }
-      if ($oldversion < 2016060301) {
+
+    if ($oldversion < 2016031800) {
+         //set default apiurl https://openbadgefactory.com/
+         set_config('apiurl', "https://openbadgefactory.com/", 'local_obf');
+         // Obf savepoint reached.
+         upgrade_plugin_savepoint(true, 2016031800, 'local', 'obf');
+    }
+
+    if ($oldversion < 2016060301) {
 
         // Define table local_obf_backpack_sources to be created.
         $table = new xmldb_table('local_obf_backpack_sources');
@@ -657,12 +637,12 @@ function xmldb_local_obf_upgrade($oldversion) {
         $dbman->change_field_precision($bpetable, $bpefield);
         // Update old backpack emails to use new provider definitions
         $DB->execute(
-                'UPDATE {local_obf_backpack_emails} SET backpack_provider = IF(backpack_provider = 0, ?, ?)',
-                array(
-                    $newids['moz'],
-                    $newids['obp']
-                    )
-                );
+            'UPDATE {local_obf_backpack_emails} SET backpack_provider = IF(backpack_provider = 0, ?, ?)',
+            array(
+                $newids['moz'],
+                $newids['obp']
+            )
+        );
 
         // Obf savepoint reached.
         upgrade_plugin_savepoint(true, 2016060301, 'local', 'obf');
@@ -714,6 +694,9 @@ function xmldb_local_obf_upgrade($oldversion) {
         // Obf savepoint reached.
         upgrade_plugin_savepoint(true, 2016090700, 'local', 'obf');
     }
+
+    /**
+     * FIXME
     if ($oldversion < 2016121900) {
         require_once(__DIR__ . '/../class/client.php');
         if (class_exists('obf_client') && 
@@ -736,6 +719,8 @@ function xmldb_local_obf_upgrade($oldversion) {
         }
         upgrade_plugin_savepoint(true, 2016121900, 'local', 'obf');
     }
+    */
+
     if ($oldversion < 2017010900) {
         set_config('displaymoodlebadges', 0, 'local_obf');
         upgrade_plugin_savepoint(true, 2017010900, 'local', 'obf');
@@ -744,5 +729,51 @@ function xmldb_local_obf_upgrade($oldversion) {
         set_config('apidataretrieve', 'local', 'local_obf');
         upgrade_plugin_savepoint(true, 2017060800, 'local', 'obf');
     }
+
+    if ($oldversion < 2019090310) {
+        $table = new xmldb_table('local_obf_history_emails');
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('user_id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('email', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('timestamp', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
+        $table->add_key('idx_local_obf_history_emails', XMLDB_KEY_UNIQUE, array('user_id', 'email'));
+
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        $DB->execute('INSERT INTO {local_obf_history_emails} (user_id, email, timestamp)
+                           SELECT id, email, timemodified FROM {user} WHERE deleted = 0');
+
+        // Obf savepoint reached.
+        upgrade_plugin_savepoint(true, 2019090310, 'local', 'obf');
+    }
+
+
+    if ($oldversion < 2021100700) {
+        $table = new xmldb_table('local_obf_oauth2');
+
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('client_id', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('client_secret', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('client_name', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('obf_url', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('access_token', XMLDB_TYPE_TEXT, null, null, XMLDB_NOTNULL, null, null);
+        $table->add_field('token_expires', XMLDB_TYPE_INTEGER, '20', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('local_events', XMLDB_TYPE_INTEGER, '2', null, XMLDB_NOTNULL, null, null);
+
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
+
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        // Obf savepoint reached.
+        upgrade_plugin_savepoint(true, 2021100700, 'local', 'obf');
+    }
+
+
     return true;
 }
