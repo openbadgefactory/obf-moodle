@@ -18,26 +18,39 @@
  * OBF Client.
  *
  * @package    local_obf
- * @copyright  2013-2020, Open Badge Factory Oy
+ * @copyright  2013-2021, Open Badge Factory Oy
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 require_once(__DIR__ . '/../lib.php');
 
+require_once($CFG->libdir . '/filelib.php');
+
 /**
- * Class for handling the communication to Open Badge Factory API.
+ * Class for handling the communication to Open Badge Factory API using legacy authentication.
  *
- * @copyright  2013-2020, Open Badge Factory Oy
+ * @copyright  2013-2021, Open Badge Factory Oy
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class obf_client {
     /**
-     * @var $client Static client
+     * @var $client Static obf_client singleton
      */
     private static $client = null;
+
+    /**
+     * @var string Static current client id
+     */
+    private static $client_id = null;
+
     /**
      * @var curl|null Transport. Curl.
      */
     private $transport = null;
+
+    /**
+     * @var object local_obf_oauth2 table row
+     */
+    private $oauth2 = null;
 
     /**
      * @var int HTTP code for handling errors, such as deleted badges.
@@ -55,58 +68,9 @@ class obf_client {
      * @var bool Store raw response?
      */
     private $enablerawresponse = false;
-    
+
     const RETRIEVE_ALL = 'all';
     const RETRIEVE_LOCAL = 'local';
-
-    /**
-     * Returns the id of the client stored in Moodle's config.
-     *
-     * @return string The client id.
-     */
-    public static function get_client_id() {
-        return get_config('local_obf', 'obfclientid');
-    }
-    
-    public function get_client_info() {
-        $this->require_client_id();
-        return $this->api_request('/client/' . self::get_client_id());
-    }
-    
-    public static function has_client_id() {
-        $clientid = self::get_client_id();
-        return !empty($clientid);
-    }
-
-    /**
-     * Returns the url of the OBF API.
-     *
-     * @return string The url.
-     */
-    public static function get_api_url() {
-        $url = get_config('local_obf', 'apiurl');
-        return self::api_url_maker($url);
-    }
-    
-    /**
-     * Returns the url of the OBF site.
-     *
-     * @return string The url.
-     */
-    public static function get_site_url()
-    {
-        $siteurl = get_config('local_obf', 'obf_site_url');
-        return !empty($siteurl) ? $siteurl : substr(self::get_api_url(), 0, strrpos(self::get_api_url(), '/'));
-    }
-
-    /**
-     * Returns default url.
-     *
-     * @return string The url.
-     */
-    public static function default_url() {
-        return OBF_DEFAULT_ADDRESS;
-    }
 
     /**
      * Returns the client instance.
@@ -114,9 +78,28 @@ class obf_client {
      * @param curl|null $transport
      * @return obf_client The client.
      */
-    public static function get_instance($transport = null) {
+    public static function get_instance($transport=null) {
+        global $DB;
         if (is_null(self::$client)) {
+
             self::$client = new self();
+
+            $oauth2 = $DB->get_records('local_obf_oauth2', null, 'client_name');
+
+            if (count($oauth2) > 0) {
+                if (self::$client_id) {
+                    foreach ($oauth2 as $o2) {
+                        if ($o2->client_id === self::$client_id) {
+                            self::$client->set_oauth2($o2);
+                            break;
+                        }
+                    }
+                } else {
+                    // use the first one
+                    $first = array_shift($oauth2);
+                    self::$client->set_oauth2($first);
+                }
+            }
 
             if (!is_null($transport)) {
                 self::$client->set_transport($transport);
@@ -124,6 +107,158 @@ class obf_client {
         }
 
         return self::$client;
+    }
+
+    /**
+     * Set current active OAuth2 connection. Returns the client instance.
+     *
+     * @param string client_id in local_obf_oauth2 table row
+     * @return obf_client The client.
+     */
+    public static function connect($id, $transport=null) {
+        self::$client_id = $id;
+        return self::get_instance($transport);
+    }
+
+    /**
+     * Get configured OAuth2 clients
+     *
+     * @return array id and name pairs
+     */
+    public static function get_available_clients() {
+        global $DB;
+        return $DB->get_records_menu('local_obf_oauth2', null, 'client_name', 'client_id, client_name');
+    }
+
+    public static function has_client_id() {
+        global $DB;
+        return $DB->count_records('local_obf_oauth2') > 0 || !empty(get_config('local_obf', 'obfclientid'));
+    }
+
+    /**
+     * Checks that the OBF client id is stored to plugin settings.
+     *
+     * @throws Exception If the client id is missing.
+     */
+    public function require_client_id() {
+        if (empty($this->oauth2->client_id) && empty(get_config('local_obf', 'obfclientid'))) {
+            throw new Exception(get_string('apierror0', 'local_obf'), 0);
+        }
+    }
+
+    /**
+     * Get OBF api url
+     *
+     * @return string
+     */
+    private function obf_url() {
+        if (isset($this->oauth2->obf_url)) {
+            return $this->oauth2->obf_url;
+        }
+        return get_config('local_obf', 'apiurl');
+    }
+
+    /**
+     * Get current active client id
+     *
+     * @return string
+     */
+    public function client_id() {
+        if (isset($this->oauth2->client_id)) {
+            return $this->oauth2->client_id;
+        }
+        return get_config('local_obf', 'obfclientid');
+    }
+
+    /**
+     * Get current active client id
+     *
+     * @return string
+     */
+    public function local_events() {
+        if (isset($this->oauth2->local_events)) {
+            return $this->oauth2->local_events;
+        }
+        return get_config('local_obf', 'apidataretrieve') == self::RETRIEVE_LOCAL;
+    }
+
+
+
+    /**
+     * Set current active API client credentials
+     *
+     * @param object $input Input row from local_obf_oauth2 table
+     * @return null
+     */
+    public function set_oauth2($input) {
+
+        if (!preg_match('/^https?:\/\/.+/', $input->obf_url)) {
+            throw new Exception('Invalid parameter $obf_url');
+        }
+        if (!preg_match('/^\w+$/', $input->client_id)) {
+            throw new Exception('Invalid parameter $client_id');
+        }
+        if (!preg_match('/^\w+$/', $input->client_secret)) {
+            throw new Exception('Invalid parameter $client_secret');
+        }
+
+        $input->obf_url = preg_replace('/\/+$/', '', $input->obf_url);
+
+        $this->oauth2 = $input;
+    }
+
+    /**
+     * Get access token. Request a new access token using client credentials if needed.
+     *
+     * @return array access token and expiration timestamp
+     */
+    public function oauth2_access_token() {
+        global $DB;
+
+        $this->require_client_id();
+
+        if ( !isset($this->oauth2->access_token) || $this->oauth2->token_expires < time()) {
+
+            $url = $this->obf_url() . '/v1/client/oauth2/token';
+
+            $params = array(
+                   'grant_type' => 'client_credentials',
+                    'client_id' => $this->oauth2->client_id,
+                'client_secret' => $this->oauth2->client_secret
+            );
+
+            $curl = $this->get_transport();
+            $options = $this->get_curl_options(false);
+
+            $res = $curl->post($url, http_build_query($params), $options);
+
+            $res = json_decode($res);
+
+            $this->oauth2->access_token = $res->access_token;
+            $this->oauth2->token_expires = time() + $res->expires_in;
+
+            $sql = "UPDATE {local_obf_oauth2} SET access_token = ?, token_expires = ? WHERE client_id = ?";
+            $DB->execute($sql, array($this->oauth2->access_token, $this->oauth2->token_expires, $this->oauth2->client_id));
+        }
+
+        return array(
+            'access_token'  => $this->oauth2->access_token,
+            'token_expires' => $this->oauth2->token_expires
+        );
+    }
+
+    /**
+     * Returns a new curl-instance.
+     *
+     * @return \curl
+     */
+    public function get_transport() {
+        if (!is_null($this->transport)) {
+            return $this->transport;
+        }
+
+        // Use Moodle's curl-object if no transport is defined.
+        return new curl();
     }
 
     /**
@@ -136,17 +271,148 @@ class obf_client {
     }
 
     /**
-     * Checks that the OBF client id is stored to plugin settings.
+     * Returns the default CURL-settings for a request.
      *
-     * @throws Exception If the client id is missing.
+     * @return array
      */
-    public function require_client_id() {
-        $clientid = self::get_client_id();
+    private function get_curl_options($auth=true) {
 
-        if (empty($clientid)) {
-            throw new Exception(get_string('apierror0', 'local_obf'), 0);
+        $opt = array(
+            'RETURNTRANSFER'    => true,
+            'FOLLOWLOCATION'    => false,
+            'SSL_VERIFYHOST'    => 2,
+            'SSL_VERIFYPEER'    => 1
+        );
+
+        if ($auth) {
+            if (isset($this->oauth2)) {
+                $token = $this->oauth2_access_token();
+                $opt['HTTPHEADER'] = array("Authorization: Bearer " . $token['access_token']);
+            }
+            else {
+                $opt['SSLCERT'] = $this->get_cert_filename();
+                $opt['SSLKEY']  = $this->get_pkey_filename();
+            }
         }
+
+        return $opt;
     }
+
+
+    /**
+     * Decode line-delimited json
+     *
+     * @param string $input response string
+     * @return array The json-decoded response.
+     */
+    private function decode_ldjson($input) {
+        $out = array();
+        foreach (explode("\r\n", $input) AS $chunk) {
+            if ($chunk) {
+                $out[] = json_decode($chunk, true);
+            }
+        }
+        return $out;
+    }
+
+    /**
+     * Get raw response.
+     * @return string[] Raw response.
+     */
+    public function get_raw_response() {
+        return $this->rawresponse;
+    }
+
+    /**
+     * Enable/disable storing raw response.
+     * @param bool $enable
+     * @return obf_client This object.
+     */
+    public function set_enable_raw_response($enable) {
+        $this->enablerawresponse = $enable;
+        $this->rawresponse = null;
+        return $this;
+    }
+
+    /**
+     * Makes a CURL-request to OBF API (new style).
+     *
+     * @param string $method The HTTP method.
+     * @param string $url The API path.
+     * @param array $params The params of the request.
+     * @return string The response string.
+     * @throws Exception In case something goes wrong.
+     */
+    private function _request($method, $url, $params=array(), $retry=true) {
+        $curl = $this->get_transport();
+        $options = $this->get_curl_options();
+
+        if ($method === 'get') {
+            $response = $curl->get($url, $params, $options);
+        } else if ($method === 'post') {
+            $response = $curl->post($url, json_encode($params), $options);
+        } else if ($method === 'put') {
+            $response = $curl->put($url, json_encode($params), $options);
+        } else if ($method === 'delete') {
+            $response = $curl->delete($url, $params, $options);
+        } else {
+            throw new Exception('unknown method ' . $method);
+        }
+
+        $this->rawresponse = null;
+        if ($this->enablerawresponse) {
+            $this->rawresponse = $curl->get_raw_response();
+        }
+
+        $info = $curl->get_info();
+
+        if ($info['http_code'] === 403 && $retry) {
+            // try again one time
+            return $this->_request($method, $url, $params, false);
+        }
+
+        $this->httpcode = $info['http_code'];
+        $this->error = '';
+
+        // Codes 2xx should be ok.
+        if (is_numeric($this->httpcode) && ($this->httpcode < 200 || $this->httpcode >= 300)) {
+            $this->error = isset($response['error']) ? $response['error'] : '';
+            $appendtoerror = defined('PHPUNIT_TEST') && PHPUNIT_TEST ? ' ' . $method . ' ' . $url : '';
+            throw new Exception(get_string('apierror' . $this->httpcode, 'local_obf',
+                $this->error) . $appendtoerror, $this->httpcode);
+        }
+
+        return $response;
+    }
+
+    /**
+     * Makes a CURL-request to OBF API (legacy style).
+     *
+     * @param string $url The API path.
+     * @param string $method The HTTP method.
+     * @param array $params The params of the request.
+     * @param Closure $preformatter In some cases the returned string isn't
+     *      valid JSON. In those situations one has to manually preformat the
+     *      returned data before decoding the JSON.
+     * @return array The json-decoded response.
+     * @throws Exception In case something goes wrong.
+     */
+    public function request($url, $method = 'get', array $params = array(), Closure $preformatter = null) {
+
+        $output = $this->_request($method, $url, $params);
+
+        if ($output !== false) {
+            if (!is_null($preformatter)) {
+                $output = $preformatter($output);
+            }
+            $response = json_decode($output, true);
+        }
+
+        return $response;
+    }
+
+
+    /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
     /**
      * Tests the connection to OBF API.
@@ -155,15 +421,246 @@ class obf_client {
      */
     public function test_connection() {
         try {
-            $this->require_client_id();
-
-            // TODO: does ping check certificate validity?
-            $this->api_request('/ping/' . self::get_client_id());
+            $url = $this->obf_url() . '/v1/ping/' . $this->client_id();
+            $this->_request('get', $url);
             return -1;
         } catch (Exception $exc) {
             return $exc->getCode();
         }
     }
+
+
+    /**
+     * Get all the badges from the API.
+     *
+     * @param string[] $categories Filter badges by these categories.
+     * @return array The badges data.
+     */
+    public function get_badges(array $categories = array(), $query = '') {
+        $params = array('draft' => 0, 'external' => 1);
+
+        if (count($categories) > 0) {
+            $params['category'] = implode('|', $categories);
+        }
+        if (!empty($query)) {
+            $params['query'] = $query;
+        }
+
+        $url = $this->obf_url() . '/v1/badge/' . $this->client_id();
+        $res = $this->_request('get', $url, $params);
+
+        return $this->decode_ldjson($res);
+    }
+
+    /**
+     * Get a single badge from the API.
+     *
+     * @param string $badgeid
+     * @throws Exception If the request fails
+     * @return array The badge data.
+     */
+    public function get_badge($badgeid) {
+        $url = $this->obf_url() . '/v1/badge/' . $this->client_id() . '/' . $badgeid;
+        $res = $this->_request('get', $url);
+
+        return json_decode($res, true);
+    }
+
+    /**
+     * Get issuer data from the API.
+     *
+     * @throws Exception If the request fails
+     * @return array The issuer data.
+     */
+    public function get_issuer() {
+        $url = $this->obf_url() . '/v1/client/' . $this->client_id();
+        $res = $this->_request('get', $url);
+
+        return json_decode($res, true);
+    }
+
+    /**
+     * Get badge issuing events from the API.
+     *
+     * @param string $badgeid The id of the badge.
+     * @param string $email The email address of the recipient.
+     * @param array $params Optional extra params for the query.
+     * @return array The event data.
+     */
+    public function get_assertions($badgeid = null, $email = null, $params = array()) {
+
+        if (is_null($badgeid) && !is_null($email)) {
+            return array();
+        }
+        if ($this->local_events()) {
+            $params['api_consumer_id'] = OBF_API_CONSUMER_ID;
+        }
+        if (!is_null($badgeid)) {
+            $params['badge_id'] = $badgeid;
+        }
+        if (!is_null($email) && $email != "") {
+            $params['email'] = $email;
+        }
+
+        $url = $this->obf_url() . '/v1/event/' . $this->client_id();
+        $res = $this->_request('get', $url, $params);
+
+        return $this->decode_ldjson($res);
+    }
+
+    /**
+     * Get single issuing event from the API.
+     *
+     * @param string $eventid The id of the event.
+     * @return array The event data.
+     */
+    public function get_event($eventid) {
+        $url = $this->obf_url() . '/v1/event/' . $this->client_id() . '/' . $eventid;
+        $res = $this->_request('get', $url);
+
+        return json_decode($res, true);
+    }
+
+    /**
+     * Get event's revoked assertions from the API.
+     *
+     * @param string $eventid The id of the event.
+     * @return array The revoked data.
+     */
+    public function get_revoked($eventid) {
+        $url = $this->obf_url() . '/v1/event/' . $this->client_id() . '/' . $eventid . '/revoked';
+        $res = $this->_request('get', $url);
+
+        return json_decode($res, true);
+    }
+
+
+    /**
+     * Get badge categories from the API.
+     *
+     * @return array The category data.
+     */
+    public function get_categories() {
+        $url = $this->obf_url() . '/v1/badge/' . $this->client_id() . '/_/categorylist';
+        $res = $this->_request('get', $url);
+
+        return json_decode($res, true);
+    }
+
+    /**
+     * Delete a badge. Use with caution.
+     */
+    public function delete_badge($badgeid) {
+        $url = $this->obf_url() . '/v1/badge/' . $this->client_id() . '/' . $badgeid;
+        $this->_request('delete', $url);
+    }
+
+    /**
+     * Deletes all client badges. Use with caution.
+     */
+    public function delete_badges() {
+        $url = $this->obf_url() . '/v1/badge/' . $this->client_id();
+        $this->_request('delete', $url);
+    }
+
+    /**
+     * Exports a badge to Open Badge Factory
+     *
+     * @param obf_badge $badge The badge.
+     */
+    public function export_badge(obf_badge $badge) {
+        $params = array(
+            'name' => $badge->get_name(),
+            'description' => $badge->get_description(),
+            'image' => $badge->get_image(),
+            'css' => $badge->get_criteria_css(),
+            'criteria_html' => $badge->get_criteria_html(),
+            'email_subject' => $badge->get_email()->get_subject(),
+            'email_body' => $badge->get_email()->get_body(),
+            'email_link_text' => $badge->get_email()->get_link_text(),
+            'email_footer' => $badge->get_email()->get_footer(),
+            'expires' => '',
+            'tags' => array(),
+            'draft' => $badge->is_draft()
+        );
+
+        $url = $this->obf_url() . '/v1/badge/' . $this->client_id();
+        $this->_request('post', $url, $params);
+    }
+
+    /**
+     * Issues a badge.
+     *
+     * @param obf_badge $badge The badge to be issued.
+     * @param string[] $recipients The recipient list, array of emails.
+     * @param int $issuedon The issuance date as a Unix timestamp
+     * @param string $email The email to send (template).
+     * @param string $criteriaaddendum The criteria addendum.
+     */
+
+    public function issue_badge(obf_badge $badge, $recipients, $issuedon, $email, $criteriaaddendum, $course, $activity) {
+        global $CFG, $DB;
+
+        $users = $DB->get_records_list('user', 'email', $recipients, '', 'id, email');
+        $now = time();
+        $sql = "INSERT IGNORE INTO {local_obf_history_emails} (user_id email timestamp) VALUES (?,?,?)";
+        foreach ($users as $user) {
+            $DB->execute($sql, $user->id, $user->email, $now);
+        }
+
+        $course_name = $badge->get_course_name($course);
+
+        $params = array(
+            'recipient' => $recipients,
+            'issued_on' => $issuedon,
+            'api_consumer_id' => OBF_API_CONSUMER_ID,
+            'log_entry' => array('course_id' => $course,
+                                 'course_name' => $course_name,
+                                 'activity_name' => $activity,
+                                 'wwwroot' => $CFG->wwwroot),
+            'show_report' => 1
+        );
+
+        if (!is_null($email)) {
+            $params['email_subject'] = $email->get_subject();
+            $params['email_body'] = $email->get_body();
+            $params['email_footer'] = $email->get_footer();
+            $params['email_link_text'] = $email->get_link_text();
+        }
+
+        if (!empty($criteriaaddendum)) {
+            $params['badge_override'] = array('criteria_add' => $criteriaaddendum);
+        }
+
+        if (!is_null($badge->get_expires()) && $badge->get_expires() > 0) {
+            $params['expires'] = $badge->get_expires();
+        }
+
+        $url = $this->obf_url() . '/v1/badge/' . $this->client_id() . '/' . $badge->get_id();
+        $this->_request('post', $url, $params);
+    }
+
+    /**
+     * Revoke an issued event.
+     *
+     * @param string $eventid
+     * @param string[] $emails Array of emails to revoke the event for.
+     */
+    public function revoke_event($eventid, $emails) {
+        $emails = array_map('urlencode', $emails);
+        $url = $this->obf_url() . '/v1/event/' . $this->client_id() . '/' . $eventid . '/?email=' . implode('|', $emails);
+        $this->_request('delete', $url);
+    }
+
+    public function pub_get_badge($badgeid, $eventid) {
+        $url = $this->obf_url() . '/v1/badge/_/' . $badgeid . '.json';
+        $params = array('v' => '1.1', 'event' => $eventid);
+        $res = $this->_request('get', $url, $param);
+
+        return json_decode($res, true);
+    }
+
+    // LEGACY api auth
 
     /**
      * Deauthenticates the plugin.
@@ -173,7 +670,7 @@ class obf_client {
         @unlink($this->get_pkey_filename());
 
         unset_config('obfclientid', 'local_obf');
-        unset_config('apiurl', 'local_obf');    
+        unset_config('apiurl', 'local_obf');
     }
 
     /**
@@ -193,21 +690,21 @@ class obf_client {
     }
 
     /**
-    * set v1 to end of url.
-    * example: https://openbadgefactory.com/v1
-    *
-    * @param  $url
-    * @return url/v1
-    */
-    private static function api_url_maker($url) {
+     * set v1 to end of url.
+     * example: https://openbadgefactory.com/v1
+     *
+     * @param  $url
+     * @return url/v1
+     */
+    private function api_url_maker($url) {
         $version = "v1";
         return $url . $version;
     }
-    
+
     public function get_branding_image_url($imagename = 'issued_by') {
         return $this->get_api_url() . '/badge/_/' . $imagename . '.png';
     }
-    
+
     public function get_branding_image($imagename = 'issued_by') {
         $curl = $this->get_transport();
         $curlopts = $this->get_curl_options();
@@ -231,7 +728,7 @@ class obf_client {
         // Certificate directory not writable.
         if (!is_writable($pkidir)) {
             throw new Exception(get_string('pkidirnotwritable', 'local_obf',
-                    $pkidir));
+                $pkidir));
         }
 
         $signature = trim($signature);
@@ -239,8 +736,8 @@ class obf_client {
         $curl = $this->get_transport();
         $curlopts = $this->get_curl_options();
         $url = $this->url_checker($url);
-        
-        
+
+
         $apiurl = $this->api_url_maker($url);
 
 
@@ -253,13 +750,13 @@ class obf_client {
         // CURL-request failed.
         if ($pubkey === false) {
             throw new Exception(get_string('pubkeyrequestfailed', 'local_obf') .
-            ': ' . $curl->error);
+                ': ' . $curl->error);
         }
 
         // Server gave us an error.
         if ($curl->info['http_code'] !== 200) {
             throw new Exception(get_string('pubkeyrequestfailed', 'local_obf') . ': ' .
-            get_string('apierror' . $curl->info['http_code'], 'local_obf'));
+                get_string('apierror' . $curl->info['http_code'], 'local_obf'));
         }
 
         $decrypted = '';
@@ -270,14 +767,14 @@ class obf_client {
         // ... That didn't go too well.
         if ($key === false) {
             throw new Exception(get_string('pubkeyextractionfailed', 'local_obf') .
-            ': ' . openssl_error_string());
+                ': ' . openssl_error_string());
         }
 
         // Couldn't decrypt data with provided key.
         if (openssl_public_decrypt($token, $decrypted, $key,
-                        OPENSSL_PKCS1_PADDING) === false) {
+            OPENSSL_PKCS1_PADDING) === false) {
             throw new Exception(get_string('tokendecryptionfailed', 'local_obf') .
-            ': ' . openssl_error_string());
+                ': ' . openssl_error_string());
         }
 
         $json = json_decode($decrypted);
@@ -303,7 +800,7 @@ class obf_client {
         if (openssl_csr_export($csr, $csrout) === false) {
             throw new Exception(get_string('csrexportfailed', 'local_obf'));
         }
-        
+
         if (empty($csrout)) {
             $opensslerrors = 'CSR output empty.';
             while (($opensslerror = openssl_error_string()) !== false) {
@@ -314,7 +811,7 @@ class obf_client {
 
         $postdata = json_encode(array('signature' => $signature, 'request' => $csrout));
         $cert = $curl->post($apiurl . '/client/' . $json->id . '/sign_request',
-                $postdata, $curlopts);
+            $postdata, $curlopts);
 
         // Fetching certificate failed.
         if ($cert === false) {
@@ -327,7 +824,7 @@ class obf_client {
         if ($httpcode !== 200) {
             $jsonresp = json_decode($cert);
             $extrainfo = is_null($jsonresp) ? get_string('apierror' . $httpcode,
-                            'local_obf') : $jsonresp->error;
+                'local_obf') : $jsonresp->error;
 
             throw new Exception(get_string('certrequestfailed', 'local_obf') . ': ' . $extrainfo);
         }
@@ -377,380 +874,5 @@ class obf_client {
     public function get_pki_dir() {
         global $CFG;
         return $CFG->dataroot . '/local_obf/pki/';
-    }
-
-    /**
-     * Get a single badge from the API.
-     *
-     * @param string $badgeid
-     * @throws Exception If the request fails
-     * @return array The badge data.
-     */
-    public function get_badge($badgeid) {
-        $this->require_client_id();
-        return $this->api_request('/badge/' . self::get_client_id() . '/' . $badgeid);
-    }
-
-    /**
-     * Get issuer data from the API.
-     *
-     * @throws Exception If the request fails
-     * @return array The issuer data.
-     */
-    public function get_issuer() {
-        $this->require_client_id();
-        return $this->api_request('/client/' . self::get_client_id());
-    }
-
-    /**
-     * Get badge categories from the API.
-     *
-     * @return array The category data.
-     */
-    public function get_categories() {
-        $this->require_client_id();
-        return $this->api_request('/badge/' . self::get_client_id() . '/_/categorylist');
-    }
-
-    /**
-     * Get all the badges from the API.
-     *
-     * @param string[] $categories Filter badges by these categories.
-     * @return array The badges data.
-     */
-    public function get_badges(array $categories = array(), $query = '') {
-        $params = array('draft' => 0);
-
-        $this->require_client_id();
-
-        if (count($categories) > 0) {
-            $params['category'] = implode('|', $categories);
-        }
-        if (!empty($query)) {
-            $params['query'] = $query;
-        }
-
-        return $this->api_request('/badge/' . self::get_client_id(), 'get',
-                        $params,
-                        function ($output) {
-                    return '[' . implode(',',
-                                    array_filter(explode("\n", $output))) . ']';
-                        });
-    }
-    public function is_only_local_events_enabled() {
-        return get_config('local_obf', 'apidataretrieve') == self::RETRIEVE_LOCAL;
-    }
-
-    /**
-     * Get badge assertions from the API.
-     *
-     * @param string $badgeid The id of the badge.
-     * @param string $email The email address of the recipient.
-     * @param array $params Optional extra params for the query.
-     * @return array The event data.
-     */
-    public function get_assertions($badgeid = null, $email = null, $params = array()) {
-        if ($this->is_only_local_events_enabled()) {
-            $params = array_merge($params, array('api_consumer_id' => OBF_API_CONSUMER_ID));
-        }
-
-        $this->require_client_id();
-
-        if (!is_null($badgeid)) {
-            $params['badge_id'] = $badgeid;
-        }
-
-        if (!is_null($email) && $email != "") {
-            $params['email'] = $email;
-        } elseif(is_null($badgeid) && !is_null($email)) {
-            return "";
-        }
-
-        // When getting assertions via OBF API the returned JSON isn't valid.
-        // Let's use a closure that converts the returned string into valid JSON
-        // before calling json_decode in $this->curl.
-        return $this->api_request('/event/' . self::get_client_id(), 'get',
-                        $params,
-                        function ($output) {
-                    return '[' . implode(',',
-                                    array_filter(explode("\n", $output))) . ']';
-                        });
-    }
-
-    /**
-     * Get single assertion from the API.
-     *
-     * @param string $eventid The id of the event.
-     * @return array The event data.
-     */
-    public function get_event($eventid) {
-        $this->require_client_id();
-        return $this->api_request('/event/' . self::get_client_id() . '/' . $eventid,
-                        'get');
-    }
-
-    /**
-     * Get revoked for assertion from the API.
-     *
-     * @param string $eventid The id of the event.
-     * @return array The revoked data.
-     */
-    public function get_revoked($eventid) {
-        $this->require_client_id();
-        return $this->api_request('/event/' . self::get_client_id() . '/' . $eventid . '/revoked',
-                        'get');
-    }
-
-    /**
-     * Deletes all client badges. Use with caution.
-     */
-    public function delete_badge($badgeid) {
-        $this->require_client_id();
-        return $this->api_request('/badge/' . self::get_client_id() . '/' . $badgeid, 'delete');
-    }
-    
-    /**
-     * Deletes all client badges. Use with caution.
-     */
-    public function delete_badges() {
-        $this->require_client_id();
-        return $this->api_request('/badge/' . self::get_client_id(), 'delete');
-    }
-
-    /**
-     * Exports a badge to Open Badge Factory
-     *
-     * @param obf_badge $badge The badge.
-     */
-    public function export_badge(obf_badge $badge) {
-        $this->require_client_id();
-
-        $params = array(
-            'name' => $badge->get_name(),
-            'description' => $badge->get_description(),
-            'image' => $badge->get_image(),
-            'css' => $badge->get_criteria_css(),
-            'criteria_html' => $badge->get_criteria_html(),
-            'email_subject' => $badge->get_email()->get_subject(),
-            'email_body' => $badge->get_email()->get_body(),
-            'email_link_text' => $badge->get_email()->get_link_text(),
-            'email_footer' => $badge->get_email()->get_footer(),
-            'expires' => '',
-            'tags' => array(),
-            'draft' => $badge->is_draft()
-        );
-
-        $this->api_request('/badge/' . self::get_client_id(), 'post', $params);
-    }
-    /**
-     * Issues a badge.
-     *
-     * @param obf_badge $badge The badge to be issued.
-     * @param string[] $recipients The recipient list, array of emails.
-     * @param int $issuedon The issuance date as a Unix timestamp
-     * @param string $email The email to send (template).
-     * @param string $criteriaaddendum The criteria addendum.
-     */
-
-    public function issue_badge(obf_badge $badge, $recipients, $issuedon,
-                                $email, $criteriaaddendum = '', $course, $activity) {
-        global $CFG, $DB;
-        $userdata = new stdClass();
-        $users = $DB->get_records_list('user', 'email',
-            $recipients, '', 'id, email');
-
-        foreach ($users as $key => $user) {
-            $record = $DB->get_record('local_obf_history_emails',
-                array('user_id' => $key,'email' => $user->email));
-            if(!$record) {
-                $userdata->user_id = $key;
-                $userdata->email = $user->email;
-                $userdata->timestamp = time();
-                $DB->insert_record('local_obf_history_emails', $userdata);
-            }
-        }
-
-        $course_name = $badge->get_course_name($course);
-
-        $this->require_client_id();
-        $params = array(
-            'recipient' => $recipients,
-            'issued_on' => $issuedon,
-            'api_consumer_id' => OBF_API_CONSUMER_ID,
-            'log_entry' => array('course_id' => $course,
-                                'course_name' => $course_name,
-                                'activity_name' => $activity,
-                                'wwwroot' => $CFG->wwwroot),
-            'show_report' => 1
-        );
-        if (!is_null($email)) {
-            $params['email_subject'] = $email->get_subject();
-            $params['email_body'] = $email->get_body();
-            $params['email_footer'] = $email->get_footer();
-            $params['email_link_text'] = $email->get_link_text();
-        }
-        if (!empty($criteriaaddendum)) {
-            $badge_override_params = array();
-            $badge_override_params['criteria_add'] = $criteriaaddendum;
-            $params['badge_override'] = $badge_override_params;
-        }
-
-        if (!is_null($badge->get_expires()) && $badge->get_expires() > 0) {
-            $params['expires'] = $badge->get_expires();
-        }
-
-        $this->api_request('/badge/' . self::get_client_id() . '/' . $badge->get_id(),
-                'post', $params);
-    }
-    /**
-     * Revoke an issued event.
-     *
-     * @param string $eventid
-     * @param string[] $emails Array of emails to revoke the event for.
-     */
-    public function revoke_event($eventid, $emails) {
-        $this->require_client_id();
-        $this->api_request('/event/' . self::get_client_id() . '/' . $eventid . '/?email=' . implode('|', $emails),
-                'delete');
-    }
-
-    /**
-     * A wrapper for obf_client::request, prefixing $path with the API url.
-     *
-     * @param string $path
-     * @param string $method Supported methods are: 'get', 'post' and 'delete'
-     * @param array $params
-     * @param Closure $preformatter
-     * @return mixed Response from request.
-     * @see self::request
-     */
-    protected function api_request($path, $method = 'get',
-                                   array $params = array(),
-                                   Closure $preformatter = null) {
-        return $this->request(self::get_api_url() . $path, $method, $params,
-                        $preformatter);
-    }
-
-    /**
-     * Makes a CURL-request to OBF API.
-     *
-     * @param string $url The API path.
-     * @param string $method The HTTP method.
-     * @param array $params The params of the request.
-     * @param Closure $preformatter In some cases the returned string isn't
-     *      valid JSON. In those situations one has to manually preformat the
-     *      returned data before decoding the JSON.
-     * @return array The json-decoded response.
-     * @throws Exception In case something goes wrong.
-     */
-    public function request($url, $method = 'get', array $params = array(),
-                            Closure $preformatter = null) {
-        $curl = $this->get_transport();
-        $options = $this->get_curl_options();
-        if ($method == 'get') {
-            $output = $curl->get($url, $params, $options);
-        } else if ($method == 'delete') {
-            $output = $curl->delete($url, $params, $options);
-        } else {
-            $output = $curl->post($url, json_encode($params), $options);
-        }
-
-        if ($output !== false) {
-            if (!is_null($preformatter)) {
-                $output = $preformatter($output);
-            }
-
-            $response = json_decode($output, true);
-        }
-
-        $info = $curl->get_info();
-
-        if ($this->enablerawresponse) {
-            $this->rawresponse = $curl->get_raw_response();
-        }
-        $this->httpcode = $info['http_code'];
-        $this->error = '';
-
-        // Codes 2xx should be ok.
-        if (is_numeric($this->httpcode) && ($this->httpcode < 200 || $this->httpcode >= 300)) {
-            $this->error = isset($response['error']) ? $response['error'] : '';
-            $appendtoerror = defined('PHPUNIT_TEST') && PHPUNIT_TEST ? ' ' . $method . ' ' . $url : '';
-            throw new Exception(get_string('apierror' . $this->httpcode, 'local_obf',
-                    $this->error) . $appendtoerror, $this->httpcode);
-        }
-
-        return $response;
-    }
-
-    /**
-     * Returns a new curl-instance.
-     *
-     * @return \curl
-     */
-    protected function get_transport() {
-        if (!is_null($this->transport)) {
-            return $this->transport;
-        }
-
-        // Use Moodle's curl-object if no transport is defined.
-        global $CFG;
-
-        include_once($CFG->libdir . '/filelib.php');
-
-        return new curl();
-    }
-    /**
-     * Get HTTP error code of the last request.
-     * @return integer HTTP code, 200-299 should be good, 404 means item was not found.
-     */
-    public function get_http_code() {
-        return $this->httpcode;
-    }
-    /**
-     * Get error message of the last request.
-     * @return string Last error message or an empty string if last request was a success.
-     */
-    public function get_error() {
-        return $this->error;
-    }
-
-    /**
-     * Get raw response.
-     * @return string[] Raw response.
-     */
-    public function get_raw_response() {
-        return $this->rawresponse;
-    }
-    /**
-     * Enable/disable storing raw response.
-     * @param bool $enable
-     * @return obf_client This object.
-     */
-    public function set_enable_raw_response($enable) {
-        $this->enablerawresponse = $enable;
-        $this->rawresponse = null;
-        return $this;
-    }
-
-    /**
-     * Returns the default CURL-settings for a request.
-     *
-     * @return array
-     */
-    public function get_curl_options() {
-        return array(
-            'RETURNTRANSFER'    => true,
-            'FOLLOWLOCATION'    => false,
-            'SSL_VERIFYHOST'    => 2,
-            'SSL_VERIFYPEER'    => 1,
-            'SSLCERT'           => $this->get_cert_filename(),
-            'SSLKEY'            => $this->get_pkey_filename()
-        );
-    }
-
-    public function pub_get_badge($badgeid, $eventid) {
-        $params = array('v' => '1.1', 'event' => $eventid);
-        $badge = $this->api_request('/badge/_/' . $badgeid . '.json', 'get', $params);
-        return $badge;
     }
 }
