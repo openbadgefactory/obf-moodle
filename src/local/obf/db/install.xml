@@ -22,7 +22,8 @@
         <TABLE NAME="local_obf_criterion" COMMENT="Default comment for the table, please edit me" PREVIOUS="local_obf_criterion_courses" NEXT="local_obf_email_templates">
             <FIELDS>
                 <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true" NEXT="badge_id"/>
-                <FIELD NAME="badge_id" TYPE="text" NOTNULL="true" SEQUENCE="false" PREVIOUS="id" NEXT="completion_method"/>
+                <FIELD NAME="badge_id" TYPE="text" NOTNULL="true" SEQUENCE="false" PREVIOUS="id" NEXT="client_id"/>
+                <FIELD NAME="client_id" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" PREVIOUS="badge_id" NEXT="completion_method"/>
                 <FIELD NAME="completion_method" TYPE="int" LENGTH="1" NOTNULL="true" SEQUENCE="false" PREVIOUS="badge_id" NEXT="use_addendum"/>
                 <FIELD NAME="use_addendum" TYPE="binary" NOTNULL="false" SEQUENCE="false" PREVIOUS="completion_method" NEXT="addendum"/>
                 <FIELD NAME="addendum" TYPE="text" NOTNULL="false" SEQUENCE="false" PREVIOUS="use_addendum"/>
@@ -175,7 +176,6 @@
                 <FIELD NAME="obf_url" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false"/>
                 <FIELD NAME="access_token" TYPE="text" NOTNULL="true" SEQUENCE="false" />
                 <FIELD NAME="token_expires" TYPE="int" LENGTH="20" NOTNULL="true" SEQUENCE="false"/>
-                <FIELD NAME="local_events" TYPE="int" LENGTH="2" NOTNULL="true" SEQUENCE="false"/>
             </FIELDS>
             <KEYS>
                 <KEY NAME="primary" TYPE="primary" FIELDS="id"/>

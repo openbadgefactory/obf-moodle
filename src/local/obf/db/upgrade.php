@@ -762,7 +762,6 @@ function xmldb_local_obf_upgrade($oldversion) {
         $table->add_field('obf_url', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null);
         $table->add_field('access_token', XMLDB_TYPE_TEXT, null, null, XMLDB_NOTNULL, null, null);
         $table->add_field('token_expires', XMLDB_TYPE_INTEGER, '20', null, XMLDB_NOTNULL, null, null);
-        $table->add_field('local_events', XMLDB_TYPE_INTEGER, '2', null, XMLDB_NOTNULL, null, null);
 
         $table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
 
@@ -774,6 +773,22 @@ function xmldb_local_obf_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2021100700, 'local', 'obf');
     }
 
+    if ($oldversion < 2021110500) {
+
+        $table = new xmldb_table('local_obf_criterion');
+        $field = new xmldb_field('client_id', XMLDB_TYPE_CHAR, '255', null, null, null, null, 'badge_id');
+
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        $client_id = get_config('local_obf', 'obfclientid');
+        if ($client_id) {
+            $DB->execute('UPDATE {local_obf_criterion} SET client_id = ?', array($client_id));
+        }
+
+        upgrade_plugin_savepoint(true, 2021110500, 'local', 'obf');
+    }
 
     return true;
 }
