@@ -25,6 +25,8 @@ require_once(__DIR__ . '/../../config.php');
 require_once($CFG->libdir . '/adminlib.php');
 require_once(__DIR__ . '/class/client.php');
 require_once(__DIR__ . '/form/config_oauth2.php');
+require_once(__DIR__ . '/form/settings.php');
+require_once(__DIR__ . '/form/badgeexport.php');
 
 $context = context_system::instance();
 $action = optional_param('action', 'list', PARAM_TEXT);
@@ -36,6 +38,11 @@ $url = new moodle_url('/local/obf/config.php', $urlparams);
 
 require_login();
 require_capability('local/obf:configure', $context);
+
+if (!empty(get_config('local_obf', 'obfclientid'))) {
+    redirect(new moodle_url('/local/obf/config_legacy.php'));
+    exit();
+}
 
 $PAGE->set_context($context);
 $PAGE->set_url($url);
@@ -52,51 +59,77 @@ switch ($action) {
     case 'list':
         $clients = $DB->get_records('local_obf_oauth2', null, $DB->sql_order_by_text('client_name'));
 
-        $table = new html_table();
+        if (empty($clients)) {
+            $new_oauth2 = $CFG->wwwroot . '/local/obf/config.php?action=edit&id=0';
+            $new_legacy = $CFG->wwwroot . '/local/obf/config_legacy.php';
+            echo '<div class="actionbuttons">';
+            echo $OUTPUT->single_button($new_oauth2, get_string('addnewoauth2', 'local_obf'), 'get');
+            echo ' &nbsp; ';
+            echo $OUTPUT->single_button($new_legacy, get_string('addnewlegacy', 'local_obf'), 'get');
+            echo  '</div>';
+        }
+        else {
+            $table = new html_table();
 
-        $table->id = 'obf-displayclients';
-        $table->attributes = array('class' => 'local-obf generaltable');
+            $table->id = 'obf-displayclients';
+            $table->attributes = array('class' => 'local-obf generaltable');
 
-        $table->head = array(
-            get_string('clientname', 'local_obf'),
-            get_string('obfurl', 'local_obf'),
-            get_string('clientid', 'local_obf'),
-            get_string('clientsecret', 'local_obf'),
-            get_string('actions', 'moodle')
-        );
+            $table->head = array(
+                get_string('clientname', 'local_obf'),
+                get_string('obfurl', 'local_obf'),
+                get_string('clientid', 'local_obf'),
+                get_string('clientsecret', 'local_obf'),
+                get_string('actions', 'moodle')
+            );
 
-        foreach($clients as $client) {
-            $row = new html_table_row();
+            foreach($clients as $client) {
+                $row = new html_table_row();
 
-            $editurl = new moodle_url('/local/obf/config.php?action=edit&id=' . $client->id);
-            $editicon = new pix_icon('t/edit', get_string('edit'));
-            $editaction = $OUTPUT->action_icon($editurl, $editicon);
+                $editurl = new moodle_url('/local/obf/config.php?action=edit&id=' . $client->id);
+                $editicon = new pix_icon('t/edit', get_string('edit'));
+                $editaction = $OUTPUT->action_icon($editurl, $editicon);
 
-            $deleteurl = new moodle_url('/local/obf/config.php?action=delete&id=' . $client->id . '&sesskey=' . sesskey());
-            $deleteicon = new pix_icon('t/delete', get_string('delete'));
-            $deleteaction = $OUTPUT->action_icon($deleteurl, $deleteicon, new confirm_action(get_string('deleteclientconfirm', 'local_obf')));
+                $deleteurl = new moodle_url('/local/obf/config.php?action=delete&id=' . $client->id . '&sesskey=' . sesskey());
+                $deleteicon = new pix_icon('t/delete', get_string('delete'));
+                $deleteaction = $OUTPUT->action_icon($deleteurl, $deleteicon, new confirm_action(get_string('deleteclientconfirm', 'local_obf')));
 
-            $icons = new html_table_cell($editaction . ' ' . $deleteaction);
+                $icons = new html_table_cell($editaction . ' ' . $deleteaction);
 
-            $row->cells = array(
-                $client->client_name,
-                $client->obf_url,
-                $client->client_id,
-                '* * * * * * * * * *' . substr($client->client_secret, -3, 3),
-                $icons);
-            $table->data[] = $row;
+                $row->cells = array(
+                    $client->client_name,
+                    $client->obf_url,
+                    $client->client_id,
+                    '* * * * * * * * * *' . substr($client->client_secret, -3, 3),
+                    $icons);
+                $table->data[] = $row;
+            }
+
+            echo html_writer::table($table);
+
+            $url = $CFG->wwwroot . '/local/obf/config.php?action=edit&id=0';
+            echo '<div class="actionbuttons">' . $OUTPUT->single_button($url, get_string('addnewclient', 'local_obf'), 'get') . '</div>';
+
+            $settings = new stdClass();
+            $settings->disableassertioncache = get_config('local_obf', 'disableassertioncache');
+            $settings->coursereset = get_config('local_obf', 'coursereset');
+            $settings->usersdisplaybadges = get_config('local_obf', 'usersdisplaybadges');
+            $settings->apidataretrieve = get_config('local_obf', 'apidataretrieve');
+            $settingsform = new obf_settings_form($FULLME, array('settings' => $settings));
+
+            if (!is_null($data = $settingsform->get_data())) {
+                set_config('disableassertioncache', $data->disableassertioncache, 'local_obf');
+                set_config('coursereset', $data->coursereset, 'local_obf');
+                set_config('usersdisplaybadges', $data->usersdisplaybadges, 'local_obf');
+                set_config('apidataretrieve', $data->apidataretrieve, 'local_obf');
+                redirect(new moodle_url('/local/obf/config.php',
+                    array('msg' => get_string('settingssaved',
+                    'local_obf'))));
+            }
+
+            echo '<hr>';
+            echo $PAGE->get_renderer('local_obf')->render($settingsform);
         }
 
-        echo html_writer::table($table);
-
-        // See: /blocks/rss_client/editfeed.php
-        $url = $CFG->wwwroot . '/local/obf/config.php?action=edit&id=0';
-        echo '<div class="actionbuttons">' . $OUTPUT->single_button($url, get_string('addnewclient', 'local_obf'), 'get') . '</div>';
-        /*
-        if ($returnurl) {
-            echo '<div class="backlink">' . html_writer::link($returnurl, get_string('back')) . '</div>';
-        }
-        */
         break;
 
     ///
@@ -113,7 +146,6 @@ switch ($action) {
             $isadding = true;
             $clientrecord = new stdClass;
             $clientrecord->obf_url = 'https://openabadgefactory.com';
-            $clientrecord->local_events = 1;
         }
 
         $mform = new obf_config_oauth2_form($PAGE->url, $isadding);
@@ -128,7 +160,6 @@ switch ($action) {
                 $DB->insert_record('local_obf_oauth2', $data, false);
             } else {
                 $clientrecord->client_name = $data->client_name;
-                $clientrecord->local_events = $data->local_events;
                 $clientrecord->client_secret = $client_secret;
                 $DB->update_record('local_obf_oauth2', $clientrecord);
             }

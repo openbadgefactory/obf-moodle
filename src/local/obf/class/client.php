@@ -85,7 +85,6 @@ class obf_client {
             self::$client = new self();
 
             $oauth2 = $DB->get_records('local_obf_oauth2', null, 'client_name');
-
             if (count($oauth2) > 0) {
                 if (self::$client_id) {
                     foreach ($oauth2 as $o2) {
@@ -116,6 +115,7 @@ class obf_client {
      * @return obf_client The client.
      */
     public static function connect($id, $transport=null) {
+        self::$client    = null;
         self::$client_id = $id;
         return self::get_instance($transport);
     }
@@ -176,12 +176,8 @@ class obf_client {
      * @return string
      */
     public function local_events() {
-        if (isset($this->oauth2->local_events)) {
-            return $this->oauth2->local_events;
-        }
         return get_config('local_obf', 'apidataretrieve') == self::RETRIEVE_LOCAL;
     }
-
 
 
     /**
@@ -479,6 +475,10 @@ class obf_client {
         return json_decode($res, true);
     }
 
+    public function get_client_info() {
+        return $this->get_issuer();
+    }
+
     /**
      * Get badge issuing events from the API.
      *
@@ -702,7 +702,7 @@ class obf_client {
     }
 
     public function get_branding_image_url($imagename = 'issued_by') {
-        return $this->get_api_url() . '/badge/_/' . $imagename . '.png';
+        return $this->obf_url() . '/v1/badge/_/' . $imagename . '.png';
     }
 
     public function get_branding_image($imagename = 'issued_by') {
@@ -734,12 +734,10 @@ class obf_client {
         $signature = trim($signature);
         $token = base64_decode($signature);
         $curl = $this->get_transport();
-        $curlopts = $this->get_curl_options();
+        $curlopts = $this->get_curl_options(false);
         $url = $this->url_checker($url);
 
-
         $apiurl = $this->api_url_maker($url);
-
 
         // We don't need these now, we haven't authenticated yet.
         unset($curlopts['SSLCERT']);

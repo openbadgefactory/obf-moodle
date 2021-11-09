@@ -72,8 +72,6 @@ class obf_config_oauth2_form extends moodleform {
             $mform->addElement('static', 'client_secret', get_string('clientsecret', 'local_obf'));
         }
 
-        $mform->addElement('advcheckbox', 'local_events', get_string('localevents', 'local_obf'), null, null, array(0,1));
-
         $submitlabel = null; // Default
         if ($this->isadding) {
             $submitlabel = get_string('addnewclient', 'local_obf');

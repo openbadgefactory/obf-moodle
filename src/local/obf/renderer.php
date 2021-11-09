@@ -725,7 +725,7 @@ class local_obf_renderer extends plugin_renderer_base {
         $courseincriterion = false;
         $error = '';
         $url = new moodle_url('/local/obf/badge.php',
-                array('id' => $badge->get_id(), 'action' => 'show',
+                array('clientid' => $badge->get_client_id(), 'id' => $badge->get_id(), 'action' => 'show',
                 'show' => 'criteria', 'courseid' => $courseid));
 
         // Show edit form if there aren't any criteria related to this badge or
@@ -851,7 +851,7 @@ class local_obf_renderer extends plugin_renderer_base {
             if ($criterionform->is_cancelled()) {
                 $criterioncourse->delete();
                 redirect(new moodle_url('/local/obf/badge.php',
-                        array('id' => $badge->get_id(),
+                        array('clientid' => $badge->get_client_id(), 'id' => $badge->get_id(),
                     'action' => 'show', 'show' => 'criteria', 'courseid' => $courseid,
                     'msg' => get_string('criteriondeleted', 'local_obf'))));
             }
@@ -909,7 +909,7 @@ class local_obf_renderer extends plugin_renderer_base {
                     $criterioncourse->save_params($data);
 
                     $redirecturl = new moodle_url('/local/obf/badge.php',
-                            array('id' => $badge->get_id(),
+                            array('clientid' => $badge->get_client_id(), 'id' => $badge->get_id(),
                         'action' => 'show', 'show' => 'criteria', 'courseid' => $courseid,
                         'msg' => get_string('criterionsaved', 'local_obf')));
 
@@ -946,7 +946,7 @@ class local_obf_renderer extends plugin_renderer_base {
         $html = '';
         $file = '/local/obf/criterion.php';
         $url = new moodle_url($file,
-                array('badgeid' => $badge->get_id(), 'action' => 'new'));
+                array('clientid' => $badge->get_client_id(), 'badgeid' => $badge->get_id(), 'action' => 'new'));
         $options = array();
         $criteria = $badge->get_completion_criteria();
 
@@ -1003,7 +1003,7 @@ class local_obf_renderer extends plugin_renderer_base {
             
 
             $deleteurl = new moodle_url($file,
-                    array('badgeid' => $badge->get_id(),
+                    array('clientid' => $badge->get_client_id(), 'badgeid' => $badge->get_id(),
                 'action' => 'delete', 'id' => $id));
             $heading .= local_obf_html::icon($deleteurl, 't/delete', 'delete');
 
@@ -1346,7 +1346,7 @@ class local_obf_renderer extends plugin_renderer_base {
     public function render_client_selector($url, $clientid) {
         $clients = obf_client::get_available_clients();
         if (count($clients) < 2) {
-            //return '';
+            return '';
         }
         $selected = empty($clientid) ? array_key_first($clients) : $clientid;
         return html_writer::div($this->single_select($url, 'clientid', $clients, $selected, null), 'obf-category-wrapper');

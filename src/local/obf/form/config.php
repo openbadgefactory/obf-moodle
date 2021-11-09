@@ -40,10 +40,8 @@ class obf_config_form extends local_obf_form_base implements renderable {
         $mform = $this->_form;
         $client = $this->_customdata['client'];
         $errorcode = $client->test_connection();
-        $url = $client->default_url();  //added
+        $url = OBF_DEFAULT_ADDRESS;
         // Connection to API is working.
-
-
 
         $formdata = $this->get_data();
         if ($errorcode === -1) {

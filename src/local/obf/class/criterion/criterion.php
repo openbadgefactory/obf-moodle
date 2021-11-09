@@ -80,6 +80,11 @@ class obf_criterion {
     private $badgeid = null;
 
     /**
+     * @var string The id of the badge owner client
+     */
+    private $clientid = null;
+
+    /**
      * @var bool Use criteria addendum
      */
     private $useaddendum = false;
@@ -112,6 +117,7 @@ class obf_criterion {
 
         $obj = new self();
         $obj->set_badgeid($record->badge_id);
+        $obj->set_clientid($record->client_id);
         $obj->set_id($record->id);
         $obj->set_completion_method($record->completion_method);
         $obj->set_criteria_addendum($record->addendum);
@@ -130,6 +136,7 @@ class obf_criterion {
         $obj = new stdClass();
         $obj->id = $this->id;
         $obj->badge_id = $this->get_badgeid();
+        $obj->client_id = $this->get_clientid();
         $obj->completion_method = $this->completionmethod;
         $obj->addendum = $this->criteriaaddendum;
         $obj->use_addendum = $this->useaddendum;
@@ -147,6 +154,7 @@ class obf_criterion {
 
         $obj = new stdClass();
         $obj->badge_id = $this->get_badgeid();
+        $obj->client_id = $this->get_clientid();
         $obj->completion_method = $this->completionmethod;
         $obj->addendum = $this->criteriaaddendum;
         $obj->use_addendum = $this->useaddendum;
@@ -454,6 +462,7 @@ class obf_criterion {
             if (!isset($ret[$record->criterionid])) {
                 $obj = new self();
                 $obj->set_badgeid($record->badge_id);
+                $obj->set_clientid($record->client_id);
                 $obj->set_id($record->criterionid);
                 $obj->set_completion_method($record->crit_completion_method);
                 $obj->set_use_addendum($record->use_addendum);
@@ -506,7 +515,9 @@ class obf_criterion {
      * @return obf_badge The badge.
      */
     public function get_badge() {
-        return (!empty($this->badge) ? $this->badge : (!empty($this->badgeid) ? obf_badge::get_instance($this->badgeid) : null));
+        return (!empty($this->badge) ? $this->badge
+                                     : (!empty($this->badgeid) ? obf_badge::get_instance($this->badgeid, obf_client::connect($this->clientid))
+                                                               : null));
     }
 
     /**
@@ -790,6 +801,7 @@ class obf_criterion {
     public function set_badge(obf_badge $badge) {
         $this->badge = $badge;
         $this->badge_id = $badge->get_id();
+        $this->client_id = $badge->get_client_id();
         return $this;
     }
     /**
@@ -850,6 +862,24 @@ class obf_criterion {
         $this->badgeid = $badgeid;
         return $this;
     }
+
+    /**
+     * Get client id.
+     * @return mixed Client id
+     */
+    public function get_clientid() {
+        return (empty($this->clientid) ? $this->get_badge()->get_client_id() : $this->clientid);
+    }
+    /**
+     * Set client id
+     * @param mixed $client
+     * @return $this
+     */
+    public function set_clientid($clientid) {
+        $this->clientid = $clientid;
+        return $this;
+    }
+
     /**
      * Get criteria for which badge cannot be retrieved from OBF.
      *
@@ -866,6 +896,7 @@ class obf_criterion {
             $obj = new self();
             $obj->set_id($record->id);
             $obj->set_badgeid($record->badge_id);
+            $obj->set_clientid($record->client_id);
             $obj->set_completion_method($record->completion_method);
 
             if (in_array($obj->get_badgeid(), $okbadges) || in_array($obj->get_badgeid(), $failbadges)) {
