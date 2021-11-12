@@ -28,7 +28,7 @@ require_once(__DIR__ . "/class/badge.php");
 
 $clientid = required_param('clientid', PARAM_ALPHANUM);
 
-obf_client::connect($clientid);
+obf_client::connect($clientid, $USER);
 
 $id = optional_param('id', null, PARAM_INT);
 $action = optional_param('action', 'new', PARAM_ALPHANUM);

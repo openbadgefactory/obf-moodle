@@ -136,19 +136,24 @@ switch ($action) {
 
     case 'edit':
 
+        $roles = [];
+
         if ($clientid) {
             $isadding = false;
             $clientrecord = $DB->get_record('local_obf_oauth2', array('id' => $clientid), '*', MUST_EXIST);
             $client_secret = $clientrecord->client_secret;
             //mask previusly set client secret in config form
             $clientrecord->client_secret = '* * * * * * * * * * * * * * * * * *' . substr($client_secret, -3, 3);
-        } else {
+
+            $roles = $DB->get_fieldset_select('local_obf_oauth2_role', 'role_id', 'oauth2_id = ?', array($clientid));
+        }
+        else {
             $isadding = true;
             $clientrecord = new stdClass;
             $clientrecord->obf_url = 'https://openabadgefactory.com';
         }
 
-        $mform = new obf_config_oauth2_form($PAGE->url, $isadding);
+        $mform = new obf_config_oauth2_form($PAGE->url, $isadding, $roles);
         $mform->set_data($clientrecord);
 
         if ($mform->is_cancelled()) {
@@ -156,13 +161,27 @@ switch ($action) {
 
         }
         else if ($data = $mform->get_data()) {
+
+            $roles = [];
+            foreach (array_keys((array)$data) as $k) {
+                if (preg_match('/^role_(\d+)$/', $k, $m) && $data->$k == 1) {
+                    $roles[] = $m[1];
+                    unset($data->$k);
+                }
+            }
             if ($isadding) {
-                $DB->insert_record('local_obf_oauth2', $data, false);
+                $clientid = $DB->insert_record('local_obf_oauth2', $data, true);
             } else {
                 $clientrecord->client_name = $data->client_name;
                 $clientrecord->client_secret = $client_secret;
                 $DB->update_record('local_obf_oauth2', $clientrecord);
             }
+
+            $DB->delete_records('local_obf_oauth2_role', array('oauth2_id' => $clientid));
+            foreach($roles as $r) {
+                $DB->execute('INSERT INTO {local_obf_oauth2_role} (oauth2_id, role_id) VALUES (?,?)', array($clientid, $r));
+            }
+
             redirect($listclients, get_string('clientsaved', 'local_obf'));
 
         } else {

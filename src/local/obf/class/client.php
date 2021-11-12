@@ -114,9 +114,17 @@ class obf_client {
      * @param string client_id in local_obf_oauth2 table row
      * @return obf_client The client.
      */
-    public static function connect($id, $transport=null) {
+    public static function connect($id, $user=null, $transport=null) {
         self::$client    = null;
         self::$client_id = $id;
+
+        if (!is_null($id) && !is_null($user)) {
+            $available = self::get_available_clients($user);
+            if (!isset($available[$id])) {
+                throw new Exception("Forbidden. You are not allowed to access this api client.");
+            }
+        }
+
         return self::get_instance($transport);
     }
 
@@ -125,9 +133,28 @@ class obf_client {
      *
      * @return array id and name pairs
      */
-    public static function get_available_clients() {
-        global $DB;
-        return $DB->get_records_menu('local_obf_oauth2', null, 'client_name', 'client_id, client_name');
+    public static function get_available_clients($user=null) {
+        global $DB, $USER;
+
+        if (is_null($user)) {
+            $user = $USER;
+        }
+
+        $context = context_system::instance();
+        if (has_capability('local/obf:configure', $context, $user)) {
+            // Can see all connected clients
+            return $DB->get_records_menu('local_obf_oauth2', null, 'client_name', 'client_id, client_name');
+        }
+
+        // Get connected clients based on user role access (role can be in any context)
+        $sql =
+           "SELECT o.client_id, o.client_name FROM {local_obf_oauth2} o
+            INNER JOIN {local_obf_oauth2_role} r ON o.id = r.oauth2_id
+            INNER JOIN {role_assingments} ra ON r.role_id = ra.roleid
+            WHERE ra.userid = ?
+            ORDER BY o.client_name";
+
+        return $DB->get_records_sql_menu($sql, array($user->id));
     }
 
     public static function has_client_id() {

@@ -36,9 +36,11 @@ class obf_config_oauth2_form extends moodleform {
     private $access_token  = '';
     private $token_expires = 0;
     private $client_name   = '';
+    private $roles = [];
 
-    function __construct($actionurl, $isadding) {
+    function __construct($actionurl, $isadding, $roles) {
         $this->isadding = $isadding;
+        $this->roles = $roles;
         parent::__construct($actionurl);
     }
 
@@ -70,6 +72,14 @@ class obf_config_oauth2_form extends moodleform {
             $mform->addElement('static', 'obf_url', get_string('obfurl', 'local_obf'));
             $mform->addElement('static', 'client_id', get_string('clientid', 'local_obf'));
             $mform->addElement('static', 'client_secret', get_string('clientsecret', 'local_obf'));
+        }
+
+        $mform->addElement('header', 'obfeditclientheader', get_string('issuerroles', 'local_obf'));
+
+        foreach ($this->roles_available() AS $role_id => $role_name) {
+            $mform->addElement('advcheckbox', 'role_' . $role_id, null, $role_name, array('group' => 1));
+            $checked = in_array($role_id, $this->roles) ? 1 : 0;
+            $mform->setDefault('role_' . $role_id, $checked);
         }
 
         $submitlabel = null; // Default
@@ -111,5 +121,16 @@ class obf_config_oauth2_form extends moodleform {
             $data->client_name   = $this->client_name;
         }
         return $data;
+    }
+
+    private function roles_available() {
+        global $DB;
+
+        $sql = "SELECT r.id, COALESCE(NULLIF(r.name, ''), r.shortname) FROM {role} r
+                INNER JOIN {role_capabilities} rc ON r.id = rc.roleid
+                WHERE rc.capability = ? AND rc.permission = 1
+                ORDER BY r.id";
+
+        return $DB->get_records_sql_menu($sql, array('local/obf:issuebadge'));
     }
 }

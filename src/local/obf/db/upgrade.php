@@ -790,5 +790,21 @@ function xmldb_local_obf_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2021110500, 'local', 'obf');
     }
 
+    if ($oldversion < 2021110900) {
+        $table = new xmldb_table('local_obf_oauth2_role');
+
+        $table->add_field('oauth2_id', XMLDB_TYPE_INTEGER, '20', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('role_id', XMLDB_TYPE_INTEGER, '20', null, XMLDB_NOTNULL, null, null);
+
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, array('oauth2_id, role_id'));
+
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        // Obf savepoint reached.
+        upgrade_plugin_savepoint(true, 2021110900, 'local', 'obf');
+    }
+
     return true;
 }

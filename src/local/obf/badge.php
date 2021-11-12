@@ -28,7 +28,7 @@ require_once($CFG->libdir . '/adminlib.php');
 
 $clientid = optional_param('clientid', null, PARAM_ALPHANUM);
 
-obf_client::connect($clientid);
+obf_client::connect($clientid, $USER);
 
 $badgeid = optional_param('id', '', PARAM_ALPHANUM);
 $action = optional_param('action', 'list', PARAM_ALPHANUM);
