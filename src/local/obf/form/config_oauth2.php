@@ -74,12 +74,15 @@ class obf_config_oauth2_form extends moodleform {
             $mform->addElement('static', 'client_secret', get_string('clientsecret', 'local_obf'));
         }
 
-        $mform->addElement('header', 'obfeditclientheader', get_string('issuerroles', 'local_obf'));
+        $can_issue = $this->roles_available();
+        if (!empty($can_issue)) {
+            $mform->addElement('header', 'obfeditclientheader', get_string('issuerroles', 'local_obf'));
 
-        foreach ($this->roles_available() AS $role_id => $role_name) {
-            $mform->addElement('advcheckbox', 'role_' . $role_id, null, $role_name, array('group' => 1));
-            $checked = in_array($role_id, $this->roles) ? 1 : 0;
-            $mform->setDefault('role_' . $role_id, $checked);
+            foreach ($can_issue AS $role_id => $role_name) {
+                $mform->addElement('advcheckbox', 'role_' . $role_id, null, $role_name, array('group' => 1));
+                $checked = $this->isadding || in_array($role_id, $this->roles) ? 1 : 0;
+                $mform->setDefault('role_' . $role_id, $checked);
+            }
         }
 
         $submitlabel = null; // Default
@@ -131,6 +134,20 @@ class obf_config_oauth2_form extends moodleform {
                 WHERE rc.capability = ? AND rc.permission = 1
                 ORDER BY r.id";
 
-        return $DB->get_records_sql_menu($sql, array('local/obf:issuebadge'));
+        $can_issue = $DB->get_records_sql_menu($sql, array('local/obf:issuebadge'));
+
+        /*
+        $sql = "SELECT r.id FROM {role} r
+                INNER JOIN {role_capabilities} rc ON r.id = rc.roleid
+                WHERE rc.capability = ? AND rc.permission = 1";
+
+        $can_configure = $DB->get_fieldset_sql($sql, array('local/obf:configure'));
+
+        foreach ($can_configure as $id) {
+            unset($can_issue[$id]);
+        }
+         */
+
+        return $can_issue;
     }
 }

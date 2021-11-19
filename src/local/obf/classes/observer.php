@@ -55,12 +55,12 @@ class local_obf_observer {
      * @return boolean Returns true if everything went ok.
      * @see self::course_user_completion_review()
      */
-        public static function course_completed(\core\event\course_completed $event) {
+    public static function course_completed(\core\event\course_completed $event) {
         $eventdata = new stdClass();
         $eventdata->userid = $event->relateduserid;
         $eventdata->course = $event->courseid;
         return self::course_user_completion_review($eventdata);
-   }
+    }
 
     /**
      * Reviews the badge criteria and issues the badges (if necessary) when
@@ -116,14 +116,14 @@ class local_obf_observer {
      * @param \totara_program\event\program_completed $eventdata
      * @return boolean Returns true if everything went ok.
      * @see self::program_completed_review()
-     */ 
+     */
     public static function program_completed(\totara_program\event\program_completed $event) {
         $eventdata = new stdClass();
         $eventdata->userid = $event->userid;
         $eventdata->programid = $event->objectid;
 
         return self::program_completed_review($eventdata);
-    }    
+    }
 
 
     /**
@@ -136,9 +136,9 @@ class local_obf_observer {
     private static function program_completed_review(stdClass $eventdata) {
 
         global $DB;
-        
+
         self::requires(array('/class/event.php', '/class/criterion/item_base.php'));
-        
+
         $user = $DB->get_record('user', array('id' => $eventdata->userid));
 
         $backpack = obf_backpack::get_instance($user);

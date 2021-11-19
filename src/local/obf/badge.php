@@ -38,7 +38,6 @@ $message = optional_param('msg', '', PARAM_TEXT);
 $context = empty($courseid) ? context_system::instance() : context_course::instance($courseid);
 
 $url = new moodle_url('/local/obf/badge.php', array('action' => $action));
-$badge = empty($badgeid) ? null : obf_badge::get_instance($badgeid);
 
 if (!empty($badgeid)) {
     $url->param('id', $badgeid);
@@ -58,6 +57,7 @@ $PAGE->set_pagelayout(empty($courseid) ? 'admin' : 'course');
 $PAGE->set_title(get_string('obf', 'local_obf'));
 $PAGE->add_body_class('local-obf');
 
+$badge = empty($badgeid) ? null : obf_badge::get_instance($badgeid);
 
 $content = '';
 $hasissuecapability = has_capability('local/obf:issuebadge', $context);
@@ -71,6 +71,8 @@ switch ($action) {
         $page = optional_param('page', 0, PARAM_INT);
 
         try {
+            $content .= $PAGE->get_renderer('local_obf')->render_client_selector($url, $clientid);
+
             $client = obf_client::get_instance();
             $content .= $PAGE->get_renderer('local_obf')->print_badge_info_history(
                     $client, $badge, $context, $page);
@@ -101,6 +103,10 @@ switch ($action) {
 
         break;
 
+    case 'historycsv':
+        $PAGE->get_renderer('local_obf')->create_csv($badge);
+        break;
+
     // Display badge info.
     case 'show':
         require_capability('local/obf:viewdetails', $context);
@@ -108,17 +114,19 @@ switch ($action) {
         $client = obf_client::get_instance();
         $page = optional_param('page', 0, PARAM_INT);
         $show = optional_param('show', 'details', PARAM_ALPHANUM);
-        $baseurl = new moodle_url('/local/obf/badge.php',
+        $badgeurl = new moodle_url('/local/obf/badge.php',
                 array('action' => 'show', 'id' => $badgeid, 'clientid' => $clientid));
 
         if ($context instanceof context_system) {
-            navigation_node::override_active_url(new moodle_url('/local/obf/badge.php',
-                    array('action' => 'list', 'clientid' => $clientid)));
-            $PAGE->navbar->add($badge->get_name(), $baseurl);
+            navigation_node::override_active_url(
+                new moodle_url('/local/obf/badge.php', array('action' => 'list'))
+            );
+            $PAGE->navbar->add($badge->get_name(), $badgeurl);
         } else {
-            navigation_node::override_active_url(new moodle_url('/local/obf/badge.php',
-                    array('action' => 'list', 'courseid' => $courseid, 'clientid' => $clientid)));
-            $coursebadgeurl = clone $baseurl;
+            navigation_node::override_active_url(
+                new moodle_url('/local/obf/badge.php', array('action' => 'list', 'courseid' => $courseid))
+            );
+            $coursebadgeurl = clone $badgeurl;
             $coursebadgeurl->param('courseid', $courseid);
             $PAGE->navbar->add($badge->get_name(), $coursebadgeurl);
         }
@@ -136,8 +144,11 @@ switch ($action) {
                         '/local/obf/badge.php', array('id' => $badge->get_id(),
                     'action' => 'show', 'show' => 'email', 'clientid' => $clientid));
 
+                /*
                 $PAGE->navbar->add(
                         get_string('badgeemail', 'local_obf'), $emailurl);
+                 */
+
                 $form = new obf_email_template_form(
                         $emailurl, array('badge' => $badge));
                 $html = '';
@@ -170,19 +181,20 @@ switch ($action) {
 
             // Badge details.
             case 'details':
-                $taburl = clone $baseurl;
+                $taburl = clone $badgeurl;
                 $taburl->param('show', $show);
 
+                /*
                 if ($context instanceof context_system) {
                     $PAGE->navbar->add(
                             get_string('badge' . $show, 'local_obf'), $taburl);
                 }
+                 */
 
                 $content .= $PAGE->get_renderer('local_obf')->page_badgedetails(
                         $client, $badge, $context, $show, $page, $message);
 
-                $content .= $PAGE->get_renderer('local_obf')->render_button($badge,
-                    $context, 'issue');
+                $content .= $PAGE->get_renderer('local_obf')->issue_button($badge, $context);
 
 
                 break;
@@ -198,6 +210,7 @@ switch ($action) {
                 $content .= $PAGE->get_renderer('local_obf')->page_badgedetails(
                         $client, $badge,  $context, $show, $page, $message);
                 break;
+
         }
 
         break;

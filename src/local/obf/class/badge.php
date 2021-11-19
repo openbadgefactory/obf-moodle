@@ -735,7 +735,7 @@ class obf_badge {
      * @return $this
      */
     public function set_criteria_html($criteria) {
-        $this->criteriahtml = markdown_to_html($criteria);
+        $this->criteriahtml = format_text($criteria, FORMAT_MARKDOWN);
         return $this;
     }
 

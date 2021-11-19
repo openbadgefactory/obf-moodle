@@ -106,9 +106,6 @@ if (!$hasrevokepermission && $action == 'revoke') {
 }
 $client = obf_client::get_instance();
 
-$assertion = obf_assertion::get_instance_by_id($eventid, $client);
-$assertion->get_revoked($client);
-$badge = $assertion->get_badge();
 
 $PAGE->set_url(new moodle_url('/local/obf/event.php', array('id' => $eventid)));
 $PAGE->set_context(context_system::instance());
@@ -117,6 +114,10 @@ $PAGE->set_title(get_string('obf', 'local_obf'));
 
 navigation_node::override_active_url(new moodle_url('/local/obf/badge.php',
         array('action' => 'history')));
+
+$assertion = obf_assertion::get_instance_by_id($eventid, $client);
+$assertion->get_revoked($client);
+$badge = $assertion->get_badge();
 
 $content = $OUTPUT->header();
 
@@ -129,15 +130,14 @@ switch ($action) {
         if (!empty($msg)) {
             $content .= $OUTPUT->notification($msg);
         }
-        $formurl = new moodle_url('/local/obf/event.php',
-                array('id' => $eventid,
-                    'action' => 'revoke',
-                    'course_id' => $courseid));
+        $formurl = new moodle_url('/local/obf/event.php', array(
+            'id' => $eventid, 'clientid' => $clientid, 'action' => 'revoke', 'course_id' => $courseid
+        ));
         $collection = new obf_assertion_collection(array($assertion));
         $users = $collection->get_assertion_users($assertion);
-        $showformurl = new moodle_url('/local/obf/event.php',
-                array('id' => $eventid, 'action' => 'view', 'course_id' => $courseid,
-                'show' => 'revoke'));
+        $showformurl = new moodle_url('/local/obf/event.php', array(
+            'id' => $eventid, 'clientid' => $clientid, 'action' => 'view', 'course_id' => $courseid, 'show' => 'revoke'
+        ));
         $revokeform = new obf_revoke_form($formurl,
                 array('assertion' => $assertion,
                       'users' => $users,
@@ -158,9 +158,9 @@ switch ($action) {
         break;
     case 'revoke':
         if ($assertion) {
-            $redirecturl = new moodle_url('/local/obf/event.php',
-                    array('id' => $eventid,
-                        'action' => 'view'));
+            $redirecturl = new moodle_url('/local/obf/event.php', array(
+                'id' => $eventid,'clientid' => $clientid, 'action' => 'view'
+            ));
             if (count($emailar) > 0) {
                 try {
                     $assertion->revoke($client, $emailar);

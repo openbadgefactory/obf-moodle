@@ -107,7 +107,7 @@ switch ($action) {
             echo html_writer::table($table);
 
             $url = $CFG->wwwroot . '/local/obf/config.php?action=edit&id=0';
-            echo '<div class="actionbuttons">' . $OUTPUT->single_button($url, get_string('addnewclient', 'local_obf'), 'get') . '</div>';
+            echo '<div class="actionbuttons">' . $OUTPUT->single_button($url, get_string('addnew', 'local_obf'), 'get') . '</div>';
 
             $settings = new stdClass();
             $settings->disableassertioncache = get_config('local_obf', 'disableassertioncache');
@@ -150,7 +150,7 @@ switch ($action) {
         else {
             $isadding = true;
             $clientrecord = new stdClass;
-            $clientrecord->obf_url = 'https://openabadgefactory.com';
+            $clientrecord->obf_url = 'https://openbadgefactory.com';
         }
 
         $mform = new obf_config_oauth2_form($PAGE->url, $isadding, $roles);

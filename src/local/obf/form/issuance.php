@@ -48,6 +48,12 @@ class obf_issuance_form extends local_obf_form_base {
     private $courseid = null;
 
     /**
+     * Client id, owner of the badge
+     * @var string
+     */
+    private $clientid = null;
+
+    /**
      *
      * @var local_obf_renderer
      */
@@ -59,6 +65,7 @@ class obf_issuance_form extends local_obf_form_base {
         $this->badge = $this->_customdata['badge'];
         $this->renderer = $this->_customdata['renderer'];
         $this->courseid = $this->_customdata['courseid'];
+        $this->clientid = $this->_customdata['clientid'];
 
         $this->add_details_elements();
         $this->add_recipients_elements();

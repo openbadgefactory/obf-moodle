@@ -25,6 +25,10 @@ require_once(__DIR__ . '/../../config.php');
 require_once(__DIR__ . '/class/badge.php');
 require_once(__DIR__ . '/class/event.php');
 
+$clientid = optional_param('clientid', null, PARAM_ALPHANUM);
+
+obf_client::connect($clientid, $USER);
+
 $badgeid = optional_param('id', '', PARAM_ALPHANUM);
 $courseid = optional_param('courseid', 1, PARAM_INT);
 $action = optional_param('action', 'badges', PARAM_ALPHANUM);
@@ -92,7 +96,8 @@ switch ($action) {
         if (count($events) >= 1) {
             $relatedevents = obf_issue_event::get_course_related_events($events, $DB);
         }
-        $content = $PAGE->get_renderer('local_obf')->print_badge_info_history($client, null, $context, $curr_page, $relatedevents);
+        $content  = $PAGE->get_renderer('local_obf')->render_client_selector($url, $clientid);
+        $content .= $PAGE->get_renderer('local_obf')->print_badge_info_history($client, null, $context, $curr_page, $relatedevents);
         break;
 }
 

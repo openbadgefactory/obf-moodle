@@ -261,6 +261,7 @@ class obf_assertion {
         $badgeid = is_null($badge) ? null : $badge->get_id();
         $arr = $client->get_assertions($badgeid, $email);
         $assertions = array();
+
         if (!$geteachseparately) {
             /**
              * Using populated collection for assertions would result in getting
@@ -269,7 +270,7 @@ class obf_assertion {
              * 
              */
             $collection = new obf_badge_collection($client);
-            $collection->populate(); 
+            $collection->populate(true);
         }
 
         if (is_array($arr)) {
@@ -288,7 +289,7 @@ class obf_assertion {
                 if (!is_null($b)) {
                     $assertion = self::get_instance();
                     $assertion->set_badge($b)->set_id($item['id'])->set_recipients($item['recipient']);
-                    $assertion->set_client_id($client->client_id());
+                    $assertion->set_client_id($b->get_client_id());
 
                     if (isset($item['log_entry'])){
                         $assertion->set_log_entry($item['log_entry']);
@@ -317,7 +318,52 @@ class obf_assertion {
 
         return new obf_assertion_collection($assertions);
     }
-    
+
+    /**
+     * Returns all assertions matching the search criteria, for all connected clients.
+     *
+     * @param obf_client $client The client instance.
+     * @param obf_badge $badge Get only the assertions containing this badge.
+     * @param string $email Get only the assertions related to this email.
+     * @param int $limit Limit the amount of results.
+     * @return \obf_assertion_collection The assertions.
+     */
+    public static function get_assertions_all(obf_client $client, $email) {
+
+        $arr = $client->get_assertions_all($email);
+        $assertions = array();
+
+        if (is_array($arr)) {
+            foreach ($arr as $item) {
+                $b = self::get_assertion_badge($client, $item['badge_id'], $item['id']);
+
+                if (!is_null($b)) {
+                    $assertion = self::get_instance();
+                    $assertion->set_badge($b)->set_id($item['id'])->set_recipients($item['recipient']);
+                    $assertion->set_client_id($b->get_client_id());
+
+                    if (isset($item['log_entry'])){
+                        $assertion->set_log_entry($item['log_entry']);
+                    }
+                    $assertion->set_expires($item['expires'])->set_name($item['name']);
+                    $assertion->set_issuedon($item['issued_on'])->set_source(self::ASSERTION_SOURCE_OBF);
+                    if (array_key_exists('revoked', $item)) {
+                        $assertion->set_revoked($item['revoked']);
+                    }
+                    $assertions[] = $assertion;
+                }
+            }
+        }
+
+        // Sort the assertions by date...
+        usort($assertions,
+                function (obf_assertion $a1, obf_assertion $a2) {
+                    return $a1->get_issuedon() <= $a2->get_issuedon();
+                });
+
+        return new obf_assertion_collection($assertions);
+    }
+
     /**
      * Get badge details for an issued badge.
      * 

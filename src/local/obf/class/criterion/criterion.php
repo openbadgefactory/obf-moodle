@@ -190,7 +190,7 @@ class obf_criterion {
         return ($DB->count_records('local_obf_criterion_met',
                         array('obf_criterion_id' => $this->id)) > 0);
     }
-    
+
     public function issue_and_set_met($user, $recipients = null) {
         global $DB;
 
@@ -515,9 +515,13 @@ class obf_criterion {
      * @return obf_badge The badge.
      */
     public function get_badge() {
-        return (!empty($this->badge) ? $this->badge
-                                     : (!empty($this->badgeid) ? obf_badge::get_instance($this->badgeid, obf_client::connect($this->clientid))
-                                                               : null));
+        if (!empty($this->badge)) {
+            return $this->badge;
+        }
+        if (!empty($this->badgeid)) {
+            return obf_badge::get_instance($this->badgeid, obf_client::connect($this->clientid));
+        }
+        return null;
     }
 
     /**

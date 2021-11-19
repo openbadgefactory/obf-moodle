@@ -65,8 +65,13 @@ class obf_badge_collection {
     /**
      * Populates this collection by fetching the badges from the OBF.
      */
-    public function populate() {
-        $badges = $this->client->get_badges();
+    public function populate($all=false) {
+        if ($all) {
+            $badges = $this->client->get_badges_all();
+        }
+        else {
+            $badges = $this->client->get_badges();
+        }
 
         foreach ($badges as $badge) {
             $this->badges[$badge['id']] = obf_badge::get_instance_from_array($badge);

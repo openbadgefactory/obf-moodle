@@ -77,21 +77,24 @@ if (!is_null($courseid)) {
     $url->param('courseid', $courseid);
 }
 
+if (!is_null($clientid)) {
+    $url->param('clientid', $clientid);
+}
+
 $issuerform = new obf_issuance_form($url,
-        array('badge' => $badge, 'courseid' => $courseid, 'renderer' => $PAGE->get_renderer('local_obf')));
+        array('badge' => $badge, 'courseid' => $courseid, 'clientid' => $clientid, 'renderer' => $PAGE->get_renderer('local_obf')));
 
 // Issuance was cancelled.
 if ($issuerform->is_cancelled()) {
     // TODO: Check referer maybe and redirect there.
+    $returnurl = new moodle_url('/local/obf/badge.php', array('id' => $badge->get_id(), 'clientid' => $clientid, 'action' => 'show', 'show' => 'details'));
 
     if (!empty($courseid)) {
-        redirect(new moodle_url('/local/obf/issue.php', array('courseid' => $courseid)));
-    } else {
-        redirect(new moodle_url('/local/obf/badge.php',
-                array('id' => $badge->get_id(), 'action' => 'show',
-            'show' => 'details')));
+        $returnurl->param('courseid', $courseid);
     }
-} else if (!is_null($data = $issuerform->get_data())) { // Issuance form was submitted.
+    redirect($returnurl);
+}
+else if (!is_null($data = $issuerform->get_data())) { // Issuance form was submitted.
     $users = user_get_users_by_id($data->recipientlist);
     $recipients = array();
     $userids = array();
@@ -105,7 +108,7 @@ if ($issuerform->is_cancelled()) {
     foreach ($users as $user) {
         $recipients[] = isset($backpackemails[$user->id]) ? $backpackemails[$user->id] : $user->email;
     }
-    
+
     if (isset($data->criteriaaddendum) && isset($data->addcriteriaaddendum) && true == $data->addcriteriaaddendum) {
         $criteriaaddendum = $data->criteriaaddendum;
     } else {
@@ -133,11 +136,11 @@ if ($issuerform->is_cancelled()) {
         // Course context.
         if (!empty($courseid)) {
             redirect(new moodle_url('/local/obf/badge.php',
-                    array('action' => 'list', 'courseid' => $courseid,
+                    array('action' => 'list', 'courseid' => $courseid, 'clientid' => $clientid,
                 'msg' => get_string('badgeissued', 'local_obf'))));
         } else { // Site context.
             redirect(new moodle_url('/local/obf/badge.php',
-                    array('id' => $badge->get_id(),
+                    array('id' => $badge->get_id(), 'clientid' => $clientid,
                 'action' => 'show', 'show' => 'history', 'msg' => get_string('badgeissued',
                         'local_obf'))));
         }

@@ -118,11 +118,28 @@ class obf_client {
         self::$client    = null;
         self::$client_id = $id;
 
-        if (!is_null($id) && !is_null($user)) {
-            $available = self::get_available_clients($user);
-            if (!isset($available[$id])) {
-                throw new Exception("Forbidden. You are not allowed to access this api client.");
+        $ok = true;
+
+        $legacy_id = get_config('local_obf', 'obfclientid');
+        $available = self::get_available_clients($user);
+
+        if (empty($legacy_id) && empty($available)) {
+            // No connection available
+            $ok = false;
+        }
+        else if ($legacy_id) {
+            // Legacy connection
+            if ($id) {
+                $ok = $id === $legacy_id;
             }
+        }
+        else if (!is_null($user)) {
+            // OAuth2 connections
+            $ok = is_null($id) ? !empty(self::get_available_clients($user)) : isset($available[$id]);
+        }
+
+        if (!$ok) {
+            throw new Exception(get_string('apierror0', 'local_obf'), 0);
         }
 
         return self::get_instance($transport);
@@ -150,7 +167,7 @@ class obf_client {
         $sql =
            "SELECT o.client_id, o.client_name FROM {local_obf_oauth2} o
             INNER JOIN {local_obf_oauth2_role} r ON o.id = r.oauth2_id
-            INNER JOIN {role_assingments} ra ON r.role_id = ra.roleid
+            INNER JOIN {role_assignments} ra ON r.role_id = ra.roleid
             WHERE ra.userid = ?
             ORDER BY o.client_name";
 
@@ -224,6 +241,8 @@ class obf_client {
         if (!preg_match('/^\w+$/', $input->client_secret)) {
             throw new Exception('Invalid parameter $client_secret');
         }
+
+        self::$client_id = $input->client_id;
 
         $input->obf_url = preg_replace('/\/+$/', '', $input->obf_url);
 
@@ -300,11 +319,15 @@ class obf_client {
      */
     private function get_curl_options($auth=true) {
 
+        // don't verify localhost dev server
+        $url = $this->obf_url();
+        $secure = strpos($url, 'https://localhost/') !== 0;
+
         $opt = array(
             'RETURNTRANSFER'    => true,
             'FOLLOWLOCATION'    => false,
-            'SSL_VERIFYHOST'    => 2,
-            'SSL_VERIFYPEER'    => 1
+            'SSL_VERIFYHOST'    => $secure ? 2 : 0,
+            'SSL_VERIFYPEER'    => $secure ? 1 : 0
         );
 
         if ($auth) {
@@ -366,7 +389,7 @@ class obf_client {
      * @return string The response string.
      * @throws Exception In case something goes wrong.
      */
-    private function _request($method, $url, $params=array(), $retry=true) {
+    private function _request($method, $url, $params=array(), $retry=true, $other_oauth2=null) {
         $curl = $this->get_transport();
         $options = $this->get_curl_options();
 
@@ -389,9 +412,19 @@ class obf_client {
 
         $info = $curl->get_info();
 
-        if ($info['http_code'] === 403 && $retry) {
-            // try again one time
-            return $this->_request($method, $url, $params, false);
+        if ($info['http_code'] === 403 && empty(get_config('local_obf', 'obfclientid'))) {
+            if ($retry) {
+                // try again one time
+                return $this->_request($method, $url, $params, false, $other_oauth2);
+            }
+            // try with all other available connections
+            if (is_null($other_oauth2)) {
+                $other_oauth2 = $DB->get_records_select('local_obf_oauth2', 'client_id != ?', array($this->oauth2->client_id));
+            }
+            if (!empty($other_oauth2)) {
+                $this->set_oauth2(array_shift($other_oauth2));
+                return $this->_request($method, $url, $params, true, $other_oauth2);
+            }
         }
 
         $this->httpcode = $info['http_code'];
@@ -476,6 +509,33 @@ class obf_client {
     }
 
     /**
+     * Get all the badges from the API for all configured OAuth2 clients.
+     *
+     * @param string[] $categories Filter badges by these categories.
+     * @return array The badges data.
+     */
+    public function get_badges_all(array $categories = array(), $query = '') {
+        global $DB;
+
+        $oauth2 = $DB->get_records('local_obf_oauth2', null, 'client_name');
+
+        if (empty($oauth2)) {
+            return $this->get_badges($categories, $query);
+        }
+
+        $prev_oauth2 = $this->oauth2;
+
+        $out = [];
+        foreach ($oauth2 as $o2) {
+            $this->set_oauth2($o2);
+            $out = array_merge($out, $this->get_badges($categories, $query));
+        }
+        $this->set_oauth2($prev_oauth2);
+
+        return $out;
+    }
+
+    /**
      * Get a single badge from the API.
      *
      * @param string $badgeid
@@ -533,6 +593,47 @@ class obf_client {
         $res = $this->_request('get', $url, $params);
 
         return $this->decode_ldjson($res);
+    }
+
+    /**
+     * Get single recipient's all badge issuing events from the API for all connections.
+     *
+     * @param string $badgeid The id of the badge.
+     * @param string $email The email address of the recipient.
+     * @param array $params Optional extra params for the query.
+     * @return array The event data.
+     */
+    public function get_assertions_all($email, $params = array()) {
+        global $DB;
+
+        if ($this->local_events()) {
+            $params['api_consumer_id'] = OBF_API_CONSUMER_ID;
+        }
+        $params['email'] = $email;
+
+        if (get_config('local_obf', 'obfclientid')) {
+            // legacy connection, only one client
+            return $this->get_assertions(null, $email, $params);
+        }
+
+        $prev_o2 = $this->oauth2;
+
+        $oauth2 = $DB->get_records('local_obf_oauth2');
+
+        $out = [];
+        if (!empty($oauth2)) {
+            foreach ($oauth2 as $o2) {
+                $this->set_oauth2($o2);
+
+                $url = $this->obf_url() . '/v1/event/' . $this->client_id();
+                $res = $this->_request('get', $url, $params);
+
+                $out = array_merge($out, $this->decode_ldjson($res));
+            }
+        }
+        $this->set_oauth2($prev_o2);
+
+        return $out;
     }
 
     /**
@@ -630,9 +731,9 @@ class obf_client {
 
         $users = $DB->get_records_list('user', 'email', $recipients, '', 'id, email');
         $now = time();
-        $sql = "INSERT IGNORE INTO {local_obf_history_emails} (user_id email timestamp) VALUES (?,?,?)";
+        $sql = "INSERT IGNORE INTO {local_obf_history_emails} (user_id, email, timestamp) VALUES (?,?,?)";
         foreach ($users as $user) {
-            $DB->execute($sql, $user->id, $user->email, $now);
+            $DB->execute($sql, array($user->id, $user->email, $now));
         }
 
         $course_name = $badge->get_course_name($course);
@@ -762,9 +863,16 @@ class obf_client {
         $token = base64_decode($signature);
         $curl = $this->get_transport();
         $curlopts = $this->get_curl_options(false);
+
         $url = $this->url_checker($url);
 
         $apiurl = $this->api_url_maker($url);
+
+        // For localhost test server
+        if (strpos($apiurl, 'https://localhost/') === 0) {
+            $curlopts['SSL_VERIFYHOST'] = 0;
+            $curlopts['SSL_VERIFYPEER'] = 0;
+        }
 
         // We don't need these now, we haven't authenticated yet.
         unset($curlopts['SSLCERT']);
