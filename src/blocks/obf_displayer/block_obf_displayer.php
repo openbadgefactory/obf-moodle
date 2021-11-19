@@ -110,7 +110,7 @@ class block_obf_displayer extends block_base {
      * @return obf_assertion_collection
      */
     private function get_assertions($userid, $db) {
-        $clientid = obf_client::get_client_id();
+        $clientid = obf_client::get_instance()->client_id();
         if (!empty($clientid) && (empty($this->config) || !property_exists($this->config, 'showobf') || $this->config->showobf)) {
             $cache = cache::make('block_obf_displayer', 'obf_assertions');
             $assertions = !$this->is_cache_assertions_enabled() ? null : $cache->get($userid);
@@ -130,16 +130,13 @@ class block_obf_displayer extends block_base {
                     $blacklist = new obf_blacklist($userid);
 
                     //Get badges issued with previous emails
-                   if ($deletedemailscount >= 1) {
+                    if ($deletedemailscount >= 1) {
                         foreach ($deleted as $email) {
-                            $assertions->add_collection(obf_assertion::get_assertions($client, null,
-                                $db->get_record('local_obf_history_emails',
-                                    array('user_id' => $userid, 'email' => $email))->email, -1, true));
+                            $assertions->add_collection(obf_assertion::get_assertions_all($client, $email));
                         }
                     }
 
-                  $assertions->add_collection(obf_assertion::get_assertions(
-                        $client, null, $db->get_record('user', array('id' => $userid))->email, -1, true));
+                    $assertions->add_collection(obf_assertion::get_assertions_all($client, $db->get_record('user', array('id' => $userid))->email));
                     $assertions->apply_blacklist($blacklist);
 
 
