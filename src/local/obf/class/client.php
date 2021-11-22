@@ -151,14 +151,13 @@ class obf_client {
      * @return array id and name pairs
      */
     public static function get_available_clients($user=null) {
-        global $DB, $USER;
+        global $CFG, $DB, $USER;
 
         if (is_null($user)) {
             $user = $USER;
         }
 
-        $context = context_system::instance();
-        if (has_capability('local/obf:configure', $context, $user)) {
+        if (in_array($user->id, explode(',', $CFG->siteadmins))) {
             // Can see all connected clients
             return $DB->get_records_menu('local_obf_oauth2', null, 'client_name', 'client_id, client_name');
         }
