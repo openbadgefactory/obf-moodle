@@ -77,6 +77,7 @@ switch ($action) {
             'action' => 'save', 'type' => $type));
         $criterion = new obf_criterion();
         $criterion->set_badge($badge);
+        $criterion->set_clientid($clientid);
         $items = $criterion->get_items();
         $criterionform = new obf_criterion_form($url,
                 array('criterion' => $criterion,
@@ -220,6 +221,7 @@ switch ($action) {
             'action' => 'save', 'type' => $type));
         $criterion = new obf_criterion();
         $criterion->set_badge($badge);
+        $criterion->set_clientid($clientid);
 
         $criterionform = new obf_criterion_form($url, array('criterion' => $criterion, 'addcourse' => $addcourse));
         $content = $PAGE->get_renderer('local_obf')->render($criterionform);

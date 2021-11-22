@@ -28,5 +28,5 @@ $plugin->component = 'block_obf_displayer';
 $plugin->maturity = MATURITY_STABLE;
 
 $plugin->dependencies = array(
-    'local_obf' => 2021110900   // The main OBF plugin must be present
+    'local_obf' => 2021112200 // The main OBF plugin must be present
 );

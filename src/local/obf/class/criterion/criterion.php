@@ -872,7 +872,7 @@ class obf_criterion {
      * @return mixed Client id
      */
     public function get_clientid() {
-        return (empty($this->clientid) ? $this->get_badge()->get_client_id() : $this->clientid);
+        return $this->clientid;
     }
     /**
      * Set client id
