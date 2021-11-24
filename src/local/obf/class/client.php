@@ -135,7 +135,7 @@ class obf_client {
         }
         else if (!is_null($user)) {
             // OAuth2 connections
-            $ok = is_null($id) ? !empty(self::get_available_clients($user)) : isset($available[$id]);
+            $ok = is_null($id) ? !empty($available) : isset($available[$id]);
         }
 
         if (!$ok) {
@@ -157,7 +157,7 @@ class obf_client {
             $user = $USER;
         }
 
-        if (in_array($user->id, explode(',', $CFG->siteadmins))) {
+        if ($user === '*' || in_array($user->id, explode(',', $CFG->siteadmins))) {
             // Can see all connected clients
             return $DB->get_records_menu('local_obf_oauth2', null, 'client_name', 'client_id, client_name');
         }
@@ -168,6 +168,7 @@ class obf_client {
             INNER JOIN {local_obf_oauth2_role} r ON o.id = r.oauth2_id
             INNER JOIN {role_assignments} ra ON r.role_id = ra.roleid
             WHERE ra.userid = ?
+            GROUP BY o.client_id
             ORDER BY o.client_name";
 
         return $DB->get_records_sql_menu($sql, array($user->id));
@@ -196,9 +197,12 @@ class obf_client {
      */
     private function obf_url() {
         if (isset($this->oauth2->obf_url)) {
-            return $this->oauth2->obf_url;
+            $url = $this->oauth2->obf_url;
         }
-        return get_config('local_obf', 'apiurl');
+        else {
+            $url = get_config('local_obf', 'apiurl');
+        }
+        return rtrim($url, '/');
     }
 
     /**
@@ -243,7 +247,7 @@ class obf_client {
 
         self::$client_id = $input->client_id;
 
-        $input->obf_url = preg_replace('/\/+$/', '', $input->obf_url);
+        $input->obf_url = rtrim($input->obf_url, '/');
 
         $this->oauth2 = $input;
     }
@@ -782,7 +786,7 @@ class obf_client {
     public function pub_get_badge($badgeid, $eventid) {
         $url = $this->obf_url() . '/v1/badge/_/' . $badgeid . '.json';
         $params = array('v' => '1.1', 'event' => $eventid);
-        $res = $this->_request('get', $url, $param);
+        $res = $this->_request('get', $url, $params);
 
         return json_decode($res, true);
     }

@@ -438,7 +438,7 @@ class obf_criterion {
         global $DB;
 
         $sql = 'SELECT cc.*, c.id AS criterionid, ' .
-                'c.badge_id, c.completion_method AS crit_completion_method, c.use_addendum, c.addendum FROM {local_obf_criterion_courses} cc ' .
+                'c.badge_id, c.client_id, c.completion_method AS crit_completion_method, c.use_addendum, c.addendum FROM {local_obf_criterion_courses} cc ' .
                 'LEFT JOIN {local_obf_criterion} c ON cc.obf_criterion_id = c.id';
         $params = array();
         $cols = array();
@@ -519,7 +519,7 @@ class obf_criterion {
             return $this->badge;
         }
         if (!empty($this->badgeid)) {
-            return obf_badge::get_instance($this->badgeid, obf_client::connect($this->clientid));
+            return obf_badge::get_instance($this->badgeid, obf_client::connect($this->clientid, '*'));
         }
         return null;
     }
@@ -706,6 +706,9 @@ class obf_criterion {
             $requireall = $this->get_completion_method() == self::CRITERIA_COMPLETION_ALL;
             foreach ($modules as $modid) {
                 $cm = $DB->get_record('course_modules', array('id' => $modid));
+                if (!$cm) {
+                    return false;
+                }
                 $completiondata = $completioninfo->get_data($cm, false, $userid);
                 if (in_array($completiondata->completionstate, array(COMPLETION_COMPLETE, COMPLETION_COMPLETE_PASS))) {
                     $completedmodulecount += 1;

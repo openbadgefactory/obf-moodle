@@ -249,7 +249,9 @@ class obf_badge {
         $this->set_description($arr['description'])->set_id($arr['id']);
         $this->set_image($arr['image'])->set_name($arr['name']);
 
-        $this->set_client_id($arr['client_id']);
+        if (isset($arr['client_id'])) {
+	    $this->set_client_id($arr['client_id']);
+        }
 
         if (isset($arr['draft'])) {
             $this->set_isdraft((bool) $arr['draft'])->set_created($arr['ctime']);
@@ -553,11 +555,14 @@ class obf_badge {
      * @param int $courseid
      * @return obf_badge[] The badges.
      */
-    public static function get_badges_in_course($courseid) {
+    public static function get_badges_in_course($courseid, $clientid=null) {
         $criteria = obf_criterion::get_course_criterion($courseid);
         $badges = array();
 
         foreach ($criteria as $criterion) {
+            if ($clientid && $clientid !== $criterion->get_clientid()) {
+                continue;
+            }
             $badges[] = $criterion->get_badge();
         }
 

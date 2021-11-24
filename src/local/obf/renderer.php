@@ -108,7 +108,7 @@ class local_obf_renderer extends plugin_renderer_base {
         }
 
         $html .= $this->render_badge_categories($badges);
-        $badgesincourse = obf_badge::get_badges_in_course($context->instanceid);
+        $badgesincourse = obf_badge::get_badges_in_course($context->instanceid, $this->get_client_id());
         $html .= $this->print_heading('coursebadgelisttitle', 2);
         $errormsg = $this->output->notification(get_string('nobadgesincourse',
                         'local_obf'));
@@ -801,8 +801,8 @@ class local_obf_renderer extends plugin_renderer_base {
                         // If the criterion can be edited, show the edit-icon.
                         if ($canedit) {
                             $editurl = new moodle_url($file,
-                                    array('badgeid' => $badge->get_id(),
-                                'action' => 'edit', 'id' => $id));
+                                array('badgeid' => $badge->get_id(), 'clientid' => $this->get_client_id(), 'action' => 'edit', 'id' => $id)
+                            );
                             $heading .= local_obf_html::icon($editurl, 't/edit', 'edit');
                         }
 
@@ -838,8 +838,9 @@ class local_obf_renderer extends plugin_renderer_base {
             $html .= $this->output->notification(get_string('coursecompletionnotenabled', 'local_obf', (string)$courseediturl));
         } else { // Show the course criteria form.
             $params = array(
-                    'criteriatype' => optional_param('criteriatype', obf_criterion_item::CRITERIA_TYPE_UNKNOWN, PARAM_INT),
-                    'courseid' => optional_param('courseid', null, PARAM_INT));
+                'criteriatype' => optional_param('criteriatype', obf_criterion_item::CRITERIA_TYPE_UNKNOWN, PARAM_INT),
+                'courseid' => optional_param('courseid', null, PARAM_INT)
+            );
 
             if (!is_null($coursewithcriterion)) {
                 $params = array_merge($params, array('obf_criterion_id' => $coursewithcriterion->get_id()));
@@ -867,6 +868,7 @@ class local_obf_renderer extends plugin_renderer_base {
                 if (!$criterioncourse->exists()) {
                     $criterion = new obf_criterion();
                     $criterion->set_badge($badge);
+                    $criterion->set_clientid($this->get_client_id());
                     $criterion->set_completion_method(obf_criterion::CRITERIA_COMPLETION_ALL);
                     $criterion->set_items($criterioncourse);
                 }
@@ -1009,15 +1011,15 @@ class local_obf_renderer extends plugin_renderer_base {
             
 
             $deleteurl = new moodle_url($file,
-                    array('clientid' => $this->get_client_id(), 'badgeid' => $badge->get_id(),
-                'action' => 'delete', 'id' => $id));
+                array('clientid' => $this->get_client_id(), 'badgeid' => $badge->get_id(), 'action' => 'delete', 'id' => $id)
+            );
             $heading .= local_obf_html::icon($deleteurl, 't/delete', 'delete');
 
             // If the criterion can be edited, show the edit-icon.
             if ($canedit) {
                 $editurl = new moodle_url($file,
-                        array('badgeid' => $badge->get_id(),
-                    'action' => 'edit', 'id' => $id));
+                    array('badgeid' => $badge->get_id(), 'clientid' => $this->get_client_id(), 'action' => 'edit', 'id' => $id)
+                );
                 $heading .= local_obf_html::icon($editurl, 't/edit', 'edit');
             }
 
@@ -1198,7 +1200,8 @@ class local_obf_renderer extends plugin_renderer_base {
 
             if (!is_null($badge)) {
                 $url = new moodle_url($path,
-                        array('action' => 'show', 'id' => $badge->get_id(), 'clientid' => $this->get_client_id()));
+                    array('action' => 'show', 'id' => $badge->get_id(), 'clientid' => $this->get_client_id())
+                );
                 $row->cells[] = $this->print_badge_image($badge,
                         self::BADGE_IMAGE_SIZE_TINY);
                 $row->cells[] = html_writer::link($url, s($badge->get_name()));
@@ -1380,9 +1383,9 @@ class local_obf_renderer extends plugin_renderer_base {
         }
 
         foreach ($tabdata as $tabname) {
-            $url = new moodle_url('/local/obf/badge.php', array(
-                'clientid' => $this->get_client_id(), 'id' => $badge->get_id(),
-                'action' => 'show', 'show' => $tabname));
+            $url = new moodle_url('/local/obf/badge.php',
+                array('clientid' => $this->get_client_id(), 'id' => $badge->get_id(), 'action' => 'show', 'show' => $tabname)
+            );
 
             if ($context instanceof context_course) {
                 $url->param('courseid', $context->instanceid);
@@ -1704,9 +1707,9 @@ class local_obf_badge_renderer extends plugin_renderer_base {
         $tabs = array();
 
         foreach ($tabdata as $tabname) {
-            $url = new moodle_url('/local/obf/badge.php', array(
-                'clientid' => $this->get_client_id(), 'id' => $badge->get_id(),
-                'action' => 'show', 'show' => $tabname));
+            $url = new moodle_url('/local/obf/badge.php',
+                array('clientid' => $this->get_client_id(), 'id' => $badge->get_id(), 'action' => 'show', 'show' => $tabname)
+            );
 
             $tabs[] = new tabobject($tabname, $url,
                     get_string('badge' . $tabname, 'local_obf'));
