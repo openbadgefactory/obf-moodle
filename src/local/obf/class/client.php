@@ -86,18 +86,17 @@ class obf_client {
 
             $oauth2 = $DB->get_records('local_obf_oauth2', null, 'client_name');
             if (count($oauth2) > 0) {
+                // use the first one by default
+                $o2 = current($oauth2);
                 if (self::$client_id) {
-                    foreach ($oauth2 as $o2) {
-                        if ($o2->client_id === self::$client_id) {
-                            self::$client->set_oauth2($o2);
+                    foreach ($oauth2 as $o) {
+                        if ($o->client_id === self::$client_id) {
+                            $o2 = $o;
                             break;
                         }
                     }
-                } else {
-                    // use the first one
-                    $first = array_shift($oauth2);
-                    self::$client->set_oauth2($first);
                 }
+                self::$client->set_oauth2($o2);
             }
 
             if (!is_null($transport)) {

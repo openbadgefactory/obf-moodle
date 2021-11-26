@@ -109,6 +109,8 @@ case 'authenticate':
         $content .= $OUTPUT->notification(s($msg), 'notifysuccess');
     }
 
+    echo $OUTPUT->notification(get_string('upgradelegacyapi', 'local_obf'), 'redirectmessage');
+
     $content .= $PAGE->get_renderer('local_obf')->render($form);
 
     if (isset($settingsform)) { 

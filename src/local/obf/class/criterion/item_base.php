@@ -220,6 +220,16 @@ abstract class obf_criterion_item {
         return $this->courseid != -1 && $this->criterionid != -1 &&
                 $this->criteriatype != self::CRITERIA_TYPE_UNKNOWN;
     }
+
+    /**
+     * Checks that this item is still valid.
+     *
+     */
+    public function is_valid() {
+        return true;
+    }
+
+
     /**
      * If criterion required a field.
      * Child class may override this function if required fields differ.

@@ -191,10 +191,33 @@ class obf_criterion {
                         array('obf_criterion_id' => $this->id)) > 0);
     }
 
+    /**
+     * Checks, whether this criterion is still valid (activity/course exists)
+     *
+     * @return boolean Returns true if the criterion is valid
+     */
+    public function is_valid() {
+        foreach ($this->items as $item) {
+            if (!$item->is_valid()) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     public function issue_and_set_met($user, $recipients = null) {
         global $DB;
 
-        $badge = $this->get_badge();
+        try {
+            $badge = $this->get_badge();
+        }
+        catch (Exception $e) {
+            return;
+        }
+        if (!isset($badge)) {
+            return;
+        }
+
         if (is_null($recipients)) {
             $passport = obf_backpack::get_instance($user);
 
@@ -515,11 +538,18 @@ class obf_criterion {
      * @return obf_badge The badge.
      */
     public function get_badge() {
+        try {
+            $client = obf_client::connect($this->get_clientid(), '*');
+        }
+        catch (Exception $e) {
+            return null;
+        }
+
         if (!empty($this->badge)) {
             return $this->badge;
         }
         if (!empty($this->badgeid)) {
-            return obf_badge::get_instance($this->badgeid, obf_client::connect($this->clientid, '*'));
+            return obf_badge::get_instance($this->badgeid, $client);
         }
         return null;
     }
@@ -875,6 +905,13 @@ class obf_criterion {
      * @return mixed Client id
      */
     public function get_clientid() {
+        global $DB;
+        if (empty($this->clientid)) {
+            $this->clientid = $DB->get_field('local_obf_criterion', 'client_id', array('id' => $this->get_id()));
+        }
+        if (empty($this->clientid)) {
+            $this->clientid = get_config('local_obf', 'obfclientid'); //legacy client id
+        }
         return $this->clientid;
     }
     /**

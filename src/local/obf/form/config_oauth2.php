@@ -54,14 +54,17 @@ class obf_config_oauth2_form extends moodleform {
             $mform->addElement('text', 'obf_url', get_string('obfurl', 'local_obf'), array('size' => 60));
             $mform->setType('obf_url', PARAM_URL);
             $mform->addRule('obf_url', null, 'required');
+            $mform->addHelpButton('obf_url', 'obfurl', 'local_obf');
 
             $mform->addElement('text', 'client_id', get_string('clientid', 'local_obf'), array('size' => 60));
             $mform->setType('client_id', PARAM_NOTAGS);
             $mform->addRule('client_id', null, 'required');
+            $mform->addHelpButton('client_id', 'clientid', 'local_obf');
 
             $mform->addElement('text', 'client_secret', get_string('clientsecret', 'local_obf'), array('size' => 60));
             $mform->setType('client_secret', PARAM_NOTAGS);
             $mform->addRule('client_secret', null, 'required');
+            $mform->addHelpButton('client_secret', 'clientsecret', 'local_obf');
         }
         else {
 
@@ -77,6 +80,8 @@ class obf_config_oauth2_form extends moodleform {
         $can_issue = $this->roles_available();
         if (!empty($can_issue)) {
             $mform->addElement('header', 'obfeditclientheader', get_string('issuerroles', 'local_obf'));
+
+            $mform->addElement('static', 'role_help', '', get_string('issuerroles_help', 'local_obf'));
 
             foreach ($can_issue AS $role_id => $role_name) {
                 $mform->addElement('advcheckbox', 'role_' . $role_id, null, $role_name, array('group' => 1));

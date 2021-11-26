@@ -60,6 +60,10 @@ switch ($action) {
         $clients = $DB->get_records('local_obf_oauth2', null, $DB->sql_order_by_text('client_name'));
 
         if (empty($clients)) {
+            echo '<div>';
+            echo '<p>' . get_string('infoconnectapi', 'local_obf') . '</p>';
+            echo '</div>';
+
             $new_oauth2 = $CFG->wwwroot . '/local/obf/config.php?action=edit&id=0';
             $new_legacy = $CFG->wwwroot . '/local/obf/config_legacy.php';
             echo '<div class="actionbuttons">';

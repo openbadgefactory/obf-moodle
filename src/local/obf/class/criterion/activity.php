@@ -110,6 +110,21 @@ class obf_criterion_activity extends obf_criterion_course {
     }
 
     /**
+     * Check that activities are all available, deleted item has empty name
+     */
+    public function is_valid() {
+        $params = $this->get_params();
+        $modids = self::get_module_instanceids_from_params($params);
+        $texts = array();
+        foreach ($modids as $modid) {
+            if (empty($this->get_activityname($modid))) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
      * Returns the name of the activity this criterion is related to.
      *
      * @param int $cminstance Course module instance id
@@ -185,7 +200,11 @@ class obf_criterion_activity extends obf_criterion_course {
         $modids = self::get_module_instanceids_from_params($params);
         $texts = array();
         foreach ($modids as $modid) {
-            $html = html_writer::tag('strong', $this->get_activityname($modid));
+            $name = $this->get_activityname($modid);
+            if (empty($name)) {
+                $name = '???';
+            }
+            $html = html_writer::tag('strong', $name);
             if (array_key_exists('completedby', $params[$modid])) {
                 $html .= ' ' . get_string('completedbycriterion', 'local_obf',
                                 userdate($params[$modid]['completedby'],

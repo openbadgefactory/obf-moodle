@@ -195,9 +195,17 @@ $string['expiringcertificatesubject'] = 'Open Badge Factory client certificate i
 $string['exportsettings'] = 'Export settings';
 $string['exportextrasettings'] = 'Export settings';
 $string['gradecriterion'] = 'with <strong>minimum grade of {$a}</strong>';
+
+$string['obfurl_help'] = 'URL for the Factory where your account is.';
+$string['clientid_help'] = 'Client ID of your Factory account';
+$string['clientsecret_help'] = 'Log in to your Factory account and go to "Admin Tools > API". Click "Generate new client secret"';
+$string['issuerroles_help'] = 'Authorize roles to issue badges for this client:';
+
 $string['history'] = 'Awarding history';
 $string['historyrecipients'] = '{$a} recipients';
+$string['infoconnectapi'] = 'Select API authentication method. OAuth2 is preferred on Pro subscription level.';
 $string['invalidtab'] = 'Page not found';
+$string['invalidcriterion'] = 'This awarding rule is invalid. One or more requirements cannot be met and the badge will not be issued. This rule should be deleted.';
 $string['issue'] = 'Issue badge';
 $string['issuancedetails'] = 'Issuance details';
 $string['issuebadge'] = 'Issue a badge';
@@ -304,12 +312,10 @@ $string['totaraprogramselectexpires'] = 'Select which setting is used for awarde
 $string['totaraprogramexpiresbybadge'] = 'Expiry from badge properties';
 $string['totaraprogramexpiresbycertificate'] = 'Expiry from certificate properties';
 $string['unknowncriterion'] = 'Incomplete criterion';
+$string['upgradelegacyapi'] = 'Tip: You can switch to OAuth2 based API authentication on Pro subscription level. Start by removing this connection.';
 $string['urlgroup'] = 'URL';
 $string['urlgroup_help'] = '<p>If you are not using the default openbadgefactory.com server. Set the service address here.</p>';
-
 $string['useremailupdater'] = 'User email updater';
-
-
 $string['userpreferences'] = 'User-settings';
 $string['userpreferencessaved'] = 'User-settings saved.';
 $string['usersdisplaybadges'] = 'Display of user badges';

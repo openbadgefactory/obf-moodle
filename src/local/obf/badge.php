@@ -214,6 +214,22 @@ switch ($action) {
         }
 
         break;
+
+    case 'deletecriterion':
+        require_capability('local/obf:editcriterion', $context);
+        $criterionid = required_param('criterionid', PARAM_INT);
+        if (confirm_sesskey()) {
+            $criterion = obf_criterion::get_instance($criterionid);
+            $criterion->delete();
+        }
+        $badgeurl = new moodle_url('/local/obf/badge.php',
+            array('action' => 'show', 'show' => 'criteria', 'id' => $badgeid, 'clientid' => $clientid)
+        );
+        if (!empty($courseid)) {
+            $badgeurl->param('courseid', $courseid);
+        }
+        redirect($badgeurl, get_string('criteriondeleted', 'local_obf'));
+        break;
 }
 
 echo $OUTPUT->header();
