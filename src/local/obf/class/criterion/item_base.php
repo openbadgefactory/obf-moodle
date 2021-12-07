@@ -293,7 +293,7 @@ abstract class obf_criterion_item {
      * @see obf_criterion
      */
     public function get_criterion() {
-        if (is_null($this->criterion)) {
+        if (empty($this->criterion)) {
             $this->criterion = obf_criterion::get_instance($this->criterionid);
         }
 

@@ -756,7 +756,6 @@ class local_obf_renderer extends plugin_renderer_base {
                 break;
             }
         }
-        
 
         $canedit = !is_null($criterioncourseid) || !$courseincriterion;
         $course = get_course($courseid);
@@ -939,7 +938,7 @@ class local_obf_renderer extends plugin_renderer_base {
                     if (property_exists($data, 'reviewaftersave') && $data->reviewaftersave) {
                         $crit = $criterioncourse->get_criterion();
                         if ($crit) {
-                            $recipientcount = $crit->review_previous_completions(); 
+                            $recipientcount = $crit->review_previous_completions();
                         } else {
                             $recipientcount = 0;
                         }

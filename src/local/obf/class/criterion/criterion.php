@@ -609,6 +609,7 @@ class obf_criterion {
                 $selfreviewusers = array_intersect_key($selfreviewusers, $reviewresult);
             }
         }
+
         foreach ($selfreviewusers as $user) {
             if (!$this->is_met_by_user($user)) {
                 $recipients[] = $user;
@@ -641,7 +642,7 @@ class obf_criterion {
             }
 
             $criteriaaddendum = $this->get_use_addendum() ? $this->get_criteria_addendum() : '';
-            $eventid = $badge->issue($recipientemails, time(), $email, $criteriaaddendum);
+            $eventid = $badge->issue($recipientemails, time(), $email, $criteriaaddendum, $this->get_items());
 
             if ($eventid && !is_bool($eventid)) {
                 $issuevent = new obf_issue_event($eventid, $DB);
