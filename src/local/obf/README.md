@@ -33,15 +33,28 @@ Post install
 
 To connect to Open Badge Factory, the plugin needs a request token or API key.
 
-To generate the required API key, log in to Open Badge Factory. When logged in, navigate to `Admin tools > API key`. On the API key -page click on `Generate certificate signing request token`.
+To generate the required API key, log in to Open Badge Factory. When logged in, navigate to `Admin tools > API`.
 
-Copy the generated token into OBF Moodle plugin settings, in `Site administration > Open Badges > Settings`.
+Legacy key:
+
+On the API key -page click on `Generate certificate signing request token` for legacy type key. Copy the generated token into OBF Moodle plugin settings, in `Site administration > Open Badges > Settings`.
+
+OAuth2 key:
+
+Pro level clients can also connect with OAuth2. This supports multiple clients on one Moodle installation.
+
+On the API key -page click on `Generate new client secret` for OAuth2 Client Credentials. Give a description for the key and copy the client id and secret values into OBF Moodle plugin settings, in `Site administration > Open Badges > Settings`.
 
 Changelog
 ------------------
 
+0.5.1
+
+- Connect multiple Factory clients with OAuth2
+- Awarding rules bug fixes
+- Other minor fixes and improvements
+
 0.4
 
-Fixed problem with Moodle 3.10.1
-
-Added support for Totara program and certications
+- Fixed problem with Moodle 3.10.1
+- Added support for Totara program and certications
