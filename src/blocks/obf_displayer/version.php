@@ -21,12 +21,12 @@
  * @copyright  2015-2020, Open Badge Factory Oy Oy
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-$plugin->version = 2021111900;  // YYYYMMDDHH (year, month, day, 24-hr time).
-$plugin->release = '0.7.2';
+$plugin->version = 2021120801;  // YYYYMMDDHH (year, month, day, 24-hr time).
+$plugin->release = '0.7.3';
 $plugin->requires = 2011120511;
 $plugin->component = 'block_obf_displayer';
 $plugin->maturity = MATURITY_STABLE;
 
 $plugin->dependencies = array(
-    'local_obf' => 2021112200 // The main OBF plugin must be present
+    'local_obf' => 2021120800 // The main OBF plugin must be present
 );
