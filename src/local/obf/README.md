@@ -48,6 +48,11 @@ On the API key -page click on `Generate new client secret` for OAuth2 Client Cre
 Changelog
 ------------------
 
+0.5.2
+
+- Fixed warnings for missing page context
+- Fixed api call for all user badges when using legacy connection
+
 0.5.1
 
 - Connect multiple Factory clients with OAuth2
