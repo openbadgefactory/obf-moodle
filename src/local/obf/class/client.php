@@ -615,7 +615,9 @@ class obf_client {
 
         if (get_config('local_obf', 'obfclientid')) {
             // legacy connection, only one client
-            return $this->get_assertions(null, $email, $params);
+            $url = $this->obf_url() . '/v1/event/' . $this->client_id();
+            $res = $this->_request('get', $url, $params);
+            return $this->decode_ldjson($res);
         }
 
         $prev_o2 = $this->oauth2;
