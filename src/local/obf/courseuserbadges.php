@@ -36,7 +36,6 @@ $url = new moodle_url('/local/obf/courseuserbadges.php',
         array('courseid' => $courseid, 'action' => $action));
 $curr_page = optional_param('page', '0', PARAM_INT);
 $context = context_course::instance($courseid);
-$badge = empty($badgeid) ? null : obf_badge::get_instance($badgeid);
 $onlydetailstab = 1;
 
 require_login($courseid);
@@ -44,6 +43,8 @@ require_login($courseid);
 $PAGE->set_context($context);
 $PAGE->set_url($url);
 $PAGE->set_pagelayout('standard');
+
+$badge = empty($badgeid) ? null : obf_badge::get_instance($badgeid);
 
 switch ($action) {
     // Display badge info.

@@ -40,7 +40,6 @@ $content = '';
 
 require_login();
 
-$badge = obf_badge::get_instance($badgeid);
 
 $PAGE->set_context($context);
 $PAGE->set_url(new moodle_url('/local/obf/criterion.php',
@@ -53,6 +52,8 @@ $PAGE->requires->jquery_plugin('obf-criteria-markdown', 'local_obf');
 
 navigation_node::override_active_url(new moodle_url('/local/obf/badge.php',
         array('action' => 'list')));
+
+$badge = obf_badge::get_instance($badgeid);
 
 $PAGE->navbar->add($badge->get_name(),
         new moodle_url('/local/obf/badge.php',
