@@ -48,6 +48,10 @@ On the API key -page click on `Generate new client secret` for OAuth2 Client Cre
 Changelog
 ------------------
 
+0.5.3
+
+- PostgreSQL query fix
+
 0.5.2
 
 - Fixed warnings for missing page context

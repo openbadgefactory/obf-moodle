@@ -735,9 +735,16 @@ class obf_client {
 
         $users = $DB->get_records_list('user', 'email', $recipients, '', 'id, email');
         $now = time();
-        $sql = "INSERT IGNORE INTO {local_obf_history_emails} (user_id, email, timestamp) VALUES (?,?,?)";
+        $sql = "INSERT INTO {local_obf_history_emails} (user_id, email, timestamp) VALUES (?,?,?)";
         foreach ($users as $user) {
-            $DB->execute($sql, array($user->id, $user->email, $now));
+            try {
+                $DB->execute($sql, array($user->id, $user->email, $now));
+            } catch (dml_write_exception $e) {
+                // Ignore duplicate entry errors
+                if (!$DB->record_exists('local_obf_history_emails', array('user_id' => $user->id, 'email' => $user->email))) {
+                    throw $e;
+                }
+            }
         }
 
         $course_name = $badge->get_course_name($course);
