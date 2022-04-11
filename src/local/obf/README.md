@@ -48,6 +48,11 @@ On the API key -page click on `Generate new client secret` for OAuth2 Client Cre
 Changelog
 ------------------
 
+0.5.4
+
+- PostgreSQL query fix
+- Replaced array\_key\_first function
+
 0.5.3
 
 - PostgreSQL query fix
