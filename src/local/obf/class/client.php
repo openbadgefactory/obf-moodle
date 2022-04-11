@@ -163,11 +163,10 @@ class obf_client {
 
         // Get connected clients based on user role access (role can be in any context)
         $sql =
-           "SELECT o.client_id, o.client_name FROM {local_obf_oauth2} o
+           "SELECT DISTINCT o.client_id, o.client_name FROM {local_obf_oauth2} o
             INNER JOIN {local_obf_oauth2_role} r ON o.id = r.oauth2_id
             INNER JOIN {role_assignments} ra ON r.role_id = ra.roleid
             WHERE ra.userid = ?
-            GROUP BY o.client_id
             ORDER BY o.client_name";
 
         return $DB->get_records_sql_menu($sql, array($user->id));
