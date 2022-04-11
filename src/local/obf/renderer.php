@@ -1371,7 +1371,17 @@ class local_obf_renderer extends plugin_renderer_base {
         if (count($clients) < 2) {
             return '';
         }
-        $selected = empty($clientid) ? array_key_first($clients) : $clientid;
+
+        if (empty($clientid)) {
+            foreach($clients as $key => $unused) {
+                $selected = $key;
+                break;
+            }
+        }
+        else {
+            $selected = $clientid;
+        }
+
         return html_writer::div($this->single_select($url, 'clientid', $clients, $selected, null), 'obf-category-wrapper');
     }
 
