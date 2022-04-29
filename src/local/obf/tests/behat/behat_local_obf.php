@@ -22,7 +22,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 use Behat\Behat\Context\Step\Given;
-use Behat\Behat\Event\FeatureEvent;
+use Behat\Behat\Hook\Scope\AfterFeatureScope;
 use Behat\Gherkin\Node\TableNode;
 use Behat\Mink\Driver\Selenium2Driver;
 use Behat\Mink\Session;
@@ -43,10 +43,10 @@ class behat_local_obf extends behat_base {
      *
      * Deletion will succeed if behat has entered the request token/API key.
      *
-     * @param FeatureEvent $event
+     * @param AfterFeatureScope $event
      * @AfterFeature
      */
-    public static function teardownFeature(FeatureEvent $event) {
+    public static function teardownFeature(AfterFeatureScope $event) {
         require_once(__DIR__ . '/../../class/client.php');
         try {
             obf_client::get_instance()->delete_badges();
