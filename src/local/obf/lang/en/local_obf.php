@@ -206,6 +206,7 @@ $string['historyrecipients'] = '{$a} recipients';
 $string['infoconnectapi'] = 'Select API authentication method. OAuth2 is preferred on Pro subscription level.';
 $string['invalidtab'] = 'Page not found';
 $string['invalidcriterion'] = 'This awarding rule is invalid. One or more requirements cannot be met and the badge will not be issued. This rule should be deleted.';
+$string['invalidclientsecret'] = 'The client ID or secret is invalid';
 $string['issue'] = 'Issue badge';
 $string['issuancedetails'] = 'Issuance details';
 $string['issuebadge'] = 'Issue a badge';

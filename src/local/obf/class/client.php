@@ -277,6 +277,10 @@ class obf_client {
 
             $res = json_decode($res);
 
+            if (isset($res->error)) {
+                throw new Exception('Failed to get access token: ' . $res->error);
+            }
+
             $this->oauth2->access_token = $res->access_token;
             $this->oauth2->token_expires = time() + $res->expires_in;
 
@@ -391,6 +395,8 @@ class obf_client {
      * @throws Exception In case something goes wrong.
      */
     private function _request($method, $url, $params=array(), $retry=true, $other_oauth2=null) {
+        global $DB;
+
         $curl = $this->get_transport();
         $options = $this->get_curl_options();
 
@@ -419,12 +425,14 @@ class obf_client {
                 return $this->_request($method, $url, $params, false, $other_oauth2);
             }
             // try with all other available connections
-            if (is_null($other_oauth2)) {
-                $other_oauth2 = $DB->get_records_select('local_obf_oauth2', 'client_id != ?', array($this->oauth2->client_id));
-            }
-            if (!empty($other_oauth2)) {
-                $this->set_oauth2(array_shift($other_oauth2));
-                return $this->_request($method, $url, $params, true, $other_oauth2);
+            if (isset($this->oauth2)) {
+                if (is_null($other_oauth2)) {
+                    $other_oauth2 = $DB->get_records_select('local_obf_oauth2', 'client_id != ?', array($this->oauth2->client_id));
+                }
+                if (!empty($other_oauth2)) {
+                    $this->set_oauth2(array_shift($other_oauth2));
+                    return $this->_request($method, $url, $params, true, $other_oauth2);
+                }
             }
         }
 
