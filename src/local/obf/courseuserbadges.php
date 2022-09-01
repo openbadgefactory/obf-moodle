@@ -27,7 +27,7 @@ require_once(__DIR__ . '/class/event.php');
 
 $clientid = optional_param('clientid', null, PARAM_ALPHANUM);
 
-obf_client::connect($clientid, $USER);
+obf_client::connect($clientid, '*');
 
 $badgeid = optional_param('id', '', PARAM_ALPHANUM);
 $courseid = optional_param('courseid', 1, PARAM_INT);
