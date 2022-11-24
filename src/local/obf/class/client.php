@@ -740,7 +740,11 @@ class obf_client {
     public function issue_badge(obf_badge $badge, $recipients, $issuedon, $email, $criteriaaddendum, $course, $activity) {
         global $CFG, $DB;
 
-        $users = $DB->get_records_list('user', 'email', $recipients, '', 'id, email');
+        $recipients_name_email = [];
+
+        $userfields = 'id, email, ' . implode(', ', \core_user\fields::get_name_fields());
+
+        $users = $DB->get_records_list('user', 'email', $recipients, '', $userfields);
         $now = time();
         $sql = "INSERT INTO {local_obf_history_emails} (user_id, email, timestamp) VALUES (?,?,?)";
         foreach ($users as $user) {
@@ -752,12 +756,19 @@ class obf_client {
                     throw $e;
                 }
             }
+            // Add user name, if available
+            if ($user->firstname && $user->lastname && $user->email && !preg_match('/[><]/', $user->email)) {
+                $recipients_name_email[] = fullname($user) . ' <' . $user->email . '>';
+            }
+            else {
+                $recipients_name_email[] = $user->email;
+            }
         }
 
         $course_name = $badge->get_course_name($course);
 
         $params = array(
-            'recipient' => $recipients,
+            'recipient' => $recipients_name_email,
             'issued_on' => $issuedon,
             'api_consumer_id' => OBF_API_CONSUMER_ID,
             'log_entry' => array('course_id' => $course,
