@@ -84,10 +84,10 @@ class obf_issuance_form extends local_obf_form_base {
                 get_string('badgename', 'local_obf'),
                 $this->renderer->print_badge_image($this->badge,
                         local_obf_renderer::BADGE_IMAGE_SIZE_TINY) .
-                ' ' . $this->badge->get_name());
+                ' ' . s($this->badge->get_name()));
         $mform->addElement('static', 'badgedescription',
                 get_string('badgedescription', 'local_obf'),
-                $this->badge->get_description());
+                s($this->badge->get_description()));
         $mform->addElement('date_selector', 'issuedon',
                 get_string('issuedon', 'local_obf'),
                 array('stopyear' => date('Y') + 1));
@@ -133,7 +133,7 @@ class obf_issuance_form extends local_obf_form_base {
         obf_email_template_form::add_email_fields($mform,
                 $this->badge->get_email());
     }
-    
+
     /**
      * Add message elements.
      */
