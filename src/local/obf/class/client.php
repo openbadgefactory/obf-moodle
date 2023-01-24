@@ -742,7 +742,9 @@ class obf_client {
 
         $recipients_name_email = [];
 
-        $userfields = 'id, email, ' . implode(', ', \core_user\fields::get_name_fields());
+        $userfields = 'id, email, ' . implode(', ',
+            ['firstnamephonetic', 'lastnamephonetic', 'middlename', 'alternatename', 'firstname', 'lastname']
+        );
 
         $users = $DB->get_records_list('user', 'email', $recipients, '', $userfields);
         $now = time();
