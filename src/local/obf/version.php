@@ -18,14 +18,14 @@
  * Version information. See https://docs.moodle.org/dev/version.php for more info.
  *
  * @package    local_obf
- * @copyright  2013-2020 Open Badge Factory Oy
+ * @copyright  2013-2023 Open Badge Factory Oy
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 defined('MOODLE_INTERNAL') or die();
 
-$plugin->version    = 2022112400;
+$plugin->version    = 2023012400;
 $plugin->requires   = 2016120509;
 $plugin->component  = 'local_obf';
 $plugin->maturity   = MATURITY_STABLE;
-$plugin->release    = '0.6.0';
+$plugin->release    = '0.6.1';
 $plugin->dependencies   = array();
