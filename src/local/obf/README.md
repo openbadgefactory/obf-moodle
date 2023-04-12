@@ -48,6 +48,10 @@ On the API key -page click on `Generate new client secret` for OAuth2 Client Cre
 Changelog
 ------------------
 
+0.7.0
+
+- MySQL reserved word column name fix
+
 0.6.1
 
 - User name field fix
