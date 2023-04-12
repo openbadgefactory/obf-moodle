@@ -64,8 +64,8 @@
                 <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true" NEXT="user_id"/>
                 <FIELD NAME="user_id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" PREVIOUS="id" NEXT="email"/>
                 <FIELD NAME="email" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" PREVIOUS="user_id" NEXT="backpack_id"/>
-                <FIELD NAME="backpack_id" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" PREVIOUS="email" NEXT="groups"/>
-                <FIELD NAME="groups" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" PREVIOUS="backpack_id"/>
+                <FIELD NAME="backpack_id" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" PREVIOUS="email" NEXT="badge_groups"/>
+                <FIELD NAME="badge_groups" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" PREVIOUS="backpack_id"/>
                 <FIELD NAME="backpack_provider" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
             </FIELDS>
             <KEYS>

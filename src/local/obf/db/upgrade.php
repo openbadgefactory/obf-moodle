@@ -806,5 +806,17 @@ function xmldb_local_obf_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2021110900, 'local', 'obf');
     }
 
+    if ($oldversion < 2023041100) {
+
+        // Rename mysql reserved keyword groups -> badge_groups
+        $table = new xmldb_table('local_obf_backpack_emails');
+        $field = new xmldb_field('groups', XMLDB_TYPE_CHAR, '255', null, null, null, null, 'backpack_id');
+
+        $dbman->rename_field($table, $field, 'badge_groups');
+
+        // Obf savepoint reached.
+        upgrade_plugin_savepoint(true, 2023041100, 'local', 'obf');
+    }
+
     return true;
 }

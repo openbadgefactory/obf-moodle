@@ -73,7 +73,7 @@ class obf_backpack {
     /**
      * @var List or groups to display.
      */
-    private $groups = array();
+    private $badge_groups = array();
     /**
      * @var Transport.
      */
@@ -235,7 +235,7 @@ class obf_backpack {
         $obj->set_backpack_id($backpackobj->backpack_id);
         $obj->set_email($backpackobj->email);
         $obj->set_id($backpackobj->id);
-        $obj->set_groups(unserialize($backpackobj->groups));
+        $obj->set_groups(unserialize($backpackobj->badge_groups));
         $obj->set_provider($provider);
 
         return $obj;
@@ -487,13 +487,13 @@ class obf_backpack {
      * @throws Exception
      */
     public function get_assertions($limit = -1) {
-        if (count($this->groups) == 0) {
+        if (count($this->badge_groups) == 0) {
             throw new Exception('No badge groups selected.');
         }
 
         $assertions = new obf_assertion_collection();
 
-        foreach ($this->groups as $groupid) {
+        foreach ($this->badge_groups as $groupid) {
             $assertions->add_collection($this->get_group_assertions($groupid));
         }
 
@@ -527,7 +527,7 @@ class obf_backpack {
         $obj->email = $this->email;
         $obj->backpack_id = $this->backpackid;
         $obj->backpack_provider = $this->provider;
-        $obj->groups = serialize($this->groups);
+        $obj->badge_groups = serialize($this->badge_groups);
 
         if ($this->id > 0) {
             $obj->id = $this->id;
@@ -632,7 +632,7 @@ class obf_backpack {
      * @return array Groups set to be displayed.
      */
     public function get_group_ids() {
-        return $this->groups;
+        return $this->badge_groups;
     }
 
     /**
@@ -640,7 +640,7 @@ class obf_backpack {
      * @param array $groups
      */
     public function set_groups($groups) {
-        $this->groups = is_array($groups) ? $groups : array();
+        $this->badge_groups = is_array($groups) ? $groups : array();
         return $this;
     }
 
