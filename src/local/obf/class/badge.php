@@ -126,6 +126,11 @@ class obf_badge {
     private $categories = array();
 
     /**
+     * @var int Course id.
+     */
+    private $course_id = null;
+
+    /**
      * Returns an instance of the class. If <code>$id</code> isn't set, this
      * will return a new instance.
      *
@@ -392,7 +397,7 @@ class obf_badge {
             throw new Exception('Invalid or missing badge id');
         }
 
-        $course   = null;
+        $course   = $this->course_id;
         $activity = null;
         if (!empty($items)) {
             $course = $items[0]->get_courseid();
@@ -896,6 +901,24 @@ class obf_badge {
      */
     public function set_categories($categories) {
         $this->categories = $categories;
+        return $this;
+    }
+
+    /**
+     * Get course id
+     * @return int
+     */
+    public function get_course_id() {
+        return $this->course_id;
+    }
+
+    /**
+     * Set course id
+     * @param int $course_id
+     * @return $this
+     */
+    public function set_course_id($course_id) {
+        $this->course_id = $course_id;
         return $this;
     }
 

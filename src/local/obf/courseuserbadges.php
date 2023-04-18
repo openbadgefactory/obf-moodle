@@ -96,7 +96,7 @@ switch ($action) {
 
         $search_params['count_only'] = 0;
         $search_params['limit'] = 10;
-        $search_params['offset'] = $curr_page * 10,
+        $search_params['offset'] = $curr_page * 10;
         $search_params['order_by'] = 'asc';
 
         $history = obf_assertion::get_assertions($client, null, null, -1, false, $search_params);

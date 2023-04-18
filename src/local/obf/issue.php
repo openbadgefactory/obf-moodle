@@ -75,6 +75,7 @@ $url = new moodle_url('/local/obf/issue.php', array('id' => $badgeid));
 
 if (!is_null($courseid)) {
     $url->param('courseid', $courseid);
+    $badge->set_course_id($courseid);
 }
 
 if (!is_null($clientid)) {
