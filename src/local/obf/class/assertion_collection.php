@@ -198,7 +198,7 @@ class obf_assertion_collection implements Countable, IteratorAggregate {
      * Get count as assertions.
      * @return int Assertion count
      */
-    public function count() {
+    public function count(): int {
         return count($this->assertions);
     }
 
@@ -206,7 +206,7 @@ class obf_assertion_collection implements Countable, IteratorAggregate {
      * Get iterator for assertions.
      * @return ArrayIterator
      */
-    public function getIterator() {
+    public function getIterator(): Traversable {
         return new ArrayIterator($this->assertions);
     }
 }
