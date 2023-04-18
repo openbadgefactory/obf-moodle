@@ -257,9 +257,9 @@ class obf_assertion {
      * @return \obf_assertion_collection The assertions.
      */
     public static function get_assertions(obf_client $client,
-            obf_badge $badge = null, $email = null, $limit = -1, $geteachseparately = false) {
+            obf_badge $badge = null, $email = null, $limit = -1, $geteachseparately = false, $search_params = array()) {
         $badgeid = is_null($badge) ? null : $badge->get_id();
-        $arr = $client->get_assertions($badgeid, $email);
+        $arr = $client->get_assertions($badgeid, $email, $search_params);
         $assertions = array();
 
         if (!$geteachseparately) {
@@ -308,7 +308,7 @@ class obf_assertion {
         // Sort the assertions by date...
         usort($assertions,
                 function (obf_assertion $a1, obf_assertion $a2) {
-                    return $a1->get_issuedon() <= $a2->get_issuedon();
+                    return $a1->get_issuedon() - $a2->get_issuedon();
                 });
 
         // ... And limit the result set if that's what we want.
@@ -358,7 +358,7 @@ class obf_assertion {
         // Sort the assertions by date...
         usort($assertions,
                 function (obf_assertion $a1, obf_assertion $a2) {
-                    return $a1->get_issuedon() <= $a2->get_issuedon();
+                    return $a1->get_issuedon() - $a2->get_issuedon();
                 });
 
         return new obf_assertion_collection($assertions);
@@ -415,7 +415,7 @@ class obf_assertion {
         // Sort the assertions by date...
         usort($assertions,
                 function (obf_assertion $a1, obf_assertion $a2) {
-                    return $a1->get_issuedon() <= $a2->get_issuedon();
+                    return $a1->get_issuedon() - $a2->get_issuedon();
                 });
 
         // ... And limit the result set if that's what we want.

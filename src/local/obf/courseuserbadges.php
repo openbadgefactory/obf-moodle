@@ -83,22 +83,26 @@ switch ($action) {
 
     case 'history':
         require_capability('local/obf:viewhistory', $context);
-        $relatedevents = obf_issue_event::get_events_in_course($courseid, $DB);
         $client = obf_client::get_instance();
-        $allevents = $client->get_assertions();
-        $events = array();
 
-        foreach ($allevents as $event) {
-            if (isset($event["log_entry"]["course_id"]) && $event["log_entry"]["course_id"] == $courseid) {
-                $events[] = $event["id"];
-            }
-        }
+        $search_params = array(
+            'api_consumer_id' => OBF_API_CONSUMER_ID,
+            'log_entry' => '"course_id":"' . $courseid . '"',
+            'count_only' => 1
+        );
+        $res = $client->get_assertions(null, null, $search_params);
 
-        if (count($events) >= 1) {
-            $relatedevents = obf_issue_event::get_course_related_events($events, $DB);
-        }
+        $historysize = $res[0]['result_count'];
+
+        $search_params['count_only'] = 0;
+        $search_params['limit'] = 10;
+        $search_params['offset'] = $curr_page * 10,
+        $search_params['order_by'] = 'asc';
+
+        $history = obf_assertion::get_assertions($client, null, null, -1, false, $search_params);
+
         $content  = $PAGE->get_renderer('local_obf')->render_client_selector($url, $clientid);
-        $content .= $PAGE->get_renderer('local_obf')->print_badge_info_history($client, null, $context, $curr_page, $relatedevents);
+        $content .= $PAGE->get_renderer('local_obf')->print_issuing_history($client, $context, $historysize, $curr_page, $history);
         break;
 }
 

@@ -67,19 +67,34 @@ switch ($action) {
     // Show issuance history.
     case 'history':
         require_capability('local/obf:viewhistory', $context);
-
-        $page = optional_param('page', 0, PARAM_INT);
-
         try {
-            $content .= $PAGE->get_renderer('local_obf')->render_client_selector($url, $clientid);
+
+            $curr_page = optional_param('page', 0, PARAM_INT);
 
             $client = obf_client::get_instance();
-            $content .= $PAGE->get_renderer('local_obf')->print_badge_info_history(
-                    $client, $badge, $context, $page);
+
+            $search_params = array(
+                'api_consumer_id' => OBF_API_CONSUMER_ID,
+                'count_only' => 1
+            );
+            $res = $client->get_assertions(null, null, $search_params);
+
+            $historysize = $res[0]['result_count'];
+
+            $search_params['count_only'] = 0;
+            $search_params['limit'] = 10;
+            $search_params['offset'] = $curr_page * 10;
+            $search_params['order_by'] = 'asc';
+
+            $history = obf_assertion::get_assertions($client, null, null, -1, false, $search_params);
+
+            $content .= $PAGE->get_renderer('local_obf')->render_client_selector($url, $clientid);
+            $content .= $PAGE->get_renderer('local_obf')->print_issuing_history($client, $context, $historysize, $curr_page, $history);
         } catch (Exception $e) {
             $content .= $OUTPUT->notification($e->getMessage());
         }
         break;
+
 
     // Show the list of badges.
     case 'list':

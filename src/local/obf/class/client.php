@@ -773,7 +773,7 @@ class obf_client {
             'recipient' => $recipients_name_email,
             'issued_on' => $issuedon,
             'api_consumer_id' => OBF_API_CONSUMER_ID,
-            'log_entry' => array('course_id' => $course,
+            'log_entry' => array('course_id' => strval($course),
                                  'course_name' => $course_name,
                                  'activity_name' => $activity,
                                  'wwwroot' => $CFG->wwwroot),
