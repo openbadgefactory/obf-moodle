@@ -1,6 +1,15 @@
 OBF Moodle/Totara plugin
 =================
 
+## NOTE
+This repository is archived. For latest plugin versions please see:
+
+- https://github.com/openbadgefactory/moodle-local_obf
+- https://github.com/openbadgefactory/moodle-block_obf_displayer
+
+----------------
+
+
 This project is for 2 Open Badge Factory Moodle/Totara -plugins.
 
 - [OBF Issuer plugin README](src/local/obf/README.md)
